@@ -1,0 +1,1 @@
+mail._domainkey.minipass.me minipass.me:mail:/etc/opendkim/keys/minipass.me/mail.private

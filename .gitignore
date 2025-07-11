@@ -1,0 +1,42 @@
+# -----------------------------------
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
+
+# Virtual environment
+venv/
+.env
+
+# SQLite / Local DB
+*.db
+
+# IDEs and editors
+.vscode/
+.idea/
+
+# Mailserver secrets and volumes
+maildata/
+mailstate/
+mailserver.env
+
+# ACME / Let's Encrypt / SSL
+acme/
+certs/
+
+# DKIM private keys
+config/opendkim/keys/
+
+# Static generated or temporary content
+html/
+deployed/
+
+# Docker Compose override (local-only config)
+docker-compose.override.yml
+
+# my app
+app/
+app_o1/
+app_beta

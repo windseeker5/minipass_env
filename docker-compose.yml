@@ -1,0 +1,158 @@
+version: "3.9"
+
+services:
+  nginx-proxy:
+    image: jwilder/nginx-proxy:alpine
+    container_name: nginx-proxy
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - ./certs:/etc/nginx/certs:rw
+      - ./vhost.d:/etc/nginx/vhost.d
+      - ./html:/usr/share/nginx/html
+      - ./acme:/etc/acme.sh
+    networks:
+      - proxy
+
+  nginx-letsencrypt:
+    image: nginxproxy/acme-companion
+    container_name: nginx-letsencrypt
+    restart: always
+    environment:
+      - NGINX_PROXY_CONTAINER=nginx-proxy
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./certs:/etc/nginx/certs:rw
+      - ./vhost.d:/etc/nginx/vhost.d
+      - ./html:/usr/share/nginx/html
+      - ./acme:/etc/acme.sh
+    networks:
+      - proxy
+
+
+
+  mail-cert-request:
+    image: nginx:alpine
+    container_name: mail-cert-request
+    environment:
+      - VIRTUAL_HOST=mail.minipass.me
+      - LETSENCRYPT_HOST=mail.minipass.me
+      - LETSENCRYPT_EMAIL=admin@minipass.me
+    expose:
+      - "80"
+    networks:
+      - proxy
+
+
+
+
+  mailserver:
+    image: ghcr.io/docker-mailserver/docker-mailserver:latest
+    container_name: mailserver
+    hostname: mail
+    domainname: minipass.me
+    env_file: mailserver.env
+    ports:
+      - "25:25"
+      - "143:143"
+      - "587:587"
+      - "993:993"
+    volumes:
+      - ./maildata:/var/mail
+      - ./mailstate:/var/mail-state
+      - ./config:/tmp/docker-mailserver
+      - ./certs/mail.minipass.me:/etc/letsencrypt/live/mail.minipass.me:ro
+    restart: always
+    cap_add:
+      - NET_ADMIN
+      - SYS_PTRACE
+    networks:
+      - proxy
+
+
+
+  lhgi:
+    build:
+      context: ./app
+    container_name: lhgi
+    restart: always
+    environment:
+      - FLASK_ENV=prod
+      - VIRTUAL_HOST=lhgi.minipass.me
+      - VIRTUAL_PORT=8889
+      - LETSENCRYPT_HOST=lhgi.minipass.me
+      - LETSENCRYPT_EMAIL=kdresdell@gmail.com
+    expose:
+      - "8889"
+    volumes:
+      - ./app/instance:/app/instance
+    networks:
+      - proxy
+
+
+
+  lhgi-dev:
+    build:
+      context: ./app_beta
+    container_name: lhgi-dev
+    restart: always
+    environment:
+      - FLASK_ENV=dev
+      - DEV_EMAIL_REDIRECT=kdresdell@gmail.com
+      - VIRTUAL_HOST=dev.minipass.me
+      - VIRTUAL_PORT=8889
+      - LETSENCRYPT_HOST=dev.minipass.me
+      - LETSENCRYPT_EMAIL=kdresdell@gmail.com
+    expose:
+      - "8889"
+    volumes:
+      - ./app_beta:/app
+      - ./app_beta/instance:/app/instance
+    networks:
+      - proxy
+
+
+
+
+
+
+#  flask-controller-proxy:
+#    image: nginx:alpine
+#    container_name: flask-controller-proxy
+#    volumes:
+#      - ./nginx/controller-proxy.conf:/etc/nginx/conf.d/default.conf:ro
+#    environment:
+#      - VIRTUAL_HOST=minipass.me,www.minipass.me
+#      - VIRTUAL_PORT=80
+#      - LETSENCRYPT_HOST=minipass.me,www.minipass.me
+#      - LETSENCRYPT_EMAIL=kdresdell@gmail.com
+#    extra_hosts:
+#      - "host.docker.internal:host-gateway"
+#    networks:
+#      - proxy
+
+
+  flask-controller-nginx:
+    image: nginx:alpine
+    container_name: flask-controller-nginx
+    volumes:
+      - ./nginx/controller-proxy.conf:/etc/nginx/conf.d/default.conf:ro
+    environment:
+      - VIRTUAL_HOST=minipass.me,www.minipass.me
+      - VIRTUAL_PORT=5000
+      - LETSENCRYPT_HOST=minipass.me,www.minipass.me
+      - LETSENCRYPT_EMAIL=kdresdell@gmail.com
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - proxy
+
+
+
+
+networks:
+  proxy:
+    driver: bridge
