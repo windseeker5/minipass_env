@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <meta content="ie=edge" http-equiv="X-UA-Compatible"/>
+  <title>
+   Fastland- Landing Page Template for SaaS, Startup &amp; Agency
+  </title>
+  <link href="{{ url_for('static', filename='image/png/favicon.png') }}" rel="shortcut icon" type="image/x-icon"/>
+  <!-- Bootstrap , fonts & icons  -->
+  <link href="{{ url_for('static', filename='css/bootstrap.css') }}" rel="stylesheet"/>
+  <link href="{{ url_for('static', filename='fonts/icon-font/css/style.css') }}" rel="stylesheet"/>
+  <link href="{{ url_for('static', filename='fonts/typography-font/typo.css') }}" rel="stylesheet"/>
+  <link href="{{ url_for('static', filename='fonts/fontawesome-5/css/all.css') }}" rel="stylesheet"/>
+  <!-- Plugin'stylesheets  -->
+  <link href="{{ url_for('static', filename='plugins/aos/aos.min.css') }}" rel="stylesheet"/>
+  <link href="{{ url_for('static', filename='plugins/fancybox/jquery.fancybox.min.css') }}" rel="stylesheet"/>
+  <link href="{{ url_for('static', filename='plugins/nice-select/nice-select.min.css') }}" rel="stylesheet"/>
+  <link href="{{ url_for('static', filename='plugins/slick/slick.min.css') }}" rel="stylesheet"/>
+  <!-- Vendor stylesheets  -->
+  <link href="{{ url_for('static', filename='plugins/theme-mode-switcher/switcher-panel.css') }}" rel="stylesheet"/>
+  <link href="{{ url_for('static', filename='css/main.css') }}" rel="stylesheet"/>
+  <!-- Custom stylesheet -->
+ 
+    {% block extra_head %}{% endblock %}
+  </head>
+  <body>
+    <header class="site-header site-header--menu-right menu-block-5 dynamic-sticky-bg mt-3 mt-lg-0 site-header--absolute site-header--sticky">
+    <div class="container">
+     <nav class="navbar site-navbar">
+
+      <!-- Brand Logo-->
+      <div class="brand-logo">
+        <a href="/">
+          <img
+            src="{{ url_for('static', filename='image/minipass_logo.png') }}"
+            alt="Minipass Logo"
+            style="height: 24px; width: auto; max-width: 100%; object-fit: contain;" />
+        </a>
+      </div>
+
+
+      <div class="menu-block-wrapper ms-4">
+       <div class="menu-overlay">
+       </div>
+       <nav class="menu-block" id="append-menu-header">
+        <div class="mobile-menu-head">
+         <div class="go-back">
+          <i class="fa fa-angle-left">
+          </i>
+         </div>
+         <div class="current-menu-title">
+         </div>
+         <div class="mobile-menu-close">
+          ×
+         </div>
+        </div>
+        <ul class="site-menu-main">
+         <li class="nav-item">
+          <a class="nav-link-item" href="/">
+           Home
+          </a>
+         </li>
+         <li class="nav-item">
+          <a class="nav-link-item" href="#services">
+           Features
+          </a>
+         </li>
+         <li class="nav-item nav-item-has-children">
+          <a class="nav-link-item drop-trigger" href="home-app.html#">
+           Blogs
+           <i class="fas fa-angle-down">
+           </i>
+          </a>
+          <ul class="sub-menu" id="submenu-10">
+           <li class="sub-menu--item">
+            <a href="blogs.html">
+             Blog Reguler
+            </a>
+           </li>
+           <li class="sub-menu--item">
+            <a href="blog-left-sidebar.html">
+             Blog Left Sidebar
+            </a>
+           </li>
+           <li class="sub-menu--item">
+            <a href="blog-right-sidebar.html">
+             Blog Right Sidebar
+            </a>
+           </li>
+          </ul>
+         </li>
+         <li class="nav-item nav-item-has-children">
+          <a class="nav-link-item drop-trigger" href="home-app.html#">
+           Contact
+           <i class="fas fa-angle-down">
+           </i>
+          </a>
+          <ul class="sub-menu" id="submenu-11">
+           <li class="sub-menu--item">
+            <a href="contact-1.html">
+             Contact One
+            </a>
+           </li>
+           <li class="sub-menu--item">
+            <a href="contact-2.html">
+             Contact Two
+            </a>
+           </li>
+          </ul>
+         </li>
+        </ul>
+       </nav>
+      </div>
+      <div class="header-btn">
+       <a class="btn btn btn-niagara btn--medium-4 h-45 rounded-50 text-white shadow--niagara-3 ms-auto ms-lg-4 d-none d-sm-flex" href="#pricing">
+        Subscribe
+       </a>
+      </div>
+      <!-- mobile menu trigger -->
+      <div class="mobile-menu-trigger">
+       <span>
+       </span>
+      </div>
+      <!--/.Mobile Menu Hamburger Ends-->
+     </nav>
+    </div>
+   </header>
+
+
+
+
+    {% block content %}{% endblock %}
+   
+   
+   
+   
+   
+    <footer class="footer-section footer-section--l3 position-relative bg-default">
+    <div class="container">
+     <div class="row">
+      <div class="col-lg-4 col-md-7 col-xs-9">
+       <div class="footer-brand-block footer-brand-block--l3 mb-7 mb-lg-5">
+
+        
+        <!-- Brand Logo -->
+        <div class="brand-logo">
+          <a href="/">
+            <img
+              src="{{ url_for('static', filename='image/minipass_logo.png') }}"
+              alt="Minipass Logo"
+              style="height: 20px; width: auto; max-width: 100%; object-fit: contain;" />
+          </a>
+        </div>
+
+
+
+
+        <p class="footer-brand-block--l3__text">
+         There are many variations of passages of Lorem Ipsum available, but the majority have suffered.
+        </p>
+        <div class="newsletter-form newsletter-form--rounded">
+         <form action="https://finestwp.co/">
+          <div class="d-flex align-items-center justify-content-center flex-column flex-xs-row">
+           <input class="form-control" placeholder="Subscribe Our newsletter" required="" type="email"/>
+           <button class="btn-icon" type="submit">
+            <i class="fas fa-long-arrow-alt-right">
+            </i>
+           </button>
+          </div>
+         </form>
+        </div>
+       </div>
+      </div>
+      <div class="col-lg-8">
+       <div class="row">
+        <div class="col-xxl-4 col-xl-5 col-lg-4 col-md-4 col-sm-6 col-xs-6">
+         <div class="footer-list-block footer-list-block--2 mb-5">
+          <h4 class="footer-block-title">
+           Contact
+          </h4>
+          <ul class="footer-widgets__list footer-widgets__list--l3 footer-widgets__list--l3__address">
+           <li>
+            Patricia C. Amedee 4401 Waldeck New Street
+           </li>
+           <li>
+            info@yourdomain.com
+           </li>
+           <li>
+            +99 (0) 101 0000 888
+           </li>
+          </ul>
+         </div>
+        </div>
+        <div class="col-xxl-3 col-xl-3 col-lg-3 col-md-3 col-sm-6 col-xs-6">
+         <div class="footer-list-block footer-list-block--3 mb-5">
+          <h4 class="footer-block-title">
+           Quick Links
+          </h4>
+          <ul class="footer-widgets__list footer-widgets__list--l3">
+           <li>
+            <a href="home-it-services.html#">
+             Home
+            </a>
+           </li>
+           <li>
+            <a href="home-it-services.html#">
+             About
+            </a>
+           </li>
+           <li>
+            <a href="home-it-services.html#">
+             Contact
+            </a>
+           </li>
+           <li>
+            <a href="home-it-services.html#">
+             Blog
+            </a>
+           </li>
+          </ul>
+         </div>
+        </div>
+        <div class="offset-xxl-1 col-xl-4 col-lg-5 col-md-4 col-xs-8">
+         <div class="footer-widget footer-widget--l3 mb-5">
+          <h4 class="footer-block-title">
+           Instagram
+          </h4>
+          <div class="footer-insta-gallery row">
+           <div class="col-4">
+            <img alt="" class="w-100" src="{{ url_for('static', filename='image/home-3/insta-1.png') }}"/>
+           </div>
+           <div class="col-4">
+            <img alt="" class="w-100" src="{{ url_for('static', filename='image/home-3/insta-2.png') }}"/>
+           </div>
+           <div class="col-4">
+            <img alt="" class="w-100" src="{{ url_for('static', filename='image/home-3/insta-3.png') }}"/>
+           </div>
+           <div class="col-4">
+            <img alt="" class="w-100" src="{{ url_for('static', filename='image/home-3/insta-4.png') }}"/>
+           </div>
+           <div class="col-4">
+            <img alt="" class="w-100" src="{{ url_for('static', filename='image/home-3/insta-5.png') }}"/>
+           </div>
+           <div class="col-4">
+            <img alt="" class="w-100" src="{{ url_for('static', filename='image/home-3/insta-6.png') }}"/>
+           </div>
+          </div>
+         </div>
+        </div>
+       </div>
+      </div>
+     </div>
+     <div class="copyright-block copyright-block--l3">
+      <div class="row text-center align-items-center">
+       <div class="col-xs-6 text-sm-start">
+        <p class="copyright-text--l3">
+         © 2021 Fastland Web Ui Template
+        </p>
+       </div>
+       <div class="col-xs-6 text-sm-end">
+        <ul class="footer-social-share footer-social-share--rounded">
+         <li>
+          <a href="home-it-services.html#">
+           <i class="fab fa-facebook-square">
+           </i>
+          </a>
+         </li>
+         <li>
+          <a href="home-it-services.html#">
+           <i class="fab fa-twitter">
+           </i>
+          </a>
+         </li>
+         <li>
+          <a href="home-it-services.html#">
+           <i class="fab fa-instagram">
+           </i>
+          </a>
+         </li>
+         <li>
+          <a href="home-it-services.html#">
+           <i class="fab fa-linkedin">
+           </i>
+          </a>
+         </li>
+        </ul>
+       </div>
+      </div>
+     </div>
+    </div>
+   </footer>
+    {% block extra_scripts %}{% endblock %}
+  </body>
+</html>

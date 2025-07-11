@@ -1,0 +1,997 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+
+
+<div class="site-wrapper overflow-hidden">
+   <div id="loading">
+    <img alt="" src="{{ url_for('static', filename='image/preloader.gif') }}"/>
+   </div>
+   <!-- Clean The Code And Hop in -->
+   <!-- Header Area -->
+   <!-- Preloader -->
+   <!-- <div id="loading">
+    <div class="preloader">
+     <img src="./image/preloader-3.gif" alt="preloader">
+   </div>
+   </div>   -->
+   <!-- Header Area -->
+   
+   <!-- navbar- -->
+   <!--/ .Header Area -->
+   <!-- Hero Area -->
+   <div class="welcome-area welcome-area--l8 position-relative">
+    <div class="container">
+     <div class="row align-items-center justify-content-center">
+      <!-- Welcome content Area -->
+      <div class="col-xxl-6 col-lg-7 col-md-9 col-xs-11 order-2 order-lg-1">
+       <div class="welcome-content welcome-content--l8">
+        <h3 class="welcome-content--l8__sub-title text-bittersweet" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
+        Sauvez du temps
+        </h3>
+        <h1 class="welcome-content__title">
+         Organisez vos activités
+         <br/>
+         <span class="text-highlight highlight-text d-inline-block">
+         </span>
+        </h1>
+        <p class="welcome-content--l8__descriptions" data-aos="fade-up" data-aos-delay="500" data-aos-duration="500" data-aos-once="true">
+
+        Pensé pour les petites organisations, simple, automatisé, sécurisé, 
+
+        <br class="d-none d-md-block"/>
+        minipass réduit en quelques clics la gestion d’activités        </p>
+        
+        <div class="welcome-btn-group--l8">
+         <a class="btn btn--lg-2 btn-bittersweet me-3 text-white rounded-50 me-3 popup-btn" data-aos="fade-up" data-aos-delay="700" data-aos-duration="500" data-aos-once="true" href="https://www.youtube.com/watch?v=LWZ7iytIA6k">
+          Découvrir
+         </a>
+         <a class="btn btn--lg-2 btn-niagara rounded-50 me-3 text-white" data-aos="fade-up" data-aos-delay="900" data-aos-duration="500" data-aos-once="true" href="home-app.html#">
+         S'abonner
+         </a>
+        </div>
+       </div>
+      </div>
+      <!--/ .Welcome Content Area -->
+      <!--/ .Welcome img Area -->
+      <div class="col-xxl-6 col-lg-5 col-md-8 col-xs-10 order-1 order-lg-2">
+       <div class="hero-img d-flex align-items-end">
+        <div class="hero-l8-img-group d-flex align-items-end">
+         <div class="hero-l8-img-group__1">
+          <img alt="" class="w-100" src="{{ url_for('static', filename='image/home-7/hero-l8-1.png') }}"/>
+         </div>
+         <div class="hero-l8-img-group__2">
+          <img alt="" class="w-100" src="{{ url_for('static', filename='image/home-7/hero-l8-2.png') }}"/>
+         </div>
+        </div>
+       </div>
+      </div>
+      <!--/ .Welcome img Area -->
+     </div>
+    </div>
+   </div>
+   <!--/ .Hero Area -->
+   <!-- Services Area -->
+   <div id="services" class="service-area service-area--l8 bg-default">
+    <div class="container">
+     <div class="row justify-content-center">
+      <div class="col-xl-8">
+       <!-- Section Title -->
+       <div class="section-title section-title--l8 text-center">
+        <h6 class="section-title__sub-heading text-bittersweet" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
+         Fonctionnalités
+
+        </h6>
+        <h2 class="section-title__heading" data-aos="fade-up" data-aos-delay="300" data-aos-duration="500" data-aos-once="true">
+         Experience intégrée unique
+        </h2>
+       </div>
+       <!--/ .Section Title -->
+      </div>
+     </div>
+     <div class="row justify-content-center" data-aos="fade-up" data-aos-delay="500" data-aos-duration="500" data-aos-once="true">
+      <!-- Single Services -->
+      <div class="col-xl-3 col-lg-4 col-md-6 col-xs-8">
+       <div class="card card--services-l6 text-center card-hover__bittersweet">
+        <div class="card--services-l6__icon bg-op1__bittersweet mx-auto">
+         <i class="text-bittersweet fas fa-bell">
+         </i>
+        </div>
+        <h3 class="card--services-l6__heading">
+
+         Expérience mobile intuitive 
+
+        </h3>
+        <p class="card--services-l6__content">
+        Gérez Inscriptions, paiements entièrement à distance, 
+        en ligne, sans papier ni argent comptant. Scannez les présences en 
+        personne ou à distance avec des codes QR mobiles
+
+
+         <br class="d-none d-xs-block"/>
+
+         <br class="d-none d-xs-block"/>
+
+        </p>
+
+       </div>
+      </div>
+      <!--/ .Single Services -->
+      <!-- Single Services -->
+      <div class="col-xl-3 col-lg-4 col-md-6 col-xs-8">
+       <div class="card card--services-l6 text-center card-hover__niagara">
+        <div class="card--services-l6__icon bg-op1__niagara mx-auto">
+         <i class="text-niagara fas fa-layer-group">
+         </i>
+        </div>
+        <h3 class="card--services-l6__heading">
+
+         Communications simplifiées
+
+        </h3>
+        <p class="card--services-l6__content">
+        Informez, relancez et engagez vos clients, liez aisément avec vos médias sociaux, 
+        effectuez des rappels automatisés, lancez des sondages 
+        pour recueillir appréciation et suggestions.
+
+         <br class="d-none d-xs-block"/>
+
+         <br class="d-none d-xs-block"/>
+
+
+        </p>
+       </div>
+      </div>
+      <!--/ .Single Services -->
+      <!-- Single Services -->
+      <div class="col-xl-3 col-lg-4 col-md-6 col-xs-8">
+       <div class="card card--services-l6 text-center card-hover__coral">
+        <div class="card--services-l6__icon bg-op1__coral mx-auto">
+         <i class="text-coral fas fa-envelope">
+         </i>
+        </div>
+        <h3 class="card--services-l6__heading">
+
+        Suivi de performance
+
+        </h3>
+        <p class="card--services-l6__content">
+
+        Grâce au tableau de bord personnalisé, suivez en un clic vos objectifs, 
+        ventes et paiements et facilitez vos états financiers
+
+         <br class="d-none d-xs-block"/>
+
+
+         <br class="d-none d-xs-block"/>
+
+        </p>
+       </div>
+      </div>
+      <!--/ .Single Services -->
+      <!-- Single Services -->
+      <div class="col-xl-3 col-lg-4 col-md-6 col-xs-8">
+       <div class="card card--services-l6 text-center card-hover__lavender">
+        <div class="card--services-l6__icon bg-op1__lavender mx-auto">
+         <i class="text-lavender fas fa-chart-pie">
+         </i>
+        </div>
+        <h3 class="card--services-l6__heading">
+ 
+        Données intelligentes 
+
+        </h3>
+        <p class="card--services-l6__content">
+
+         Grâce au module évolué d’intelligence artificielle, 
+         interrogez vos données aisément, 
+         posez simplement vos questions
+
+
+         <br class="d-none d-xs-block"/>
+
+         <br class="d-none d-xs-block"/>
+     
+        </p>
+       </div>
+      </div>
+      <!--/ .Single Services -->
+     </div>
+    </div>
+   </div>
+   <!--/ .Services Area -->
+   <!-- About Us Area -->
+   <div class="content-section content-section--8 bg-default-5 border-bottom border-default-color-3">
+    <div class="container">
+     <div class="row justify-content-center">
+      <div class="col-xl-6 col-lg-8 col-md-9 col-xs-10">
+       <!-- Section Title -->
+       <div class="section-title section-title--l8 mt-4 mt-md-0 text-center">
+        <h6 class="section-title__sub-heading text-bittersweet" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
+         About Lupinus Group
+        </h6>
+        <h2 class="section-title__heading" data-aos="fade-up" data-aos-delay="300" data-aos-duration="500" data-aos-once="true">
+         Innovative Building With New Materials
+        </h2>
+       </div>
+       <!--/ .Section Title -->
+      </div>
+     </div>
+     <div class="row align-items-center justify-content-center" data-aos="fade-up" data-aos-delay="300" data-aos-duration="500" data-aos-once="true">
+      <div class="col-xxl-3 col-lg-4 col-md-6 col-sm-8 col-xs-9 order-2 order-lg-1">
+       <div class="widget widget--about widgets-align-right">
+        <!-- Single Services -->
+        <div class="widgets widgets--about-l6 d-flex">
+         <div class="widgets__icon">
+          <i class="fa fa-layer-group">
+          </i>
+         </div>
+         <div class="widgets__content">
+          <h5 class="widgets__title">
+           Optimal Choice
+          </h5>
+          <p class="widgets__text">
+           The White iphone smartphone mockup counterclockwise
+          </p>
+         </div>
+        </div>
+        <!--/ .Single Services -->
+        <!-- Single Services -->
+        <div class="widgets widgets--about-l6 d-flex">
+         <div class="widgets__icon">
+          <i class="fa fa-chart-pie">
+          </i>
+         </div>
+         <div class="widgets__content">
+          <h5 class="widgets__title">
+           Financial advice
+          </h5>
+          <p class="widgets__text">
+           The White iphone smartphone mockup counterclockwise
+          </p>
+         </div>
+        </div>
+        <!--/ .Single Services -->
+        <!-- Single Services -->
+        <div class="widgets widgets--about-l6 d-flex">
+         <div class="widgets__icon">
+          <i class="fa fa-cog">
+          </i>
+         </div>
+         <div class="widgets__content">
+          <h5 class="widgets__title">
+           Innovative solutions
+          </h5>
+          <p class="widgets__text">
+           The White iphone smartphone mockup counterclockwise
+          </p>
+         </div>
+        </div>
+        <!--/ .Single Services -->
+       </div>
+      </div>
+      <div class="col-xxl-6 col-lg-4 col-md-8 col-xs-9 order-1 order-lg-2" data-aos="fade-up" data-aos-delay="300" data-aos-duration="500" data-aos-once="true">
+       <div class="content-img content-img--l7-group-img text-center">
+        <img alt="" class="w-100" src="{{ url_for('static', filename='image/home-7/about-mobile-img.png') }}"/>
+        <div class="shape">
+         <img alt="" src="{{ url_for('static', filename='image/home-7/green-shape.png') }}"/>
+        </div>
+       </div>
+      </div>
+      <div class="col-xxl-3 col-lg-4 col-md-6 col-sm-8 col-xs-9 order-3" data-aos="fade-up" data-aos-delay="300" data-aos-duration="500" data-aos-once="true">
+       <div class="widget widget--about">
+        <!-- Single Services -->
+        <div class="widgets widgets--about-l6 d-flex">
+         <div class="widgets__icon">
+          <i class="fa fa-bookmark">
+          </i>
+         </div>
+         <div class="widgets__content">
+          <h5 class="widgets__title">
+           Optimal Choice
+          </h5>
+          <p class="widgets__text">
+           The White iphone smartphone mockup counterclockwise
+          </p>
+         </div>
+        </div>
+        <!--/ .Single Services -->
+        <!-- Single Services -->
+        <div class="widgets widgets--about-l6 d-flex">
+         <div class="widgets__icon">
+          <i class="fa fa-headphones">
+          </i>
+         </div>
+         <div class="widgets__content">
+          <h5 class="widgets__title">
+           Business strategy
+          </h5>
+          <p class="widgets__text">
+           The White iphone smartphone mockup counterclockwise
+          </p>
+         </div>
+        </div>
+        <!--/ .Single Services -->
+        <!-- Single Services -->
+        <div class="widgets widgets--about-l6 d-flex">
+         <div class="widgets__icon">
+          <i class="fa fa-bell">
+          </i>
+         </div>
+         <div class="widgets__content">
+          <h5 class="widgets__title">
+           Marketing outline
+          </h5>
+          <p class="widgets__text">
+           The White iphone smartphone mockup counterclockwise
+          </p>
+         </div>
+        </div>
+        <!--/ .Single Services -->
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+   <!--/ .About Us Area -->
+   <!-- Content One Area -->
+   <div class="content-section content-section--l8-2 bg-default-5 border-bottom boder-default-color">
+    <div class="container">
+     <div class="row align-items-center justify-content-center">
+      <!-- about-us Content -->
+      <div class="col-xxl-6 col-lg-7 col-md-9 col-xs-10 order-2 orde-lg-1">
+       <div class="about-us-right mt-4 mt-lg-0">
+        <div class="section-title section-title--l8">
+         <h6 class="section-title__sub-heading text-bittersweet" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
+          About Lupinus Group
+         </h6>
+         <h2 class="section-title__heading mb-4" data-aos="fade-up" data-aos-delay="300" data-aos-duration="500" data-aos-once="true">
+          Present your app in a beautiful and elegant way.
+         </h2>
+         <p class="section-title__description" data-aos="fade-up" data-aos-delay="500" data-aos-duration="500" data-aos-once="true">
+          White iPhone Mockup Templates. A collection of three mockups showing
+          <br class="d-none d-xl-block"/>
+          an iPhone on a dark leather seat. High resolution PSD files, each coming
+          <br class="d-none d-xl-block"/>
+          with a smart object.
+         </p>
+        </div>
+       </div>
+       <div class="widgets widgets-content--l8" data-aos="fade-up" data-aos-delay="500" data-aos-duration="500" data-aos-once="true">
+        <div class="row justify-content-center">
+         <div class="col-lg-6 col-xs-6">
+          <div class="widget widget--content-l6">
+           <div class="widget--content-l6__circle bg-niagara shadow--niagara dark-mode-texts text-white">
+            <i class="far fa-envelope">
+            </i>
+           </div>
+           <h4 class="widget--content-l6__title">
+            Minimal Design
+           </h4>
+           <p class="widget--content-l6__text">
+            Generate Lorem Ipsum place holder
+            <br class="d-none d-xl-block"/>
+            text for use in your Explore
+           </p>
+          </div>
+         </div>
+         <div class="col-lg-6 col-xs-6">
+          <div class="widget widget--content-l6">
+           <div class="widget--content-l6__circle bg-niagara shadow--niagara dark-mode-texts text-white">
+            <i class="fa fa-layer-group">
+            </i>
+           </div>
+           <h4 class="widget--content-l6__title">
+            Best Material
+           </h4>
+           <p class="widget--content-l6__text">
+            Generate Lorem Ipsum place holder
+            <br class="d-none d-xl-block"/>
+            text for use in your Explore
+           </p>
+          </div>
+         </div>
+        </div>
+       </div>
+      </div>
+      <!--/ .about-us Content -->
+      <div class="col-xxl-6 col-lg-5 col-md-8 col-xs-10 order-1 order-lg-2">
+       <div class="content-img mb-4 mb-lg-0" data-aos="fade-up" data-aos-delay="300" data-aos-duration="500" data-aos-once="true">
+        <img alt="" class="w-100" data-aos="fade-right" data-aos-duration="500" data-aos-once="true" src="{{ url_for('static', filename='image/home-7/content-mobile-img.png') }}"/>
+        <div class="shape">
+         <img alt="" data-aos="fade-left" data-aos-delay="300" data-aos-duration="500" data-aos-once="true" src="{{ url_for('static', filename='image/home-7/red-shape.png') }}"/>
+        </div>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+   <!--/ .Content One Area -->
+   <!-- Pricing Table Area -->
+   <!--/ .Pricing Table Area -->
+   <!-- Testimonial Area -->
+
+
+
+
+
+   <div id="pricing" class="table-section table-section--l6 table-section--l8 bg-default-5 border-bottom border-default-color-3">
+    <div class="container">
+     <div class="table-section-top">
+      <div class="section-title section-title--l6 text-center" data-aos="fade-top" data-aos-duration="500" data-aos-once="true">
+       <h6 class="section-title__sub-heading text-bittersweet mb-5" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
+
+        Nos forfaits
+
+      </h6>
+       <h2 class="section-title__heading mb-4" data-aos="fade-up" data-aos-delay="300" data-aos-duration="500" data-aos-once="true">
+
+        Simple et adapté à vos besoins 
+
+       </h2>
+      </div>
+      <div class="pricing-btn d-flex align-items-center justify-content-center flex-wrap" data-aos="fade-up" data-aos-delay="500" data-aos-duration="500" data-aos-once="true">
+       <label class="mb-3 mb-lg-0">
+        
+        Mensuel
+
+       </label>
+       <div class="toggle-btn form-check form-switch">
+        <input checked="" class="form-check-input btn-toggle price-deck-trigger mb-2 mb-lg-0" data-pricing-trigger="" data-target="#table-price-value" id="flexSwitchCheckDefault" type="checkbox"/>
+       </div>
+       <label class="mb-3 mb-lg-0">
+        
+        Annuel
+
+       </label>
+       <h3 class="badge bg-half-baked mb-3 mb-lg-0">
+        ÉCONOMISEZ 25%
+       </h3>
+      </div>
+     </div>
+     <div class="row justify-content-center" data-pricing-dynamic="" data-value-active="monthly" id="table-price-value">
+      <div class="col-lg-4 col-md-6 col-sm-9 col-xs-10" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
+       <div class="card card--table-single text-center">
+        <div class="table-top bg-niagara">
+         <h5 class="table-top__title">
+           
+          1 Activité 
+         </h5>
+         <p class="table-top__text dynamic-value" data-active="Forfait annuel" data-monthly="Forfait annuel" data-yearly="Forfait mensuel">
+         </p>
+         <div class="card--price">
+          <span class="card--price__currency align-self-start">
+           $
+          </span>
+          <h1 class="card--price__price dynamic-value" data-active="15" data-monthly="15" data-yearly="24">
+          </h1>
+          <span class="card--price__price-time">
+           / mois
+          </span>
+         </div>
+        </div>
+        <ul class="card--table-single__list list-unstyled list-checked list-checked--niagara">
+         <li>
+         Droit à une activité
+         </li>
+         <li>
+         Participants & passes numériques QR illimités
+         </li>
+         <li>
+         Inscriptions et paiements
+         </li>
+         <li>
+         Présences et rappels automatiques
+         </li>
+         <li>
+         Rapports suivis financiers
+         </li>
+
+
+        </ul>
+        <button class="btn btn-niagara shadow--niagara btn--lg-2 text-white w-100" onclick="openSignupModal('basic')">
+         M'abonner
+        </button>
+       </div>
+      </div>
+
+
+      <div class="col-lg-4 col-md-6 col-sm-9 col-xs-10" data-aos="fade-up" data-aos-delay="300" data-aos-duration="500" data-aos-once="true">
+       <div class="card card--table-single text-center">
+        <div class="table-top bg-bittersweet">
+         <h5 class="table-top__title">
+          10 Activités
+
+
+         </h5>
+         <p class="table-top__text dynamic-value" data-active="Forfait annuel" data-monthly="Forfait annuel" data-yearly="Forfait mensuel">
+         </p>
+         <div class="card--price">
+          <span class="card--price__currency align-self-start">
+           $
+          </span>
+          <h1 class="card--price__price dynamic-value" data-active="30" data-monthly="30" data-yearly="40">
+          </h1>
+          <span class="card--price__price-time">
+           / mois
+          </span>
+         </div>
+        </div>
+        <ul class="card--table-single__list list-unstyled list-checked list-checked--bittersweet">
+         <li>
+         Droit à 10 activités
+         </li>
+         <li>
+         Participants & passes numériques QR illimités
+         </li>
+         <li>
+         Inscriptions et paiements
+         </li>
+         <li>
+         Présences et rappels automatiques
+         </li>
+         <li>
+         Rapports suivis financiers
+         </li>
+         <li>
+         Sondage d’expérience participants
+         </li>
+
+
+
+        </ul>
+        <button class="btn btn-bittersweet shadow--bittersweet btn--lg-2 text-white w-100" onclick="openSignupModal('pro')">
+         M'abonner
+        </button>
+       </div>
+      </div>
+      <div class="col-lg-4 col-md-6 col-sm-9 col-xs-10" data-aos="fade-up" data-aos-delay="500" data-aos-duration="500" data-aos-once="true">
+       <div class="card card--table-single text-center">
+        <div class="table-top bg-niagara">
+         <h5 class="table-top__title">
+
+         illimité
+
+         </h5>
+         <p class="table-top__text dynamic-value" data-active="Forfait annuel" data-monthly="Forfait annuel" data-yearly="Forfait mensuel">
+         </p>
+         <div class="card--price">
+          <span class="card--price__currency align-self-start">
+           $
+          </span>
+          <h1 class="card--price__price dynamic-value" data-active="50" data-monthly="50" data-yearly="67">
+          </h1>
+          <span class="card--price__price-time">
+           / mois
+          </span>
+         </div>
+        </div>
+        <ul class="card--table-single__list list-unstyled list-checked list-checked--niagara">
+         
+         
+         <li>
+         Activité illimités
+         </li>
+         <li>
+         Participants & passes numériques QR illimités
+         </li>
+         <li>
+         Inscriptions et paiements
+         </li>
+         <li>
+         Présences et rappels automatiques
+         </li>
+         <li>
+         Rapports suivis financiers
+         </li>
+         <li>
+         Sondage d’expérience participants
+         </li>
+         <li>
+         Co-pilot & Intelligence artificielle de vos données
+         </li>
+
+
+        </ul>
+        <button class="btn btn-niagara shadow--niagara btn--lg-2 text-white w-100" onclick="openSignupModal('ultimate')">
+         M'abonner
+        </button>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+   <div class="testimonial-section testimonial-section--l8 bg-default-5">
+    <div class="container">
+     <div class="row align-items-center">
+      <div class="col-lg-8 col-xl-9 col-xxl-7">
+       <div class="section-title section-title--l8 text-center text-lg-start">
+        <h6 class="section-title__sub-heading text-bittersweet" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
+         Testimonial
+        </h6>
+        <h2 class="section-title__heading mb-0" data-aos="fade-up" data-aos-delay="300" data-aos-duration="500" data-aos-once="true">
+         Don’t Just Take Our Words For It
+        </h2>
+       </div>
+      </div>
+      <div class="col-xxl-5 col-xl-3 col-lg-4 text-center text-lg-end">
+       <div class="testimonial-btn mb-6 mb-lg-0">
+       </div>
+      </div>
+     </div>
+     <div class="row justify-content-center testimonial-slider--l8" data-aos="fade-up" data-aos-delay="500" data-aos-duration="500" data-aos-once="true">
+      <div class="col-lg-4 col-md-12">
+       <div class="card card-testimonial--l4">
+        <div class="card-body">
+         <div class="card-body__top d-flex align-items-center justify-content-between">
+          <div class="d-flex flex-wrap align-items-center">
+           <div class="card-image">
+            <img alt="" src="{{ url_for('static', filename='image/home-4/user-img-1.png') }}"/>
+           </div>
+           <div class="card-body__user mr-3">
+            <h3 class="card-title">
+             Charles Patterson
+            </h3>
+            <p class="card-text--ext">
+             One year with us
+            </p>
+           </div>
+          </div>
+          <div class="card-icon">
+           <i class="fa fa-quote-left">
+           </i>
+          </div>
+         </div>
+         <p class="card-description">
+          consetetur sadipscing elltr, sed dlam nonumy elrmod tempor invidunt ut labore et dolore magna allquyam erat, sed dlam voluptua.
+         </p>
+        </div>
+       </div>
+      </div>
+      <div class="col-lg-4 col-md-12">
+       <div class="card card-testimonial--l4">
+        <div class="card-body">
+         <div class="card-body__top d-flex align-items-center justify-content-between">
+          <div class="d-flex flex-wrap align-items-center">
+           <div class="card-image">
+            <img alt="" src="{{ url_for('static', filename='image/home-3/user-circle-1.png') }}"/>
+           </div>
+           <div class="card-body__user mr-3">
+            <h3 class="card-title">
+             John Doe
+            </h3>
+            <p class="card-text--ext">
+             One year with us
+            </p>
+           </div>
+          </div>
+          <div class="card-icon">
+           <i class="fa fa-quote-left">
+           </i>
+          </div>
+         </div>
+         <p class="card-description">
+          consetetur sadipscing elltr, sed dlam nonumy elrmod tempor invidunt ut labore et dolore magna allquyam erat, sed dlam voluptua.
+         </p>
+        </div>
+       </div>
+      </div>
+      <div class="col-lg-4 col-md-12">
+       <div class="card card-testimonial--l4">
+        <div class="card-body">
+         <div class="card-body__top d-flex align-items-center justify-content-between">
+          <div class="d-flex flex-wrap align-items-center">
+           <div class="card-image">
+            <img alt="" src="{{ url_for('static', filename='image/home-3/user-circle-2.png') }}"/>
+           </div>
+           <div class="card-body__user mr-3">
+            <h3 class="card-title">
+             Tiana Dokidis
+            </h3>
+            <p class="card-text--ext">
+             One year with us
+            </p>
+           </div>
+          </div>
+          <div class="card-icon">
+           <i class="fa fa-quote-left">
+           </i>
+          </div>
+         </div>
+         <p class="card-description">
+          consetetur sadipscing elltr, sed dlam nonumy elrmod tempor invidunt ut labore et dolore magna allquyam erat, sed dlam voluptua.
+         </p>
+        </div>
+       </div>
+      </div>
+      <div class="col-lg-4 col-md-12">
+       <div class="card card-testimonial--l4">
+        <div class="card-body">
+         <div class="card-body__top d-flex align-items-center justify-content-between">
+          <div class="d-flex flex-wrap align-items-center">
+           <div class="card-image">
+            <img alt="" src="{{ url_for('static', filename='image/home-3/user-circle-3.png') }}"/>
+           </div>
+           <div class="card-body__user mr-3">
+            <h3 class="card-title">
+             Tiana Dokidis
+            </h3>
+            <p class="card-text--ext">
+             One year with us
+            </p>
+           </div>
+          </div>
+          <div class="card-icon">
+           <i class="fa fa-quote-left">
+           </i>
+          </div>
+         </div>
+         <p class="card-description">
+          consetetur sadipscing elltr, sed dlam nonumy elrmod tempor invidunt ut labore et dolore magna allquyam erat, sed dlam voluptua.
+         </p>
+        </div>
+       </div>
+      </div>
+      <div class="col-lg-4 col-md-12">
+       <div class="card card-testimonial--l4">
+        <div class="card-body">
+         <div class="card-body__top d-flex align-items-center justify-content-between">
+          <div class="d-flex flex-wrap align-items-center">
+           <div class="card-image">
+            <img alt="" src="{{ url_for('static', filename='image/home-3/user-circle-1.png') }}"/>
+           </div>
+           <div class="card-body__user mr-3">
+            <h3 class="card-title">
+             Talan Bergson
+            </h3>
+            <p class="card-text--ext">
+             CEO, Greener
+            </p>
+           </div>
+          </div>
+          <div class="card-icon">
+           <i class="fa fa-quote-left">
+           </i>
+          </div>
+         </div>
+         <p class="card-description">
+          consetetur sadipscing elltr, sed dlam nonumy elrmod tempor invidunt ut labore et dolore magna allquyam erat, sed dlam voluptua.
+         </p>
+        </div>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+   <!--/ .Testimonial Area -->
+   <!-- promo Area -->
+   <!--/ .promo Area -->
+   <!-- CTA Area -->
+   <!--/ .CTA Area -->
+   <!-- Footer Area -->
+   
+   <!--/ .Footer Area -->
+  </div>
+  <!-- Plugin's Scripts -->
+  <script src="{{ url_for('static', filename='plugins/jquery/jquery.min.js') }}">
+  </script>
+  <script src="{{ url_for('static', filename='plugins/jquery/jquery-migrate.min.js') }}">
+  </script>
+  <script src="{{ url_for('static', filename='js/bootstrap.bundle.js') }}">
+  </script>
+  <script src="{{ url_for('static', filename='plugins/fancybox/jquery.fancybox.min.js') }}">
+  </script>
+  <script src="{{ url_for('static', filename='plugins/nice-select/jquery.nice-select.min.js') }}">
+  </script>
+  <script src="{{ url_for('static', filename='plugins/aos/aos.min.js') }}">
+  </script>
+  <script src="{{ url_for('static', filename='plugins/counter-up/jquery.counterup.min.js') }}">
+  </script>
+  <script src="{{ url_for('static', filename='plugins/counter-up/waypoints.min.js') }}">
+  </script>
+  <script src="{{ url_for('static', filename='plugins/slick/slick.min.js') }}">
+  </script>
+  <script src="{{ url_for('static', filename='plugins/skill-bar/skill.bars.jquery.js') }}">
+  </script>
+  <script src="{{ url_for('static', filename='plugins/isotope/isotope.pkgd.min.js') }}">
+  </script>
+  <!--<script src="./plugins/theme-mode-switcher/gr-theme-mode-switcher.js"></script>-->
+  <!-- Activation Script -->
+  <script src="{{ url_for('static', filename='js/menu.js') }}">
+  </script>
+  <script src="{{ url_for('static', filename='js/custom.js') }}">
+  </script>
+  <script src="{{ url_for('static', filename='plugins/type-js/typed.min.js') }}">
+  </script>
+
+  <script>
+   var typed = new Typed('.highlight-text', {
+    strings: ["simplement", "minipass"],
+    typeSpeed: 80,
+    backSpeed: 80,
+    cursorChar: '',
+    shuffle: true,
+    smartBackspace: false,
+    loop: true
+  });
+  </script>
+
+
+
+
+
+ 
+<!-- Modal HTML BEGIN -->
+
+
+<!-- Modal Styling -->
+<style>
+  /* Stronger blur and darker modal background */
+  .modal-backdrop.show {
+    backdrop-filter: blur(10px); /* Increase blur */
+    background-color: rgba(0, 0, 0, 0.6); /* Darker overlay */
+  }
+
+  /* Smooth fade-in animation for modal */
+  .modal.fade .modal-dialog {
+    transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+    transform: translateY(-10px);
+    opacity: 0;
+  }
+
+  .modal.fade.show .modal-dialog {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  /* Optional: refine modal appearance */
+  .modal-content {
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.25);
+    background-color: #fff;
+  }
+
+  .modal-header {
+    border-bottom: none;
+    padding: 0;
+  }
+
+  .modal-header .btn-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    font-size: 1.5rem;
+    opacity: 0.8;
+  }
+
+  .modal-body {
+    padding-top: 0;
+  }
+
+  .modal-body img.illustration {
+    max-height: 170px;
+    margin: 0 auto 24px auto;
+    display: block;
+  }
+
+  .modal-footer {
+    border-top: none;
+    padding: 0;
+    margin-top: 24px;
+  }
+
+  .modal-footer .btn {
+    width: 100%;
+    font-weight: 600;
+    font-size: 1rem;
+  }
+</style>
+
+
+<!-- Modal HTML -->
+<div class="modal fade" id="signupModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <form action="/start-checkout" method="POST" class="modal-content p-4 rounded-4 shadow">
+      <div class="modal-header border-0 p-0">
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="position: absolute; top: 16px; right: 16px;"></button>
+      </div>
+
+      <div class="modal-body text-center p-0 mt-2">
+        <img src="{{ url_for('static', filename='image/welcome-icon.png') }}" alt="Welcome" style="max-height: 130px;" class="mb-4" />
+
+        <h4 class="fw-bold mb-4">Choose your name !</h4>
+
+        <input id="modal-plan" name="plan" type="hidden" />
+
+        <div class="mb-3 text-start">
+          <label class="form-label fw-semibold">App Name (subdomain)</label>
+          <input class="form-control" id="app_name" name="app_name" required type="text" />
+          <small class="form-text text-muted" id="subdomain-feedback">
+            This will become your app URL: <strong>yourname.minipass.me</strong>
+          </small>
+        </div>
+
+        <div class="mb-3 text-start">
+          <label class="form-label fw-semibold">Admin Email</label>
+          <input class="form-control" name="admin_email" required type="email" />
+          <small class="form-text text-muted">
+            We’ll send login credentials and a getting-started guide to this email.
+          </small>
+        </div>
+      </div>
+
+      <div class="modal-footer border-0 p-0 mt-3">
+        <button type="submit" class="btn btn-primary w-100 fw-semibold" id="submit-btn">
+          Proceed to Checkout
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+
+
+
+
+<!-- Modal HTML END -->
+
+
+
+
+  <script>
+   function openSignupModal(plan) {
+    document.getElementById('modal-plan').value = plan;
+    const modal = new bootstrap.Modal(document.getElementById('signupModal'));
+    modal.show();
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    const input = document.getElementById("app_name");
+    const feedback = document.getElementById("subdomain-feedback");
+    const submit = document.getElementById("submit-btn");
+
+    input.addEventListener("input", function () {
+      const subdomain = input.value.trim().toLowerCase();
+
+      if (subdomain.length < 3 || !/^[a-z0-9]+$/.test(subdomain)) {
+        feedback.textContent = "Subdomain must be at least 3 lowercase letters/numbers.";
+        feedback.classList.add("text-danger");
+        feedback.classList.remove("text-success");
+        submit.disabled = true;
+        return;
+      }
+
+      fetch("/check-subdomain", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ subdomain: subdomain })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.available) {
+          feedback.textContent = "✅ Subdomain is available";
+          feedback.classList.remove("text-danger");
+          feedback.classList.add("text-success");
+          submit.disabled = false;
+        } else {
+          feedback.textContent = `❌ ${data.error || "Subdomain is taken"}`;
+          feedback.classList.add("text-danger");
+          feedback.classList.remove("text-success");
+          submit.disabled = true;
+        }
+      })
+      .catch(() => {
+        feedback.textContent = "⚠️ Error checking subdomain";
+        feedback.classList.add("text-danger");
+        submit.disabled = true;
+      });
+    });
+  });
+  </script>
+
+
+
+{% endblock %}
