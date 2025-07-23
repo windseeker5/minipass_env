@@ -1,6 +1,7 @@
 version: "3.9"
 
 services:
+
   nginx-proxy:
     image: jwilder/nginx-proxy:alpine
     container_name: nginx-proxy
@@ -16,6 +17,7 @@ services:
       - ./acme:/etc/acme.sh
     networks:
       - proxy
+
 
   nginx-letsencrypt:
     image: nginxproxy/acme-companion
@@ -48,7 +50,6 @@ services:
 
 
 
-
   mailserver:
     image: ghcr.io/docker-mailserver/docker-mailserver:latest
     container_name: mailserver
@@ -71,29 +72,6 @@ services:
       - SYS_PTRACE
     networks:
       - proxy
-
-
-#  roundcube:
-#    image: roundcube/roundcubemail:latest
-#    container_name: roundcube
-#    environment:
-#      - ROUNDCUBEMAIL_DEFAULT_HOST=mailserver
-#      - ROUNDCUBEMAIL_DEFAULT_PORT=993
-#      - ROUNDCUBEMAIL_IMAP_CONN_OPTIONS=/ssl/novalidate-cert
-#      - ROUNDCUBEMAIL_SMTP_SERVER=mailserver
-#      - ROUNDCUBEMAIL_SMTP_PORT=587
-#      - ROUNDCUBEMAIL_SMTP_USER=%u
-#      - ROUNDCUBEMAIL_SMTP_PASS=%p
-#      - VIRTUAL_HOST=webmail.minipass.me
-#      - LETSENCRYPT_HOST=webmail.minipass.me
-#      - LETSENCRYPT_EMAIL=kdresdell@gmail.com
-#    depends_on:
-#      - mailserver
-#    volumes:
-#      - roundcube-data:/var/roundcube
-#    networks:
-#      - proxy
-#    restart: unless-stopped
 
 
 
@@ -139,20 +117,7 @@ services:
       - proxy
 
 
-#  flask-controller-proxy:
-#    image: nginx:alpine
-#    container_name: flask-controller-proxy
-#    volumes:
-#      - ./nginx/controller-proxy.conf:/etc/nginx/conf.d/default.conf:ro
-#    environment:
-#      - VIRTUAL_HOST=minipass.me,www.minipass.me
-#      - VIRTUAL_PORT=80
-#      - LETSENCRYPT_HOST=minipass.me,www.minipass.me
-#      - LETSENCRYPT_EMAIL=kdresdell@gmail.com
-#    extra_hosts:
-#      - "host.docker.internal:host-gateway"
-#    networks:
-#      - proxy
+
 
 
   flask-controller-nginx:
@@ -178,8 +143,4 @@ services:
 networks:
   proxy:
     driver: bridge
-
-
-volumes:
-  roundcube-data:
 
