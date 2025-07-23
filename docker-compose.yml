@@ -73,6 +73,30 @@ services:
       - proxy
 
 
+#  roundcube:
+#    image: roundcube/roundcubemail:latest
+#    container_name: roundcube
+#    environment:
+#      - ROUNDCUBEMAIL_DEFAULT_HOST=mailserver
+#      - ROUNDCUBEMAIL_DEFAULT_PORT=993
+#      - ROUNDCUBEMAIL_IMAP_CONN_OPTIONS=/ssl/novalidate-cert
+#      - ROUNDCUBEMAIL_SMTP_SERVER=mailserver
+#      - ROUNDCUBEMAIL_SMTP_PORT=587
+#      - ROUNDCUBEMAIL_SMTP_USER=%u
+#      - ROUNDCUBEMAIL_SMTP_PASS=%p
+#      - VIRTUAL_HOST=webmail.minipass.me
+#      - LETSENCRYPT_HOST=webmail.minipass.me
+#      - LETSENCRYPT_EMAIL=kdresdell@gmail.com
+#    depends_on:
+#      - mailserver
+#    volumes:
+#      - roundcube-data:/var/roundcube
+#    networks:
+#      - proxy
+#    restart: unless-stopped
+
+
+
 
   lhgi:
     build:
@@ -115,10 +139,6 @@ services:
       - proxy
 
 
-
-
-
-
 #  flask-controller-proxy:
 #    image: nginx:alpine
 #    container_name: flask-controller-proxy
@@ -153,6 +173,13 @@ services:
 
 
 
+
+
 networks:
   proxy:
     driver: bridge
+
+
+volumes:
+  roundcube-data:
+
