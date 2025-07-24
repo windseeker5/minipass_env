@@ -122,8 +122,8 @@ services:
     volumes:
       - ./bloomcap/html:/usr/share/nginx/html:ro
     environment:
-      - VIRTUAL_HOST=bloomcap.com,www.bloomcap.com
-      - LETSENCRYPT_HOST=bloomcap.com,www.bloomcap.com
+      - VIRTUAL_HOST=bloomcap.ca,www.bloomcap.ca
+      - LETSENCRYPT_HOST=bloomcap.ca,www.bloomcap.ca
       - LETSENCRYPT_EMAIL=kdresdell@gmail.com
     expose:
       - "80"
