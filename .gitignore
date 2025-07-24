@@ -30,7 +30,8 @@ certs/
 config/opendkim/keys/
 
 # Static generated or temporary content
-html/
+
+# html/
 deployed/
 
 # Docker Compose override (local-only config)
