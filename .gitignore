@@ -11,7 +11,8 @@ venv/
 .env
 
 # SQLite / Local DB
-*.db
+
+# *.db
 
 # IDEs and editors
 .vscode/
@@ -27,7 +28,10 @@ acme/
 certs/
 
 # DKIM private keys
-config/opendkim/keys/
+
+# config/opendkim/keys/
+opendkim/
+
 
 # Static generated or temporary content
 
