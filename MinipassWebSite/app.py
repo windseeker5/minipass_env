@@ -76,12 +76,14 @@ def start_checkout():
     plan = request.form.get("plan")
     app_name = request.form.get("app_name")
     admin_email = request.form.get("admin_email")
+    forwarding_email = request.form.get("forwarding_email")
     admin_password = secrets.token_urlsafe(12)
 
     session["checkout_info"] = {
         "plan": plan,
         "app_name": app_name,
         "admin_email": admin_email,
+        "forwarding_email": forwarding_email,
         "admin_password": admin_password
     }
 
@@ -119,6 +121,7 @@ def create_checkout_session():
         metadata={
             "app_name": info.get("app_name", ""),
             "admin_email": info.get("admin_email", ""),
+            "forwarding_email": info.get("forwarding_email", ""),
             "admin_password": info.get("admin_password", "")
         }
     )
@@ -150,6 +153,7 @@ def stripe_webhook():
     )
     from utils.deploy_helpers import insert_admin_user, deploy_customer_container
     from utils.email_helpers import send_user_deployment_email, send_support_error_email
+    from utils.mail_server_helpers import setup_customer_email
 
     payload = request.data
 
@@ -172,6 +176,7 @@ def stripe_webhook():
 
         app_name = metadata.get("app_name", "").strip().lower()
         admin_email = metadata.get("admin_email")
+        forwarding_email = metadata.get("forwarding_email")
         admin_password = metadata.get("admin_password")
         plan_key = metadata.get("plan", "basic").lower()
 
@@ -194,11 +199,19 @@ def stripe_webhook():
             if success:
                 app_url = f"https://{app_name}.minipass.me"
 
+                # 📧 Setup customer email with mail server
+                email_success, created_email = setup_customer_email(
+                    app_name, admin_email, forwarding_email
+                )
+                
+                if email_success:
+                    logging.info(f"✅ Email setup completed: {created_email} -> {forwarding_email}")
+                else:
+                    logging.warning(f"⚠️ Email setup failed for {created_email}, continuing with deployment")
+
                 logging.info(f"📧 Sending deployment email to {admin_email} for {app_url}")
                 send_user_deployment_email(admin_email, app_url, admin_password)
                 logging.info("📨 Email sent successfully")
-
-
 
                 logging.info(f"✅ Deployment successful for {app_name}")
 
