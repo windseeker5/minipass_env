@@ -113,6 +113,32 @@ services:
       - proxy
 
 
+  # This needed to forward and fake my Website app as a container
+  flask-controller-proxy:
+    image: nginx:alpine
+    container_name: flask-controller-proxy
+    volumes:
+      - ./nginx/controller-proxy.conf:/etc/nginx/conf.d/default.conf:ro
+    environment:
+      - VIRTUAL_HOST=minipass.me,www.minipass.me
+      - VIRTUAL_PORT=80
+      - LETSENCRYPT_HOST=minipass.me,www.minipass.me
+      - LETSENCRYPT_EMAIL=kdresdell@gmail.com
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - proxy
+
+
+
+
+
+
+
+
+
+
+
 
 
   bloomcap:
