@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+
 import os
 import subprocess
 import getpass
@@ -9,8 +10,6 @@ DOMAIN = "minipass.me"
 USER_BASE_DIR = f"/var/mail/{DOMAIN}"
 LOCAL_SIEVE_BASE = "./config/user-patches"
 FORWARD_DIR = "./config/user-patches"
-
-
 
 def list_mail_users():
     print("\n📬 Mail Users:\n")
@@ -23,9 +22,7 @@ def list_mail_users():
     for user in users:
         print(f" - {user}")
 
-
-
-def list_forwards():
+def old_list_forwards():
     print("\n📤 Users with Forwarding Enabled:\n")
     for user_folder in os.listdir(LOCAL_SIEVE_BASE):
         sieve_path = os.path.join(LOCAL_SIEVE_BASE, user_folder, "sieve", "forward.sieve")
@@ -39,15 +36,40 @@ def list_forwards():
                         print(f" - {user_folder} ➡️ {target}")
 
 
+
+def list_forwards():
+    print("\n📤 Users with Forwarding Enabled:\n")
+    for user_folder in os.listdir(LOCAL_SIEVE_BASE):
+        sieve_path = os.path.join(LOCAL_SIEVE_BASE, user_folder, "sieve", "forward.sieve")
+        if os.path.exists(sieve_path):
+            with open(sieve_path) as f:
+                for line in f:
+                    if "redirect" in line and '"' in line:
+                        target = line.split('"')[1]
+                        print(f" - {user_folder} ➡️ {target}")
+                        break
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 def create_user():
     email = input("Enter new email (e.g. user@minipass.me): ").strip()
     password = getpass.getpass("Enter password: ")
-
     subprocess.run([
         "docker", "exec", MAILSERVER,
         "addmailuser", email, password
     ], check=True)
-
     choice = input("Add a forwarding address? (y/n): ").strip().lower()
     if choice == "y":
         forward_to = input("Forward to which email?: ").strip()
@@ -55,17 +77,12 @@ def create_user():
         activate_forward_in_container(email)
     print("✅ User creation complete.\n")
 
-
-
 def add_forward_to_existing_user():
     email = input("Enter existing email to add forward to: ").strip()
     forward_to = input("Forward to which email?: ").strip()
     write_forward_sieve(email, forward_to)
     activate_forward_in_container(email)
     print("✅ Forwarding rule added.\n")
-
-
-
 
 def delete_forward():
     email = input("Enter email to remove forward from: ").strip()
@@ -83,8 +100,6 @@ def delete_forward():
     ], stderr=subprocess.DEVNULL)
     print("❌ Forward removed.\n")
 
-
-
 def delete_user():
     email = input("Enter full email to delete: ").strip()
     subprocess.run([
@@ -92,8 +107,6 @@ def delete_user():
         "delmailuser", email
     ], check=True)
     print("❌ Mail user deleted.\n")
-
-
 
 def delete_user_inbox():
     email = input("Enter email to purge inbox: ").strip()
@@ -104,9 +117,6 @@ def delete_user_inbox():
         "rm", "-rf", f"{maildir}/cur", f"{maildir}/new"
     ])
     print("🧹 Inbox purged.\n")
-
-
-
 
 def hard_delete_user():
     email = input("Enter the email of the user to hard delete: ").strip()
@@ -136,34 +146,78 @@ def hard_delete_user():
 
     try:
         inbox_path = f"/var/mail/{DOMAIN}/{email.split('@')[0]}"
-        subprocess.run([
+        result = subprocess.run([
             "docker", "exec", MAILSERVER,
             "rm", "-rf", inbox_path
-        ], check=True)
-        print("📭 Mail inbox data deleted.")
-    except subprocess.CalledProcessError:
-        print("❌ Failed to delete inbox data.")
+        ], capture_output=True, text=True)
+        if result.returncode != 0:
+            print(f"❌ Failed to delete inbox path: {inbox_path}")
+            print(result.stderr)
+        else:
+            print("📭 Mail inbox data deleted.")
+    except Exception as e:
+        print(f"❌ Error deleting inbox: {e}")
 
+    validate_user_deletion(email)
 
+def validate_user_deletion(email):
+    print("\n🔍 Validating deletion...")
+
+    # Check user
+    result = subprocess.run([
+        "docker", "exec", MAILSERVER,
+        "grep", "-i", email,
+        "/tmp/docker-mailserver/postfix-accounts.cf"
+    ], capture_output=True, text=True)
+    if result.stdout.strip():
+        print(f"❌ User still exists in postfix-accounts.cf: {result.stdout.strip()}")
+    else:
+        print("✅ User is removed from postfix-accounts.cf")
+
+    # Check mailbox folder
+    local_part = email.split("@")[0]
+    result = subprocess.run([
+        "docker", "exec", MAILSERVER,
+        "ls", f"/var/mail/{DOMAIN}/{local_part}"
+    ], capture_output=True, text=True)
+    if "No such file" in result.stderr:
+        print("✅ Mailbox directory is gone.")
+    else:
+        print(f"❌ Mailbox directory still exists: {result.stdout.strip()}")
+
+    # Check sieve and forward rules
+    result = subprocess.run([
+        "docker", "exec", MAILSERVER,
+        "find", f"/var/mail/{DOMAIN}/", "-name", "forward.sieve"
+    ], capture_output=True, text=True)
+    if email.split("@")[0] in result.stdout:
+        print("❌ forward.sieve still present.")
+    else:
+        print("✅ forward.sieve is removed.")
+
+    result = subprocess.run([
+        "docker", "exec", MAILSERVER,
+        "find", f"/var/mail/{DOMAIN}/", "-name", ".dovecot.sieve"
+    ], capture_output=True, text=True)
+    if email.split("@")[0] in result.stdout:
+        print("❌ .dovecot.sieve still present.")
+    else:
+        print("✅ .dovecot.sieve is removed.")
 
 def write_forward_sieve(email, forward_to):
     path = os.path.join(LOCAL_SIEVE_BASE, email, "sieve")
     os.makedirs(path, exist_ok=True)
-    forward_script = f'redirect "{forward_to}";\n'
+    forward_script = 'require ["fileinto", "copy"];\nredirect :copy "{}";\n'.format(forward_to)
     with open(os.path.join(path, "forward.sieve"), "w") as f:
         f.write(forward_script)
     print(f"📁 Forward config written to: {os.path.join(path, 'forward.sieve')}")
-
-
 
 def activate_forward_in_container(email):
     local_part = email.split("@")[0]
     local_path = os.path.join(LOCAL_SIEVE_BASE, email, "sieve", "forward.sieve")
     container_home = f"/var/mail/{DOMAIN}/{local_part}/home"
     container_sieve_dir = f"{container_home}/sieve"
-
     print("🔄 Activating forward inside container...")
-
     subprocess.run(["docker", "exec", MAILSERVER, "mkdir", "-p", container_sieve_dir], check=True)
     subprocess.run(["docker", "cp", local_path, f"{MAILSERVER}:{container_sieve_dir}/forward.sieve"], check=True)
     subprocess.run(["docker", "exec", MAILSERVER, "chown", "-R", "docker:docker", container_home], check=True)
@@ -176,9 +230,6 @@ def activate_forward_in_container(email):
         "doveadm", "sieve", "activate", "-u", email, "forward"
     ], check=True)
     print("✅ Forwarding activated.\n")
-
-
-
 
 def main_menu():
     while True:

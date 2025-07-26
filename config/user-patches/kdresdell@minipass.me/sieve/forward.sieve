@@ -1,1 +1,2 @@
-redirect "kdresdell@gmail.com";
+require ["fileinto", "copy"];
+redirect :copy "kdresdell@gmail.com";
