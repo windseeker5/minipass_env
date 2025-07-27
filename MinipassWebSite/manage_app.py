@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import os
 import sqlite3
 import subprocess
@@ -12,6 +10,9 @@ from typing import List, Dict, Tuple, Optional
 
 CUSTOMERS_DB = "customers.db"
 DEPLOYED_FOLDER = "../deployed"
+
+
+
 
 class MiniPassAppManager:
     def __init__(self):
