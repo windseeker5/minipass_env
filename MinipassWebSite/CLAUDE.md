@@ -15,11 +15,8 @@ MiniPass is a Flask-based SaaS platform that provides automated password managem
   - `deploy_helpers.py` - Docker container deployment and admin user setup
   - `customer_helpers.py` - SQLite database operations for customer management
   - `email_helpers.py` - Flask-Mail configuration and notification system
-  - `mail_manager.py` - Mail server account management and forwarding utilities
 - **`templates/`** - Jinja2 templates for web interface
 - **`static/`** - Frontend assets (CSS, JS, images)
-- **`app/`, `app_o1/`, `app_o2/`, `app_o3/`** - Customer application templates for different subscription tiers
-- **`tests/`** - Test suites for system validation and functionality testing
 
 ### Docker Infrastructure
 - Main app runs in containerized environment via `docker-compose.yml`
@@ -42,23 +39,6 @@ pip install -r requirements.txt
 
 # Run development server
 python app.py
-
-# Activate virtual environment (if using venv)
-source venv/bin/activate  # or: venv\Scripts\activate on Windows
-```
-
-### Testing
-```bash
-# Run tests from MinipassWebSite directory
-cd MinipassWebSite
-python -m pytest tests/
-
-# Run specific test file
-python tests/test_flask_startup.py
-python tests/test_survey_system.py
-
-# Database validation tests
-python tests/validate_fix.py
 ```
 
 ### Docker Operations
@@ -71,9 +51,6 @@ docker-compose ps
 
 # Check logs
 docker-compose logs -f
-
-# Rebuild and restart containers
-docker-compose down && docker-compose up -d --build
 ```
 
 ### Customer Management
@@ -81,18 +58,6 @@ docker-compose down && docker-compose up -d --build
 # Interactive customer deletion tool
 cd MinipassWebSite
 python manage.py
-
-# Database migrations
-cd MinipassWebSite
-python migrations/migrate_database.py
-python migrations/init_db_1.py
-```
-
-### Mail Server Management
-```bash
-# Mail server management utility
-cd MinipassWebSite
-python utils/mail_manager.py
 ```
 
 ## Environment Configuration
@@ -120,36 +85,9 @@ Required environment variables in `.env`:
 5. Admin user created in customer database
 6. Email sent with access credentials
 
-## Development Workflow
-
-### Code Organization
-- Flask application follows MVC pattern with clear separation of concerns
-- Modular utilities in `utils/` package for reusability across different app tiers
-- Each customer app template (`app_o1`, `app_o2`, `app_o3`) represents different feature sets and pricing tiers
-- Database operations centralized in helper modules for consistency
-
-### Port Management
-- Dynamic port assignment handled by customer database tracking
-- Each deployed customer app gets unique port allocation
-- Port conflicts avoided through database coordination
-
-### Email Integration
-- Flask-Mail integration for deployment notifications and customer communication
-- Email templates stored in `templates/emails/` directory
-- Support for both deployment success and error notification workflows
-
-## Testing Strategy
-
-The codebase includes comprehensive test coverage:
-- **`test_flask_startup.py`** - Application initialization and configuration tests
-- **`test_survey_system.py`** - Survey functionality and database operations
-- **`test_chatbot_infrastructure.py`** - AI chatbot integration testing
-- **`validate_fix.py`** - Database schema and data integrity validation
-
 ## Security Notes
 
 - Passwords stored as bcrypt hashes in customer databases
 - SSL certificates automatically provisioned via Let's Encrypt
 - Container isolation between customer deployments
 - Environment-based configuration for sensitive data
-- Admin user authentication with secure password hashing (BLOB storage for binary hashes)
