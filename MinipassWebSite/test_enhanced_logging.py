@@ -54,7 +54,12 @@ def main():
     
     # Test 3: Log file verification
     print("\n3. Verifying log file creation...")
-    log_file_path = '/home/kdresdell/Documents/DEV/minipass_env/MinipassWebSite/subscribed_app.log'
+    # Determine correct log file path
+    current_dir = os.getcwd()
+    if current_dir.endswith('MinipassWebSite'):
+        log_file_path = os.path.join(current_dir, 'subscribed_app.log')
+    else:
+        log_file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'subscribed_app.log')
     
     if os.path.exists(log_file_path):
         file_size = os.path.getsize(log_file_path)
