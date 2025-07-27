@@ -27,7 +27,15 @@ def setup_subscription_logger():
     )
     
     # File handler for subscribed_app.log
-    log_dir = '/home/kdresdell/Documents/DEV/minipass_env/MinipassWebSite'
+    # Use current working directory or utils parent directory
+    current_dir = os.getcwd()
+    if current_dir.endswith('MinipassWebSite'):
+        log_dir = current_dir
+    else:
+        # If running from utils directory or elsewhere, go up to find MinipassWebSite
+        utils_dir = os.path.dirname(os.path.abspath(__file__))
+        log_dir = os.path.dirname(utils_dir)
+    
     log_file = os.path.join(log_dir, 'subscribed_app.log')
     
     file_handler = logging.FileHandler(log_file, mode='a')

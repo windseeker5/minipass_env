@@ -63,8 +63,10 @@ This implementation adds comprehensive logging to the subscription/deployment pr
 ## Log File Location
 
 ```
-/home/kdresdell/Documents/DEV/minipass_env/MinipassWebSite/subscribed_app.log
+./subscribed_app.log
 ```
+
+The log file is created in the MinipassWebSite directory (wherever you run the application from).
 
 ## Usage
 
