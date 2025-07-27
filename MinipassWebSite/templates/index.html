@@ -883,18 +883,18 @@
         </div>
 
         <div class="mb-3 text-start">
-          <label class="form-label fw-semibold">Admin Email</label>
-          <input class="form-control" name="admin_email" required type="email" />
+          <label class="form-label fw-semibold">Organization Name</label>
+          <input class="form-control" name="organization_name" required type="text" placeholder="Your Organization" />
           <small class="form-text text-muted">
-            We'll send login credentials and a getting-started guide to this email.
+            This will be set as your organization name in the app.
           </small>
         </div>
 
         <div class="mb-3 text-start">
-          <label class="form-label fw-semibold">Email Forwarding Address</label>
-          <input class="form-control" name="forwarding_email" required type="email" placeholder="your-email@gmail.com" />
+          <label class="form-label fw-semibold">Admin Email</label>
+          <input class="form-control" name="admin_email" required type="email" />
           <small class="form-text text-muted">
-            We'll create admin@yourapp.minipass.me and forward all emails to this address.
+            We'll send login credentials and create yourapp_app@minipass.me email that forwards to this address.
           </small>
         </div>
       </div>

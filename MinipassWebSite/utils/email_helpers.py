@@ -22,22 +22,30 @@ def init_mail(app):
 
 
 
-def send_user_deployment_email(to, url, password):
+def send_user_deployment_email(to, url, password, email_info=None):
     subject = "🎉 Your minipass app is live!"  # ✅ Lowercase "minipass"
     
-    # ✅ Render with admin email included
+    # ✅ Render with admin email and email info included
     html = render_template(
         "emails/deployment_ready.html",
         url=url,
         password=password,
-        user_email=to
+        user_email=to,
+        email_info=email_info
     )
+
+    # Build email body text with email info if available
+    body_text = f"Your app is live: {url}\nAdmin Email: {to}\nPassword: {password}"
+    if email_info:
+        body_text += f"\n\nEmail Account Created:\nEmail: {email_info.get('email_address', 'N/A')}\nPassword: {email_info.get('email_password', 'Same as app password')}"
+        if email_info.get('forwarding_setup'):
+            body_text += "\nForwarding: Enabled"
 
     msg = Message(
         subject,
         recipients=[to],
         html=html,
-        body=f"Your app is live: {url}\nAdmin Email: {to}\nPassword: {password}"
+        body=body_text
     )
 
     # ✅ Attach welcome-icon.png as inline image (fixed header format)

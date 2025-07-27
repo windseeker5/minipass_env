@@ -85,6 +85,15 @@
       <a href="{{ url }}">{{ url }}</a><br>
       Admin user: <span class="highlight">{{ user_email }}</span><br>
       Admin password: <span class="highlight">{{ password }}</span>
+      {% if email_info %}
+      <br><br>
+      📧 <strong>Email Account Created:</strong><br>
+      Email: <span class="highlight">{{ email_info.email_address }}</span><br>
+      Password: <span class="highlight">{{ email_info.email_password }}</span>
+        {% if email_info.forwarding_setup %}
+      <br>✅ Forwarding enabled to your provided email
+        {% endif %}
+      {% endif %}
     </div>
 
     <p>👉 To log in, open your app link above and sign in using your admin email address and the password provided.</p>

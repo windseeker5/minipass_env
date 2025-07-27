@@ -75,13 +75,16 @@ def check_subdomain():
 def start_checkout():
     plan = request.form.get("plan")
     app_name = request.form.get("app_name")
+    organization_name = request.form.get("organization_name")
     admin_email = request.form.get("admin_email")
-    forwarding_email = request.form.get("forwarding_email")
+    # Use admin_email as forwarding_email automatically
+    forwarding_email = admin_email
     admin_password = secrets.token_urlsafe(12)
 
     session["checkout_info"] = {
         "plan": plan,
         "app_name": app_name,
+        "organization_name": organization_name,
         "admin_email": admin_email,
         "forwarding_email": forwarding_email,
         "admin_password": admin_password
@@ -120,6 +123,7 @@ def create_checkout_session():
         cancel_url=url_for("home", _external=True) + "?cancelled=true",
         metadata={
             "app_name": info.get("app_name", ""),
+            "organization_name": info.get("organization_name", ""),
             "admin_email": info.get("admin_email", ""),
             "forwarding_email": info.get("forwarding_email", ""),
             "admin_password": info.get("admin_password", "")
@@ -149,11 +153,11 @@ def stripe_webhook():
     import os
     from utils.customer_helpers import (
         init_customers_db, subdomain_taken,
-        get_next_available_port, insert_customer
+        get_next_available_port, insert_customer, update_customer_email_status
     )
     from utils.deploy_helpers import insert_admin_user, deploy_customer_container
     from utils.email_helpers import send_user_deployment_email, send_support_error_email
-    from utils.mail_server_helpers import setup_customer_email
+    from utils.mail_integration import setup_customer_email_complete
 
     payload = request.data
 
@@ -175,6 +179,7 @@ def stripe_webhook():
         metadata = session_data.get("metadata", {})
 
         app_name = metadata.get("app_name", "").strip().lower()
+        organization_name = metadata.get("organization_name", "")
         admin_email = metadata.get("admin_email")
         forwarding_email = metadata.get("forwarding_email")
         admin_password = metadata.get("admin_password")
@@ -189,28 +194,45 @@ def stripe_webhook():
             if subdomain_taken(app_name):
                 raise ValueError("Subdomain already taken")
 
-            # 🔢 Assign port + insert into customers.db
+            # 🔢 Assign port + create email address
             port = get_next_available_port()
-            insert_customer(admin_email, app_name, app_name, plan_key, admin_password, port)
+            email_address = f"{app_name}_app@minipass.me"
+            
+            # Insert customer with email info into database
+            insert_customer(
+                admin_email, app_name, app_name, plan_key, admin_password, port,
+                email_address=email_address, forwarding_email=forwarding_email, 
+                email_status='pending', organization_name=organization_name
+            )
 
             # 🐳 Deploy container
-            success = deploy_customer_container(app_name, admin_email, admin_password, plan_key, port)
+            success = deploy_customer_container(app_name, admin_email, admin_password, plan_key, port, organization_name)
 
             if success:
                 app_url = f"https://{app_name}.minipass.me"
 
-                # 📧 Setup customer email with mail server
-                email_success, created_email = setup_customer_email(
-                    app_name, admin_email, forwarding_email
+                # 📧 Setup customer email with mail server using new integration
+                email_success, created_email, error_msg = setup_customer_email_complete(
+                    app_name, admin_password, forwarding_email
                 )
                 
                 if email_success:
-                    logging.info(f"✅ Email setup completed: {created_email} -> {forwarding_email}")
+                    logging.info(f"✅ Email setup completed: {created_email} -> {admin_email} (admin email)")
+                    update_customer_email_status(app_name, created_email, 'success')
                 else:
-                    logging.warning(f"⚠️ Email setup failed for {created_email}, continuing with deployment")
+                    logging.warning(f"⚠️ Email setup failed for {created_email}: {error_msg}")
+                    update_customer_email_status(app_name, created_email, 'failed')
+                    # Continue with deployment even if email setup fails
 
                 logging.info(f"📧 Sending deployment email to {admin_email} for {app_url}")
-                send_user_deployment_email(admin_email, app_url, admin_password)
+                
+                # Include email credentials in the deployment email
+                email_info = {
+                    'email_address': created_email,
+                    'email_password': admin_password,
+                    'forwarding_setup': email_success and forwarding_email
+                }
+                send_user_deployment_email(admin_email, app_url, admin_password, email_info)
                 logging.info("📨 Email sent successfully")
 
                 logging.info(f"✅ Deployment successful for {app_name}")
