@@ -515,6 +515,122 @@ class MiniPassAppManager:
         except Exception as e:
             print(f"❌ Docker cleanup error: {e}")
     
+    def list_customer_database_records(self):
+        """List all customer database records with detailed information"""
+        print("\n🗄️ Customer Database Records:\n")
+        
+        try:
+            conn = sqlite3.connect(CUSTOMERS_DB)
+            conn.row_factory = sqlite3.Row
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT id, subdomain, email, port, plan, created_at, organization_name, 
+                       email_address, email_status, forwarding_email
+                FROM customers
+                ORDER BY created_at DESC
+            """)
+            rows = cursor.fetchall()
+            conn.close()
+            
+            if not rows:
+                print("ℹ️ No customer records found in database.")
+                return []
+            
+            print(f"{'#':<3} {'ID':<4} {'Subdomain':<12} {'Email':<25} {'Plan':<8} {'Port':<6} {'Status':<8} {'Created':<12}")
+            print("=" * 95)
+            
+            records = []
+            for idx, row in enumerate(rows, 1):
+                created = self.format_datetime(row['created_at']) if row['created_at'] else 'unknown'
+                email_display = row['email'][:23] + '..' if len(row['email']) > 25 else row['email']
+                
+                print(f"{idx:<3} {row['id']:<4} {row['subdomain']:<12} {email_display:<25} {row['plan']:<8} {row['port']:<6} {row['email_status'] or 'unknown':<8} {created:<12}")
+                
+                records.append({
+                    'id': row['id'],
+                    'subdomain': row['subdomain'],
+                    'email': row['email'],
+                    'port': row['port'],
+                    'plan': row['plan'],
+                    'created_at': row['created_at'],
+                    'organization_name': row['organization_name'],
+                    'email_address': row['email_address'],
+                    'email_status': row['email_status'],
+                    'forwarding_email': row['forwarding_email']
+                })
+            
+            print(f"\n📊 Total records: {len(records)}")
+            return records
+            
+        except sqlite3.Error as e:
+            print(f"❌ Database error: {e}")
+            return []
+        except FileNotFoundError:
+            print(f"⚠️ Database file {CUSTOMERS_DB} not found")
+            return []
+
+    def show_detailed_customer_record(self, record):
+        """Show detailed information about a customer record"""
+        print(f"\n📋 Detailed Record Information:")
+        print(f"   🆔 Database ID: {record['id']}")
+        print(f"   🌐 Subdomain: {record['subdomain']}")
+        print(f"   📧 Customer Email: {record['email']}")
+        print(f"   📦 Plan: {record['plan']}")
+        print(f"   🔌 Port: {record['port']}")
+        print(f"   🏢 Organization: {record['organization_name'] or 'N/A'}")
+        print(f"   📬 App Email: {record['email_address'] or 'N/A'}")
+        print(f"   📤 Forwarding Email: {record['forwarding_email'] or 'N/A'}")
+        print(f"   ✅ Email Status: {record['email_status'] or 'unknown'}")
+        print(f"   📅 Created: {self.format_datetime(record['created_at']) if record['created_at'] else 'unknown'}")
+
+    def delete_customer_database_record(self):
+        """Delete a specific customer database record"""
+        records = self.list_customer_database_records()
+        if not records:
+            return
+        
+        try:
+            choice = int(input(f"\nEnter the number of the record to delete (1-{len(records)}): "))
+            if 1 <= choice <= len(records):
+                selected_record = records[choice - 1]
+                
+                # Show detailed record information
+                self.show_detailed_customer_record(selected_record)
+                
+                subdomain = selected_record['subdomain']
+                customer_email = selected_record['email']
+                
+                print(f"\n⚠️ You are about to DELETE the database record for:")
+                print(f"   🌐 Subdomain: {subdomain}")
+                print(f"   📧 Customer: {customer_email}")
+                print(f"   🆔 Database ID: {selected_record['id']}")
+                
+                confirm = input(f"\n❗ Type 'DELETE {subdomain}' to confirm deletion: ")
+                if confirm == f"DELETE {subdomain}":
+                    try:
+                        conn = sqlite3.connect(CUSTOMERS_DB)
+                        cursor = conn.cursor()
+                        cursor.execute("DELETE FROM customers WHERE id = ?", (selected_record['id'],))
+                        
+                        if cursor.rowcount > 0:
+                            conn.commit()
+                            print(f"✅ Database record for '{subdomain}' (ID: {selected_record['id']}) deleted successfully")
+                        else:
+                            print(f"❌ No record found with ID {selected_record['id']}")
+                        
+                        conn.close()
+                        
+                    except sqlite3.Error as e:
+                        print(f"❌ Database error: {e}")
+                else:
+                    print("❌ Deletion aborted.")
+            else:
+                print("❌ Invalid choice.")
+        except ValueError:
+            print("❌ Invalid number.")
+        except Exception as e:
+            print(f"❌ Error: {e}")
+
     def show_menu(self):
         """Display the main menu"""
         print("\n" + "="*60)
@@ -525,7 +641,9 @@ class MiniPassAppManager:
         print("3. 🧹 Cleanup orphaned containers")
         print("4. 🗄️ Cleanup orphaned database entries")
         print("5. 🧽 Docker system cleanup")
-        print("6. ❌ Exit")
+        print("6. 📊 View customer database records")
+        print("7. 🗑️ Delete specific database record")
+        print("8. ❌ Exit")
         print("="*60)
     
     def run(self):
@@ -534,7 +652,7 @@ class MiniPassAppManager:
             self.show_menu()
             
             try:
-                choice = input("\nChoose an option (1-6): ").strip()
+                choice = input("\nChoose an option (1-8): ").strip()
                 
                 if choice == '1':
                     self.list_all_minipass_apps()
@@ -578,11 +696,17 @@ class MiniPassAppManager:
                     self.docker_system_cleanup()
                 
                 elif choice == '6':
+                    self.list_customer_database_records()
+                
+                elif choice == '7':
+                    self.delete_customer_database_record()
+                
+                elif choice == '8':
                     print("👋 Goodbye!")
                     break
                 
                 else:
-                    print("❌ Invalid choice. Please enter 1-6.")
+                    print("❌ Invalid choice. Please enter 1-8.")
                     
             except KeyboardInterrupt:
                 print("\n\n👋 Goodbye!")

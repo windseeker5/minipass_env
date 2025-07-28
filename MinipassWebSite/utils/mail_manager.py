@@ -8,8 +8,8 @@ import shutil
 MAILSERVER = "mailserver"
 DOMAIN = "minipass.me"
 USER_BASE_DIR = f"/var/mail/{DOMAIN}"
-LOCAL_SIEVE_BASE = "./config/user-patches"
-FORWARD_DIR = "./config/user-patches"
+LOCAL_SIEVE_BASE = "../config/user-patches"
+FORWARD_DIR = "../config/user-patches"
 
 def list_mail_users():
     print("\n📬 Mail Users:\n")
@@ -231,6 +231,443 @@ def activate_forward_in_container(email):
     ], check=True)
     print("✅ Forwarding activated.\n")
 
+def diagnose_mail_forwards():
+    """Diagnose forward status for all users"""
+    print("\n🔍 Diagnosing Forward Status:\n")
+    
+    # Get all users
+    output = subprocess.check_output([
+        "docker", "exec", MAILSERVER,
+        "bash", "-c",
+        "grep -vE '^#|^$' /tmp/docker-mailserver/postfix-accounts.cf"
+    ]).decode().strip()
+    users = sorted(set(line.split("|")[0] for line in output.splitlines()))
+    
+    print(f"{'Email':<25} {'Local Config':<12} {'Container Active':<16} {'Forward To':<30}")
+    print("=" * 85)
+    
+    for user in users:
+        # Check local config
+        local_sieve_path = os.path.join(LOCAL_SIEVE_BASE, user, "sieve", "forward.sieve")
+        local_config = "✅ Yes" if os.path.exists(local_sieve_path) else "❌ No"
+        
+        # Check container active status
+        try:
+            result = subprocess.run([
+                "docker", "exec", MAILSERVER,
+                "doveadm", "sieve", "list", "-u", user
+            ], capture_output=True, text=True, check=False)
+            
+            container_active = "✅ Yes" if result.returncode == 0 and "forward" in result.stdout else "❌ No"
+        except:
+            container_active = "❌ Error"
+        
+        # Get forward destination
+        forward_to = "-"
+        if os.path.exists(local_sieve_path):
+            try:
+                with open(local_sieve_path, 'r') as f:
+                    for line in f:
+                        if 'redirect' in line and '"' in line:
+                            # Extract email from redirect line: redirect :copy "email@domain.com";
+                            forward_to = line.split('"')[1]
+                            break
+            except:
+                forward_to = "Error reading"
+        
+        user_display = user[:23] + ".." if len(user) > 25 else user
+        forward_display = forward_to[:28] + ".." if len(forward_to) > 30 else forward_to
+        
+        print(f"{user_display:<25} {local_config:<12} {container_active:<16} {forward_display:<30}")
+
+def recover_lost_forwards():
+    """Help recover lost forward configurations"""
+    print("\n🔧 Forward Recovery Tool\n")
+    
+    diagnose_mail_forwards()
+    
+    print("\n" + "="*50)
+    print("Forward Recovery Options:")
+    print("1. Check container for existing forward rules")
+    print("2. Recreate forward for specific user")
+    print("3. Recover ALL missing local configs from container")
+    print("4. Return to main menu")
+    
+    choice = input("\nChoose recovery option (1-4): ").strip()
+    
+    if choice == "1":
+        check_container_forwards()
+    elif choice == "2":
+        recreate_specific_forward()
+    elif choice == "3":
+        recover_all_local_configs()
+    elif choice == "4":
+        return
+    else:
+        print("❌ Invalid choice.")
+
+def check_container_forwards():
+    """Check what forward rules exist in the mail container"""
+    print("\n🔍 Checking container forward rules...\n")
+    
+    # Get all users
+    output = subprocess.check_output([
+        "docker", "exec", MAILSERVER,
+        "bash", "-c",
+        "grep -vE '^#|^$' /tmp/docker-mailserver/postfix-accounts.cf"
+    ]).decode().strip()
+    users = sorted(set(line.split("|")[0] for line in output.splitlines()))
+    
+    for user in users:
+        print(f"\n📧 Checking {user}:")
+        
+        # Check if forward rule exists in container
+        try:
+            result = subprocess.run([
+                "docker", "exec", MAILSERVER,
+                "doveadm", "sieve", "list", "-u", user
+            ], capture_output=True, text=True, check=False)
+            
+            if result.returncode == 0 and result.stdout.strip():
+                print(f"   🔍 Sieve rules: {result.stdout.strip()}")
+                
+                # If forward rule exists, try to read the content
+                if "forward" in result.stdout:
+                    local_part = user.split("@")[0]
+                    container_sieve_file = f"/var/mail/{DOMAIN}/{local_part}/home/sieve/forward.sieve"
+                    
+                    content_result = subprocess.run([
+                        "docker", "exec", MAILSERVER,
+                        "cat", container_sieve_file
+                    ], capture_output=True, text=True, check=False)
+                    
+                    if content_result.returncode == 0:
+                        print(f"   📄 Forward content: {content_result.stdout.strip()}")
+                        
+                        # Extract forward destination
+                        for line in content_result.stdout.splitlines():
+                            if 'redirect' in line and '"' in line:
+                                forward_to = line.split('"')[1]
+                                print(f"   ➡️  Forwards to: {forward_to}")
+                                break
+                    else:
+                        print(f"   ❌ Could not read forward file")
+            else:
+                print("   ❌ No active sieve rules")
+                
+        except Exception as e:
+            print(f"   ❌ Error checking: {e}")
+
+def recreate_specific_forward():
+    """Recreate forward for a specific user"""
+    email = input("\nEnter email to recreate forward for: ").strip()
+    forward_to = input("Enter destination email address: ").strip()
+    
+    print(f"\n🔧 Recreating forward: {email} ➡️ {forward_to}")
+    
+    try:
+        # Create local sieve config
+        write_forward_sieve(email, forward_to)
+        
+        # Activate in container
+        activate_forward_in_container(email)
+        
+        print("✅ Forward recreated successfully!")
+        
+    except Exception as e:
+        print(f"❌ Error recreating forward: {e}")
+
+def recover_all_local_configs():
+    """Recover all missing local forward configs from the container"""
+    print("\n🔧 Recovering ALL missing local configs from container...\n")
+    
+    # Get all users
+    output = subprocess.check_output([
+        "docker", "exec", MAILSERVER,
+        "bash", "-c",
+        "grep -vE '^#|^$' /tmp/docker-mailserver/postfix-accounts.cf"
+    ]).decode().strip()
+    users = sorted(set(line.split("|")[0] for line in output.splitlines()))
+    
+    recovered_count = 0
+    skipped_count = 0
+    
+    for user in users:
+        # Check if local config is missing
+        local_sieve_path = os.path.join(LOCAL_SIEVE_BASE, user, "sieve", "forward.sieve")
+        
+        if os.path.exists(local_sieve_path):
+            print(f"⏭️  Skipping {user} - local config already exists")
+            skipped_count += 1
+            continue
+        
+        # Check if forward exists in container
+        try:
+            result = subprocess.run([
+                "docker", "exec", MAILSERVER,
+                "doveadm", "sieve", "list", "-u", user
+            ], capture_output=True, text=True, check=False)
+            
+            if result.returncode == 0 and "forward" in result.stdout:
+                # Forward exists in container, get the content
+                local_part = user.split("@")[0]
+                container_sieve_file = f"/var/mail/{DOMAIN}/{local_part}/home/sieve/forward.sieve"
+                
+                content_result = subprocess.run([
+                    "docker", "exec", MAILSERVER,
+                    "cat", container_sieve_file
+                ], capture_output=True, text=True, check=False)
+                
+                if content_result.returncode == 0:
+                    # Extract forward destination
+                    forward_to = None
+                    for line in content_result.stdout.splitlines():
+                        if 'redirect' in line and '"' in line:
+                            forward_to = line.split('"')[1]
+                            break
+                    
+                    if forward_to:
+                        print(f"🔄 Recovering {user} ➡️ {forward_to}")
+                        try:
+                            # Create local sieve config
+                            write_forward_sieve(user, forward_to)
+                            recovered_count += 1
+                            print(f"   ✅ Local config recovered for {user}")
+                        except Exception as e:
+                            print(f"   ❌ Failed to create local config: {e}")
+                    else:
+                        print(f"   ⚠️  Could not extract forward destination for {user}")
+                else:
+                    print(f"   ❌ Could not read container sieve file for {user}")
+            else:
+                print(f"⏭️  Skipping {user} - no active forward in container")
+                skipped_count += 1
+                
+        except Exception as e:
+            print(f"   ❌ Error checking {user}: {e}")
+    
+    print(f"\n📊 Recovery Summary:")
+    print(f"   ✅ Recovered: {recovered_count} local configs")
+    print(f"   ⏭️  Skipped: {skipped_count} users")
+    
+    if recovered_count > 0:
+        print(f"\n🎉 Success! Try running option 2 (List users with forwarding) now to see all forwards.")
+
+def deep_mail_server_diagnostics():
+    """Comprehensive mail server diagnostics to check for issues"""
+    print("\n🔬 Deep Mail Server Diagnostics\n")
+    print("=" * 70)
+    
+    # Get all users
+    try:
+        output = subprocess.check_output([
+            "docker", "exec", MAILSERVER,
+            "bash", "-c",
+            "grep -vE '^#|^$' /tmp/docker-mailserver/postfix-accounts.cf"
+        ]).decode().strip()
+        users = sorted(set(line.split("|")[0] for line in output.splitlines()))
+        print(f"📊 Found {len(users)} total mail users")
+    except Exception as e:
+        print(f"❌ Failed to get user list: {e}")
+        return
+    
+    # Check 1: Duplicate sieve rules
+    print("\n1️⃣ Checking for duplicate sieve rules...")
+    duplicates_found = False
+    
+    for user in users:
+        try:
+            result = subprocess.run([
+                "docker", "exec", MAILSERVER,
+                "doveadm", "sieve", "list", "-u", user
+            ], capture_output=True, text=True, check=False)
+            
+            if result.returncode == 0 and result.stdout.strip():
+                rules = result.stdout.strip().split('\n')
+                rule_names = [rule.split()[0] for rule in rules if rule.strip()]
+                
+                # Check for duplicates
+                if len(rule_names) != len(set(rule_names)):
+                    duplicates_found = True
+                    print(f"   ⚠️  {user}: Duplicate rules detected: {rule_names}")
+                elif len(rule_names) > 1:
+                    print(f"   ℹ️  {user}: Multiple rules: {rule_names}")
+                    
+        except Exception as e:
+            print(f"   ❌ Error checking {user}: {e}")
+    
+    if not duplicates_found:
+        print("   ✅ No duplicate sieve rules found")
+    
+    # Check 2: Orphaned sieve files
+    print("\n2️⃣ Checking for orphaned sieve files...")
+    orphaned_files = []
+    
+    try:
+        result = subprocess.run([
+            "docker", "exec", MAILSERVER,
+            "find", f"/var/mail/{DOMAIN}/", "-name", "*.sieve", "-type", "f"
+        ], capture_output=True, text=True, check=False)
+        
+        if result.returncode == 0:
+            sieve_files = result.stdout.strip().split('\n') if result.stdout.strip() else []
+            
+            for sieve_file in sieve_files:
+                if sieve_file:
+                    # Extract username from path
+                    path_parts = sieve_file.split('/')
+                    if len(path_parts) >= 4:
+                        username_part = path_parts[3]  # /var/mail/domain/username/...
+                        full_email = f"{username_part}@{DOMAIN}"
+                        
+                        if full_email not in users:
+                            orphaned_files.append(sieve_file)
+                            print(f"   ⚠️  Orphaned sieve file: {sieve_file}")
+        
+        if not orphaned_files:
+            print("   ✅ No orphaned sieve files found")
+            
+    except Exception as e:
+        print(f"   ❌ Error checking orphaned files: {e}")
+    
+    # Check 3: Forward destination analysis
+    print("\n3️⃣ Analyzing forward destinations...")
+    forward_destinations = {}
+    invalid_forwards = []
+    
+    for user in users:
+        try:
+            result = subprocess.run([
+                "docker", "exec", MAILSERVER,
+                "doveadm", "sieve", "list", "-u", user
+            ], capture_output=True, text=True, check=False)
+            
+            if result.returncode == 0 and "forward" in result.stdout:
+                # Get forward content
+                local_part = user.split("@")[0]
+                container_sieve_file = f"/var/mail/{DOMAIN}/{local_part}/home/sieve/forward.sieve"
+                
+                content_result = subprocess.run([
+                    "docker", "exec", MAILSERVER,
+                    "cat", container_sieve_file
+                ], capture_output=True, text=True, check=False)
+                
+                if content_result.returncode == 0:
+                    forward_to = None
+                    for line in content_result.stdout.splitlines():
+                        if 'redirect' in line and '"' in line:
+                            forward_to = line.split('"')[1]
+                            break
+                    
+                    if forward_to:
+                        if forward_to not in forward_destinations:
+                            forward_destinations[forward_to] = []
+                        forward_destinations[forward_to].append(user)
+                        
+                        # Check for potential issues
+                        if not '@' in forward_to or not '.' in forward_to:
+                            invalid_forwards.append(f"{user} -> {forward_to}")
+                    else:
+                        invalid_forwards.append(f"{user} -> [could not parse destination]")
+                        
+        except Exception as e:
+            print(f"   ❌ Error analyzing {user}: {e}")
+    
+    # Report forward destination analysis
+    print(f"   📊 Active forwards: {sum(len(users) for users in forward_destinations.values())}")
+    
+    # Check for multiple users forwarding to same destination
+    for destination, forwarding_users in forward_destinations.items():
+        if len(forwarding_users) > 1:
+            print(f"   ℹ️  Multiple users forward to {destination}: {', '.join(forwarding_users)}")
+    
+    if invalid_forwards:
+        print("   ⚠️  Invalid forward destinations:")
+        for invalid in invalid_forwards:
+            print(f"      {invalid}")
+    else:
+        print("   ✅ All forward destinations appear valid")
+    
+    # Check 4: Mail directory consistency
+    print("\n4️⃣ Checking mail directory consistency...")
+    
+    try:
+        result = subprocess.run([
+            "docker", "exec", MAILSERVER,
+            "ls", "-la", f"/var/mail/{DOMAIN}/"
+        ], capture_output=True, text=True, check=False)
+        
+        if result.returncode == 0:
+            mail_dirs = []
+            for line in result.stdout.split('\n'):
+                if line.strip() and not line.startswith('total') and not line.startswith('d'):
+                    continue
+                elif line.strip() and line.startswith('d') and not line.endswith(('.', '..')):
+                    parts = line.split()
+                    if len(parts) >= 9:
+                        dir_name = parts[-1]
+                        mail_dirs.append(f"{dir_name}@{DOMAIN}")
+            
+            # Check for directories without corresponding users
+            orphaned_dirs = [d for d in mail_dirs if d not in users]
+            if orphaned_dirs:
+                print("   ⚠️  Orphaned mail directories:")
+                for orphaned_dir in orphaned_dirs:
+                    print(f"      {orphaned_dir}")
+            else:
+                print("   ✅ All mail directories have corresponding users")
+                
+            # Check for users without directories
+            missing_dirs = [u for u in users if u not in mail_dirs]
+            if missing_dirs:
+                print("   ⚠️  Users missing mail directories:")
+                for missing_dir in missing_dirs:
+                    print(f"      {missing_dir}")
+            else:
+                print("   ✅ All users have mail directories")
+                
+    except Exception as e:
+        print(f"   ❌ Error checking mail directories: {e}")
+    
+    # Check 5: Postfix virtual aliases
+    print("\n5️⃣ Checking postfix virtual aliases...")
+    
+    try:
+        result = subprocess.run([
+            "docker", "exec", MAILSERVER,
+            "bash", "-c",
+            "test -f /tmp/docker-mailserver/postfix-virtual.cf && cat /tmp/docker-mailserver/postfix-virtual.cf || echo 'No virtual aliases file'"
+        ], capture_output=True, text=True, check=False)
+        
+        if result.returncode == 0:
+            if "No virtual aliases file" in result.stdout:
+                print("   ℹ️  No postfix virtual aliases configured")
+            else:
+                aliases = result.stdout.strip().split('\n') if result.stdout.strip() else []
+                print(f"   📊 Found {len(aliases)} postfix virtual aliases")
+                for alias in aliases[:5]:  # Show first 5
+                    if alias.strip():
+                        print(f"      {alias}")
+                if len(aliases) > 5:
+                    print(f"      ... and {len(aliases) - 5} more")
+                    
+    except Exception as e:
+        print(f"   ❌ Error checking virtual aliases: {e}")
+    
+    # Summary
+    print(f"\n📋 Diagnostic Summary:")
+    print(f"   👥 Total users: {len(users)}")
+    print(f"   📤 Active forwards: {sum(len(users) for users in forward_destinations.values())}")
+    print(f"   🎯 Unique destinations: {len(forward_destinations)}")
+    
+    issues_found = len(orphaned_files) + len(invalid_forwards)
+    if issues_found == 0:
+        print(f"   ✅ No issues detected - mail server looks healthy!")
+    else:
+        print(f"   ⚠️  {issues_found} potential issues found - review above")
+    
+    print("\n" + "=" * 70)
+
 def main_menu():
     while True:
         print("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
@@ -244,6 +681,9 @@ def main_menu():
         print("6. Delete user inbox emails")
         print("7. Hard Delete Mail User (user + forward + inbox)")
         print("8. Add a forward to an existing user")
+        print("9. Diagnose forward status")
+        print("10. Recover lost forwards")
+        print("11. Deep mail server diagnostics")
         print("x. Exit")
 
         choice = input("\nChoose an option:> ").strip()
@@ -263,6 +703,12 @@ def main_menu():
             hard_delete_user()
         elif choice == '8':
             add_forward_to_existing_user()
+        elif choice == '9':
+            diagnose_mail_forwards()
+        elif choice == '10':
+            recover_lost_forwards()
+        elif choice == '11':
+            deep_mail_server_diagnostics()
         elif choice == "x":
             break
         else:
