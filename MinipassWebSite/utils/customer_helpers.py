@@ -28,6 +28,16 @@ def init_customers_db():
             organization_name TEXT
         )
         """)
+        
+        # Create processed events table for idempotency
+        cur.execute("""
+        CREATE TABLE IF NOT EXISTS processed_events (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            event_id TEXT UNIQUE NOT NULL,
+            event_type TEXT NOT NULL,
+            processed_at TEXT DEFAULT CURRENT_TIMESTAMP
+        )
+        """)
         conn.commit()
 
 
@@ -157,3 +167,36 @@ def get_customers_with_email_status(status):
         cur.execute("SELECT * FROM customers WHERE email_status = ?", (status,))
         rows = cur.fetchall()
         return [dict(row) for row in rows]
+
+
+def is_event_processed(event_id):
+    """
+    Check if a Stripe event has already been processed.
+    
+    Args:
+        event_id (str): Stripe event ID
+        
+    Returns:
+        bool: True if event was already processed, False otherwise
+    """
+    with sqlite3.connect(CUSTOMERS_DB) as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT 1 FROM processed_events WHERE event_id = ?", (event_id,))
+        return cur.fetchone() is not None
+
+
+def mark_event_processed(event_id, event_type):
+    """
+    Mark a Stripe event as processed to prevent duplicate handling.
+    
+    Args:
+        event_id (str): Stripe event ID
+        event_type (str): Type of Stripe event
+    """
+    with sqlite3.connect(CUSTOMERS_DB) as conn:
+        cur = conn.cursor()
+        cur.execute("""
+        INSERT OR IGNORE INTO processed_events (event_id, event_type, processed_at)
+        VALUES (?, ?, ?)
+        """, (event_id, event_type, datetime.utcnow().isoformat()))
+        conn.commit()
