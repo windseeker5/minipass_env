@@ -384,7 +384,7 @@ def verify_mail_server_status():
         
         # Check 3: Dovecot commands are working
         if status['mail_container_running']:
-            dovecot_check = ["docker", "exec", MAILSERVER, "doveadm", "help"]
+            dovecot_check = ["docker", "exec", MAILSERVER, "doveadm", "service", "status"]
             log_subprocess_call(logger, dovecot_check, "Checking dovecot availability")
             result = subprocess.run(dovecot_check, capture_output=True, text=True)
             log_subprocess_result(logger, result, "Dovecot availability check")
