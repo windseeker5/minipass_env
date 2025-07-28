@@ -159,7 +159,8 @@ def stripe_webhook():
     import os
     from utils.customer_helpers import (
         init_customers_db, subdomain_taken,
-        get_next_available_port, insert_customer, update_customer_email_status
+        get_next_available_port, insert_customer, update_customer_email_status,
+        is_event_processed, mark_event_processed
     )
     from utils.deploy_helpers import insert_admin_user, deploy_customer_container
     from utils.email_helpers import send_user_deployment_email, send_support_error_email
@@ -184,6 +185,16 @@ def stripe_webhook():
         return "Invalid signature", 400
 
     if event["type"] == "checkout.session.completed":
+        # Check for duplicate event processing
+        event_id = event["id"]
+        if is_event_processed(event_id):
+            subscription_logger.info(f"🔄 Event {event_id} already processed, skipping")
+            return "OK - Already processed", 200
+        
+        # Mark event as processed to prevent duplicates
+        mark_event_processed(event_id, event["type"])
+        subscription_logger.info(f"🆔 Processing new event: {event_id}")
+        
         session_data = event["data"]["object"]
         metadata = session_data.get("metadata", {})
 
