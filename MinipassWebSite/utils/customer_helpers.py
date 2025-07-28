@@ -19,7 +19,13 @@ def init_customers_db():
             admin_password TEXT NOT NULL,
             port INTEGER NOT NULL,
             created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-            deployed INTEGER DEFAULT 0
+            deployed INTEGER DEFAULT 0,
+            email_address TEXT,
+            email_password TEXT,
+            forwarding_email TEXT,
+            email_created TEXT,
+            email_status TEXT DEFAULT 'pending',
+            organization_name TEXT
         )
         """)
         conn.commit()
