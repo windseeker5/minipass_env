@@ -9,11 +9,15 @@ import gzip
 from datetime import datetime, timedelta
 from collections import defaultdict, Counter
 import ipaddress
+import pyfiglet
+
+
 
 # Configuration
 FAIL2BAN_CLIENT = "/usr/bin/fail2ban-client"
 FAIL2BAN_LOG = "/var/log/fail2ban.log"
 FAIL2BAN_CONFIG = "/etc/fail2ban/jail.local"
+
 
 class Fail2BanManager:
     def __init__(self):
@@ -792,22 +796,27 @@ class Fail2BanManager:
     
     def show_menu(self):
         """Display the main menu"""
-        print("\n" + "="*60)
-        print("   🛡️ FAIL2BAN MANAGEMENT TOOL")
-        print("="*60)
-        print("1. 📊 Show jail status and statistics")
-        print("2. 🚫 List all banned IPs")
-        print("3. ✅ Unban specific IP")
-        print("4. ⚠️ Ban specific IP manually")
-        print("5. 📋 Daily/Weekly activity report")
-        print("6. 📈 Attack pattern analysis")
-        print("7. 🔍 Search IP across all logs")
-        print("8. ⚙️ Jail configuration overview")
-        print("9. 📤 Export ban data to CSV")
-        print("d. 🔧 Debug jail status (troubleshooting)")
-        print("x. ❌ Exit")
-        print("="*60)
-    
+
+        os.system('clear')
+        title = pyfiglet.figlet_format("minipass", font = "big" ) 
+        print(title)
+
+        print("  1.  Show jail status and statistics")
+        print("  2.  List all banned IPs")
+        print("  3.  Unban specific IP")
+        print("  4.  Ban specific IP manually")
+        print("  5.  Daily/Weekly activity report")
+        print("  6.  Attack pattern analysis")
+        print("  7.  Search IP across all logs")
+        print("  8.  Jail configuration overview")
+        print("  9.  Export ban data to CSV")
+        print("  d.  Debug jail status (troubleshooting)")
+        print("")
+        print("  x.  Exit")
+
+
+
+
     def run(self):
         """Main program loop"""
         try:
@@ -821,7 +830,7 @@ class Fail2BanManager:
             self.show_menu()
             
             try:
-                choice = input("\nChoose an option (1-9, d, x): ").strip().lower()
+                choice = input("\nChoose an option (1-9, d, x):> ").strip().lower()
                 
                 if choice == '1':
                     self.show_jail_status_overview()
