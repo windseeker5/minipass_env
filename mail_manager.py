@@ -697,8 +697,6 @@ def main_menu():
         #print("   MINIPASS MAIL MANGER  TOOL")
         #print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 
-
-        os.system('clear')
         title = pyfiglet.figlet_format("minipass", font = "big" ) 
         print(title)
 
