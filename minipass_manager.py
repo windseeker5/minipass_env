@@ -673,7 +673,6 @@ class MiniPassAppManager:
     def show_menu(self):
         """Display the main menu"""
 
-        os.system('clear')
         title = pyfiglet.figlet_format("minipass", font = "big" ) 
         print(title)
 
