@@ -42,6 +42,6 @@ deployed/
 docker-compose.override.yml
 
 # my app
-app/
-#app_o1/
-app_beta
+
+# app/
+
