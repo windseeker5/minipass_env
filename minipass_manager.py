@@ -9,6 +9,11 @@ import json
 import re
 from datetime import datetime
 from typing import List, Dict, Tuple, Optional
+import pyfiglet
+
+
+
+
 
 CUSTOMERS_DB = "MinipassWebSite/customers.db"
 DEPLOYED_FOLDER = "deployed"
@@ -667,18 +672,25 @@ class MiniPassAppManager:
 
     def show_menu(self):
         """Display the main menu"""
-        print("\n" + "="*60)
-        print("   🚀 MINIPASS APP MANAGEMENT TOOL")
-        print("="*60)
-        print("1. 📋 List all MiniPass applications")
-        print("2. 🗑️ Delete specific MiniPass application")
-        print("3. 🧹 Cleanup orphaned containers")
-        print("4. 🗄️ Cleanup orphaned database entries")
-        print("5. 🧽 Docker system cleanup")
-        print("6. 📊 View customer database records")
-        print("7. 🗑️ Delete specific database record")
-        print("8. ❌ Exit")
-        print("="*60)
+
+        os.system('clear')
+        title = pyfiglet.figlet_format("minipass", font = "big" ) 
+        print(title)
+
+        print("  1.  List all MiniPass applications")
+        print("  2.  Delete specific MiniPass application")
+        print("  3.  Cleanup orphaned containers")
+        print("  4.  Cleanup orphaned database entries")
+        print("  5.  Docker system cleanup")
+        print("  6.  View customer database records")
+        print("  7.  Delete specific database record")
+        print("")
+
+        print("  x.  Exit")
+
+
+
+
     
     def run(self):
         """Main program loop"""
@@ -686,7 +698,7 @@ class MiniPassAppManager:
             self.show_menu()
             
             try:
-                choice = input("\nChoose an option (1-8): ").strip()
+                choice = input("\nChoose an option (1-7):> ").strip()
                 
                 if choice == '1':
                     self.list_all_minipass_apps()
@@ -735,7 +747,7 @@ class MiniPassAppManager:
                 elif choice == '7':
                     self.delete_customer_database_record()
                 
-                elif choice == '8':
+                elif choice == 'x':
                     print("👋 Goodbye!")
                     break
                 

@@ -4,6 +4,9 @@ import os
 import subprocess
 import getpass
 import shutil
+import pyfiglet
+
+
 
 MAILSERVER = "mailserver"
 DOMAIN = "minipass.me"
@@ -50,17 +53,7 @@ def list_forwards():
                         break
 
 
-
-
-
-
-
-
-
-
-
-
-
+ 
 
 
 def create_user():
@@ -77,12 +70,17 @@ def create_user():
         activate_forward_in_container(email)
     print("✅ User creation complete.\n")
 
+
+
 def add_forward_to_existing_user():
     email = input("Enter existing email to add forward to: ").strip()
     forward_to = input("Forward to which email?: ").strip()
     write_forward_sieve(email, forward_to)
     activate_forward_in_container(email)
     print("✅ Forwarding rule added.\n")
+
+
+
 
 def delete_forward():
     email = input("Enter email to remove forward from: ").strip()
@@ -100,6 +98,8 @@ def delete_forward():
     ], stderr=subprocess.DEVNULL)
     print("❌ Forward removed.\n")
 
+
+
 def delete_user():
     email = input("Enter full email to delete: ").strip()
     subprocess.run([
@@ -107,6 +107,8 @@ def delete_user():
         "delmailuser", email
     ], check=True)
     print("❌ Mail user deleted.\n")
+
+
 
 def delete_user_inbox():
     email = input("Enter email to purge inbox: ").strip()
@@ -117,6 +119,8 @@ def delete_user_inbox():
         "rm", "-rf", f"{maildir}/cur", f"{maildir}/new"
     ])
     print("🧹 Inbox purged.\n")
+
+
 
 def hard_delete_user():
     email = input("Enter the email of the user to hard delete: ").strip()
@@ -159,6 +163,8 @@ def hard_delete_user():
         print(f"❌ Error deleting inbox: {e}")
 
     validate_user_deletion(email)
+
+
 
 def validate_user_deletion(email):
     print("\n🔍 Validating deletion...")
@@ -204,6 +210,8 @@ def validate_user_deletion(email):
     else:
         print("✅ .dovecot.sieve is removed.")
 
+
+
 def write_forward_sieve(email, forward_to):
     path = os.path.join(LOCAL_SIEVE_BASE, email, "sieve")
     os.makedirs(path, exist_ok=True)
@@ -211,6 +219,8 @@ def write_forward_sieve(email, forward_to):
     with open(os.path.join(path, "forward.sieve"), "w") as f:
         f.write(forward_script)
     print(f"📁 Forward config written to: {os.path.join(path, 'forward.sieve')}")
+
+
 
 def activate_forward_in_container(email):
     local_part = email.split("@")[0]
@@ -230,6 +240,8 @@ def activate_forward_in_container(email):
         "doveadm", "sieve", "activate", "-u", email, "forward"
     ], check=True)
     print("✅ Forwarding activated.\n")
+
+
 
 def diagnose_mail_forwards():
     """Diagnose forward status for all users"""
@@ -280,6 +292,7 @@ def diagnose_mail_forwards():
         
         print(f"{user_display:<25} {local_config:<12} {container_active:<16} {forward_display:<30}")
 
+
 def recover_lost_forwards():
     """Help recover lost forward configurations"""
     print("\n🔧 Forward Recovery Tool\n")
@@ -305,6 +318,8 @@ def recover_lost_forwards():
         return
     else:
         print("❌ Invalid choice.")
+
+
 
 def check_container_forwards():
     """Check what forward rules exist in the mail container"""
@@ -358,6 +373,8 @@ def check_container_forwards():
         except Exception as e:
             print(f"   ❌ Error checking: {e}")
 
+
+
 def recreate_specific_forward():
     """Recreate forward for a specific user"""
     email = input("\nEnter email to recreate forward for: ").strip()
@@ -376,6 +393,8 @@ def recreate_specific_forward():
         
     except Exception as e:
         print(f"❌ Error recreating forward: {e}")
+
+
 
 def recover_all_local_configs():
     """Recover all missing local forward configs from the container"""
@@ -452,6 +471,8 @@ def recover_all_local_configs():
     
     if recovered_count > 0:
         print(f"\n🎉 Success! Try running option 2 (List users with forwarding) now to see all forwards.")
+
+
 
 def deep_mail_server_diagnostics():
     """Comprehensive mail server diagnostics to check for issues"""
@@ -668,23 +689,32 @@ def deep_mail_server_diagnostics():
     
     print("\n" + "=" * 70)
 
+
+
 def main_menu():
     while True:
-        print("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-        print("   MINIPASS MAIL MANGER  TOOL")
-        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-        print("1. List mail users")
-        print("2. List users with forwarding")
-        print("3. Create new user")
-        print("4. Delete a forward")
-        print("5. Delete a mail user")
-        print("6. Delete user inbox emails")
-        print("7. Hard Delete Mail User (user + forward + inbox)")
-        print("8. Add a forward to an existing user")
-        print("9. Diagnose forward status")
-        print("10. Recover lost forwards")
-        print("11. Deep mail server diagnostics")
-        print("x. Exit")
+        #print("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        #print("   MINIPASS MAIL MANGER  TOOL")
+        #print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+
+
+        os.system('clear')
+        title = pyfiglet.figlet_format("minipass", font = "big" ) 
+        print(title)
+
+        print("  1.  List mail users")
+        print("  2.  List users with forwarding")
+        print("  3.  Create new user")
+        print("  4.  Delete a forward")
+        print("  5.  Delete a mail user")
+        print("  6.  Delete user inbox emails")
+        print("  7.  Hard Delete Mail User (user + forward + inbox)")
+        print("  8.  Add a forward to an existing user")
+        print("  9.  Diagnose forward status")
+        print("  10. Recover lost forwards")
+        print("  11. Deep mail server diagnostics")
+        print("")
+        print("  x.  Exit")
 
         choice = input("\nChoose an option:> ").strip()
         if choice == "1":
