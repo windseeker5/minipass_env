@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}All Activities{% endblock %}
+
+{% block content %}
+<div class="container-xl mt-4">
+
+  <!-- Page Header -->
+  <div class="page-header mb-4">
+    <div class="row align-items-center">
+      <div class="col">
+        <h2 class="page-pretitle text-muted text-uppercase mb-1">Manage</h2>
+        <h1 class="page-title mb-0">All Activities</h1>
+      </div>
+    </div>
+  </div>
+
+  <!-- Search + Add -->
+  <div class="row mb-3">
+    <div class="col-md-6">
+      <form method="GET" class="d-flex">
+        <input type="text" name="q" class="form-control" placeholder="Search activities..." value="{{ request.args.get('q', '') }}">
+        <button type="submit" class="btn btn-light ms-2"><i class="ti ti-search"></i></button>
+      </form>
+    </div>
+    <div class="col text-end">
+      <a href="{{ url_for('create_activity') }}" class="btn btn-primary">
+        <i class="ti ti-plus"></i> New Activity
+      </a>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="card">
+    <div class="table-responsive">
+      <table class="table card-table table-hover table-vcenter">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Status</th>
+            <th>Sessions</th>
+            <th>Price</th>
+            <th>Start</th>
+            <th>End</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for a in activities %}
+          <tr>
+            <td>
+              <strong>{{ a.name }}</strong><br>
+              <span class="text-muted small">{{ a.description|truncate(40) }}</span>
+            </td>
+            <td>
+              {% if a.status == 'active' %}
+              <span class="badge bg-green">Active</span>
+              {% else %}
+              <span class="badge bg-gray">Inactive</span>
+              {% endif %}
+            </td>
+            <td>{{ a.sessions_included }}</td>
+            <td>${{ "%.2f"|format(a.price_per_user) }}</td>
+            <td>{{ a.start_date.strftime('%Y-%m-%d') if a.start_date else '-' }}</td>
+            <td>{{ a.end_date.strftime('%Y-%m-%d') if a.end_date else '-' }}</td>
+            <td class="text-end">
+              <a href="{{ url_for('edit_activity', activity_id=a.id) }}" class="btn btn-sm btn-outline-primary">
+                <i class="ti ti-pencil"></i>
+              </a>
+              <form method="POST" action="{{ url_for('delete_activity', activity_id=a.id) }}" class="d-inline-block" onsubmit="return confirm('Are you sure?');">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn btn-sm btn-outline-danger">
+                  <i class="ti ti-trash"></i>
+                </button>
+              </form>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="7" class="text-center text-muted">No activities found.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

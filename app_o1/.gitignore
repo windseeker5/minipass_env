@@ -1,0 +1,23 @@
+# Byte-compiled files
+__pycache__/
+*.py[cod]
+
+# Virtual environment
+venv/
+
+# logos 
+uploads/
+
+# Environment files
+.env
+
+# VS Code or PyCharm settings
+.vscode/
+.idea/
+
+# MacOS
+.DS_Store
+
+
+# SQLite database
+instance/prod_database.db

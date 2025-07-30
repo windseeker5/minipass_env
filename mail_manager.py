@@ -63,11 +63,16 @@ def create_user():
         "docker", "exec", MAILSERVER,
         "addmailuser", email, password
     ], check=True)
+    
     choice = input("Add a forwarding address? (y/n): ").strip().lower()
     if choice == "y":
         forward_to = input("Forward to which email?: ").strip()
         write_forward_sieve(email, forward_to)
-        activate_forward_in_container(email)
+        activate_forward_in_container(email)  # This will restart the mailserver
+    else:
+        # Even without forwarding, restart mailserver to ensure new user is properly loaded
+        restart_mailserver()
+    
     print("✅ User creation complete.\n")
 
 
@@ -222,6 +227,19 @@ def write_forward_sieve(email, forward_to):
 
 
 
+def restart_mailserver():
+    """Restart the mailserver container to reload configuration"""
+    print("🔄 Restarting mailserver to reload configuration...")
+    try:
+        subprocess.run(["docker", "restart", MAILSERVER], check=True)
+        print("✅ Mailserver restarted successfully.")
+        print("⏳ Waiting 10 seconds for mailserver to fully start...")
+        import time
+        time.sleep(10)
+    except subprocess.CalledProcessError as e:
+        print(f"❌ Failed to restart mailserver: {e}")
+        raise
+
 def activate_forward_in_container(email):
     local_part = email.split("@")[0]
     local_path = os.path.join(LOCAL_SIEVE_BASE, email, "sieve", "forward.sieve")
@@ -239,7 +257,10 @@ def activate_forward_in_container(email):
         "docker", "exec", MAILSERVER,
         "doveadm", "sieve", "activate", "-u", email, "forward"
     ], check=True)
-    print("✅ Forwarding activated.\n")
+    print("✅ Forwarding activated.")
+    
+    # Restart mailserver to ensure configuration is fully loaded
+    restart_mailserver()
 
 
 
@@ -711,6 +732,7 @@ def main_menu():
         print("  9.  Diagnose forward status")
         print("  10. Recover lost forwards")
         print("  11. Deep mail server diagnostics")
+        print("  12. Restart mailserver")
         print("")
         print("  x.  Exit")
 
@@ -737,6 +759,8 @@ def main_menu():
             recover_lost_forwards()
         elif choice == '11':
             deep_mail_server_diagnostics()
+        elif choice == '12':
+            restart_mailserver()
         elif choice == "x":
             break
         else:

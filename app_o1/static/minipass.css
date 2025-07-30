@@ -1,0 +1,107 @@
+/* -------------------------------------------------
+   🏒 ORG TITLE 
+-------------------------------------------------- */
+.org-name-responsive {
+    font-family: "Anton", sans-serif;
+    font-weight: 400;
+    font-size: 2em;
+    font-style: normal;
+  
+    background: linear-gradient(to right, #fffee9, #bc6ff1, #ed2988);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+  
+    text-shadow: 0 1px 1px rgba(153, 0, 0, 0.3);
+  }
+  
+
+  .alert {
+    z-index: 1055;
+  }
+
+  
+  .position-sticky.top-0 {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    background: white;
+    border-radius: 0.25rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+  }
+  
+
+
+/* Hover effect for activity cards */
+.card.activity-card {
+  transition: transform 0.2s ease-in-out;
+}
+.card.activity-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(32, 107, 196, 0.12);
+}
+
+
+
+/* General card background */
+.card {
+  background-color: #f8f9fc !important;
+}
+
+/* Form fieldset styling */
+.form-fieldset {
+  background: white;
+  border: 1px solid #e3e6f0;
+  border-radius: 0.5rem;
+  padding: 1.25rem;
+}
+
+/* Input with icon spacing fix */
+.input-icon .form-control {
+  padding-left: 2.25rem;
+}
+
+/* Suggestion dropdown animation */
+#suggestions {
+  opacity: 0;
+  transform: translateY(-5px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  display: none;
+}
+
+#suggestions.show {
+  display: block;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+
+
+
+
+.modal-content {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+
+
+
+
+
+
+
+
+/* 📱 Smaller size on small screens */
+@media (max-width: 576px) {
+    .org-name-responsive {
+        font-size: 1.4rem;
+        margin-left: 0.5rem;
+    }
+}
+
+

@@ -1,0 +1,396 @@
+{% extends "base.html" %}
+{% block title %}
+  {{ "Edit Activity" if activity else "Create New Activity" }}
+{% endblock %}
+
+{% block content %}
+<div class="container-xl mt-4">
+  <div class="row justify-content-center">
+    <div class="col-12 col-lg-10">
+      <form method="POST" enctype="multipart/form-data" class="card shadow-sm">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="card-header">
+          <h3 class="card-title">
+            <i class="ti ti-activity me-2"></i>
+            {{ "Edit Activity" if activity else "Create New Activity" }}
+          </h3>
+        </div>
+
+        <div class="card-body">
+
+          <!-- Activity Name -->
+          <div class="mb-3">
+            <label class="form-label">Activity Name</label>
+            <input type="text" class="form-control" name="name"
+                   value="{{ activity.name if activity else '' }}" required>
+          </div>
+
+          <!-- Activity Type -->
+          <div class="mb-3">
+            <label class="form-label">Activity Type</label>
+            <input type="text" class="form-control" name="type"
+                   value="{{ activity.type if activity else '' }}">
+          </div>
+
+
+          <!-- Activity Status -->
+          <div class="mb-3">
+            <label class="form-label">Status</label>
+            <select class="form-select" name="status" required>
+              {% set current_status = activity.status if activity else 'active' %}
+              <option value="active" {{ 'selected' if current_status == 'active' else '' }}>Active</option>
+              <option value="draft" {{ 'selected' if current_status == 'draft' else '' }}>Draft</option>
+              <option value="archived" {{ 'selected' if current_status == 'archived' else '' }}>Archived</option>
+            </select>
+          </div>
+
+
+
+          <!-- Description -->
+          <div class="mb-3">
+            <label class="form-label">Description</label>
+            <textarea class="form-control" name="description" rows="3">{{ activity.description if activity else '' }}</textarea>
+          </div>
+
+          <!-- Start and End Dates -->
+          <div class="row">
+            <div class="col-12 mb-3">
+              <label class="form-label">Start Date</label>
+              <input type="date" name="start_date" class="form-control" value="{{ activity.start_date.strftime('%Y-%m-%d') if activity and activity.start_date else '' }}">
+            </div>
+            <div class="col-12 mb-3">
+              <label class="form-label">End Date</label>
+              <input type="date" name="end_date" class="form-control" value="{{ activity.end_date.strftime('%Y-%m-%d') if activity and activity.end_date else '' }}">
+            </div>
+          </div>
+
+          <!-- 🖼️ Image Section -->
+          <div class="mb-3">
+            <label class="form-label mb-2">Do you want to choose an image from Unsplash?</label><br>
+            <label class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="toggleOnlineImage">
+              <span class="form-check-label">Enable Online Image Search</span>
+            </label>
+          </div>
+
+          <div id="onlineImageSection" style="display:none;">
+            <div class="mb-3">
+              <div class="input-group">
+                <input type="text" id="imageDescription" class="form-control" placeholder="e.g., Hockey, Yoga, Cooking">
+                <button type="button" id="searchImagesBtn" class="btn btn-primary">
+                  <i class="ti ti-search"></i> Search
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label mb-2">Or upload your own image?</label><br>
+            <label class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="toggleUploadImage">
+              <span class="form-check-label">Enable Upload Image</span>
+            </label>
+          </div>
+
+          <div id="uploadImageSection" style="display:none;">
+            <div class="mb-3">
+              <label class="form-label">Upload Image (Max 10MB)</label>
+              <input type="file" name="upload_image" class="form-control" id="uploadInput">
+            </div>
+          </div>
+
+
+
+          <!-- Selected Image Preview -->
+          <div id="imagePreviewContainer" class="mt-4 text-start" style="{{ 'display:block;' if activity and activity.image_filename else 'display:none;' }}">
+            <h4 class="mb-3">Selected Image Preview</h4>
+            <div class="position-relative d-inline-block">
+              {% if activity and activity.image_filename %}
+                <img id="selectedImagePreview"
+                    src="{{ url_for('static', filename='uploads/activity_images/' + activity.image_filename) }}"
+                    class="img-fluid rounded shadow-sm mb-2"
+                    style="max-height:250px;">
+              {% else %}
+                <img id="selectedImagePreview"
+                    src=""
+                    class="img-fluid rounded shadow-sm mb-2"
+                    style="max-height:250px;">
+              {% endif %}
+              
+              <button type="button"
+                      id="removeImageBtn"
+                      class="btn btn-sm btn-outline-danger position-absolute top-0 end-0 m-2"
+                      style="z-index:10;">
+                <i class="ti ti-trash"></i> Remove
+              </button>
+            </div>
+          </div>
+
+          <input type="hidden" name="selected_image_filename" id="selectedImageFilename" value="{{ activity.image_filename if activity else '' }}">
+
+
+
+
+          <br>
+
+          <!-- Sessions and Pricing -->
+          <div class="mb-3">
+            <label class="form-label">Sessions Included</label>
+            <input type="number" class="form-control" name="sessions_included" min="1"
+                   value="{{ activity.sessions_included if activity else 4 }}">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Price per User ($)</label>
+            <input type="number" step="0.01" class="form-control" name="price_per_user"
+                   value="{{ activity.price_per_user if activity else 50.00 }}">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Target Users</label>
+            <input type="number" class="form-control" name="goal_users"
+                   value="{{ activity.goal_users if activity else 0 }}">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Target Revenue ($)</label>
+            <input type="number" step="0.01" class="form-control" name="goal_revenue"
+                   value="{{ activity.goal_revenue if activity else 0.00 }}">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Business Cost ($)</label>
+            <input type="number" step="0.01" class="form-control" name="cost_to_run"
+                   value="{{ activity.cost_to_run if activity else 0.00 }}">
+          </div>
+
+          <!-- Payment Instructions -->
+          <div class="mb-3">
+            <label class="form-label">Payment Instructions</label>
+            <textarea class="form-control" name="payment_instructions" rows="3">{{ activity.payment_instructions if activity else '' }}</textarea>
+          </div>
+
+          {% if activity %}
+          <!-- Public Signup Link -->
+          <div class="mb-3">
+            <label class="form-label">Signup Link (Share with User)</label>
+            <div class="input-group">
+              <input type="text" class="form-control" id="signupLinkInput" readonly
+                     value="{{ url_for('signup', activity_id=activity.id, _external=True) }}">
+          
+              <!-- Copy Button -->
+              <button class="btn btn-outline-secondary" type="button" onclick="copyToClipboard(this)">
+                <i class="ti ti-copy"></i>
+              </button>
+          
+              <!-- Open in New Tab Button -->
+              <a class="btn btn-outline-secondary" target="_blank"
+                 href="{{ url_for('signup', activity_id=activity.id, _external=True) }}"
+                 title="Open in new tab">
+                <i class="ti ti-world"></i>
+              </a>
+            </div>
+            <small class="form-hint">This is the public signup link for this activity.</small>
+          </div>
+          {% endif %}
+          
+
+        </div>
+
+        <div class="card-footer text-end">
+          <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">Cancel</a>
+          <button type="submit" class="btn btn-primary">
+            <i class="ti ti-check me-1"></i>
+            {{ "Update Activity" if activity else "Create Activity" }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+ 
+<!-- Modal for Unsplash Images -->
+<!-- Modal for Unsplash Images -->
+<div class="modal modal-blur fade" id="unsplashModal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h5 class="modal-title">Select an Image</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="modal-body">
+
+        <!-- Image Grid -->
+        <div id="unsplashImages" class="row g-3"></div>
+
+        <!-- Pagination Controls -->
+        <div id="unsplashPagination" class="d-flex justify-content-between align-items-center pt-3" style="display: none;">
+          <button class="btn btn-outline-secondary" id="prevPageBtn">Previous</button>
+          <span id="pageIndicator" class="text-muted small">Page 1</span>
+          <button class="btn btn-outline-primary" id="nextPageBtn">Next</button>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+
+{% endblock %}
+
+{% block scripts %}
+
+<script>
+  function copyToClipboard(button) {
+    const input = button.closest('.input-group').querySelector('input');
+    input.select();
+    document.execCommand("copy");
+    button.innerHTML = '<i class="ti ti-check"></i>';
+    setTimeout(() => { button.innerHTML = '<i class="ti ti-copy"></i>'; }, 1500);
+  }
+  
+  document.addEventListener('DOMContentLoaded', function () {
+    const toggleOnline = document.getElementById('toggleOnlineImage');
+    const onlineSection = document.getElementById('onlineImageSection');
+    const toggleUpload = document.getElementById('toggleUploadImage');
+    const uploadSection = document.getElementById('uploadImageSection');
+    const removeImageBtn = document.getElementById('removeImageBtn');
+    const selectedImagePreview = document.getElementById('selectedImagePreview');
+    const selectedImageFilename = document.getElementById('selectedImageFilename');
+    const uploadInput = document.getElementById('uploadInput');
+    const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+  
+    const searchBtn = document.getElementById('searchImagesBtn');
+    const imageDescInput = document.getElementById('imageDescription');
+    const unsplashModal = new bootstrap.Modal(document.getElementById('unsplashModal'));
+    const unsplashImagesDiv = document.getElementById('unsplashImages');
+    const paginationControls = document.getElementById('unsplashPagination');
+    const prevPageBtn = document.getElementById('prevPageBtn');
+    const nextPageBtn = document.getElementById('nextPageBtn');
+  
+    let currentPage = 1;
+    let currentQuery = "";
+  
+    toggleOnline.addEventListener('change', () => {
+      onlineSection.style.display = toggleOnline.checked ? 'block' : 'none';
+      if (toggleOnline.checked) toggleUpload.checked = false;
+      uploadSection.style.display = 'none';
+    });
+  
+    toggleUpload.addEventListener('change', () => {
+      uploadSection.style.display = toggleUpload.checked ? 'block' : 'none';
+      if (toggleUpload.checked) toggleOnline.checked = false;
+      onlineSection.style.display = 'none';
+    });
+  
+    removeImageBtn.addEventListener('click', function () {
+      selectedImagePreview.src = "";
+      selectedImageFilename.value = "";
+      uploadInput.value = "";
+      imagePreviewContainer.style.display = 'none';
+    });
+  
+    uploadInput.addEventListener('change', function (event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          selectedImagePreview.src = e.target.result;
+          selectedImageFilename.value = "";
+          imagePreviewContainer.style.display = 'block';
+        }
+        reader.readAsDataURL(file);
+      }
+    });
+  
+    imageDescInput.addEventListener('keypress', function (e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        searchBtn.click();
+      }
+    });
+  
+    searchBtn.addEventListener('click', function () {
+      const query = imageDescInput.value.trim();
+      if (!query) {
+        alert("Please enter a description first.");
+        return;
+      }
+      currentQuery = query;
+      currentPage = 1;
+      loadUnsplashImages(currentPage);
+      unsplashModal.show();
+    });
+  
+    prevPageBtn.addEventListener('click', function () {
+      if (currentPage > 1) {
+        currentPage--;
+        loadUnsplashImages(currentPage);
+      }
+    });
+  
+    nextPageBtn.addEventListener('click', function () {
+      currentPage++;
+      loadUnsplashImages(currentPage);
+    });
+  
+    function loadUnsplashImages(page = 1) {
+      if (!currentQuery) return;
+  
+      fetch(`/unsplash-search?q=${encodeURIComponent(currentQuery)}&page=${page}`)
+        .then(response => response.json())
+        .then(data => {
+          unsplashImagesDiv.innerHTML = '';
+          if (data.length === 0) {
+            unsplashImagesDiv.innerHTML = '<p>No results found.</p>';
+            paginationControls.style.display = 'none';
+            return;
+          }
+  
+          data.forEach(image => {
+            const col = document.createElement('div');
+            col.className = 'col-md-4';
+            col.innerHTML = `
+              <div class="card card-link card-border shadow-sm">
+                <img src="${image.thumb}" class="card-img-top" style="cursor:pointer;" alt="Unsplash Image">
+              </div>
+            `;
+            col.querySelector('img').addEventListener('click', function () {
+              fetch(`/download-unsplash-image?url=${encodeURIComponent(image.full)}`)
+                .then(response => response.json())
+                .then(result => {
+                  if (result.success) {
+                    selectedImagePreview.src = `/static/uploads/activity_images/${result.filename}`;
+                    selectedImageFilename.value = result.filename;
+                    uploadInput.value = "";
+                    imagePreviewContainer.style.display = 'block';
+                    unsplashModal.hide();
+                  } else {
+                    alert("Failed to download image. Try again.");
+                  }
+                });
+            });
+            unsplashImagesDiv.appendChild(col);
+          });
+  
+          paginationControls.style.display = 'flex';
+          prevPageBtn.disabled = page === 1;
+        });
+    }
+  });
+  </script>
+  
+
+{% endblock %}

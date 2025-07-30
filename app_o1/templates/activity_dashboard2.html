@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+{% block title %}Dashboard – {{ activity.name }}{% endblock %}
+
+{% block content %}
+<div class="container-xl mt-4">
+
+  <!-- Title -->
+  <div class="page-header d-print-none mb-3">
+    <div class="row align-items-center">
+      <div class="col">
+        <h2 class="page-title">
+          {{ activity.name }}
+        </h2>
+        <div class="text-muted small">
+          {{ activity.type or 'General Activity' }}
+          {% if activity.start_date %}
+            | Starts {{ activity.start_date.strftime('%Y-%m-%d') }}
+          {% endif %}
+        </div>
+      </div>
+      <div class="col-auto">
+        <a href="{{ url_for('edit_activity', activity_id=activity.id) }}" class="btn btn-outline-primary">
+          <i class="ti ti-pencil"></i> Edit
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Activity Info Card -->
+  <div class="card mb-4">
+    <div class="card-header">
+      <h3 class="card-title"><i class="ti ti-info-circle me-2"></i> Activity Overview</h3>
+    </div>
+    <div class="card-body">
+      <p>{{ activity.description or "No description provided." }}</p>
+      <dl class="row">
+        <dt class="col-sm-4">Sessions Included</dt>
+        <dd class="col-sm-8">{{ activity.sessions_included }}</dd>
+        <dt class="col-sm-4">Price per User</dt>
+        <dd class="col-sm-8">${{ "%.2f"|format(activity.price_per_user) }}</dd>
+        <dt class="col-sm-4">Cost to Run</dt>
+        <dd class="col-sm-8">${{ "%.2f"|format(activity.cost_to_run) }}</dd>
+        <dt class="col-sm-4">Payment Instructions</dt>
+        <dd class="col-sm-8"><pre class="m-0">{{ activity.payment_instructions or "-" }}</pre></dd>
+      </dl>
+    </div>
+  </div>
+
+  <!-- Revenue & Passports -->
+  <div class="card mb-4">
+    <div class="card-header">
+      <h3 class="card-title"><i class="ti ti-credit-card me-2"></i> Revenue & Passes</h3>
+    </div>
+    <div class="card-body">
+      <div class="row g-2">
+        <div class="col-sm-6">
+          <div class="card card-sm">
+            <div class="card-body">
+              <div class="text-muted">Paid Revenue</div>
+              <div class="h3">${{ "%.2f"|format(paid_amount) }}</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-6">
+          <div class="card card-sm">
+            <div class="card-body">
+              <div class="text-muted">Unpaid Revenue</div>
+              <div class="h3">${{ "%.2f"|format(unpaid_amount) }}</div>
+              
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-responsive mt-3">
+        <table class="table table-vcenter">
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Email</th>
+              <th>Pass Code</th>
+              <th>Sold Amount</th>
+              <th>Remaining</th>
+              <th>Paid</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for p in passes %}
+              <tr>
+                <td>{{ p.user.name if p.user else "-" }}</td>
+                <td>{{ p.user.email if p.user else "-" }}</td>
+                <td>{{ p.pass_code }}</td>
+                <td>${{ "%.2f"|format(p.sold_amt) }}</td>
+                <td>{{ p.uses_remaining }}</td>
+                <td>
+                  {% if p.paid %}
+                    <span class="status status-green">Yes</span>
+                  {% else %}
+                    <span class="status status-red">No</span>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Expenses (if visible) -->
+  {% if expenses %}
+  <div class="card mb-4" id="expense-section">
+    <div class="card-header">
+      <h3 class="card-title"><i class="ti ti-receipt me-2"></i> Expenses</h3>
+      <div class="ms-auto">
+        <a href="{{ url_for('activity_expenses', activity_id=activity.id) }}" class="btn btn-sm btn-outline-primary">
+          <i class="ti ti-external-link"></i> Manage Expenses
+        </a>
+      </div>
+    </div>
+    <div class="table-responsive">
+      <table class="table card-table table-vcenter text-nowrap">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Category</th>
+            <th>Amount</th>
+            <th>Description</th>
+            <th>Receipt</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for e in expenses[:5] %}
+            <tr>
+              <td>{{ e.date.strftime('%Y-%m-%d') }}</td>
+              <td>{{ e.category }}</td>
+              <td>${{ "%.2f"|format(e.amount) }}</td>
+              <td>{{ e.description or "-" }}</td>
+              <td>
+                {% if e.receipt_filename %}
+                  <a href="{{ url_for('static', filename='uploads/receipts/' + e.receipt_filename) }}" target="_blank">
+                    <i class="ti ti-file-search"></i>
+                  </a>
+                {% else %}
+                  -
+                {% endif %}
+              </td>
+            </tr>
+          {% else %}
+            <tr><td colspan="5" class="text-muted text-center">No expenses yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block title %}Expense Ledger - {{ activity.name }}{% endblock %}
+
+{% block content %}
+<div class="container-xl mt-4">
+  <div class="row">
+    <div class="col-lg-8">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title"><i class="ti ti-currency-dollar me-2"></i> Add Expense</h3>
+        </div>
+        <div class="card-body">
+          <form method="POST" enctype="multipart/form-data">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="mb-3">
+              <label class="form-label">Category</label>
+              <select name="category" class="form-select" required>
+                {% for cat in categories %}
+                  <option value="{{ cat }}">{{ cat }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Amount ($)</label>
+              <input type="number" name="amount" step="0.01" min="0" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Date</label>
+              <input type="date" name="date" class="form-control" value="{{ now().strftime('%Y-%m-%d') if now else '' }}" required>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Description (optional)</label>
+              <textarea name="description" class="form-control" rows="2"></textarea>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Upload Receipt (optional)</label>
+              <input type="file" name="receipt" accept="image/*" class="form-control">
+            </div>
+
+            <div class="text-end">
+              <button type="submit" class="btn btn-primary">
+                <i class="ti ti-plus me-1"></i> Add Expense
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="card mt-4">
+        <div class="card-header">
+          <h3 class="card-title"><i class="ti ti-list-details me-2"></i> Expense Ledger</h3>
+        </div>
+        <div class="table-responsive">
+          <table class="table card-table table-vcenter text-nowrap">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Category</th>
+                <th>Amount</th>
+                <th>Description</th>
+                <th>Receipt / Edit</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for e in expenses %}
+                <tr>
+                  <td>{{ e.date.strftime('%Y-%m-%d') }}</td>
+                  <td>{{ e.category }}</td>
+                  <td>${{ "%.2f"|format(e.amount) }}</td>
+                  <td>{{ e.description or "-" }}</td>
+                  <td>
+                    {% if e.receipt_filename %}
+                      <a href="{{ url_for('static', filename='uploads/receipts/' + e.receipt_filename) }}"
+                         target="_blank" title="View Receipt">
+                        <i class="ti ti-file-search me-1"></i>
+                      </a>
+                    {% else %}
+                      <span class="text-muted me-1">-</span>
+                    {% endif %}
+                    <a href="{{ url_for('edit_expense', expense_id=e.id) }}" class="text-primary" title="Edit">
+                      <i class="ti ti-edit"></i>
+                    </a>
+                  </td>
+                </tr>
+              {% else %}
+                <tr>
+                  <td colspan="5" class="text-muted text-center">No expenses recorded yet.</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="card sticky-top">
+        <div class="card-header">
+          <h3 class="card-title"><i class="ti ti-chart-pie me-2"></i> Summary Report</h3>
+        </div>
+        <div class="card-body">
+          <table class="table table-sm">
+            <tr><td>💰 Gross Revenue</td><td class="text-end">${{ "%.2f"|format(summary.gross_revenue) }}</td></tr>
+            <tr><td>📦 COGS</td><td class="text-end">${{ "%.2f"|format(summary.cogs_total) }}</td></tr>
+            <tr><td>📈 Gross Profit</td><td class="text-end fw-bold">${{ "%.2f"|format(summary.gross_profit) }}</td></tr>
+            <tr><td>🧾 Operating Expenses</td><td class="text-end">${{ "%.2f"|format(summary.opex_total) }}</td></tr>
+            <tr class="table-info"><td>Total Expenses</td><td class="text-end">${{ "%.2f"|format(summary.total_expenses) }}</td></tr>
+            <tr class="table-success"><td>Net Income</td><td class="text-end">${{ "%.2f"|format(summary.net_income) }}</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

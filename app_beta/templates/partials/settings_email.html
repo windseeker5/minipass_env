@@ -1,0 +1,80 @@
+<h3 class="mb-3">Email Settings</h3>
+<div class="card mb-4">
+  <div class="card-body">
+    <!-- Mail Server -->
+    <div class="mb-3">
+      <label class="form-label">Mail Server</label>
+      <input type="text" class="form-control" name="mail_server" value="{{ settings.MAIL_SERVER or '' }}" required>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Mail Port</label>
+      <input type="number" class="form-control" name="mail_port" value="{{ settings.MAIL_PORT or '587' }}" required>
+    </div>
+
+    <div class="form-check mb-3">
+      <input type="checkbox" class="form-check-input" name="mail_use_tls" id="mail_use_tls" {% if settings.MAIL_USE_TLS == 'True' %}checked{% endif %}>
+      <label class="form-check-label" for="mail_use_tls">Use TLS</label>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Email Username</label>
+      <input type="email" class="form-control" name="mail_username" value="{{ settings.MAIL_USERNAME or '' }}" required>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Email Password (Dev Mode)</label>
+      <input type="text" class="form-control" name="mail_password_raw" value="{{ settings.get('MAIL_PASSWORD', '') }}" autocomplete="off" spellcheck="false" style="font-family: monospace;">
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Default Sender Email</label>
+      <input type="email" class="form-control" name="mail_default_sender" value="{{ settings.MAIL_DEFAULT_SENDER or '' }}" required>
+    </div>
+
+    <hr>
+
+    <h4 class="mb-3">Email Parser Payment Bot</h4>
+
+    <div class="form-check form-switch mb-3">
+      <input class="form-check-input" type="checkbox" name="enable_email_payment_bot" id="enable_email_payment_bot" {% if settings.ENABLE_EMAIL_PAYMENT_BOT == 'True' %}checked{% endif %}>
+      <label class="form-check-label" for="enable_email_payment_bot">Enable Email Payment Bot</label>
+    </div>
+
+    <div id="email-bot-config" style="display: none;">
+      <div class="mb-3">
+        <label class="form-label">Email Sender (e.g., notify@yourbank)</label>
+        <input type="text" class="form-control" name="bank_email_from" value="{{ settings.BANK_EMAIL_FROM or '' }}">
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Email Subject to Match</label>
+        <input type="text" class="form-control" name="bank_email_subject" value="{{ settings.BANK_EMAIL_SUBJECT or '' }}">
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Fuzzy Match Threshold</label>
+        <input type="number" class="form-control" name="bank_email_name_confidance" value="{{ settings.BANK_EMAIL_NAME_CONFIDANCE or '85' }}" min="0" max="100">
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Gmail Label for Processed</label>
+        <input type="text" class="form-control" name="gmail_label_folder_processed" value="{{ settings.GMAIL_LABEL_FOLDER_PROCESSED or 'InteractProcessed' }}">
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const toggle = document.getElementById("enable_email_payment_bot");
+    const configSection = document.getElementById("email-bot-config");
+
+    function updateVisibility() {
+      configSection.style.display = toggle.checked ? "block" : "none";
+    }
+
+    toggle.addEventListener("change", updateVisibility);
+    updateVisibility(); // on page load
+  });
+</script>

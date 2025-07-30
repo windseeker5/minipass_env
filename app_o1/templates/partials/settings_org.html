@@ -1,0 +1,68 @@
+<!-- Organization Settings with Tabler.io -->
+
+
+
+<div class="card mb-4">
+  <div class="card-body">
+
+    <!-- Organization Name -->
+    <div class="mb-3">
+      <label class="form-label">Organization Name</label>
+      <input type="text" name="ORG_NAME" class="form-control" value="{{ settings.get('ORG_NAME', '') }}">
+    </div>
+
+    <!-- Call-Back Days -->
+    <div class="mb-3">
+      <label class="form-label">Call-Back Delay (days) if unpaid</label>
+      <input type="number" name="CALL_BACK_DAYS" class="form-control" min="0" value="{{ settings.get('CALL_BACK_DAYS', '0') }}">
+    </div>
+
+
+
+    <!-- Logo Upload -->
+    <div class="mb-3">
+      <label class="form-label">Upload Logo</label>
+    
+      <div class="mb-2">
+        <img id="logo-preview" 
+             src="{{ url_for('static', filename='uploads/' ~ settings.LOGO_FILENAME) if settings.LOGO_FILENAME else '' }}" 
+             alt="Logo Preview"
+             style="max-height: 80px; display: {{ 'block' if settings.LOGO_FILENAME else 'none' }};">
+      </div>
+    
+      <input type="file" name="ORG_LOGO_FILE" class="form-control" accept="image/*" id="logo-file-input">
+    </div>
+    
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const fileInput = document.getElementById("logo-file-input");
+        const preview = document.getElementById("logo-preview");
+      
+        if (fileInput && preview) {
+          fileInput.addEventListener("change", function (event) {
+            const file = event.target.files[0];
+            if (file && file.type.startsWith("image/")) {
+              const reader = new FileReader();
+              reader.onload = function (e) {
+                preview.src = e.target.result;
+                preview.style.display = "block";
+              };
+              reader.readAsDataURL(file);
+            } else {
+              preview.src = "";
+              preview.style.display = "none";
+            }
+          });
+        }
+      });
+      </script>
+      
+
+
+
+
+
+
+  </div>
+</div>
+

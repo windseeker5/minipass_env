@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Edit Signup{% endblock %}
+
+{% block content %}
+<div class="container-xl mt-4">
+  <form method="POST">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">
+          <i class="ti ti-edit me-2"></i>Edit Signup for {{ signup.user.name }}
+        </h3>
+        <div class="card-subtitle text-muted">Activity: {{ signup.activity.name }}</div>
+      </div>
+
+      <div class="card-body">
+        <div class="mb-3">
+          <label class="form-label">Subject</label>
+          <input type="text" name="subject" class="form-control" value="{{ signup.subject or '' }}">
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Description / Notes</label>
+          <textarea name="description" class="form-control" rows="4">{{ signup.description or '' }}</textarea>
+        </div>
+      </div>
+
+      <div class="card-footer text-end">
+        <a href="{{ url_for('admin_signups') }}" class="btn btn-outline-secondary">Cancel</a>
+        <button type="submit" class="btn btn-primary">
+          <i class="ti ti-device-floppy me-1"></i>Save Changes
+        </button>
+      </div>
+    </div>
+  </form>
+</div>
+{% endblock %}

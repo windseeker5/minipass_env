@@ -1,0 +1,343 @@
+{% extends "base.html" %}
+{% block title %}Dashboard | Activities Overview{% endblock %}
+
+{% block content %}
+<div class="container-xl mt-4">
+
+
+<!-- 🧩 Clean Header (No extra space under OVERVIEW) -->
+<div class="page-header mb-4">
+  <div class="row align-items-center">
+    <div class="col">
+      <h2 class="page-pretitle text-muted text-uppercase mb-1" style="letter-spacing: 0.05em; font-size: 0.75rem;">
+        Overview
+      </h2>
+      <h1 class="page-title mb-0" style="font-weight: 600; font-size: 1.75rem;">
+        Dashboard
+      </h1>
+    </div>
+    <div class="col-auto">
+      <a href="{{ url_for('create_activity') }}" class="btn btn-primary">
+        <i class="ti ti-plus me-1"></i> Create New Activity
+      </a>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+  <!-- KPI Cards -->
+  <div class="row g-3 mb-4 d-none d-md-flex">
+  
+    <!-- Revenue -->
+    <div class="col-md-3">
+      <div class="card card-sm h-100">
+        <div class="card-body">
+          <div class="d-flex justify-content-between">
+            <div>
+              <div class="text-muted text-uppercase small">Revenue</div>
+              <div class="h2 mb-1" id="revenue-value">$0</div>
+              <div class="small" id="revenue-trend">0%</div>
+            </div>
+            <div class="dropdown">
+              <a class="dropdown-toggle text-secondary" href="#" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" id="revenue-period">Last 7 days</a>
+              <div class="dropdown-menu">
+                <a class="dropdown-item revenue-option" data-period="7d">Last 7 days</a>
+                <a class="dropdown-item revenue-option" data-period="30d">Last 30 days</a>
+                <a class="dropdown-item revenue-option" data-period="90d">Last 90 days</a>
+                <a class="dropdown-item revenue-option" data-period="all">All time</a>
+              </div>
+            </div>
+          </div>
+          <canvas id="revenue-sparkline" height="30" class="mt-2 w-100"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Active Passports -->
+    <div class="col-md-3">
+      <div class="card card-sm h-100">
+        <div class="card-body">
+          <div class="d-flex justify-content-between">
+            <div>
+              <div class="text-muted text-uppercase small">Active Passports</div>
+              <div class="h2 mb-1" id="users-value">0</div>
+              <div class="small" id="users-trend">0%</div>
+            </div>
+            <div class="dropdown">
+              <a class="dropdown-toggle text-secondary" href="#" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" id="users-period">Last 7 days</a>
+              <div class="dropdown-menu">
+                <a class="dropdown-item users-option" data-period="7d">Last 7 days</a>
+                <a class="dropdown-item users-option" data-period="30d">Last 30 days</a>
+                <a class="dropdown-item users-option" data-period="90d">Last 90 days</a>
+                <a class="dropdown-item users-option" data-period="all">All time</a>
+              </div>
+            </div>
+          </div>
+          <canvas id="users-sparkline" height="30" class="mt-2 w-100"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Passports Created -->
+    <div class="col-md-3">
+      <div class="card card-sm h-100">
+        <div class="card-body">
+          <div class="d-flex justify-content-between">
+            <div>
+              <div class="text-muted text-uppercase small">Passports Created</div>
+              <div class="h2 mb-1" id="passes-value">0</div>
+              <div class="small" id="passes-trend">0%</div>
+            </div>
+            <div class="dropdown">
+              <a class="dropdown-toggle text-secondary" href="#" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" id="passes-period">Last 7 days</a>
+              <div class="dropdown-menu">
+                <a class="dropdown-item passes-option" data-period="7d">Last 7 days</a>
+                <a class="dropdown-item passes-option" data-period="30d">Last 30 days</a>
+                <a class="dropdown-item passes-option" data-period="90d">Last 90 days</a>
+                <a class="dropdown-item passes-option" data-period="all">All time</a>
+              </div>
+            </div>
+          </div>
+          <canvas id="passes-sparkline" height="30" class="mt-2 w-100"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pending Signups -->
+    <div class="col-md-3">
+      <div class="card card-sm h-100">
+        <div class="card-body">
+          <div class="d-flex justify-content-between">
+            <div>
+              <div class="text-muted text-uppercase small">Pending Signups</div>
+              <div class="h2 mb-1" id="pending-value">0</div>
+              <div class="small" id="pending-trend">0%</div>
+            </div>
+            <div class="dropdown">
+              <a class="dropdown-toggle text-secondary" href="#" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" id="pending-period">Last 7 days</a>
+              <div class="dropdown-menu">
+                <a class="dropdown-item pending-option" data-period="7d">Last 7 days</a>
+                <a class="dropdown-item pending-option" data-period="30d">Last 30 days</a>
+                <a class="dropdown-item pending-option" data-period="90d">Last 90 days</a>
+                <a class="dropdown-item pending-option" data-period="all">All time</a>
+              </div>
+            </div>
+          </div>
+          <canvas id="pending-sparkline" height="30" class="mt-2 w-100"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+
+  <!-- Title -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+
+    <h2 class="mb-0">
+      <i class="ti ti-activity text-pink me-2"></i> Your Active Activities
+    </h2>    
+
+  </div>
+
+
+
+
+
+<!-- Active Activities List -->
+<div class="row">
+
+  {% for a in activities %}
+
+
+<div class="col-md-6 col-xl-4 mb-4">
+  <div class="card activity-card h-100 shadow-sm rounded-2 overflow-hidden">
+
+    {% if a.image_filename %}
+    <img src="{{ url_for('static', filename='uploads/activity_images/' ~ a.image_filename) }}"
+         class="card-img-top" alt="{{ a.name }}"
+         style="height: 130px; object-fit: cover;">
+    {% endif %}
+
+    <!-- 🌟 WRAPPER for internal padding -->
+    <div class="px-4 pt-3 pb-2">
+
+      <!-- Header Row -->
+      <div class="d-flex justify-content-between align-items-start mb-2">
+        <div class="fw-semibold text-dark fs-3">
+          <i class="ti ti-activity text-pink me-1"></i> {{ a.name }}
+        </div>
+        {% if a.days_left != "N/A" %}
+        <small class="text-muted">{{ a.days_left }}d left</small>
+        {% endif %}
+      </div>
+
+      <!-- Stats -->
+      <div class="row gy-1 gx-2 small text-muted">
+        <div class="col-6 d-flex align-items-center"><i class="ti ti-user me-1"></i> {{ a.pending_signups }} Pending</div>
+        <div class="col-6 d-flex align-items-center"><i class="ti ti-users me-1"></i> {{ a.signups }} Total</div>
+
+        <div class="col-6 d-flex align-items-center"><i class="ti ti-ticket me-1 text-success"></i> {{ a.active_passports }} Active</div>
+        <div class="col-6 d-flex align-items-center"><i class="ti ti-ticket me-1 text-muted"></i> {{ a.passports }} Created</div>
+
+        <div class="col-6 d-flex align-items-center"><i class="ti ti-currency-dollar me-1 text-green"></i> {{ "%.2f"|format(a.paid_amount) }} Paid</div>
+        <div class="col-6 d-flex align-items-center"><i class="ti ti-currency-dollar me-1 text-red"></i> {{ "%.2f"|format(a.unpaid_amount) }} Unpaid</div>
+      </div>
+
+
+    </div>
+
+    <!-- Footer -->
+    <div class="card-footer border-0 pt-2 pb-3 bg-white">
+      <a href="{{ url_for('activity_dashboard', activity_id=a.id) }}" class="btn btn-outline-primary w-100">
+        <i class="ti ti-chevron-right me-1"></i> View Details
+      </a>
+    </div>
+
+  </div>
+</div>
+
+
+
+
+{% endfor %}
+
+
+</div>
+
+
+
+
+
+
+
+<!-- 🔻 Last 15 Redeem Transactions -->
+<div class="mt-5">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0" style="font-family: 'Poppins', sans-serif;">
+      <i class="ti ti-ticket text-pink me-2"></i> Last 15 Redeem Transactions
+    </h2>
+  </div>
+
+  <div class="card">
+    <div class="table-responsive">
+      <table class="table card-table table-vcenter">
+        <thead>
+          <tr>
+            <th class="text-muted">Date/Time</th>
+            <th class="text-muted">Type</th>
+            <th class="text-muted">Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% set redeem_logs = logs | selectattr("type", "equalto", "Passport Redeemed") | list %}
+          {% for log in redeem_logs[:15] %}
+          <tr>
+            <td>{{ log.timestamp | utc_to_local | datetimeformat('%Y-%m-%d %H:%M') }}</td>
+            <td data-type="{{ log.type }}">
+              <i class="ti ti-ticket text-danger"></i> {{ log.type }}
+            </td>
+            <td>{{ log.details }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const kpiData = {{ kpi_data | tojson }};
+
+  function createSparkline(ctxId, chartType, trendList) {
+    const ctx = document.getElementById(ctxId).getContext("2d");
+    new Chart(ctx, {
+      type: chartType,
+      data: {
+        labels: trendList.map((_, i) => i + 1),
+        datasets: [{
+          data: trendList,
+          backgroundColor: chartType === "bar" ? "#206bc4" : "rgba(32,107,196,0.1)",
+          borderColor: chartType === "line" ? "#206bc4" : undefined,
+          fill: chartType === "line",
+          tension: 0.4,
+          borderWidth: chartType === "line" ? 2 : 0,
+          pointRadius: 0
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false },
+          tooltip: { enabled: false }
+        },
+        scales: {
+          x: { display: false },
+          y: { display: false }
+        },
+        elements: {
+          point: { radius: 0 } // No points on line chart
+        }
+      }
+    });
+  }
+
+  function updateCard(id, metric, period, chartType) {
+    const current = kpiData[period][metric];
+    const previous = kpiData[period][`${metric}_prev`] || 0;
+    const trendList = kpiData[period][`${metric}_trend`] || [];
+    const percent = previous > 0 ? ((current - previous) / previous * 100).toFixed(1) : "0.0";
+
+    const val = metric === "revenue" ? `$${current.toLocaleString()}` : current;
+    const trend = `<span class="${percent >= 0 ? 'text-green' : 'text-red'}">${percent}% ${percent >= 0 ? '↑' : '↓'}</span>`;
+
+    document.querySelector(`#${id}-value`).textContent = val;
+    document.querySelector(`#${id}-trend`).innerHTML = trend;
+    document.querySelector(`#${id}-period`).textContent = {
+      "7d": "Last 7 days",
+      "30d": "Last 30 days",
+      "90d": "Last 90 days",
+      "all": "All time"
+    }[period];
+
+    createSparkline(`${id}-sparkline`, chartType, trendList);
+  }
+
+  [
+    { id: "revenue", metric: "revenue", selector: ".revenue-option", chartType: "line" },
+    { id: "passes", metric: "pass_created", selector: ".passes-option", chartType: "bar" },
+    { id: "users", metric: "active_users", selector: ".users-option", chartType: "bar" },
+    { id: "pending", metric: "pending_signups", selector: ".pending-option", chartType: "bar" }
+  ].forEach(({ id, metric, selector, chartType }) => {
+    document.querySelectorAll(selector).forEach(el => {
+      el.addEventListener("click", () => updateCard(id, metric, el.dataset.period, chartType));
+    });
+    updateCard(id, metric, "7d", chartType);
+  });
+});
+</script>
+
+
+
+{% endblock %}
+
+
+
+

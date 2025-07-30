@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}Signups Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-xl mt-4">
+  <div class="card mb-3">
+    <div class="card-body">
+      <h3 class="card-title mb-3"><i class="ti ti-user-plus me-2"></i>Manage Signups</h3>
+      <div class="row g-2 align-items-center">
+        <div class="col-12 col-md">
+          <div class="input-icon">
+            <span class="input-icon-addon"><i class="ti ti-search"></i></span>
+            <input type="text" id="searchBox" class="form-control" placeholder="Search by Name or Email...">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Signup Table -->
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">All Signups</h3>
+    </div>
+    <div class="table-responsive">
+      <table class="table card-table table-vcenter" id="signupTable">
+        <thead>
+          <tr>
+            <th>Signed Up</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Activity</th>
+            <th>Paid</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for s in signups %}
+            <tr>
+              <td>{{ s.signed_up_at.strftime('%Y-%m-%d %H:%M') if s.signed_up_at else '-' }}</td>
+              <td>{{ s.user.name if s.user else '-' }}</td>
+              <td>{{ s.user.email if s.user else '-' }}</td>
+              <td>{{ s.activity.name if s.activity else '-' }}</td>
+              <td>
+                {% if s.paid %}
+                  <span class="badge bg-success">Yes</span>
+                {% else %}
+                  <span class="badge bg-warning text-dark">No</span>
+                {% endif %}
+              </td>
+              <td>
+                <div class="dropdown">
+                  <a href="#" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">Actions</a>
+                  <div class="dropdown-menu">
+                    {% if not s.paid %}
+                    <form method="POST" action="{{ url_for('mark_signup_paid', signup_id=s.id) }}" onsubmit="return confirm('Mark as paid?');">
+                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                      <button type="submit" class="dropdown-item text-success">
+                        <i class="ti ti-currency-dollar me-2"></i>Mark as Paid
+                      </button>
+                    </form>
+                    {% endif %}
+                    <a class="dropdown-item text-primary" href="{{ url_for('create_pass_from_signup', signup_id=s.id) }}">
+                      <i class="ti ti-ticket me-2"></i>Create Passport
+                    </a>
+                    <a class="dropdown-item" href="{{ url_for('edit_signup', signup_id=s.id) }}">
+                      <i class="ti ti-pencil me-2"></i>Edit Signup
+                    </a>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          {% else %}
+            <tr><td colspan="6" class="text-center text-muted">No signups yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const input = document.getElementById("searchBox");
+  const rows = Array.from(document.querySelectorAll("#signupTable tbody tr"));
+
+  input.addEventListener("input", () => {
+    const filter = input.value.toLowerCase();
+    rows.forEach(row => {
+      row.style.display = row.textContent.toLowerCase().includes(filter) ? "" : "none";
+    });
+  });
+});
+</script>
+{% endblock %}
