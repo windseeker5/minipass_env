@@ -1,0 +1,229 @@
+{% extends "base.html" %}
+{% block title %}Passport Details{% endblock %}
+
+{% block content %}
+<div class="container-xl mt-4">
+  <div class="row justify-content-center">
+
+    <!-- ✅ QR Code Card -->
+    <div class="col-md-10 col-lg-8 mx-auto mb-4">
+      <div class="card shadow-md rounded bg-white text-center p-3">
+        <img src="data:image/png;base64,{{ qr_data }}"
+             alt="QR Code"
+             class="img-fluid rounded bg-white"
+             style="max-width: 100%; height: auto;" />
+      </div>
+    </div>
+
+    <!-- ✅ Owner Info -->
+    <div class="col-md-10 col-lg-8 mx-auto">
+      <div class="card shadow-md mb-4 bg-white">
+
+        <!-- 🔲 Header -->
+        <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+          <div class="d-flex align-items-center">
+            <span class="avatar me-3 d-none d-md-inline-block"
+                  style="background-image: url('https://www.gravatar.com/avatar/{{ hockey_pass.user.email|lower|trim|encode_md5 }}?s=64&d=mp')">
+            </span>
+
+            <h3 class="card-title mb-0 d-flex align-items-center">
+              {{ hockey_pass.activity.name if hockey_pass.activity else '-' }}
+              {% if hockey_pass.paid %}
+                <span class="badge bg-green text-white ms-2 d-none d-md-inline-block">Paid</span>
+              {% else %}
+                <span class="badge bg-red text-white ms-2 d-none d-md-inline-block">Unpaid</span>
+              {% endif %}
+            </h3>
+          </div>
+
+          <!-- 3-dot Menu -->
+          <div class="dropdown">
+            <a href="#" class="btn btn-icon fs-4 p-1" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="ti ti-dots-vertical"></i>
+            </a>
+            <div class="dropdown-menu dropdown-menu-end">
+              <a href="{{ url_for('edit_passport', passport_id=hockey_pass.id) }}" class="dropdown-item">
+                <i class="ti ti-pencil me-2"></i> Edit Passport
+              </a>
+
+              {% if hockey_pass.uses_remaining > 0 %}
+              <button type="button" class="dropdown-item text-primary" data-bs-toggle="modal" data-bs-target="#redeem-confirm-modal">
+                <i class="ti ti-check me-2"></i> Redeem 1 Session
+              </button>
+              {% endif %}
+              
+
+              {% if not hockey_pass.paid %}
+              <button type="button" class="dropdown-item text-success" data-bs-toggle="modal" data-bs-target="#mark-paid-modal">
+                <i class="ti ti-currency-dollar me-2"></i> Mark as Paid
+              </button>              
+              {% endif %}
+
+
+
+            </div>
+          </div>
+        </div>
+
+        <!-- 🔲 Body -->
+        <div class="card-body">
+          <div class="d-flex flex-column flex-md-row align-items-center align-items-md-start gap-3">
+            <div class="text-center order-1 order-md-2">
+              <img src="{{ url_for('static', filename='uploads/logo.png') }}"
+                   style="width: 80px;" class="mb-2 d-md-none" />
+              <img src="{{ url_for('static', filename='uploads/logo.png') }}"
+                   style="width: 100px;" class="mb-2 d-none d-md-inline-block" />
+            </div>
+
+            <div class="flex-grow-1 text-center text-md-start order-2 order-md-1">
+              <div class="fw-bold">{{ hockey_pass.user.name }}</div>
+              <div class="text-muted small">{{ hockey_pass.user.email }}</div>
+              <div class="text-muted small">{{ hockey_pass.user.phone_number }}</div>
+
+              <div class="h4 fw-bold mt-3 mb-1">${{ "%.2f"|format(hockey_pass.sold_amt or 0) }}</div>
+              <div class="text-muted small">
+                Activités restantes: <strong>{{ hockey_pass.uses_remaining }}</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    {% if history %}
+    <!-- ✅ Historique Table -->
+    <div class="col-md-10 col-lg-8 mx-auto">
+      <div class="card shadow-md mb-4 bg-white">
+        <div class="card-header">
+          <h3 class="card-title">Historique</h3>
+        </div>
+
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-vcenter card-table">
+              <thead>
+                <tr>
+                  <th>Activité</th>
+                  <th>Date</th>
+                  <th>Par</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% if history.created %}
+                <tr>
+                  <td>Création</td>
+                  <td>
+                    {{ history.created[:10] }}
+                    <span class="d-none d-md-inline">{{ history.created[10:] }}</span>
+                  </td>
+                  <td>{{ history.created_by | trim_email }}</td>
+                </tr>
+                {% endif %}
+
+                {% if history.paid %}
+                <tr>
+                  <td>Paiement</td>
+                  <td>
+                    {{ history.paid[:10] }}
+                    <span class="d-none d-md-inline">{{ history.paid[10:] }}</span>
+                  </td>
+                  <td>{{ history.paid_by | trim_email }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                  <td>Paiement</td>
+                  <td>❌ Non payé</td>
+                  <td>–</td>
+                </tr>
+                {% endif %}
+
+                {% for r in history.redemptions %}
+                <tr>
+                  <td>Activité #{{ loop.index }}</td>
+                  <td>
+                    {{ r.date[:10] }}
+                    <span class="d-none d-md-inline">{{ r.date[10:] }}</span>
+                  </td>
+                  <td>{{ r.by | trim_email }}</td>
+                </tr>
+                {% endfor %}
+
+                {% if history.expired %}
+                <tr>
+                  <td>Expiré</td>
+                  <td>
+                    {{ history.expired[:10] }}
+                    <span class="d-none d-md-inline">{{ history.expired[10:] }}</span>
+                  </td>
+                  <td>-</td>
+                </tr>
+                {% endif %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+  </div>
+</div>
+
+
+
+
+<!-- ✅ Redeem Confirmation Modal -->
+<div class="modal modal-blur fade" id="redeem-confirm-modal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-status bg-primary"></div>
+      <div class="modal-body text-center py-4">
+        <i class="ti ti-check icon mb-2 text-primary" style="font-size: 2rem;"></i>
+        <h3>Redeem 1 Session?</h3>
+        <div class="text-muted">This will deduct one session from the passport. Are you sure?</div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-link w-100" data-bs-dismiss="modal">Cancel</button>
+        <form id="redeem-form" method="POST" action="{{ url_for('redeem_passport', pass_code=hockey_pass.pass_code) }}" class="w-100">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="btn btn-primary w-100">Yes, Redeem</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ✅ Mark as Paid Modal -->
+<div class="modal modal-blur fade" id="mark-paid-modal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-status bg-success"></div>
+      <div class="modal-body text-center py-4">
+        <i class="ti ti-currency-dollar icon mb-2 text-success" style="font-size: 2rem;"></i>
+        <h3>Confirm Payment</h3>
+        <div class="text-muted">Mark {{ hockey_pass.user.name }}'s passport as paid?</div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-link w-100" data-bs-dismiss="modal">Cancel</button>
+        <form method="POST" action="{{ url_for('mark_passport_paid', passport_id=hockey_pass.id) }}" class="w-100">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="btn btn-success w-100">Yes, mark as paid</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+{% endblock %}

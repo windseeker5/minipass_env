@@ -1,0 +1,34 @@
+# 🔥 Core App
+Flask
+Flask-SQLAlchemy
+flask-migrate
+flask-mail
+
+flask-wtf
+bcrypt
+gunicorn
+apscheduler
+
+# 📧 Email + QR
+pillow
+qrcode[pil]
+
+# 💳 Payments
+stripe
+
+# 🔍 Fuzzy Matching, Timezones
+rapidfuzz
+pytz
+
+# 🧠 Data / AI Stack
+pandas
+matplotlib
+duckdb
+scipy
+faker
+
+# 🧠 LLM / Chatbot
+ollama  # Python client for your Ollama server
+
+premailer
+requests

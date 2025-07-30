@@ -1,0 +1,141 @@
+<div id="admin-list">
+  {% for admin in admins %}
+  <div class="card admin-block mb-3">
+    <div class="card-body row align-items-center" data-loaded="true">
+      <div class="col-md-5">
+        <label class="form-label">Email</label>
+        <input type="email" name="admin_email[]" value="{{ admin.email }}" class="form-control" required>
+      </div>
+      <div class="col-md-5">
+        <label class="form-label">Password</label>
+        <div class="input-group">
+          <input type="password" name="admin_password[]" value="********"
+                 class="form-control" data-is-placeholder="true" required>
+          <span class="input-group-text toggle-password" style="cursor: pointer;">
+            <i class="ti ti-eye"></i>
+          </span>
+        </div>
+      </div>
+      <div class="col-md-2 text-end mt-3 mt-md-0">
+        {% if admin.email != session.get('admin') %}
+        <a class="btn btn-icon btn-outline-danger remove-admin-btn" title="Remove Admin (Click Save to confirm)">
+          <i class="ti ti-trash"></i>
+        </a>
+        {% else %}
+        <span class="text-muted small">This is you</span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- Add Button -->
+<a class="btn btn-success" onclick="addAdmin()" type="button">
+  <i class="ti ti-plus me-1"></i> Add Admin
+</a>
+
+<!-- Deletion tracking -->
+<input type="hidden" name="deleted_admins" id="deleted_admins">
+
+<!-- Scripts -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  // Toggle password visibility
+  document.addEventListener("click", function (e) {
+    if (e.target.closest(".toggle-password")) {
+      const group = e.target.closest(".input-group");
+      const input = group.querySelector("input");
+      const icon = group.querySelector("i");
+      if (input.type === "password") {
+        input.type = "text";
+        icon.classList.replace("ti-eye", "ti-eye-off");
+      } else {
+        input.type = "password";
+        icon.classList.replace("ti-eye-off", "ti-eye");
+      }
+    }
+  });
+
+  // Remove admin
+  document.querySelectorAll('.remove-admin-btn').forEach(btn => {
+    btn.addEventListener('click', function () {
+      removeAdmin(this);
+    });
+  });
+
+  // Validate on submit
+  document.querySelector("form").addEventListener("submit", function (e) {
+    let valid = true;
+
+    document.querySelectorAll('.admin-block').forEach(block => {
+      const email = block.querySelector('input[name="admin_email[]"]').value.trim();
+      const passwordInput = block.querySelector('input[name="admin_password[]"]');
+      const password = passwordInput.value.trim();
+
+      if (password === "********" && passwordInput.dataset.isPlaceholder === "true") {
+        passwordInput.value = "";
+      }
+
+      if (!block.dataset.loaded && email && !password) {
+        alert(`Please enter a password for new admin: ${email}`);
+        valid = false;
+      }
+    });
+
+    if (!valid) {
+      e.preventDefault();
+    }
+  });
+});
+
+function addAdmin() {
+  const adminList = document.getElementById("admin-list");
+  const newCard = document.createElement("div");
+  newCard.className = "card admin-block mb-3";
+  newCard.innerHTML = `
+    <div class="card-body row align-items-center" data-loaded="">
+      <div class="col-md-5">
+        <label class="form-label">Email</label>
+        <input type="email" name="admin_email[]" class="form-control" required>
+      </div>
+      <div class="col-md-5">
+        <label class="form-label">Password</label>
+        <div class="input-group">
+          <input type="password" name="admin_password[]" class="form-control" required>
+          <span class="input-group-text toggle-password" style="cursor: pointer;">
+            <i class="ti ti-eye"></i>
+          </span>
+        </div>
+      </div>
+      <div class="col-md-2 text-end mt-3 mt-md-0">
+        <a class="btn btn-icon btn-outline-danger remove-admin-btn" title="Remove Admin (Click Save to confirm)">
+          <i class="ti ti-trash"></i>
+        </a>
+      </div>
+    </div>
+  `;
+  adminList.appendChild(newCard);
+  newCard.querySelector(".remove-admin-btn").addEventListener("click", function () {
+    removeAdmin(this);
+  });
+}
+
+function removeAdmin(button) {
+  const block = button.closest(".admin-block");
+  const emailInput = block.querySelector('input[name="admin_email[]"]');
+  const email = emailInput?.value?.trim();
+
+  if (email) {
+    const deletedField = document.getElementById("deleted_admins");
+    let current = deletedField.value ? deletedField.value.split(",") : [];
+    if (!current.includes(email)) {
+      current.push(email);
+      deletedField.value = current.join(",");
+      console.log("🗑️ Marked for deletion:", email);
+    }
+  }
+
+  block.remove();
+}
+</script>

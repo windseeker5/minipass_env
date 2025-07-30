@@ -18,7 +18,7 @@ MiniPass is a Flask-based SaaS platform that provides automated password managem
   - `mail_manager.py` - Mail server account management and forwarding utilities
 - **`templates/`** - Jinja2 templates for web interface
 - **`static/`** - Frontend assets (CSS, JS, images)
-- **`app/`, `app_o1/`, `app_o2/`, `app_o3/`** - Customer application templates for different subscription tiers
+- **`app/`, `app_o1/`, `app_beta/`** - Customer application templates for different subscription tiers
 - **`tests/`** - Test suites for system validation and functionality testing
 
 ### Docker Infrastructure
@@ -49,16 +49,17 @@ source venv/bin/activate  # or: venv\Scripts\activate on Windows
 
 ### Testing
 ```bash
-# Run tests from MinipassWebSite directory
+# Main app logging test
 cd MinipassWebSite
-python -m pytest tests/
+python test_enhanced_logging.py
 
-# Run specific test file
-python tests/test_flask_startup.py
-python tests/test_survey_system.py
+# Customer app tests
+cd app_o1
+python test_admin.py [password]  # Test admin authentication
+python test_payment_email.py    # Test payment email system
 
-# Database validation tests
-python tests/validate_fix.py
+cd app_beta
+python test_payment_email.py    # Test beta payment email system
 ```
 
 ### Docker Operations
@@ -78,21 +79,50 @@ docker-compose down && docker-compose up -d --build
 
 ### Customer Management
 ```bash
-# Interactive customer deletion tool
-cd MinipassWebSite
-python manage.py
+# Interactive customer management tool
+python minipass_manager.py
 
 # Database migrations
 cd MinipassWebSite
-python migrations/migrate_database.py
-python migrations/init_db_1.py
+python utils/migrate_customer_db.py
+
+# Customer app database initialization
+cd app_o1  # or app_beta
+python init_db_1.py
+flask db upgrade  # Run Flask-Migrate migrations
 ```
 
 ### Mail Server Management
 ```bash
 # Mail server management utility
-cd MinipassWebSite
-python utils/mail_manager.py
+python mail_manager.py
+
+# Fail2ban management
+python fail2ban_manager.py
+```
+
+### Customer App Development
+```bash
+# Basic tier app development (app/)
+cd app
+pip install -r requirements.txt
+flask db upgrade
+python app.py  # Development server
+
+# Pro tier app development (app_o1/) - includes expenses tracking
+cd app_o1
+pip install -r requirements.txt
+flask db upgrade
+python app.py  # Development server
+
+# Beta tier app development (app_beta/) - includes full features
+cd app_beta
+pip install -r requirements.txt
+flask db upgrade
+python app.py  # Development server
+
+# Production deployment (all tiers)
+gunicorn --bind=0.0.0.0:8889 app:app
 ```
 
 ## Environment Configuration
@@ -109,7 +139,7 @@ Required environment variables in `.env`:
 2. **Dynamic Deployment**: Automatic Docker container creation per customer
 3. **Email Notifications**: Deployment confirmations and error reporting  
 4. **Subdomain Management**: Automated DNS and SSL certificate provisioning
-5. **Plan-based Apps**: Different app tiers (`app_o1`, `app_o2`, `app_o3`) based on subscription
+5. **Plan-based Apps**: Different app tiers (`app`, `app_o1`, `app_beta`) based on subscription
 
 ## Deployment Flow
 
@@ -125,7 +155,7 @@ Required environment variables in `.env`:
 ### Code Organization
 - Flask application follows MVC pattern with clear separation of concerns
 - Modular utilities in `utils/` package for reusability across different app tiers
-- Each customer app template (`app_o1`, `app_o2`, `app_o3`) represents different feature sets and pricing tiers
+- Each customer app template (`app`, `app_o1`, `app_beta`) represents different feature sets and pricing tiers
 - Database operations centralized in helper modules for consistency
 
 ### Port Management
@@ -140,11 +170,11 @@ Required environment variables in `.env`:
 
 ## Testing Strategy
 
-The codebase includes comprehensive test coverage:
-- **`test_flask_startup.py`** - Application initialization and configuration tests
-- **`test_survey_system.py`** - Survey functionality and database operations
-- **`test_chatbot_infrastructure.py`** - AI chatbot integration testing
-- **`validate_fix.py`** - Database schema and data integrity validation
+The codebase includes targeted test coverage:
+- **`MinipassWebSite/test_enhanced_logging.py`** - Logging system validation for deployment tracking
+- **`app_o1/test_admin.py`** - Admin authentication testing with bcrypt password verification  
+- **`app_o1/test_payment_email.py`** - Payment email system integration testing
+- **`app_beta/test_payment_email.py`** - Beta tier payment email system testing
 
 ## Security Notes
 
