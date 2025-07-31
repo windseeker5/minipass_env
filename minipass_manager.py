@@ -18,6 +18,12 @@ import pyfiglet
 CUSTOMERS_DB = "MinipassWebSite/customers.db"
 DEPLOYED_FOLDER = "deployed"
 
+# Mail server constants (from mail_manager.py)
+MAILSERVER = "mailserver"
+DOMAIN = "minipass.me"
+LOCAL_SIEVE_BASE = "./config/user-patches"
+FORWARD_DIR = "./config/user-patches"
+
 
 
 
@@ -321,7 +327,28 @@ class MiniPassAppManager:
             print(f"   ❌ Error removing deployed files: {e}")
             success = False
         
-        # 4. Remove from database
+        # 4. Get email address before database deletion
+        email_address = None
+        try:
+            conn = sqlite3.connect(CUSTOMERS_DB)
+            cursor = conn.cursor()
+            cursor.execute("SELECT email_address FROM customers WHERE subdomain = ?", (subdomain,))
+            result = cursor.fetchone()
+            if result:
+                email_address = result[0]
+            conn.close()
+        except sqlite3.Error as e:
+            print(f"   ⚠️ Warning getting email address: {e}")
+        
+        # 5. Delete associated email account
+        if email_address:
+            email_success = self.delete_associated_email(email_address)
+            if not email_success:
+                success = False
+        else:
+            print("   ℹ️ No email address associated with this app")
+        
+        # 6. Remove from database
         try:
             conn = sqlite3.connect(CUSTOMERS_DB)
             cursor = conn.cursor()
@@ -338,7 +365,7 @@ class MiniPassAppManager:
             print(f"   ❌ Database error: {e}")
             success = False
         
-        # 5. Clean up dangling images
+        # 7. Clean up dangling images
         try:
             print("🧽 Cleaning up dangling images...")
             result = self.run_docker_command(['image', 'prune', '-f'], check=False)
@@ -408,6 +435,85 @@ class MiniPassAppManager:
                                 os.remove(item_path)
         except Exception as e:
             print(f"   ⚠️ Warning cleaning subdomain references: {e}")
+    
+    def delete_associated_email(self, email_address: str) -> bool:
+        """Delete email user from mail server (based on mail_manager.py hard_delete_user)"""
+        if not email_address:
+            return True  # Nothing to delete
+            
+        print(f"📧 Deleting associated email account '{email_address}'...")
+        success = True
+        
+        try:
+            # 1. Delete user from mail server
+            print("   🗑️ Removing user from mail server...")
+            result = subprocess.run([
+                "docker", "exec", MAILSERVER,
+                "setup", "email", "del", email_address
+            ], capture_output=True, text=True, check=False)
+            
+            if result.returncode != 0:
+                print(f"   ⚠️ Warning deleting user from mail server: {result.stderr}")
+            else:
+                print("   ✅ User removed from mail server")
+                
+        except Exception as e:
+            print(f"   ❌ Error deleting user from mail server: {e}")
+            success = False
+
+        try:
+            # 2. Remove forward configuration directory
+            local_forward_dir = os.path.join(FORWARD_DIR, email_address)
+            if os.path.exists(local_forward_dir):
+                print("   🧹 Removing forward configuration...")
+                shutil.rmtree(local_forward_dir)
+                print("   ✅ Forward configuration removed")
+            else:
+                print("   ℹ️ No forward configuration found")
+                
+        except Exception as e:
+            print(f"   ❌ Error removing forward configuration: {e}")
+            success = False
+
+        try:
+            # 3. Remove inbox data from container
+            local_part = email_address.split("@")[0]
+            inbox_path = f"/var/mail/{DOMAIN}/{local_part}"
+            print("   📭 Removing inbox data...")
+            
+            result = subprocess.run([
+                "docker", "exec", MAILSERVER,
+                "rm", "-rf", inbox_path
+            ], capture_output=True, text=True, check=False)
+            
+            if result.returncode != 0:
+                print(f"   ⚠️ Warning removing inbox: {result.stderr}")
+            else:
+                print("   ✅ Inbox data removed")
+                
+        except Exception as e:
+            print(f"   ❌ Error removing inbox data: {e}")
+            success = False
+        
+        # 4. Validate deletion
+        try:
+            print("   🔍 Validating email deletion...")
+            result = subprocess.run([
+                "docker", "exec", MAILSERVER,
+                "grep", "-i", email_address,
+                "/tmp/docker-mailserver/postfix-accounts.cf"
+            ], capture_output=True, text=True, check=False)
+            
+            if result.stdout.strip():
+                print(f"   ⚠️ Warning: Email still exists in postfix-accounts.cf")
+                success = False
+            else:
+                print("   ✅ Email successfully removed from mail server")
+                
+        except Exception as e:
+            print(f"   ⚠️ Could not validate email deletion: {e}")
+        
+        return success
     
     def cleanup_orphaned_containers(self):
         """Remove containers that don't have database entries"""
@@ -720,6 +826,10 @@ class MiniPassAppManager:
                                 print(f"  - Image: {selected_app['image']['tag']}")
                             if selected_app['db_entry']:
                                 print(f"  - Database entry: {selected_app['db_entry']['email']}")
+                                if selected_app['db_entry'].get('email_address'):
+                                    print(f"  - Email account: {selected_app['db_entry']['email_address']} (will be deleted from mail server)")
+                                else:
+                                    print(f"  - Email account: None associated")
                             
                             confirm = input(f"\n❗ Type 'DELETE {subdomain}' to confirm: ")
                             if confirm == f"DELETE {subdomain}":

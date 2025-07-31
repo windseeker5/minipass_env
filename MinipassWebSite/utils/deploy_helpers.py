@@ -173,13 +173,13 @@ def deploy_customer_container(app_name, admin_email, admin_password, plan, port,
 
     base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 
-    # Plan-to-folder mapping
+    # Plan-to-folder mapping - now using single 'app' folder for all plans
     plan_folder_map = {
-        "basic": "app_o1",
-        "pro": "app_o2",
-        "ultimate": "app_o3"
+        "basic": "app",
+        "pro": "app",
+        "ultimate": "app"
     }
-    source_folder = plan_folder_map.get(plan.lower(), "app_o1")
+    source_folder = plan_folder_map.get(plan.lower(), "app")
     source_dir = os.path.join(base_dir, source_folder)
     target_dir = os.path.join(base_dir, "deployed", app_name, "app")
     deploy_dir = os.path.join(base_dir, "deployed", app_name)

@@ -4,6 +4,7 @@ import os
 import subprocess
 import shutil
 import logging
+import time
 from .logging_config import (
     setup_subscription_logger, log_subprocess_call, log_subprocess_result,
     log_operation_start, log_operation_end, log_file_operation, log_validation_check
@@ -275,6 +276,10 @@ def setup_customer_email_complete(subdomain, password, forward_to_email):
             log_operation_end(logger, "Complete Customer Email Setup", success=False, error_msg=error_msg)
             return False, email_address, error_msg
         
+        # Brief delay to allow mail server to fully initialize the account
+        logger.info(f"⏳ Allowing mail server to initialize account...")
+        time.sleep(3)
+        
         # Step 2: Set up forwarding if forward_to_email is provided
         if forward_to_email and forward_to_email.strip():
             logger.info(f"📤 Step 2: Setting up forwarding {email_address} -> {forward_to_email}")
@@ -282,7 +287,7 @@ def setup_customer_email_complete(subdomain, password, forward_to_email):
                 error_msg = "Email created but forwarding setup failed"
                 logger.warning(f"⚠️ {error_msg} for {email_address}")
                 log_operation_end(logger, "Complete Customer Email Setup", success=False, error_msg=error_msg)
-                return True, email_address, error_msg
+                return False, email_address, error_msg
         else:
             logger.info(f"📭 Step 2: Skipping forwarding setup (no forward_to_email provided)")
         
