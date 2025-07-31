@@ -295,9 +295,30 @@ def diagnose_mail_forwards():
         except:
             container_active = "❌ Error"
         
-        # Get forward destination
+        # Get forward destination - prioritize container over local config
         forward_to = "-"
-        if os.path.exists(local_sieve_path):
+        
+        # First try to get forward destination from container (most accurate)
+        if container_active == "✅ Yes":
+            try:
+                local_part = user.split("@")[0]
+                container_sieve_file = f"/var/mail/{DOMAIN}/{local_part}/home/sieve/forward.sieve"
+                
+                content_result = subprocess.run([
+                    "docker", "exec", MAILSERVER,
+                    "cat", container_sieve_file
+                ], capture_output=True, text=True, check=False)
+                
+                if content_result.returncode == 0:
+                    for line in content_result.stdout.splitlines():
+                        if 'redirect' in line and '"' in line:
+                            forward_to = line.split('"')[1]
+                            break
+            except:
+                pass
+        
+        # Fallback to local config if container check failed
+        if forward_to == "-" and os.path.exists(local_sieve_path):
             try:
                 with open(local_sieve_path, 'r') as f:
                     for line in f:

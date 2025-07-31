@@ -160,7 +160,7 @@ def stripe_webhook():
     from utils.customer_helpers import (
         init_customers_db, subdomain_taken,
         get_next_available_port, insert_customer, update_customer_email_status,
-        is_event_processed, mark_event_processed
+        update_customer_deployment_status, is_event_processed, mark_event_processed
     )
     from utils.deploy_helpers import insert_admin_user, deploy_customer_container
     from utils.email_helpers import send_user_deployment_email, send_support_error_email
@@ -274,6 +274,11 @@ def stripe_webhook():
                 }
                 send_user_deployment_email(admin_email, app_url, admin_password, email_info)
                 log_validation_check(subscription_logger, "Deployment notification sent", True, f"Email sent to {admin_email}")
+
+                # Step 6: Mark deployment as completed in database
+                subscription_logger.info("✅ Step 6: Updating deployment status in database")
+                update_customer_deployment_status(app_name, deployed=True)
+                log_validation_check(subscription_logger, "Database deployment status", True, f"Deployment status updated for {app_name}")
 
                 log_operation_end(subscription_logger, "Customer Subscription Processing", success=True)
 

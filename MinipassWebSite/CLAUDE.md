@@ -20,7 +20,7 @@ MiniPass is a Flask-based SaaS platform that provides automated password managem
   - `logging_config.py` - Centralized logging configuration for operations tracking
 - **`templates/`** - Jinja2 templates for web interface
 - **`static/`** - Frontend assets (CSS, JS, images)
-- **`app/`, `app_beta/`, `app_o1/`** - Customer application templates for different subscription tiers
+- **`app/`** - Customer application template used for all subscription tiers
 - **`migrations/`** - Database schema migration scripts
 
 ### Docker Infrastructure
@@ -59,8 +59,8 @@ cd MinipassWebSite
 python test_enhanced_logging.py
 
 # Run customer app specific tests
-cd ../app_beta && python test_payment_email.py
-cd ../app_o1 && python test_admin.py
+cd ../app && python test_payment_email.py
+cd ../app && python test_admin.py
 
 # Database migration and validation
 python utils/migrate_customer_db.py
@@ -109,13 +109,13 @@ Required environment variables in `.env`:
 3. **Integrated Mail Server**: Automatic email account creation with forwarding
 4. **Enhanced Logging**: Comprehensive operation tracking in `subscribed_app.log`
 5. **Subdomain Management**: Automated DNS and SSL certificate provisioning
-6. **Multi-tier Apps**: Different app templates (`app`, `app_beta`, `app_o1`) for subscription plans
+6. **Unified App Template**: Single app template (`app`) used for all subscription plans
 
 ## Deployment Flow
 
 1. Customer selects plan and submits payment via Stripe
 2. Stripe webhook triggers deployment process with comprehensive logging
-3. App template copied based on subscription plan
+3. App template copied from unified app folder
 4. Email account created with forwarding to customer email
 5. Docker container built and deployed with unique subdomain
 6. Admin user created in customer app database
@@ -149,7 +149,7 @@ diagnosis = diagnose_email_setup_issue("user_app@minipass.me", "user@example.com
 ### Code Organization
 - Flask application follows MVC pattern with clear separation of concerns
 - Modular utilities in `utils/` package for reusability across app tiers
-- Customer app templates represent different feature sets and pricing tiers
+- Single customer app template serves all subscription tiers
 - Database operations centralized in helper modules for consistency
 
 ### Port Management
@@ -167,8 +167,8 @@ diagnosis = diagnose_email_setup_issue("user_app@minipass.me", "user@example.com
 ## Testing Strategy
 
 - **`test_enhanced_logging.py`** - Mail server status validation and logging verification
-- **`test_payment_email.py`** - Payment notification and email processing (app_beta)
-- **`test_admin.py`** - Admin authentication and database operations (app_o1)
+- **`test_payment_email.py`** - Payment notification and email processing (app)
+- **`test_admin.py`** - Admin authentication and database operations (app)
 - **Migration scripts** - Database schema validation and updates
 
 ## Security Notes

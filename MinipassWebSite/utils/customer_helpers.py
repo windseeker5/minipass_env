@@ -133,6 +133,28 @@ def update_customer_email_status(subdomain, email_address, email_status, email_c
         conn.commit()
 
 
+def update_customer_deployment_status(subdomain, deployed=True):
+    """
+    Updates the deployment status for a customer.
+    
+    Args:
+        subdomain (str): Customer's subdomain
+        deployed (bool): Deployment status (True for deployed, False for not deployed)
+    """
+    with sqlite3.connect(CUSTOMERS_DB) as conn:
+        cur = conn.cursor()
+        
+        deployed_value = 1 if deployed else 0
+        
+        cur.execute("""
+        UPDATE customers 
+        SET deployed = ?
+        WHERE subdomain = ?
+        """, (deployed_value, subdomain))
+        
+        conn.commit()
+
+
 def get_customer_by_subdomain(subdomain):
     """
     Retrieves customer information by subdomain.
