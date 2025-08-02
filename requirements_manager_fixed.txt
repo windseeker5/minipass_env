@@ -1,0 +1,23 @@
+# Requirements for MiniPass Manager Enhanced Version
+# Python 3.8+ compatibility
+
+# ASCII art for menu display
+pyfiglet>=0.8.0
+
+# Standard library modules used (no additional requirements):
+# - os (built-in)
+# - sqlite3 (built-in)
+# - subprocess (built-in)
+# - shutil (built-in)
+# - sys (built-in)
+# - json (built-in)
+# - re (built-in)
+# - logging (built-in)
+# - time (built-in)
+# - datetime (built-in)
+# - typing (built-in since Python 3.5)
+# - contextlib (built-in)
+
+# Note: All other dependencies are part of Python's standard library
+# The enhanced version focuses on using robust built-in modules
+# to minimize external dependencies and improve reliability.

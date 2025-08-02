@@ -14,6 +14,10 @@ USER_BASE_DIR = f"/var/mail/{DOMAIN}"
 LOCAL_SIEVE_BASE = "./config/user-patches"
 FORWARD_DIR = "./config/user-patches"
 
+def is_minipass_app_email(email):
+    """Check if email is a minipass app email and return appropriate prefix"""
+    return "🐳 " if "_app@minipass.me" in email else ""
+
 def list_mail_users():
     print("\n📬 Mail Users:\n")
     output = subprocess.check_output([
@@ -23,7 +27,8 @@ def list_mail_users():
     ]).decode().strip()
     users = sorted(set(line.split("|")[0] for line in output.splitlines()))
     for user in users:
-        print(f" - {user}")
+        prefix = is_minipass_app_email(user)
+        print(f" - {prefix}{user}")
 
 def old_list_forwards():
     print("\n📤 Users with Forwarding Enabled:\n")
@@ -49,7 +54,8 @@ def list_forwards():
                 for line in f:
                     if "redirect" in line and '"' in line:
                         target = line.split('"')[1]
-                        print(f" - {user_folder} ➡️ {target}")
+                        prefix = is_minipass_app_email(user_folder)
+                        print(f" - {prefix}{user_folder} ➡️ {target}")
                         break
 
 
@@ -329,7 +335,9 @@ def diagnose_mail_forwards():
             except:
                 forward_to = "Error reading"
         
-        user_display = user[:23] + ".." if len(user) > 25 else user
+        prefix = is_minipass_app_email(user)
+        user_with_prefix = f"{prefix}{user}"
+        user_display = user_with_prefix[:23] + ".." if len(user_with_prefix) > 25 else user_with_prefix
         forward_display = forward_to[:28] + ".." if len(forward_to) > 30 else forward_to
         
         print(f"{user_display:<25} {local_config:<12} {container_active:<16} {forward_display:<30}")
@@ -376,7 +384,8 @@ def check_container_forwards():
     users = sorted(set(line.split("|")[0] for line in output.splitlines()))
     
     for user in users:
-        print(f"\n📧 Checking {user}:")
+        prefix = is_minipass_app_email(user)
+        print(f"\n📧 Checking {prefix}{user}:")
         
         # Check if forward rule exists in container
         try:
@@ -458,7 +467,8 @@ def recover_all_local_configs():
         local_sieve_path = os.path.join(LOCAL_SIEVE_BASE, user, "sieve", "forward.sieve")
         
         if os.path.exists(local_sieve_path):
-            print(f"⏭️  Skipping {user} - local config already exists")
+            prefix = is_minipass_app_email(user)
+            print(f"⏭️  Skipping {prefix}{user} - local config already exists")
             skipped_count += 1
             continue
         
@@ -488,12 +498,13 @@ def recover_all_local_configs():
                             break
                     
                     if forward_to:
-                        print(f"🔄 Recovering {user} ➡️ {forward_to}")
+                        prefix = is_minipass_app_email(user)
+                        print(f"🔄 Recovering {prefix}{user} ➡️ {forward_to}")
                         try:
                             # Create local sieve config
                             write_forward_sieve(user, forward_to)
                             recovered_count += 1
-                            print(f"   ✅ Local config recovered for {user}")
+                            print(f"   ✅ Local config recovered for {prefix}{user}")
                         except Exception as e:
                             print(f"   ❌ Failed to create local config: {e}")
                     else:
@@ -501,7 +512,8 @@ def recover_all_local_configs():
                 else:
                     print(f"   ❌ Could not read container sieve file for {user}")
             else:
-                print(f"⏭️  Skipping {user} - no active forward in container")
+                prefix = is_minipass_app_email(user)
+                print(f"⏭️  Skipping {prefix}{user} - no active forward in container")
                 skipped_count += 1
                 
         except Exception as e:
@@ -552,9 +564,11 @@ def deep_mail_server_diagnostics():
                 # Check for duplicates
                 if len(rule_names) != len(set(rule_names)):
                     duplicates_found = True
-                    print(f"   ⚠️  {user}: Duplicate rules detected: {rule_names}")
+                    prefix = is_minipass_app_email(user)
+                    print(f"   ⚠️  {prefix}{user}: Duplicate rules detected: {rule_names}")
                 elif len(rule_names) > 1:
-                    print(f"   ℹ️  {user}: Multiple rules: {rule_names}")
+                    prefix = is_minipass_app_email(user)
+                    print(f"   ℹ️  {prefix}{user}: Multiple rules: {rule_names}")
                     
         except Exception as e:
             print(f"   ❌ Error checking {user}: {e}")
@@ -642,7 +656,9 @@ def deep_mail_server_diagnostics():
     # Check for multiple users forwarding to same destination
     for destination, forwarding_users in forward_destinations.items():
         if len(forwarding_users) > 1:
-            print(f"   ℹ️  Multiple users forward to {destination}: {', '.join(forwarding_users)}")
+            # Add prefixes to user display in the list
+            users_with_prefixes = [f"{is_minipass_app_email(user)}{user}" for user in forwarding_users]
+            print(f"   ℹ️  Multiple users forward to {destination}: {', '.join(users_with_prefixes)}")
     
     if invalid_forwards:
         print("   ⚠️  Invalid forward destinations:")
@@ -676,7 +692,8 @@ def deep_mail_server_diagnostics():
             if orphaned_dirs:
                 print("   ⚠️  Orphaned mail directories:")
                 for orphaned_dir in orphaned_dirs:
-                    print(f"      {orphaned_dir}")
+                    prefix = is_minipass_app_email(orphaned_dir)
+                    print(f"      {prefix}{orphaned_dir}")
             else:
                 print("   ✅ All mail directories have corresponding users")
                 
@@ -685,7 +702,8 @@ def deep_mail_server_diagnostics():
             if missing_dirs:
                 print("   ⚠️  Users missing mail directories:")
                 for missing_dir in missing_dirs:
-                    print(f"      {missing_dir}")
+                    prefix = is_minipass_app_email(missing_dir)
+                    print(f"      {prefix}{missing_dir}")
             else:
                 print("   ✅ All users have mail directories")
                 
