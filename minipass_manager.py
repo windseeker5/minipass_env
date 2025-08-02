@@ -313,10 +313,14 @@ class MiniPassAppManager:
                 folder_size = self.get_folder_size(folder_path)
                 print(f"📁 Removing ALL deployed files and folders for '{subdomain}' ({self.format_size(folder_size)})...")
                 
-                # Force remove with all permissions
-                self.force_remove_folder(folder_path)
-                space_freed += folder_size
-                print("   ✅ All deployed files and folders removed")
+                # Force remove with all permissions using enhanced removal
+                removal_success = self.force_remove_folder(folder_path)
+                if removal_success:
+                    space_freed += folder_size
+                    print("   ✅ All deployed files and folders removed")
+                else:
+                    print("   ❌ Failed to remove all deployed files - some files may remain")
+                    success = False
             else:
                 print(f"   ℹ️ Deployed folder '{folder_path}' not found")
                 
@@ -396,26 +400,219 @@ class MiniPassAppManager:
         return total
     
     def force_remove_folder(self, folder_path: str):
-        """Force remove folder with all permissions"""
+        """
+        Enhanced force removal with multiple escalation strategies
+        Handles Python bytecode files, Docker container ownership, and special attributes
+        """
+        import stat
+        import logging
+        import pwd
+        import grp
+        from pathlib import Path
+        
+        if not os.path.exists(folder_path):
+            print(f"   ℹ️ Path '{folder_path}' does not exist")
+            return True
+            
+        print(f"   🗑️ Attempting to remove: {folder_path}")
+        
+        # Strategy 1: Standard removal
+        print("   🔧 Strategy 1: Standard removal...", end=" ")
+        if self._try_standard_removal(folder_path):
+            print("✅ Success!")
+            return True
+        print("❌ Failed")
+            
+        # Strategy 2: Permission-based removal with detailed analysis
+        print("   🔧 Strategy 2: Permission fixing...", end=" ")
+        if self._try_permission_based_removal(folder_path):
+            print("✅ Success!")
+            return True
+        print("❌ Failed (permission issues)")
+            
+        # Strategy 3: Attribute-based removal (handle immutable files)
+        print("   🔧 Strategy 3: Attribute removal...", end=" ")
+        if self._try_attribute_based_removal(folder_path):
+            print("✅ Success!")
+            return True
+        print("❌ Failed (attribute issues)")
+            
+        # Strategy 4: Container-based removal (for Docker-created files)
+        print("   🔧 Strategy 4: Container-based removal...", end=" ")
+        if self._try_container_based_removal(folder_path):
+            print("✅ Success!")
+            return True
+        print("❌ Failed (container issues)")
+            
+        # Strategy 5: Sudo-based removal (if available)
+        print("   🔧 Strategy 5: Sudo-based removal...", end=" ")
+        if self._try_sudo_removal(folder_path):
+            print("✅ Success!")
+            return True
+        print("❌ Failed (no sudo access)")
+            
+        # Strategy 6: Process-based cleanup (handle busy files)
+        print("   🔧 Strategy 6: Process-based removal...", end=" ")
+        if self._try_process_based_removal(folder_path):
+            print("✅ Success!")
+            return True
+        print("❌ Failed (busy files)")
+            
+        print(f"   ❌ All 6 removal strategies failed for: {folder_path}")
+        return False
+    
+    def _try_standard_removal(self, folder_path: str) -> bool:
+        """Strategy 1: Standard shutil.rmtree removal"""
         try:
-            # First try normal removal
             shutil.rmtree(folder_path)
-        except PermissionError:
-            # If permission error, try with chmod
-            try:
-                import stat
-                for root, dirs, files in os.walk(folder_path):
-                    for d in dirs:
-                        os.chmod(os.path.join(root, d), stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO)
-                    for f in files:
-                        os.chmod(os.path.join(root, f), stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO)
-                shutil.rmtree(folder_path)
-            except:
-                # Last resort: use system rm command
-                subprocess.run(['rm', '-rf', folder_path], check=False)
+            return True
         except Exception:
-            # Last resort: use system rm command
-            subprocess.run(['rm', '-rf', folder_path], check=False)
+            return False
+    
+    def _try_permission_based_removal(self, folder_path: str) -> bool:
+        """Strategy 2: Fix permissions and retry removal"""
+        import stat
+        import pwd
+        import grp
+        
+        try:
+            fixed_count = 0
+            error_count = 0
+            
+            # Walk through all files and directories
+            for root, dirs, files in os.walk(folder_path, topdown=False):
+                # Process files first
+                for filename in files:
+                    filepath = os.path.join(root, filename)
+                    if not os.path.exists(filepath):
+                        continue
+                        
+                    try:
+                        # Try to make file writable and removable
+                        new_mode = stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR | stat.S_IRGRP | stat.S_IWGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IWOTH | stat.S_IXOTH
+                        os.chmod(filepath, new_mode)
+                        
+                        # Try to remove the file immediately
+                        os.unlink(filepath)
+                        fixed_count += 1
+                        
+                    except OSError:
+                        error_count += 1
+                        continue
+                
+                # Process directories
+                for dirname in dirs:
+                    dirpath = os.path.join(root, dirname)
+                    if not os.path.exists(dirpath):
+                        continue
+                        
+                    try:
+                        # Make directory writable and accessible
+                        new_mode = stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR | stat.S_IRGRP | stat.S_IWGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IWOTH | stat.S_IXOTH
+                        os.chmod(dirpath, new_mode)
+                        
+                        # Try to remove empty directory
+                        try:
+                            os.rmdir(dirpath)
+                        except OSError:
+                            pass  # Directory not empty, will be handled by parent removal
+                            
+                    except OSError:
+                        error_count += 1
+            
+            # Try final removal
+            shutil.rmtree(folder_path)
+            return True
+            
+        except Exception:
+            return False
+    
+    def _try_attribute_based_removal(self, folder_path: str) -> bool:
+        """Strategy 3: Remove special attributes (immutable, append-only) and retry"""
+        try:
+            # Use chattr to remove immutable and append-only attributes
+            result = subprocess.run(['chattr', '-R', '-i', '-a', folder_path], 
+                                  capture_output=True, text=True, check=False)
+            
+            # Try removal after attribute changes
+            shutil.rmtree(folder_path)
+            return True
+            
+        except FileNotFoundError:
+            return False
+        except Exception:
+            return False
+    
+    def _try_container_based_removal(self, folder_path: str) -> bool:
+        """Strategy 4: Use Docker container to remove files with different ownership"""
+        try:
+            # Check if Docker is available
+            if not hasattr(self, 'check_docker_available'):
+                return False
+                
+            # Get absolute path
+            abs_path = os.path.abspath(folder_path)
+            parent_dir = os.path.dirname(abs_path)
+            target_dir = os.path.basename(abs_path)
+            
+            # Use a lightweight container to remove files
+            # Mount parent directory and remove the target folder
+            result = subprocess.run([
+                'docker', 'run', '--rm',
+                '-v', f'{parent_dir}:/workspace',
+                '--workdir', '/workspace',
+                'alpine:latest',
+                'rm', '-rf', target_dir
+            ], capture_output=True, text=True, check=False)
+            
+            return result.returncode == 0
+                
+        except Exception:
+            return False
+    
+    def _try_sudo_removal(self, folder_path: str) -> bool:
+        """Strategy 5: Use sudo for removal if available"""
+        try:
+            # Check if sudo is available and user has privileges
+            sudo_check = subprocess.run(['sudo', '-n', 'true'], 
+                                      capture_output=True, check=False)
+            
+            if sudo_check.returncode != 0:
+                return False
+            
+            # Use sudo rm with force
+            result = subprocess.run(['sudo', 'rm', '-rf', folder_path], 
+                                  capture_output=True, text=True, check=False)
+            
+            return result.returncode == 0
+                
+        except Exception:
+            return False
+    
+    def _try_process_based_removal(self, folder_path: str) -> bool:
+        """Strategy 6: Handle busy files by finding and killing processes"""
+        try:
+            # Use lsof to find processes using files in the directory
+            result = subprocess.run(['lsof', '+D', folder_path], 
+                                  capture_output=True, text=True, check=False)
+            
+            # If processes are using files, we can't remove them safely
+            if result.returncode == 0 and result.stdout.strip():
+                return False
+            
+            # If no processes found, try removal again
+            shutil.rmtree(folder_path)
+            return True
+            
+        except FileNotFoundError:
+            # Try removal anyway if lsof not available
+            try:
+                shutil.rmtree(folder_path)
+                return True
+            except:
+                return False
+        except Exception:
+            return False
     
     def cleanup_subdomain_references(self, subdomain: str):
         """Clean up any other references to the subdomain"""
@@ -575,53 +772,208 @@ class MiniPassAppManager:
         except sqlite3.Error as e:
             print(f"❌ Database error: {e}")
     
+    def get_build_cache_info(self):
+        """Get detailed build cache information"""
+        try:
+            result = self.run_docker_command(['system', 'df', '-v'], check=False)
+            if result.returncode != 0:
+                return None, None
+                
+            lines = result.stdout.strip().split('\n')
+            build_cache_section = False
+            total_size = 0
+            reclaimable_size = 0
+            
+            for line in lines:
+                if 'BUILD CACHE' in line.upper():
+                    build_cache_section = True
+                    continue
+                elif build_cache_section and line.strip() and not line.startswith(' '):
+                    # End of build cache section
+                    break
+                elif build_cache_section and 'Total:' in line:
+                    # Parse total line for build cache
+                    parts = line.split()
+                    if len(parts) >= 4:
+                        try:
+                            total_size_str = parts[-2]
+                            reclaimable_size_str = parts[-1]
+                            total_size = self.parse_size_string(total_size_str)
+                            reclaimable_size = self.parse_size_string(reclaimable_size_str)
+                        except:
+                            pass
+                    break
+                    
+            return total_size, reclaimable_size
+        except Exception:
+            return None, None
+    
+    def parse_size_string(self, size_str):
+        """Parse Docker size string (e.g., '2.989GB') to bytes"""
+        try:
+            size_str = size_str.upper().replace('B', '')
+            multipliers = {'K': 1024, 'M': 1024**2, 'G': 1024**3, 'T': 1024**4}
+            
+            for suffix, multiplier in multipliers.items():
+                if size_str.endswith(suffix):
+                    return float(size_str[:-1]) * multiplier
+            
+            # No suffix, assume bytes
+            return float(size_str)
+        except:
+            return 0
+
     def docker_system_cleanup(self):
-        """Perform Docker system cleanup to free maximum space"""
-        print("\n🧹 Performing Docker system cleanup...")
+        """Perform comprehensive Docker system cleanup to free maximum space including build cache"""
+        print("\n🧹 Performing comprehensive Docker system cleanup...")
         
         try:
-            # Get current usage
+            # Get current usage with verbose info
             print("📊 Current Docker usage:")
-            
-            # Get system df info
-            result = self.run_docker_command(['system', 'df'], check=False)
+            result = self.run_docker_command(['system', 'df', '-v'], check=False)
             if result.returncode == 0:
                 print(result.stdout)
             
-            confirm = input("\n❗ Perform system cleanup (removes unused images, containers, networks, volumes)? (y/N): ").strip().lower()
-            if confirm != 'y':
+            # Get build cache info before cleanup
+            build_cache_before, reclaimable_before = self.get_build_cache_info()
+            if build_cache_before is not None:
+                print(f"\n💾 Build cache before cleanup: {self.format_size(int(build_cache_before))} total, {self.format_size(int(reclaimable_before))} reclaimable")
+            
+            # Ask for cleanup type
+            print("\nCleanup options:")
+            print("1. Standard cleanup (containers, images, volumes, networks)")
+            print("2. Comprehensive cleanup (includes build cache)")
+            print("3. Build cache only")
+            
+            cleanup_choice = input("\nChoose cleanup type (1-3) or 'n' to cancel: ").strip().lower()
+            
+            if cleanup_choice == 'n':
                 print("❌ Aborted.")
                 return
+            elif cleanup_choice not in ['1', '2', '3']:
+                print("❌ Invalid choice.")
+                return
             
-            # Prune containers
-            print("🧹 Removing unused containers...")
-            result = self.run_docker_command(['container', 'prune', '-f'], check=False)
-            if result.returncode == 0:
-                print("   ✅ Unused containers removed")
+            total_space_freed = 0
             
-            # Prune images
-            print("🧹 Removing unused images...")
-            result = self.run_docker_command(['image', 'prune', '-a', '-f'], check=False)
-            if result.returncode == 0:
-                print("   ✅ Unused images removed")
+            if cleanup_choice in ['1', '2']:
+                # Standard cleanup operations
+                
+                # Prune containers
+                print("\n🧹 Removing unused containers...")
+                result = self.run_docker_command(['container', 'prune', '-f'], check=False)
+                if result.returncode == 0:
+                    # Extract space freed from output
+                    if "Total reclaimed space:" in result.stdout:
+                        space_line = [line for line in result.stdout.split('\n') if 'Total reclaimed space:' in line]
+                        if space_line:
+                            space_str = space_line[0].split('Total reclaimed space:')[1].strip()
+                            try:
+                                space_freed = self.parse_size_string(space_str)
+                                total_space_freed += space_freed
+                            except:
+                                pass
+                    print("   ✅ Unused containers removed")
+                else:
+                    print(f"   ⚠️ Container cleanup warning: {result.stderr}")
+                
+                # Prune images (all unused)
+                print("🧹 Removing ALL unused images...")
+                result = self.run_docker_command(['image', 'prune', '-a', '-f'], check=False)
+                if result.returncode == 0:
+                    if "Total reclaimed space:" in result.stdout:
+                        space_line = [line for line in result.stdout.split('\n') if 'Total reclaimed space:' in line]
+                        if space_line:
+                            space_str = space_line[0].split('Total reclaimed space:')[1].strip()
+                            try:
+                                space_freed = self.parse_size_string(space_str)
+                                total_space_freed += space_freed
+                            except:
+                                pass
+                    print("   ✅ All unused images removed")
+                else:
+                    print(f"   ⚠️ Image cleanup warning: {result.stderr}")
+                
+                # Prune volumes
+                print("🧹 Removing unused volumes...")
+                result = self.run_docker_command(['volume', 'prune', '-f'], check=False)
+                if result.returncode == 0:
+                    if "Total reclaimed space:" in result.stdout:
+                        space_line = [line for line in result.stdout.split('\n') if 'Total reclaimed space:' in line]
+                        if space_line:
+                            space_str = space_line[0].split('Total reclaimed space:')[1].strip()
+                            try:
+                                space_freed = self.parse_size_string(space_str)
+                                total_space_freed += space_freed
+                            except:
+                                pass
+                    print("   ✅ Unused volumes removed")
+                else:
+                    print(f"   ⚠️ Volume cleanup warning: {result.stderr}")
+                
+                # Prune networks
+                print("🧹 Removing unused networks...")
+                result = self.run_docker_command(['network', 'prune', '-f'], check=False)
+                if result.returncode == 0:
+                    print("   ✅ Unused networks removed")
+                else:
+                    print(f"   ⚠️ Network cleanup warning: {result.stderr}")
             
-            # Prune volumes
-            print("🧹 Removing unused volumes...")
-            result = self.run_docker_command(['volume', 'prune', '-f'], check=False)
-            if result.returncode == 0:
-                print("   ✅ Unused volumes removed")
+            if cleanup_choice in ['2', '3']:
+                # Build cache cleanup
+                print("🧹 Removing build cache...")
+                
+                # Use docker builder prune for aggressive cache cleanup
+                result = self.run_docker_command(['builder', 'prune', '-a', '-f'], check=False)
+                if result.returncode == 0:
+                    if "Total:" in result.stdout:
+                        # Extract space information from builder prune output
+                        lines = result.stdout.split('\n')
+                        for line in lines:
+                            if 'Total:' in line and 'reclaimed' in line.lower():
+                                try:
+                                    # Parse line like "Total: 2.989GB"
+                                    total_part = line.split('Total:')[1].strip()
+                                    space_str = total_part.split()[0]
+                                    space_freed = self.parse_size_string(space_str)
+                                    total_space_freed += space_freed
+                                    print(f"   ✅ Build cache removed: {self.format_size(int(space_freed))}")
+                                    break
+                                except:
+                                    pass
+                    else:
+                        print("   ✅ Build cache cleaned")
+                else:
+                    print(f"   ⚠️ Build cache cleanup warning: {result.stderr}")
+                
+                # Also run system prune for comprehensive cleanup
+                if cleanup_choice == '2':
+                    print("🧹 Running comprehensive system cleanup...")
+                    result = self.run_docker_command(['system', 'prune', '-a', '-f'], check=False)
+                    if result.returncode == 0:
+                        print("   ✅ Comprehensive system cleanup completed")
+                    else:
+                        print(f"   ⚠️ System cleanup warning: {result.stderr}")
             
-            # Prune networks
-            print("🧹 Removing unused networks...")
-            result = self.run_docker_command(['network', 'prune', '-f'], check=False)
-            if result.returncode == 0:
-                print("   ✅ Unused networks removed")
+            # Get build cache info after cleanup
+            build_cache_after, reclaimable_after = self.get_build_cache_info()
             
             # Show final usage
             print("\n📊 Final Docker usage:")
             result = self.run_docker_command(['system', 'df'], check=False)
             if result.returncode == 0:
                 print(result.stdout)
+            
+            # Show cleanup summary
+            print(f"\n📈 Cleanup Summary:")
+            if total_space_freed > 0:
+                print(f"   💾 Total space freed: {self.format_size(int(total_space_freed))}")
+            
+            if build_cache_before is not None and build_cache_after is not None:
+                build_cache_freed = build_cache_before - build_cache_after
+                if build_cache_freed > 0:
+                    print(f"   🏗️ Build cache freed: {self.format_size(int(build_cache_freed))}")
+                print(f"   🏗️ Build cache remaining: {self.format_size(int(build_cache_after))}")
             
             print("✅ Docker system cleanup completed!")
             

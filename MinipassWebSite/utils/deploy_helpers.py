@@ -218,7 +218,7 @@ def deploy_customer_container(app_name, admin_email, admin_password, plan, port,
             return False
 
         # Step 3: Setup database
-        db_path = os.path.join(target_dir, "instance", "dev_database.db")
+        db_path = os.path.join(target_dir, "instance", "minipass.db")
         logger.info(f"🔐 Step 2: Setting up database at {db_path}")
         
         insert_admin_user(db_path, admin_email, admin_password)
