@@ -1,0 +1,115 @@
+# MiniPass Environment Cleanup - Files Safe to Delete
+# Generated on 2025-08-02
+# Review each section before deletion and backup critical data if needed
+
+# =============================================================================
+# CATEGORY 1: LOG FILES (Safe to delete - regenerated automatically)
+# =============================================================================
+
+# Application and system logs that can be regenerated
+minipass_demo.log                           # Demo application log file
+minipass_manager.log                        # Manager application log file  
+secure_fail2ban_install.log                 # Installation log for fail2ban setup
+secure_fail2ban_manager.log                 # Manager log for secure fail2ban operations
+
+# =============================================================================
+# CATEGORY 2: PYTHON CACHE FILES (Safe to delete - automatically regenerated)
+# =============================================================================
+
+# Python bytecode cache directory
+__pycache__/                                # Python compiled bytecode cache directory
+
+# =============================================================================
+# CATEGORY 3: DUPLICATE/OBSOLETE FAIL2BAN SCRIPTS (Superseded versions)
+# =============================================================================
+
+# Original fail2ban manager - superseded by secure version
+fail2ban_manager.py                         # Original version superseded by fail2ban_manager_secure.py
+
+# Original deployment script - superseded by secure version  
+deploy_secure_fail2ban.py                   # Likely superseded by install_secure_fail2ban.py
+
+# =============================================================================
+# CATEGORY 4: DUPLICATE CONFIGURATION FILES (Multiple versions of same config)
+# =============================================================================
+
+# Email security configuration duplicates - keep only the latest version
+email_security_config.conf                  # Duplicate of email-security.conf (different naming)
+
+# =============================================================================
+# CATEGORY 5: EMPTY/PLACEHOLDER FILES (Zero size or minimal content)
+# =============================================================================
+
+# Empty SQLite database file (will be recreated when needed)
+customers.db                                # Empty database file (0 bytes) - will be recreated
+
+# Basic readme with minimal content
+README.md                                   # Basic project readme (14 bytes) - not critical for production
+
+# =============================================================================
+# CATEGORY 6: UNUSED PROJECT DIRECTORIES (Not part of main MiniPass system)
+# =============================================================================
+
+# Unrelated project directory
+bloomcap/                                   # Appears to be separate project, not part of MiniPass
+
+# =============================================================================
+# DELETION PRIORITY LEVELS
+# =============================================================================
+
+# HIGH PRIORITY (Safe to delete immediately):
+# - All log files (*.log)
+# - __pycache__/ directory
+# - customers.db (empty file)
+
+# MEDIUM PRIORITY (Review before deletion):
+# - fail2ban_manager.py (backup before deleting)
+# - email_security_config.conf (compare with email-security.conf first)
+# - deploy_secure_fail2ban.py (verify install_secure_fail2ban.py contains same functionality)
+
+# LOW PRIORITY (Consider keeping for now):
+# - bloomcap/ (unknown project - investigate contents first)
+# - README.md (minimal but may contain important notes)
+
+# =============================================================================
+# BACKUP RECOMMENDATIONS BEFORE DELETION
+# =============================================================================
+
+# Before deleting these files, consider backing up:
+# 1. fail2ban_manager.py - Compare functionality with secure version
+# 2. email_security_config.conf - Verify settings match current config
+# 3. bloomcap/ - Check if contains any important data or configurations
+
+# =============================================================================
+# COMMANDS FOR SAFE DELETION
+# =============================================================================
+
+# Step 1: Delete log files (safest to delete first)
+# rm -f *.log
+
+# Step 2: Delete Python cache
+# rm -rf __pycache__/
+
+# Step 3: Delete empty database (will be recreated)
+# rm -f customers.db
+
+# Step 4: Delete duplicate configs (after verification)
+# rm -f email_security_config.conf
+
+# Step 5: Delete obsolete scripts (after backup/verification)
+# rm -f fail2ban_manager.py deploy_secure_fail2ban.py
+
+# =============================================================================
+# CRITICAL: DO NOT DELETE
+# =============================================================================
+
+# These directories and files are essential for production:
+# - MinipassWebSite/ (main application)
+# - app/ (customer app template)
+# - config/ (system configuration)
+# - certs/ (SSL certificates)
+# - deployed/ (active customer deployments)
+# - maildata/, mailstate/ (mail server data)
+# - docker-compose.yml (container orchestration)
+# - requirements.txt (Python dependencies)
+# - Current active scripts: install_secure_fail2ban.py, secure_fail2ban_manager.py, etc.
