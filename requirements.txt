@@ -1,0 +1,210 @@
+# Secure Fail2Ban Manager - Python Dependencies
+# Security-hardened fail2ban management with enhanced email monitoring
+#
+# Author: Python DevOps Automation Specialist
+# Created: 2025-08-02
+# Version: 2.0.0 (Security Enhanced)
+
+# Core dependencies for the secure fail2ban manager
+pyfiglet>=0.8.post1,<1.0.0
+# ASCII art for the application header
+# Used for displaying the application title in an attractive format
+
+# Security and validation libraries
+ipaddress>=1.0.0
+# IP address validation and manipulation (part of Python standard library since 3.3)
+# Used for validating IP addresses and preventing injection attacks
+
+# System interaction and process management
+subprocess32>=3.5.4; python_version<'3.0'
+# Enhanced subprocess module for Python 2.7 (if needed for compatibility)
+# Provides more secure process execution capabilities
+
+# Optional dependencies for enhanced functionality
+psutil>=5.8.0,<6.0.0
+# System and process utilities
+# Used for monitoring system resources and process information
+# Optional: Only needed for advanced system monitoring features
+
+# Development and testing dependencies (optional)
+pytest>=6.0.0,<8.0.0
+# Testing framework for unit tests
+# Optional: Only needed for development and testing
+
+pytest-cov>=2.12.0,<4.0.0
+# Coverage reporting for pytest
+# Optional: Only needed for test coverage analysis
+
+black>=21.0.0,<23.0.0
+# Code formatter for maintaining consistent code style
+# Optional: Only needed for development
+
+flake8>=3.9.0,<5.0.0
+# Code linting and style checking
+# Optional: Only needed for development and CI/CD
+
+mypy>=0.910,<1.0.0
+# Static type checking
+# Optional: Only needed for development and type validation
+
+# Logging and monitoring (optional enhanced features)
+colorlog>=6.0.0,<7.0.0
+# Colored log output for better readability
+# Optional: Enhances log visualization in terminals
+
+structlog>=21.0.0,<23.0.0
+# Structured logging for better log parsing and analysis
+# Optional: Provides enhanced logging capabilities for production
+
+# Configuration management (optional)
+python-dotenv>=0.19.0,<1.0.0
+# Environment variable management from .env files
+# Optional: Useful for development environment configuration
+
+PyYAML>=5.4.0,<7.0.0
+# YAML configuration file support
+# Optional: For advanced configuration management
+
+# Network and security utilities (optional)
+requests>=2.25.0,<3.0.0
+# HTTP library for API interactions
+# Optional: For integration with external security services
+
+cryptography>=3.4.8,<40.0.0
+# Cryptographic library for secure operations
+# Optional: For advanced security features like encryption and hashing
+
+# Email and notification libraries (optional)
+smtplib
+# SMTP client for sending email notifications (part of standard library)
+# Used for security alert notifications
+
+email-validator>=1.1.0,<2.0.0
+# Email address validation
+# Optional: For validating email addresses in configuration
+
+# Performance and caching (optional)
+cachetools>=4.2.0,<6.0.0
+# Caching utilities for performance optimization
+# Optional: For caching frequently accessed data
+
+# Database support (optional for advanced logging)
+sqlite3
+# SQLite database support (part of standard library)
+# Optional: For advanced audit logging and statistics
+
+# Development tools (optional)
+pre-commit>=2.15.0,<3.0.0
+# Git pre-commit hooks for code quality
+# Optional: For development workflow automation
+
+bandit>=1.7.0,<2.0.0
+# Security linting for Python code
+# Optional: For security vulnerability scanning during development
+
+safety>=1.10.0,<3.0.0
+# Dependency vulnerability scanning
+# Optional: For checking known security vulnerabilities in dependencies
+
+# Documentation generation (optional)
+sphinx>=4.0.0,<5.0.0
+# Documentation generator
+# Optional: For generating project documentation
+
+sphinx-rtd-theme>=0.5.0,<2.0.0
+# Read the Docs theme for Sphinx
+# Optional: For documentation styling
+
+# =============================================================================
+# INSTALLATION NOTES
+# =============================================================================
+
+# Core installation (minimal requirements):
+# pip install pyfiglet
+
+# Full installation with all features:
+# pip install -r requirements.txt
+
+# Development installation:
+# pip install -r requirements.txt
+# pip install -e .
+
+# Security-focused installation:
+# pip install pyfiglet psutil cryptography
+
+# =============================================================================
+# SYSTEM REQUIREMENTS
+# =============================================================================
+
+# Python version: 3.8+
+# Operating System: Ubuntu Linux (18.04+)
+# fail2ban: 0.10+ (must be installed separately)
+# sudo access: Required for fail2ban operations
+
+# System packages required (install via apt):
+# sudo apt update
+# sudo apt install fail2ban python3-pip python3-venv
+
+# =============================================================================
+# SECURITY CONSIDERATIONS
+# =============================================================================
+
+# 1. Always use virtual environments for Python dependencies
+# 2. Regularly update dependencies to patch security vulnerabilities
+# 3. Use 'pip-audit' or 'safety' to check for known vulnerabilities
+# 4. Pin dependency versions in production environments
+# 5. Review dependency licenses for compliance requirements
+
+# Virtual environment setup:
+# python3 -m venv secure_fail2ban_env
+# source secure_fail2ban_env/bin/activate
+# pip install --upgrade pip
+# pip install -r requirements.txt
+
+# Security scanning:
+# pip install safety
+# safety check
+# pip install bandit
+# bandit -r secure_fail2ban_manager.py
+
+# =============================================================================
+# TROUBLESHOOTING
+# =============================================================================
+
+# Common installation issues:
+
+# 1. Permission errors:
+#    - Use virtual environments instead of system-wide installation
+#    - Avoid using sudo with pip
+
+# 2. Missing system dependencies:
+#    - Install build tools: sudo apt install build-essential
+#    - Install Python development headers: sudo apt install python3-dev
+
+# 3. Network connectivity issues:
+#    - Use proxy settings if behind corporate firewall
+#    - Consider using --trusted-host for internal PyPI mirrors
+
+# 4. Version conflicts:
+#    - Use fresh virtual environment
+#    - Check for conflicting system packages
+
+# =============================================================================
+# PRODUCTION DEPLOYMENT
+# =============================================================================
+
+# For production environments:
+# 1. Create a dedicated user for the application
+# 2. Use virtual environments
+# 3. Install only necessary dependencies
+# 4. Set up log rotation for application logs
+# 5. Monitor dependency vulnerabilities
+# 6. Use configuration management tools (Ansible, Puppet, etc.)
+
+# Example production setup:
+# sudo useradd -m -s /bin/bash fail2ban-manager
+# sudo su - fail2ban-manager
+# python3 -m venv /opt/secure-fail2ban/venv
+# source /opt/secure-fail2ban/venv/bin/activate
+# pip install pyfiglet psutil
+# # Copy application files and configure...

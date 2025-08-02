@@ -1,4 +1,4 @@
-#!/home/kdresdell/minipass_env/MinipassWebSite/venv/bin/python3
+#!/usr/bin/env python3
 """
 Secure Fail2Ban Manager - Hardened version with comprehensive security controls
 

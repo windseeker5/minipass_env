@@ -1,4 +1,4 @@
-#!/home/kdresdell/minipass_env/MinipassWebSite/venv/bin/python3
+#!/usr/bin/env python3
 """
 Deployment script for Secure Fail2Ban Manager
 

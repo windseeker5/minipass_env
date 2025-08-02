@@ -1,0 +1,215 @@
+# Secure Fail2Ban Manager Sudoers Configuration
+# Provides restricted sudo access for fail2ban operations without password prompts
+#
+# Installation:
+# 1. Copy this file to /etc/sudoers.d/secure-fail2ban
+# 2. Set proper permissions: sudo chmod 440 /etc/sudoers.d/secure-fail2ban
+# 3. Validate configuration: sudo visudo -c
+#
+# Author: Python DevOps Automation Specialist
+# Created: 2025-08-02
+# Version: 2.0.0 (Security Enhanced)
+
+# =============================================================================
+# SECURE FAIL2BAN ACCESS CONFIGURATION
+# =============================================================================
+
+# User specification for secure fail2ban management
+# Replace 'username' with the actual username that will run the script
+# Or use '%group' for group-based access (e.g., '%fail2ban-managers')
+
+# Individual user access (replace 'username' with actual username)
+# username ALL=(root) NOPASSWD: /usr/bin/fail2ban-client status, /usr/bin/fail2ban-client status *, /usr/bin/fail2ban-client set * banip *, /usr/bin/fail2ban-client set * unbanip *, /usr/bin/fail2ban-client unban *, /bin/cat /var/log/fail2ban.log*, /usr/bin/tail /var/log/fail2ban.log*
+
+# Group-based access (recommended for multiple administrators)
+# Create a dedicated group: sudo groupadd fail2ban-managers
+# Add users to group: sudo usermod -a -G fail2ban-managers username
+%fail2ban-managers ALL=(root) NOPASSWD: FAIL2BAN_COMMANDS
+
+# =============================================================================
+# COMMAND ALIASES FOR SECURITY
+# =============================================================================
+
+# Define specific fail2ban commands that are allowed
+Cmnd_Alias FAIL2BAN_COMMANDS = \
+    /usr/bin/fail2ban-client status, \
+    /usr/bin/fail2ban-client status [a-zA-Z0-9_-]*, \
+    /usr/bin/fail2ban-client set [a-zA-Z0-9_-]* banip [0-9]*.[0-9]*.[0-9]*.[0-9]*, \
+    /usr/bin/fail2ban-client set [a-zA-Z0-9_-]* unbanip [0-9]*.[0-9]*.[0-9]*.[0-9]*, \
+    /usr/bin/fail2ban-client unban [0-9]*.[0-9]*.[0-9]*.[0-9]*, \
+    /usr/bin/fail2ban-client reload, \
+    /usr/bin/fail2ban-client reload [a-zA-Z0-9_-]*, \
+    /bin/cat /var/log/fail2ban.log*, \
+    /usr/bin/tail /var/log/fail2ban.log*, \
+    /bin/cat /var/log/mail.log*, \
+    /usr/bin/tail /var/log/mail.log*, \
+    /bin/cat /var/log/dovecot.log*, \
+    /usr/bin/tail /var/log/dovecot.log*
+
+# Additional log access for email monitoring
+Cmnd_Alias EMAIL_LOG_COMMANDS = \
+    /bin/cat /var/log/mail.log, \
+    /bin/cat /var/log/mail.log.[0-9]*, \
+    /bin/cat /var/log/postfix.log, \
+    /bin/cat /var/log/postfix.log.[0-9]*, \
+    /bin/cat /var/log/dovecot.log, \
+    /bin/cat /var/log/dovecot.log.[0-9]*, \
+    /bin/cat /var/log/dovecot-auth.log, \
+    /bin/cat /var/log/dovecot-auth.log.[0-9]*, \
+    /usr/bin/tail -[0-9]* /var/log/mail.log*, \
+    /usr/bin/tail -[0-9]* /var/log/postfix.log*, \
+    /usr/bin/tail -[0-9]* /var/log/dovecot*.log*
+
+# System service management (if needed)
+Cmnd_Alias FAIL2BAN_SERVICE = \
+    /bin/systemctl status fail2ban, \
+    /bin/systemctl reload fail2ban, \
+    /usr/bin/systemctl status fail2ban, \
+    /usr/bin/systemctl reload fail2ban
+
+# =============================================================================
+# SECURITY RESTRICTIONS
+# =============================================================================
+
+# Deny dangerous commands that could be used for privilege escalation
+Cmnd_Alias FORBIDDEN_COMMANDS = \
+    /usr/bin/fail2ban-client set * action *, \
+    /usr/bin/fail2ban-client * restart, \
+    /usr/bin/fail2ban-client * stop, \
+    /usr/bin/fail2ban-client * start, \
+    /bin/systemctl restart fail2ban, \
+    /bin/systemctl stop fail2ban, \
+    /bin/systemctl start fail2ban, \
+    /usr/bin/systemctl restart fail2ban, \
+    /usr/bin/systemctl stop fail2ban, \
+    /usr/bin/systemctl start fail2ban
+
+# Explicitly deny access to configuration files
+Cmnd_Alias FORBIDDEN_CONFIG = \
+    /bin/cat /etc/fail2ban/*, \
+    /usr/bin/tail /etc/fail2ban/*, \
+    /bin/nano /etc/fail2ban/*, \
+    /usr/bin/vim /etc/fail2ban/*, \
+    /usr/bin/vi /etc/fail2ban/*
+
+# =============================================================================
+# USER/GROUP CONFIGURATIONS
+# =============================================================================
+
+# Example configurations (uncomment and modify as needed):
+
+# For a specific user (replace 'fail2ban-admin' with actual username):
+# fail2ban-admin ALL=(root) NOPASSWD: FAIL2BAN_COMMANDS, EMAIL_LOG_COMMANDS
+# fail2ban-admin ALL=(root) !FORBIDDEN_COMMANDS, !FORBIDDEN_CONFIG
+
+# For the fail2ban-managers group:
+%fail2ban-managers ALL=(root) NOPASSWD: FAIL2BAN_COMMANDS, EMAIL_LOG_COMMANDS
+%fail2ban-managers ALL=(root) !FORBIDDEN_COMMANDS, !FORBIDDEN_CONFIG
+
+# For administrators who need service management:
+# %fail2ban-admins ALL=(root) NOPASSWD: FAIL2BAN_COMMANDS, EMAIL_LOG_COMMANDS, FAIL2BAN_SERVICE
+# %fail2ban-admins ALL=(root) !FORBIDDEN_COMMANDS, !FORBIDDEN_CONFIG
+
+# =============================================================================
+# AUDIT AND LOGGING CONFIGURATION
+# =============================================================================
+
+# Enable sudo command logging for security auditing
+Defaults:fail2ban-admin log_host, log_year, logfile="/var/log/sudo-fail2ban.log"
+Defaults:%fail2ban-managers log_host, log_year, logfile="/var/log/sudo-fail2ban.log"
+
+# Require TTY for interactive sessions (security hardening)
+Defaults:fail2ban-admin requiretty
+Defaults:%fail2ban-managers requiretty
+
+# Set secure PATH
+Defaults:fail2ban-admin secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+Defaults:%fail2ban-managers secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+
+# Disable environment variable preservation (security hardening)
+Defaults:fail2ban-admin !env_reset
+Defaults:%fail2ban-managers !env_reset
+
+# =============================================================================
+# INSTALLATION AND SETUP INSTRUCTIONS
+# =============================================================================
+
+# 1. Create the fail2ban-managers group:
+#    sudo groupadd fail2ban-managers
+#
+# 2. Add users to the group:
+#    sudo usermod -a -G fail2ban-managers username
+#
+# 3. Copy this file to sudoers.d:
+#    sudo cp secure-fail2ban-sudoers /etc/sudoers.d/secure-fail2ban
+#
+# 4. Set proper permissions:
+#    sudo chmod 440 /etc/sudoers.d/secure-fail2ban
+#    sudo chown root:root /etc/sudoers.d/secure-fail2ban
+#
+# 5. Validate the configuration:
+#    sudo visudo -c
+#
+# 6. Test the configuration:
+#    sudo -l  # List allowed commands
+#    sudo fail2ban-client status  # Test command execution
+#
+# 7. Create audit log directory:
+#    sudo mkdir -p /var/log
+#    sudo touch /var/log/sudo-fail2ban.log
+#    sudo chmod 640 /var/log/sudo-fail2ban.log
+
+# =============================================================================
+# SECURITY CONSIDERATIONS
+# =============================================================================
+
+# 1. Regularly review sudo audit logs: /var/log/sudo-fail2ban.log
+# 2. Monitor for unauthorized access attempts
+# 3. Use the principle of least privilege - only grant necessary permissions
+# 4. Consider using LDAP/Active Directory for centralized user management
+# 5. Implement log rotation for audit logs
+# 6. Review and update permissions quarterly
+# 7. Use strong authentication (SSH keys, 2FA) for user accounts
+# 8. Monitor for privilege escalation attempts
+# 9. Implement network-based access controls (firewall rules)
+# 10. Consider using sudo session recording for critical operations
+
+# =============================================================================
+# TROUBLESHOOTING
+# =============================================================================
+
+# Common issues and solutions:
+#
+# 1. "command not found" errors:
+#    - Check the secure_path setting
+#    - Verify command paths with 'which command'
+#
+# 2. Permission denied errors:
+#    - Check user group membership: groups username
+#    - Verify sudoers syntax: sudo visudo -c
+#
+# 3. Password prompts despite NOPASSWD:
+#    - Check for conflicting sudo rules
+#    - Verify user is in correct group
+#
+# 4. Commands not matching aliases:
+#    - Check regex patterns in command aliases
+#    - Test with exact command syntax
+#
+# 5. Log file access issues:
+#    - Verify log file permissions
+#    - Check if log files exist and are readable
+
+# =============================================================================
+# MAINTENANCE NOTES
+# =============================================================================
+
+# This configuration should be reviewed and updated:
+# - When new fail2ban features are added
+# - When security requirements change
+# - After any fail2ban version upgrades
+# - Quarterly as part of security reviews
+# - When new team members are added/removed
+#
+# Keep this file under version control and document any changes
+# for security audit trails.
