@@ -773,40 +773,8 @@ class MiniPassAppManager:
             print(f"❌ Database error: {e}")
     
     def get_build_cache_info(self):
-        """Get detailed build cache information"""
-        try:
-            result = self.run_docker_command(['system', 'df', '-v'], check=False)
-            if result.returncode != 0:
-                return None, None
-                
-            lines = result.stdout.strip().split('\n')
-            build_cache_section = False
-            total_size = 0
-            reclaimable_size = 0
-            
-            for line in lines:
-                if 'BUILD CACHE' in line.upper():
-                    build_cache_section = True
-                    continue
-                elif build_cache_section and line.strip() and not line.startswith(' '):
-                    # End of build cache section
-                    break
-                elif build_cache_section and 'Total:' in line:
-                    # Parse total line for build cache
-                    parts = line.split()
-                    if len(parts) >= 4:
-                        try:
-                            total_size_str = parts[-2]
-                            reclaimable_size_str = parts[-1]
-                            total_size = self.parse_size_string(total_size_str)
-                            reclaimable_size = self.parse_size_string(reclaimable_size_str)
-                        except:
-                            pass
-                    break
-                    
-            return total_size, reclaimable_size
-        except Exception:
-            return None, None
+        """Get detailed build cache information (delegates to enhanced version)"""
+        return self.get_enhanced_build_cache_info()
     
     def parse_size_string(self, size_str):
         """Parse Docker size string (e.g., '2.989GB') to bytes"""
@@ -834,46 +802,78 @@ class MiniPassAppManager:
             if result.returncode == 0:
                 print(result.stdout)
             
-            # Get build cache info before cleanup
-            build_cache_before, reclaimable_before = self.get_build_cache_info()
+            # Get build cache info before cleanup with enhanced parsing
+            build_cache_before, reclaimable_before = self.get_enhanced_build_cache_info()
             if build_cache_before is not None:
-                print(f"\n💾 Build cache before cleanup: {self.format_size(int(build_cache_before))} total, {self.format_size(int(reclaimable_before))} reclaimable")
+                print(f"\n💾 Build cache before cleanup:")
+                print(f"   🏗️ Total build cache: {self.format_size(int(build_cache_before))}")
+                print(f"   ♻️ Reclaimable space: {self.format_size(int(reclaimable_before))}")
+                if reclaimable_before > 0:
+                    print(f"   ⚠️ WARNING: {self.format_size(int(reclaimable_before))} of build cache can be cleaned!")
             
-            # Ask for cleanup type
+            # Enhanced cleanup options
             print("\nCleanup options:")
             print("1. Standard cleanup (containers, images, volumes, networks)")
-            print("2. Comprehensive cleanup (includes build cache)")
-            print("3. Build cache only")
+            print("2. Comprehensive cleanup (standard + enhanced build cache + system prune)")
+            print("3. Build cache focused cleanup (multiple build cache strategies)")
+            print("4. Aggressive build cache cleanup (multi-strategy + buildx + dangling)")
+            print("5. Nuclear option (everything + aggressive build cache + running containers)")
             
-            cleanup_choice = input("\nChoose cleanup type (1-3) or 'n' to cancel: ").strip().lower()
+            cleanup_choice = input("\nChoose cleanup type (1-5) or 'n' to cancel: ").strip().lower()
             
             if cleanup_choice == 'n':
                 print("❌ Aborted.")
                 return
-            elif cleanup_choice not in ['1', '2', '3']:
+            elif cleanup_choice not in ['1', '2', '3', '4', '5']:
                 print("❌ Invalid choice.")
                 return
             
             total_space_freed = 0
+            build_cache_freed = 0
             
-            if cleanup_choice in ['1', '2']:
+            # Confirm destructive operations
+            if cleanup_choice in ['4', '5']:
+                print(f"\n⚠️ WARNING: Option {cleanup_choice} is aggressive and will remove ALL build cache data!")
+                if cleanup_choice == '5':
+                    print("   🚨 NUCLEAR OPTION: This will also stop and remove ALL containers!")
+                confirm = input("Type 'CONFIRM' to proceed: ").strip()
+                if confirm != 'CONFIRM':
+                    print("❌ Aborted.")
+                    return
+            
+            if cleanup_choice in ['1', '2', '5']:
                 # Standard cleanup operations
+                print(f"\n{'🚨' if cleanup_choice == '5' else '🧹'} Standard Docker cleanup operations...")
+                
+                # For nuclear option, stop all containers first
+                if cleanup_choice == '5':
+                    print("🛑 Stopping ALL running containers...")
+                    result = self.run_docker_command(['stop', '$(docker ps -q)'], check=False)
+                    # Use shell to expand the command
+                    import subprocess
+                    result = subprocess.run('docker stop $(docker ps -q)', shell=True, capture_output=True, text=True, check=False)
+                    if result.returncode == 0:
+                        print("   ✅ All containers stopped")
+                    else:
+                        print("   ℹ️ No running containers or stop failed")
                 
                 # Prune containers
-                print("\n🧹 Removing unused containers...")
-                result = self.run_docker_command(['container', 'prune', '-f'], check=False)
+                prune_flag = '-f' if cleanup_choice != '5' else '-f'
+                print(f"🧹 Removing {'ALL' if cleanup_choice == '5' else 'unused'} containers...")
+                if cleanup_choice == '5':
+                    # Remove all containers
+                    result = subprocess.run('docker rm -f $(docker ps -aq)', shell=True, capture_output=True, text=True, check=False)
+                    if result.returncode == 0:
+                        print("   ✅ All containers removed")
+                    else:
+                        result = self.run_docker_command(['container', 'prune', '-f'], check=False)
+                else:
+                    result = self.run_docker_command(['container', 'prune', '-f'], check=False)
+                    
                 if result.returncode == 0:
-                    # Extract space freed from output
-                    if "Total reclaimed space:" in result.stdout:
-                        space_line = [line for line in result.stdout.split('\n') if 'Total reclaimed space:' in line]
-                        if space_line:
-                            space_str = space_line[0].split('Total reclaimed space:')[1].strip()
-                            try:
-                                space_freed = self.parse_size_string(space_str)
-                                total_space_freed += space_freed
-                            except:
-                                pass
-                    print("   ✅ Unused containers removed")
+                    space_freed = self.extract_space_from_output(result.stdout)
+                    total_space_freed += space_freed
+                    print(f"   ✅ Containers removed {f'({self.format_size(int(space_freed))})' if space_freed > 0 else ''}")
                 else:
                     print(f"   ⚠️ Container cleanup warning: {result.stderr}")
                 
@@ -881,16 +881,9 @@ class MiniPassAppManager:
                 print("🧹 Removing ALL unused images...")
                 result = self.run_docker_command(['image', 'prune', '-a', '-f'], check=False)
                 if result.returncode == 0:
-                    if "Total reclaimed space:" in result.stdout:
-                        space_line = [line for line in result.stdout.split('\n') if 'Total reclaimed space:' in line]
-                        if space_line:
-                            space_str = space_line[0].split('Total reclaimed space:')[1].strip()
-                            try:
-                                space_freed = self.parse_size_string(space_str)
-                                total_space_freed += space_freed
-                            except:
-                                pass
-                    print("   ✅ All unused images removed")
+                    space_freed = self.extract_space_from_output(result.stdout)
+                    total_space_freed += space_freed
+                    print(f"   ✅ All unused images removed {f'({self.format_size(int(space_freed))})' if space_freed > 0 else ''}")
                 else:
                     print(f"   ⚠️ Image cleanup warning: {result.stderr}")
                 
@@ -898,16 +891,9 @@ class MiniPassAppManager:
                 print("🧹 Removing unused volumes...")
                 result = self.run_docker_command(['volume', 'prune', '-f'], check=False)
                 if result.returncode == 0:
-                    if "Total reclaimed space:" in result.stdout:
-                        space_line = [line for line in result.stdout.split('\n') if 'Total reclaimed space:' in line]
-                        if space_line:
-                            space_str = space_line[0].split('Total reclaimed space:')[1].strip()
-                            try:
-                                space_freed = self.parse_size_string(space_str)
-                                total_space_freed += space_freed
-                            except:
-                                pass
-                    print("   ✅ Unused volumes removed")
+                    space_freed = self.extract_space_from_output(result.stdout)
+                    total_space_freed += space_freed
+                    print(f"   ✅ Unused volumes removed {f'({self.format_size(int(space_freed))})' if space_freed > 0 else ''}")
                 else:
                     print(f"   ⚠️ Volume cleanup warning: {result.stderr}")
                 
@@ -919,44 +905,117 @@ class MiniPassAppManager:
                 else:
                     print(f"   ⚠️ Network cleanup warning: {result.stderr}")
             
-            if cleanup_choice in ['2', '3']:
-                # Build cache cleanup
-                print("🧹 Removing build cache...")
+            if cleanup_choice in ['2', '3', '4', '5']:
+                # Enhanced build cache cleanup with multiple strategies
+                print(f"\n🏗️ {'Aggressive' if cleanup_choice in ['4', '5'] else 'Standard'} build cache cleanup...")
                 
-                # Use docker builder prune for aggressive cache cleanup
-                result = self.run_docker_command(['builder', 'prune', '-a', '-f'], check=False)
-                if result.returncode == 0:
-                    if "Total:" in result.stdout:
-                        # Extract space information from builder prune output
-                        lines = result.stdout.split('\n')
-                        for line in lines:
-                            if 'Total:' in line and 'reclaimed' in line.lower():
-                                try:
-                                    # Parse line like "Total: 2.989GB"
-                                    total_part = line.split('Total:')[1].strip()
-                                    space_str = total_part.split()[0]
-                                    space_freed = self.parse_size_string(space_str)
-                                    total_space_freed += space_freed
-                                    print(f"   ✅ Build cache removed: {self.format_size(int(space_freed))}")
-                                    break
-                                except:
-                                    pass
-                    else:
-                        print("   ✅ Build cache cleaned")
+                build_cache_strategies = []
+                
+                if cleanup_choice in ['4', '5']:
+                    # Aggressive: Multiple strategies for maximum build cache cleanup
+                    print("🗑️ Removing ALL build cache (multi-strategy approach)...")
+                    
+                    # Strategy 1: Remove ALL build cache including active layers
+                    build_cache_strategies.append((['builder', 'prune', '-a', '-f', '--all'], "ALL build cache (including active)"))
+                    
+                    # Strategy 2: Fallback aggressive cleanup  
+                    build_cache_strategies.append((['builder', 'prune', '-a', '-f'], "ALL unused build cache"))
+                    
+                    # Strategy 3: Clean with time filter to force removal
+                    build_cache_strategies.append((['builder', 'prune', '-a', '-f', '--filter', 'until=24h'], "Build cache older than 24h"))
+                    
+                    # Strategy 4: Clean with keep-storage=0 to maximize cleanup
+                    build_cache_strategies.append((['builder', 'prune', '-a', '-f', '--keep-storage=0'], "Build cache (keep-storage=0)"))
+                    
                 else:
-                    print(f"   ⚠️ Build cache cleanup warning: {result.stderr}")
+                    # Standard: Remove unused build cache with enhanced approach
+                    print("🧹 Removing unused build cache...")
+                    build_cache_strategies.append((['builder', 'prune', '-a', '-f'], "Unused build cache"))
+                    build_cache_strategies.append((['builder', 'prune', '-f'], "Dangling build cache"))
                 
-                # Also run system prune for comprehensive cleanup
-                if cleanup_choice == '2':
-                    print("🧹 Running comprehensive system cleanup...")
-                    result = self.run_docker_command(['system', 'prune', '-a', '-f'], check=False)
+                # Execute build cache cleanup strategies
+                total_build_cache_freed = 0
+                for strategy_cmd, strategy_desc in build_cache_strategies:
+                    print(f"   🔄 Strategy: {strategy_desc}...")
+                    result = self.run_docker_command(strategy_cmd, check=False)
+                    
                     if result.returncode == 0:
-                        print("   ✅ Comprehensive system cleanup completed")
+                        strategy_freed = self.extract_build_cache_space(result.stdout)
+                        total_build_cache_freed += strategy_freed
+                        
+                        if strategy_freed > 0:
+                            print(f"     ✅ Freed: {self.format_size(int(strategy_freed))}")
+                        else:
+                            print(f"     ✅ Completed (no additional space)")
                     else:
-                        print(f"   ⚠️ System cleanup warning: {result.stderr}")
+                        print(f"     ⚠️ Warning: {result.stderr.strip() if result.stderr else 'Command failed'}")
+                
+                build_cache_freed = total_build_cache_freed
+                total_space_freed += build_cache_freed
+                
+                if build_cache_freed > 0:
+                    print(f"   🎯 Total build cache removed: {self.format_size(int(build_cache_freed))}")
+                else:
+                    print("   ℹ️ No build cache space was freed (cache may be in use or already clean)")
+                
+                # Additional cleanup for aggressive modes
+                if cleanup_choice in ['4', '5']:
+                    print("🧽 Additional aggressive cleanup steps...")
+                    
+                    # Clean dangling images that might be holding build cache references
+                    print("   🗑️ Removing dangling images...")
+                    result = self.run_docker_command(['image', 'prune', '-f'], check=False)
+                    if result.returncode == 0:
+                        dangling_freed = self.extract_space_from_output(result.stdout)
+                        if dangling_freed > 0:
+                            total_space_freed += dangling_freed
+                            print(f"     ✅ Dangling images removed: {self.format_size(int(dangling_freed))}")
+                        else:
+                            print("     ✅ No dangling images found")
+                    
+                    # Force cleanup of buildkit state
+                    print("   🧽 Cleaning buildkit state...")
+                    import subprocess
+                    
+                    # Reset buildkit builder to clear any locked state
+                    result = subprocess.run('docker buildx prune -af', shell=True, capture_output=True, text=True, check=False)
+                    if result.returncode == 0:
+                        buildx_freed = self.extract_build_cache_space(result.stdout)
+                        if buildx_freed > 0:
+                            total_space_freed += buildx_freed
+                            print(f"     ✅ Buildx cache cleared: {self.format_size(int(buildx_freed))}")
+                        else:
+                            print("     ✅ Buildx state cleaned")
+                    
+                    # Clean up build context cache with timestamp filter
+                    result = subprocess.run('docker builder prune --filter until=1s -f', shell=True, capture_output=True, text=True, check=False)
+                    if result.returncode == 0:
+                        context_freed = self.extract_build_cache_space(result.stdout)
+                        if context_freed > 0:
+                            total_space_freed += context_freed
+                            print(f"     ✅ Build context cleaned: {self.format_size(int(context_freed))}")
+                        else:
+                            print("     ✅ Build context cache cleaned")
+            
+            # Comprehensive system cleanup for option 2 and 5
+            if cleanup_choice in ['2', '5']:
+                print("🧹 Running comprehensive system cleanup...")
+                result = self.run_docker_command(['system', 'prune', '-a', '-f', '--volumes'], check=False)
+                if result.returncode == 0:
+                    system_space_freed = self.extract_space_from_output(result.stdout)
+                    if system_space_freed > 0:
+                        total_space_freed += system_space_freed
+                        print(f"   ✅ System cleanup completed ({self.format_size(int(system_space_freed))})")
+                    else:
+                        print("   ✅ System cleanup completed")
+                else:
+                    print(f"   ⚠️ System cleanup warning: {result.stderr}")
             
             # Get build cache info after cleanup
-            build_cache_after, reclaimable_after = self.get_build_cache_info()
+            build_cache_after, reclaimable_after = self.get_enhanced_build_cache_info()
+            actual_build_cache_freed = 0
+            if build_cache_before is not None and build_cache_after is not None:
+                actual_build_cache_freed = build_cache_before - build_cache_after
             
             # Show final usage
             print("\n📊 Final Docker usage:")
@@ -964,21 +1023,148 @@ class MiniPassAppManager:
             if result.returncode == 0:
                 print(result.stdout)
             
-            # Show cleanup summary
-            print(f"\n📈 Cleanup Summary:")
+            # Enhanced cleanup summary
+            print(f"\n📈 Detailed Cleanup Summary:")
+            print("=" * 50)
+            
             if total_space_freed > 0:
-                print(f"   💾 Total space freed: {self.format_size(int(total_space_freed))}")
+                print(f"   💾 Total space reported freed: {self.format_size(int(total_space_freed))}")
             
-            if build_cache_before is not None and build_cache_after is not None:
-                build_cache_freed = build_cache_before - build_cache_after
-                if build_cache_freed > 0:
-                    print(f"   🏗️ Build cache freed: {self.format_size(int(build_cache_freed))}")
+            if actual_build_cache_freed > 0:
+                print(f"   🏗️ Build cache space freed: {self.format_size(int(actual_build_cache_freed))}")
+                print(f"   📉 Build cache reduced: {self.format_size(int(build_cache_before))} → {self.format_size(int(build_cache_after))}")
+            elif build_cache_after is not None:
                 print(f"   🏗️ Build cache remaining: {self.format_size(int(build_cache_after))}")
+                if reclaimable_after > 0:
+                    print(f"   ⚠️ Still reclaimable: {self.format_size(int(reclaimable_after))} (run aggressive cleanup)")
             
+            # Overall effectiveness assessment
+            if cleanup_choice in ['3', '4'] and actual_build_cache_freed == 0:
+                print(f"   ⚠️ Warning: No build cache was freed. Cache may be in use or already clean.")
+            elif actual_build_cache_freed > 0:
+                percentage_freed = (actual_build_cache_freed / build_cache_before) * 100 if build_cache_before > 0 else 0
+                print(f"   📊 Build cache reduction: {percentage_freed:.1f}%")
+            
+            print("=" * 50)
             print("✅ Docker system cleanup completed!")
+            
+            # Enhanced recommendations
+            if reclaimable_after and reclaimable_after > 100 * 1024 * 1024:  # > 100MB
+                print(f"\n💡 Recommendations:")
+                print(f"   🔍 {self.format_size(int(reclaimable_after))} build cache still reclaimable.")
+                if cleanup_choice not in ['4', '5']:
+                    print("   🚀 Run option 4 (Aggressive build cache cleanup) for maximum space recovery.")
+                    print("   🧹 Or try: 'docker builder prune -af --keep-storage=0' manually for forced cleanup.")
+                else:
+                    print("   ⚠️ This remaining cache may be from active builds or locked layers.")
+                    print("   💡 Try stopping Docker daemon and restarting to unlock build cache.")
+            elif cleanup_choice in ['3', '4'] and actual_build_cache_freed == 0:
+                print(f"\n💡 Troubleshooting:")
+                print("   🔍 No build cache was freed. Possible causes:")
+                print("   • Build cache is currently in use by active builds")
+                print("   • BuildKit state may be locked")
+                print("   • Cache may already be clean")
+                print("   💡 Try: 'docker system restart' or 'systemctl restart docker' if available.")
             
         except Exception as e:
             print(f"❌ Docker cleanup error: {e}")
+    
+    def get_enhanced_build_cache_info(self):
+        """Get enhanced build cache information with better parsing"""
+        try:
+            result = self.run_docker_command(['system', 'df', '-v'], check=False)
+            if result.returncode != 0:
+                return None, None
+                
+            lines = result.stdout.strip().split('\n')
+            build_cache_section = False
+            total_size = 0
+            reclaimable_size = 0
+            
+            for line in lines:
+                if 'BUILD CACHE' in line.upper():
+                    build_cache_section = True
+                    continue
+                elif build_cache_section:
+                    if line.startswith('CACHE_ID') or line.startswith('Total:'):
+                        if 'Total:' in line:
+                            # Enhanced parsing for total line
+                            parts = line.split()
+                            try:
+                                # Look for size patterns in the line
+                                for i, part in enumerate(parts):
+                                    if any(suffix in part.upper() for suffix in ['B', 'KB', 'MB', 'GB', 'TB']):
+                                        if i > 0 and 'Total:' in parts[i-1]:
+                                            continue  # Skip count
+                                        if total_size == 0:
+                                            total_size = self.parse_size_string(part)
+                                        else:
+                                            reclaimable_size = self.parse_size_string(part)
+                                            break
+                            except:
+                                # Fallback to original parsing
+                                if len(parts) >= 4:
+                                    total_size = self.parse_size_string(parts[-2])
+                                    reclaimable_size = self.parse_size_string(parts[-1])
+                            break
+                    elif line.strip() and not line.startswith(' ') and not line.startswith('\t'):
+                        # End of build cache section
+                        break
+                    
+            return total_size, reclaimable_size
+        except Exception:
+            return None, None
+    
+    def extract_space_from_output(self, output):
+        """Extract space freed from Docker command output"""
+        try:
+            if "Total reclaimed space:" in output:
+                space_lines = [line for line in output.split('\n') if 'Total reclaimed space:' in line]
+                if space_lines:
+                    space_str = space_lines[0].split('Total reclaimed space:')[1].strip()
+                    return self.parse_size_string(space_str)
+            return 0
+        except:
+            return 0
+    
+    def extract_build_cache_space(self, output):
+        """Extract build cache space freed from docker builder prune output with enhanced parsing"""
+        try:
+            lines = output.split('\n')
+            total_freed = 0
+            
+            for line in lines:
+                line = line.strip()
+                
+                # Pattern 1: "Total: 2.989GB" or "deleted build cache, Total: 2.989GB"
+                if 'Total:' in line and any(suffix in line.upper() for suffix in ['B', 'KB', 'MB', 'GB', 'TB']):
+                    total_part = line.split('Total:')[1].strip()
+                    space_str = total_part.split()[0]
+                    total_freed += self.parse_size_string(space_str)
+                
+                # Pattern 2: "Deleted build cache: 2.989GB"
+                elif 'deleted build cache' in line.lower() and any(suffix in line.upper() for suffix in ['B', 'KB', 'MB', 'GB', 'TB']):
+                    # Extract size after the colon
+                    if ':' in line:
+                        size_part = line.split(':')[1].strip()
+                        space_str = size_part.split()[0]
+                        total_freed += self.parse_size_string(space_str)
+                
+                # Pattern 3: Look for "reclaimed" or "freed" patterns
+                elif any(keyword in line.lower() for keyword in ['reclaimed', 'freed', 'removed']) and any(suffix in line.upper() for suffix in ['B', 'KB', 'MB', 'GB', 'TB']):
+                    # Try to extract size from various formats
+                    import re
+                    size_pattern = r'(\d+(?:\.\d+)?)\s*(B|KB|MB|GB|TB)'
+                    matches = re.findall(size_pattern, line.upper())
+                    for size_num, size_unit in matches:
+                        total_freed += self.parse_size_string(f"{size_num}{size_unit}")
+            
+            return total_freed
+        except Exception as e:
+            # Enhanced error handling for debugging
+            print(f"   Debug: Error parsing build cache output: {e}")
+            print(f"   Debug: Output was: {output[:200]}...")
+            return 0
     
     def list_customer_database_records(self):
         """List all customer database records with detailed information"""
