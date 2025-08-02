@@ -162,7 +162,6 @@ def update_docker_compose_org_name(compose_content, organization_name):
 
 def deploy_customer_container(app_name, admin_email, admin_password, plan, port, organization_name=None):
     import os, shutil, subprocess, textwrap
-    from .deploy_helpers import insert_admin_user
 
     log_operation_start(logger, "Deploy Customer Container", 
                        app_name=app_name, 
