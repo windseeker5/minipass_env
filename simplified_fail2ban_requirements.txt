@@ -1,0 +1,8 @@
+# Requirements for Simplified Fail2Ban Manager
+# Minimal dependencies for production safety
+
+pyfiglet>=1.0.0
+# Note: All other dependencies are part of Python standard library
+# - subprocess, json, re, csv, gzip, hashlib, secrets, time, socket
+# - ipaddress, logging, datetime, collections, pathlib, typing
+# - argparse, functools, signal, pwd, grp, os, sys
