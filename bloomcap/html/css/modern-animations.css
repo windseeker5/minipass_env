@@ -1,0 +1,255 @@
+/* ===================================================================
+   MODERN ANIMATIONS SYSTEM - UI/UX Expert Level
+   Performance-optimized animations for benefits & steps blocks
+   =================================================================== */
+
+/* === CORE ANIMATION SETUP === */
+:root {
+  /* Animation timing */
+  --anim-duration: 0.8s;
+  --anim-stagger: 0.15s;
+  --anim-easing: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  
+  /* Animation distances */
+  --slide-distance: 40px;
+  --hover-lift: -8px;
+  
+  /* Performance optimizations */
+  --gpu-acceleration: translateZ(0);
+}
+
+/* === INITIAL STATES === */
+.animate-on-scroll {
+  opacity: 0;
+  transform: translateY(var(--slide-distance)) var(--gpu-acceleration);
+  transition: all var(--anim-duration) var(--anim-easing);
+  will-change: opacity, transform;
+}
+
+/* Enhanced states for different animation types */
+.animate-fade-up {
+  opacity: 0;
+  transform: translateY(var(--slide-distance)) var(--gpu-acceleration);
+}
+
+.animate-fade-left {
+  opacity: 0;
+  transform: translateX(-30px) var(--gpu-acceleration);
+}
+
+.animate-scale-in {
+  opacity: 0;
+  transform: scale(0.95) var(--gpu-acceleration);
+}
+
+/* === ACTIVATED STATES === */
+.animate-on-scroll.is-visible,
+.animate-fade-up.is-visible,
+.animate-fade-left.is-visible,
+.animate-scale-in.is-visible {
+  opacity: 1;
+  transform: translateY(0) translateX(0) scale(1) var(--gpu-acceleration);
+}
+
+/* === STAGGER SYSTEM === */
+.stagger-container .animate-on-scroll:nth-child(1) {
+  transition-delay: 0ms;
+}
+
+.stagger-container .animate-on-scroll:nth-child(2) {
+  transition-delay: 150ms;
+}
+
+.stagger-container .animate-on-scroll:nth-child(3) {
+  transition-delay: 300ms;
+}
+
+.stagger-container .animate-on-scroll:nth-child(4) {
+  transition-delay: 450ms;
+}
+
+.stagger-container .animate-on-scroll:nth-child(5) {
+  transition-delay: 600ms;
+}
+
+.stagger-container .animate-on-scroll:nth-child(6) {
+  transition-delay: 750ms;
+}
+
+/* === MODERN HOVER MICRO-INTERACTIONS === */
+
+/* Benefits & Steps Cards */
+.modern-card {
+  transition: all 0.4s var(--anim-easing);
+  transform-origin: center;
+  will-change: transform, box-shadow;
+}
+
+.modern-card:hover {
+  transform: translateY(var(--hover-lift)) var(--gpu-acceleration);
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.08),
+    0 8px 16px rgba(0, 0, 0, 0.04);
+}
+
+/* Icon breathing effect */
+.modern-icon {
+  transition: all 0.3s ease-out;
+  transform-origin: center;
+}
+
+.modern-card:hover .modern-icon {
+  transform: scale(1.08) var(--gpu-acceleration);
+  filter: brightness(1.1);
+}
+
+/* Subtle icon container pulse */
+.icon-container {
+  position: relative;
+  transition: all 0.3s ease-out;
+}
+
+.icon-container::before {
+  content: '';
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  right: -5px;
+  bottom: -5px;
+  border-radius: inherit;
+  background: inherit;
+  opacity: 0;
+  transform: scale(1.1);
+  transition: all 0.3s ease-out;
+  z-index: -1;
+}
+
+.modern-card:hover .icon-container::before {
+  opacity: 0.15;
+  transform: scale(1.2);
+}
+
+/* === PERFORMANCE OPTIMIZATIONS === */
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .animate-on-scroll,
+  .animate-fade-up,
+  .animate-fade-left,
+  .animate-scale-in,
+  .modern-card,
+  .modern-icon {
+    transition: none !important;
+    animation: none !important;
+  }
+  
+  .animate-on-scroll.is-visible,
+  .animate-fade-up.is-visible,
+  .animate-fade-left.is-visible,
+  .animate-scale-in.is-visible {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Mobile optimizations */
+@media screen and (max-width: 768px) {
+  :root {
+    --anim-duration: 0.6s;
+    --slide-distance: 25px;
+    --hover-lift: -4px;
+  }
+  
+  /* Disable hover effects on mobile */
+  .modern-card:hover {
+    transform: none;
+    box-shadow: inherit;
+  }
+  
+  .modern-card:hover .modern-icon {
+    transform: none;
+    filter: none;
+  }
+  
+  .modern-card:hover .icon-container::before {
+    opacity: 0;
+    transform: scale(1);
+  }
+}
+
+/* === SECTION-SPECIFIC STYLING === */
+
+/* Benefits section */
+.benefits-section .animate-on-scroll {
+  --anim-easing: cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+/* Steps section with different timing */
+.steps-section .animate-on-scroll {
+  --anim-duration: 0.9s;
+  --anim-easing: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* === ENHANCED KEYFRAME ANIMATIONS === */
+
+/* Subtle pulse for important elements */
+@keyframes modernPulse {
+  0%, 100% {
+    transform: scale(1) var(--gpu-acceleration);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.02) var(--gpu-acceleration);
+    opacity: 0.95;
+  }
+}
+
+.pulse-subtle {
+  animation: modernPulse 4s ease-in-out infinite;
+}
+
+/* Elegant slide-in for titles */
+@keyframes slideInTitle {
+  from {
+    opacity: 0;
+    transform: translateY(30px) var(--gpu-acceleration);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) var(--gpu-acceleration);
+  }
+}
+
+.title-reveal {
+  animation: slideInTitle 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+/* === DEBUG MODE === */
+.debug-animations * {
+  outline: 1px solid rgba(255, 0, 0, 0.2) !important;
+  transition-duration: 2s !important;
+}
+
+/* === TEST ANIMATION IMMÉDIATE === */
+.test-animation {
+  animation: testPulse 2s ease-in-out infinite !important;
+  border: 3px solid #00ff00 !important;
+}
+
+@keyframes testPulse {
+  0%, 100% { 
+    transform: scale(1) !important;
+    background-color: rgba(0, 255, 0, 0.1) !important;
+  }
+  50% { 
+    transform: scale(1.05) !important;
+    background-color: rgba(0, 255, 0, 0.3) !important;
+  }
+}
+
+/* === ANIMATION FORCÉE POUR TEST === */
+.force-visible {
+  opacity: 1 !important;
+  transform: translateY(0) translateX(0) scale(1) !important;
+  transition: all 0.8s ease !important;
+}

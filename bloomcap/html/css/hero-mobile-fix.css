@@ -1,0 +1,373 @@
+/* ===================================================================
+   CORRECTIONS CIBLÉES HERO MOBILE - Sans affecter desktop
+   Style : Framer / Flypim / SaaS premium
+   =================================================================== */
+
+/* === 1. HEADER MOBILE - RÉSOLUTION DU DÉBORDEMENT === */
+@media screen and (max-width: 768px) {
+  
+  /* Header responsive avec grille équilibrée */
+  .site-header .navbar {
+    display: grid !important;
+    grid-template-columns: 44px 1fr 44px !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    padding: 0.75rem 1rem !important;
+    min-height: 64px !important;
+  }
+  
+  /* Menu burger bien positionné (colonne 1) */
+  .mobile-menu-trigger {
+    grid-column: 1 !important;
+    width: 44px !important;
+    height: 44px !important;
+    background: rgba(30, 64, 175, 0.08) !important;
+    border-radius: 12px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.2s ease !important;
+  }
+  
+  /* Logo centré (colonne 2) */
+  .brand-logo {
+    grid-column: 2 !important;
+    justify-self: center !important;
+    position: static !important;
+    transform: none !important;
+  }
+  
+  .brand-logo span {
+    font-size: 1.25rem !important;
+    font-weight: 800 !important;
+  }
+  
+  /* Bouton CTA compact (colonne 3) */
+  .header-btn {
+    grid-column: 3 !important;
+    justify-self: end !important;
+  }
+  
+  .header-btn .btn {
+    display: flex !important;
+    padding: 0.5rem 0.875rem !important;
+    font-size: 0.8rem !important;
+    font-weight: 600 !important;
+    border-radius: 20px !important;
+    white-space: nowrap !important;
+    min-width: auto !important;
+  }
+}
+
+/* === 2. HERO SECTION - OPTIMISATION HAUTEUR ET ÉQUILIBRAGE === */
+@media screen and (max-width: 768px) {
+  
+  /* Container hero optimisé - hauteur intelligente */
+  .welcome-area {
+    min-height: auto !important;
+    max-height: 100vh !important;
+    padding: 80px 0 40px 0 !important; /* 80px pour le header fixe */
+    display: flex !important;
+    align-items: center !important;
+  }
+  
+  /* Grille responsive hero - contenu prioritaire */
+  .welcome-area .row {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    gap: 2rem !important;
+  }
+  
+  /* Contenu textuel - priorité 1 */
+  .welcome-area .col-lg-7 {
+    order: 1 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  
+  /* Image - priorité 2, taille réduite */
+  .welcome-area .col-lg-5 {
+    order: 2 !important;
+    width: 100% !important;
+    max-width: 280px !important;
+    margin: 0 auto !important;
+  }
+}
+
+/* === 3. TEXTES HERO - TAILLES RESPONSIVES ÉQUILIBRÉES === */
+@media screen and (max-width: 768px) {
+  
+  /* Badge d'introduction - plus compact */
+  .welcome-content--l3 .d-inline-flex {
+    font-size: 0.75rem !important;
+    padding: 0.4rem 0.875rem !important;
+    margin-bottom: 1rem !important;
+    border-radius: 20px !important;
+  }
+  
+  /* Titre principal - impact sans excès */
+  .welcome-content--l3 h1 {
+    font-size: clamp(1.75rem, 5vw, 2.25rem) !important;
+    line-height: 1.2 !important;
+    font-weight: 700 !important;
+    letter-spacing: -0.02em !important;
+    margin-bottom: 1rem !important;
+  }
+  
+  /* Sous-titre - proportionné */
+  .welcome-content--l3 p[style*="font-size: 1.25rem"] {
+    font-size: clamp(1rem, 3vw, 1.125rem) !important;
+    line-height: 1.5 !important;
+    margin-bottom: 0.75rem !important;
+    max-width: 90% !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+  
+  /* Texte italique - subtil */
+  .welcome-content--l3 p[style*="font-style: italic"] {
+    font-size: 0.875rem !important;
+    opacity: 0.8 !important;
+    margin-bottom: 1.5rem !important;
+  }
+}
+
+/* === 4. BOUTONS CTA - DISPOSITION ET ALIGNEMENT OPTIMISÉS === */
+@media screen and (max-width: 768px) {
+  
+  /* Container boutons - flex moderne */
+  .welcome-area .d-flex.flex-wrap.gap-3 {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 0.75rem !important;
+    width: 100% !important;
+    max-width: 300px !important;
+    margin: 0 auto !important;
+  }
+  
+  /* Bouton vidéo - style glassmorphism */
+  .welcome-area a[href*="youtube"] {
+    width: 100% !important;
+    padding: 0.875rem 1.5rem !important;
+    font-size: 0.95rem !important;
+    font-weight: 500 !important;
+    border-radius: 14px !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    backdrop-filter: blur(20px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: white !important;
+    transition: all 0.2s ease !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.5rem !important;
+  }
+  
+  /* Bouton CTA principal - priorité visuelle */
+  .welcome-area a[href="#formulaire"] {
+    width: 100% !important;
+    padding: 1rem 1.5rem !important;
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+    border-radius: 14px !important;
+    background: linear-gradient(135deg, #fbbf24, #f59e0b) !important;
+    color: #1e40af !important;
+    box-shadow: 0 4px 16px rgba(251, 191, 36, 0.3) !important;
+    transition: all 0.2s ease !important;
+    position: relative !important;
+  }
+  
+  /* Effets tactiles mobiles */
+  .welcome-area a:active {
+    transform: scale(0.98) !important;
+    transition: transform 0.1s ease !important;
+  }
+}
+
+/* === 5. IMAGE HERO - REDIMENSIONNEMENT INTELLIGENT === */
+@media screen and (max-width: 768px) {
+  
+  /* Container image - taille optimisée */
+  .welcome-area .position-relative[style*="max-width: 420px"] {
+    max-width: 280px !important;
+    margin: 0 auto !important;
+  }
+  
+  /* Card image - glassmorphism moderne */
+  .welcome-area .p-4.rounded-4 {
+    padding: 1rem !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    backdrop-filter: blur(16px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    border-radius: 16px !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+  }
+  
+  .welcome-area .p-4.rounded-4 img {
+    border-radius: 12px !important;
+    filter: brightness(1.05) !important;
+  }
+  
+  /* Masquer les stats flottantes sur mobile */
+  .welcome-area .position-absolute[style*="background: white"] {
+    display: none !important;
+  }
+}
+
+/* === 6. ANIMATIONS MOBILES - FLUIDES ET MODERNES === */
+@media screen and (max-width: 768px) {
+  
+  /* Animations d'entrée progressive */
+  .welcome-content--l3 > * {
+    opacity: 0 !important;
+    transform: translateY(20px) !important;
+    animation: mobileSlideUp 0.6s ease-out forwards !important;
+  }
+  
+  /* Délais échelonnés pour effet cascade */
+  .welcome-content--l3 > *:nth-child(1) { animation-delay: 0.1s !important; }
+  .welcome-content--l3 > *:nth-child(2) { animation-delay: 0.2s !important; }
+  .welcome-content--l3 > *:nth-child(3) { animation-delay: 0.3s !important; }
+  .welcome-content--l3 > *:nth-child(4) { animation-delay: 0.4s !important; }
+  .welcome-content--l3 > *:nth-child(5) { animation-delay: 0.5s !important; }
+  
+  @keyframes mobileSlideUp {
+    to {
+      opacity: 1 !important;
+      transform: translateY(0) !important;
+    }
+  }
+  
+  /* Animation image - apparition élégante */
+  .welcome-area .col-lg-5 {
+    opacity: 0 !important;
+    transform: translateY(30px) scale(0.95) !important;
+    animation: mobileImageFade 0.8s ease-out 0.6s forwards !important;
+  }
+  
+  @keyframes mobileImageFade {
+    to {
+      opacity: 1 !important;
+      transform: translateY(0) scale(1) !important;
+    }
+  }
+  
+  /* Micro-interactions sur les boutons */
+  .welcome-area a[href*="youtube"]:hover {
+    background: rgba(255, 255, 255, 0.15) !important;
+    transform: translateY(-2px) !important;
+  }
+  
+  .welcome-area a[href="#formulaire"]:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(251, 191, 36, 0.4) !important;
+  }
+}
+
+/* === 7. OPTIMISATIONS POUR TRÈS PETITS ÉCRANS === */
+@media screen and (max-width: 480px) {
+  
+  /* Header encore plus compact */
+  .site-header .navbar {
+    padding: 0.5rem 0.75rem !important;
+    min-height: 60px !important;
+  }
+  
+  .header-btn .btn {
+    padding: 0.4rem 0.75rem !important;
+    font-size: 0.75rem !important;
+  }
+  
+  /* Hero ultra-compact */
+  .welcome-area {
+    padding: 70px 0 30px 0 !important;
+  }
+  
+  .welcome-content--l3 h1 {
+    font-size: clamp(1.5rem, 5vw, 1.875rem) !important;
+  }
+  
+  /* Boutons plus petits */
+  .welcome-area .d-flex.flex-wrap.gap-3 {
+    max-width: 280px !important;
+  }
+  
+  .welcome-area a {
+    padding: 0.75rem 1.25rem !important;
+    font-size: 0.9rem !important;
+  }
+  
+  /* Image plus petite */
+  .welcome-area .position-relative[style*="max-width: 420px"] {
+    max-width: 240px !important;
+  }
+}
+
+/* === 8. PERFORMANCE ET FLUIDITÉ === */
+@media screen and (max-width: 768px) {
+  
+  /* Accélération matérielle pour fluidité */
+  .welcome-area,
+  .welcome-content--l3,
+  .welcome-area a,
+  .site-header {
+    will-change: transform !important;
+    transform: translateZ(0) !important;
+  }
+  
+  /* Masquer éléments décoratifs lourds */
+  .welcome-area > div[style*="filter: blur"] {
+    display: none !important;
+  }
+  
+  /* Optimisation du scroll */
+  .welcome-area {
+    -webkit-overflow-scrolling: touch !important;
+  }
+}
+
+/* === 9. ÉTATS FOCUS ET ACCESSIBILITÉ === */
+@media screen and (max-width: 768px) {
+  
+  /* Focus visible pour navigation clavier */
+  .mobile-menu-trigger:focus,
+  .header-btn .btn:focus,
+  .welcome-area a:focus {
+    outline: 2px solid #1e40af !important;
+    outline-offset: 2px !important;
+  }
+  
+  /* Zones tactiles confortables */
+  .mobile-menu-trigger,
+  .header-btn .btn,
+  .welcome-area a {
+    min-height: 44px !important;
+    min-width: 44px !important;
+  }
+}
+
+/* === 10. RESPONSIVE BREAKPOINT SUPPLÉMENTAIRE === */
+@media screen and (max-width: 320px) {
+  
+  /* Support des très vieux mobiles */
+  .welcome-content--l3 h1 {
+    font-size: 1.375rem !important;
+  }
+  
+  .welcome-area .d-flex.flex-wrap.gap-3 {
+    max-width: 260px !important;
+  }
+  
+  .site-header .navbar {
+    grid-template-columns: 40px 1fr 40px !important;
+    gap: 0.25rem !important;
+  }
+  
+  .mobile-menu-trigger {
+    width: 40px !important;
+    height: 40px !important;
+  }
+}
