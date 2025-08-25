@@ -1,0 +1,475 @@
+/* ===================================================================
+   MOBILE NAVIGATION PRO - Navigation mobile moderne et équilibrée
+   Header mobile professionnel avec hamburger, logo centré, animations
+   =================================================================== */
+
+/* === VARIABLES DESIGN SYSTEM === */
+:root {
+  --nav-height-mobile: 60px;
+  --nav-height-tablet: 64px;
+  --nav-padding-mobile: 1rem;
+  --nav-padding-tablet: 1.25rem;
+  --logo-size-mobile: 1.25rem;
+  --logo-size-tablet: 1.4rem;
+  --hamburger-size: 24px;
+  --cta-button-height: 36px;
+  --nav-bg: rgba(255, 255, 255, 0.95);
+  --nav-bg-scrolled: rgba(255, 255, 255, 0.98);
+  --nav-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
+  --nav-shadow-scrolled: 0 4px 30px rgba(0, 0, 0, 0.12);
+  --transition-smooth: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --menu-overlay-bg: rgba(0, 0, 0, 0.6);
+  --menu-bg: #ffffff;
+}
+
+/* === NAVIGATION MOBILE (≤ 991px) === */
+@media screen and (max-width: 991px) {
+  
+  /* === 1. HEADER STRUCTURE OPTIMISÉE === */
+  .site-header {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 1050 !important;
+    height: var(--nav-height-mobile) !important;
+    background: var(--nav-bg) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    box-shadow: var(--nav-shadow) !important;
+    transition: var(--transition-smooth) !important;
+    padding: 0 !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06) !important;
+  }
+  
+  /* État header au scroll */
+  .site-header.scrolled {
+    background: var(--nav-bg-scrolled) !important;
+    box-shadow: var(--nav-shadow-scrolled) !important;
+    backdrop-filter: blur(25px) !important;
+  }
+  
+  .site-header .container {
+    height: 100% !important;
+    padding: 0 var(--nav-padding-mobile) !important;
+    max-width: 100% !important;
+  }
+  
+  /* === 2. NAVBAR GRID LAYOUT ÉQUILIBRÉ === */
+  .site-header .navbar {
+    width: 100% !important;
+    height: 100% !important;
+    display: grid !important;
+    grid-template-columns: auto 1fr auto !important;
+    align-items: center !important;
+    gap: 1rem !important;
+    padding: 0 !important;
+  }
+  
+  /* === 3. MENU HAMBURGER MODERNE (GAUCHE) === */
+  .mobile-menu-trigger {
+    grid-column: 1 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 44px !important;
+    height: 44px !important;
+    background: rgba(30, 64, 175, 0.08) !important;
+    border-radius: 12px !important;
+    cursor: pointer !important;
+    transition: var(--transition-smooth) !important;
+    position: relative !important;
+    border: none !important;
+    padding: 0 !important;
+  }
+  
+  .mobile-menu-trigger:hover {
+    background: rgba(30, 64, 175, 0.12) !important;
+    transform: scale(1.02) !important;
+  }
+  
+  .mobile-menu-trigger:active {
+    transform: scale(0.98) !important;
+    background: rgba(30, 64, 175, 0.15) !important;
+  }
+  
+  /* Icône hamburger animée */
+  .mobile-menu-trigger span {
+    display: block !important;
+    width: var(--hamburger-size) !important;
+    height: 2px !important;
+    background: #1e40af !important;
+    border-radius: 2px !important;
+    position: relative !important;
+    transition: var(--transition-smooth) !important;
+  }
+  
+  .mobile-menu-trigger span::before,
+  .mobile-menu-trigger span::after {
+    content: '' !important;
+    display: block !important;
+    position: absolute !important;
+    width: var(--hamburger-size) !important;
+    height: 2px !important;
+    background: #1e40af !important;
+    border-radius: 2px !important;
+    transition: var(--transition-smooth) !important;
+  }
+  
+  .mobile-menu-trigger span::before {
+    top: -8px !important;
+  }
+  
+  .mobile-menu-trigger span::after {
+    bottom: -8px !important;
+  }
+  
+  /* Animation hamburger vers X */
+  .mobile-menu-trigger.is-active span {
+    background: transparent !important;
+  }
+  
+  .mobile-menu-trigger.is-active span::before {
+    top: 0 !important;
+    transform: rotate(45deg) !important;
+  }
+  
+  .mobile-menu-trigger.is-active span::after {
+    bottom: 0 !important;
+    transform: rotate(-45deg) !important;
+  }
+  
+  /* === 4. LOGO CENTRÉ PARFAIT === */
+  .brand-logo {
+    grid-column: 2 !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    position: relative !important;
+  }
+  
+  .brand-logo a {
+    text-decoration: none !important;
+    transition: var(--transition-smooth) !important;
+  }
+  
+  .brand-logo a:hover {
+    transform: scale(1.02) !important;
+  }
+  
+  /* Afficher seulement la version claire */
+  .brand-logo .light-version-logo {
+    display: inline-block !important;
+    font-size: var(--logo-size-mobile) !important;
+    font-weight: 800 !important;
+    color: #1e40af !important;
+    font-family: 'Inter', sans-serif !important;
+    letter-spacing: -0.02em !important;
+  }
+  
+  .brand-logo .dark-version-logo {
+    display: none !important;
+  }
+  
+  /* === 5. BOUTON CTA INTELLIGENT (DROITE) === */
+  .header-btn {
+    grid-column: 3 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+  }
+  
+  /* Masquer le bouton desktop */
+  .header-btn .d-none.d-sm-flex {
+    display: none !important;
+  }
+  
+  /* Nouveau bouton CTA mobile optimisé */
+  .mobile-cta-btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    height: var(--cta-button-height) !important;
+    padding: 0 0.875rem !important;
+    font-size: 0.8rem !important;
+    font-weight: 600 !important;
+    color: white !important;
+    background: linear-gradient(135deg, #1e40af, #3b82f6) !important;
+    border-radius: 10px !important;
+    text-decoration: none !important;
+    cursor: pointer !important;
+    transition: var(--transition-smooth) !important;
+    box-shadow: 0 2px 8px rgba(30, 64, 175, 0.25) !important;
+    border: none !important;
+    white-space: nowrap !important;
+  }
+  
+  .mobile-cta-btn:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(30, 64, 175, 0.35) !important;
+    color: white !important;
+  }
+  
+  .mobile-cta-btn:active {
+    transform: translateY(0) !important;
+    box-shadow: 0 2px 6px rgba(30, 64, 175, 0.3) !important;
+  }
+  
+  /* === 6. MENU MOBILE SLIDE-DOWN === */
+  .menu-overlay {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    background: var(--menu-overlay-bg) !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transition: var(--transition-smooth) !important;
+    z-index: 1040 !important;
+    backdrop-filter: blur(8px) !important;
+  }
+  
+  .menu-overlay.is-active {
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+  
+  .menu-block {
+    position: fixed !important;
+    top: var(--nav-height-mobile) !important;
+    left: 0 !important;
+    right: 0 !important;
+    background: var(--menu-bg) !important;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.15) !important;
+    transform: translateY(-100%) !important;
+    transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+    z-index: 1041 !important;
+    max-height: calc(100vh - var(--nav-height-mobile)) !important;
+    overflow-y: auto !important;
+    border-radius: 0 0 16px 16px !important;
+  }
+  
+  .menu-block.is-active {
+    transform: translateY(0) !important;
+  }
+  
+  /* === 7. MENU MOBILE HEAD === */
+  .mobile-menu-head {
+    display: none !important; /* Pas nécessaire avec slide-down */
+  }
+  
+  /* === 8. NAVIGATION ITEMS === */
+  .site-menu-main {
+    padding: 1.5rem 0 2rem !important;
+    margin: 0 !important;
+    list-style: none !important;
+  }
+  
+  .site-menu-main li {
+    margin: 0 !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06) !important;
+  }
+  
+  .site-menu-main li:last-child {
+    border-bottom: none !important;
+  }
+  
+  .site-menu-main a {
+    display: flex !important;
+    align-items: center !important;
+    padding: 1.25rem var(--nav-padding-mobile) !important;
+    color: #1f2937 !important;
+    font-weight: 500 !important;
+    font-size: 1rem !important;
+    text-decoration: none !important;
+    transition: var(--transition-smooth) !important;
+    position: relative !important;
+  }
+  
+  .site-menu-main a:hover {
+    background: rgba(30, 64, 175, 0.05) !important;
+    color: #1e40af !important;
+    padding-left: calc(var(--nav-padding-mobile) + 0.5rem) !important;
+  }
+  
+  .site-menu-main a:active {
+    background: rgba(30, 64, 175, 0.1) !important;
+  }
+  
+  /* Icônes dans le menu */
+  .site-menu-main a i {
+    margin-right: 0.75rem !important;
+    width: 20px !important;
+    color: #6b7280 !important;
+    transition: color 0.3s ease !important;
+  }
+  
+  .site-menu-main a:hover i {
+    color: #1e40af !important;
+  }
+  
+  /* === 9. RESPONSIVE TABLETTE === */
+  @media screen and (min-width: 768px) and (max-width: 991px) {
+    :root {
+      --nav-height-mobile: var(--nav-height-tablet);
+      --nav-padding-mobile: var(--nav-padding-tablet);
+      --logo-size-mobile: var(--logo-size-tablet);
+      --cta-button-height: 40px;
+    }
+    
+    .mobile-menu-trigger {
+      width: 48px !important;
+      height: 48px !important;
+    }
+    
+    .mobile-cta-btn {
+      padding: 0 1.125rem !important;
+      font-size: 0.875rem !important;
+    }
+    
+    .site-menu-main a {
+      font-size: 1.05rem !important;
+      padding: 1.125rem var(--nav-padding-tablet) !important;
+    }
+  }
+  
+  /* === 10. PETITS ÉCRANS (≤ 480px) === */
+  @media screen and (max-width: 480px) {
+    :root {
+      --nav-height-mobile: 56px;
+      --nav-padding-mobile: 0.875rem;
+      --logo-size-mobile: 1.15rem;
+      --cta-button-height: 32px;
+    }
+    
+    .mobile-menu-trigger {
+      width: 40px !important;
+      height: 40px !important;
+    }
+    
+    .mobile-menu-trigger span,
+    .mobile-menu-trigger span::before,
+    .mobile-menu-trigger span::after {
+      width: 20px !important;
+    }
+    
+    .mobile-cta-btn {
+      padding: 0 0.75rem !important;
+      font-size: 0.75rem !important;
+    }
+    
+    .site-menu-main a {
+      padding: 1rem var(--nav-padding-mobile) !important;
+      font-size: 0.95rem !important;
+    }
+  }
+  
+  /* === 11. ANIMATIONS D'ENTRÉE === */
+  @keyframes slideDown {
+    from {
+      transform: translateY(-100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  
+  /* Animation des items du menu */
+  .menu-block.is-active .site-menu-main li {
+    opacity: 0;
+    transform: translateY(-10px);
+    animation: slideInItem 0.3s ease-out forwards;
+  }
+  
+  .menu-block.is-active .site-menu-main li:nth-child(1) { animation-delay: 0.1s; }
+  .menu-block.is-active .site-menu-main li:nth-child(2) { animation-delay: 0.15s; }
+  .menu-block.is-active .site-menu-main li:nth-child(3) { animation-delay: 0.2s; }
+  .menu-block.is-active .site-menu-main li:nth-child(4) { animation-delay: 0.25s; }
+  .menu-block.is-active .site-menu-main li:nth-child(5) { animation-delay: 0.3s; }
+  
+  @keyframes slideInItem {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* === 12. EFFETS SPÉCIAUX === */
+  
+  /* Effet de pulse sur le hamburger quand fermé */
+  .mobile-menu-trigger:not(.is-active):hover span::before {
+    animation: pulse 1s infinite;
+  }
+  
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+  }
+  
+  /* Glow effect sur le logo */
+  .brand-logo a:hover .light-version-logo {
+    text-shadow: 0 0 10px rgba(30, 64, 175, 0.3) !important;
+  }
+  
+  /* === 13. ACCESSIBILITÉ === */
+  
+  /* Focus states */
+  .mobile-menu-trigger:focus,
+  .mobile-cta-btn:focus,
+  .site-menu-main a:focus {
+    outline: 2px solid #1e40af !important;
+    outline-offset: 2px !important;
+  }
+  
+  /* Réduire les animations si préféré */
+  @media (prefers-reduced-motion: reduce) {
+    .mobile-menu-trigger,
+    .mobile-cta-btn,
+    .menu-block,
+    .menu-overlay,
+    .site-menu-main a {
+      transition: none !important;
+      animation: none !important;
+    }
+  }
+}
+
+/* === PRÉSERVATION DESKTOP (≥ 992px) === */
+@media screen and (min-width: 992px) {
+  /* Desktop navigation reste intacte */
+  .mobile-menu-trigger {
+    display: none !important;
+  }
+  
+  .mobile-cta-btn {
+    display: none !important;
+  }
+  
+  /* Restaurer le comportement desktop */
+  .site-header .navbar {
+    display: flex !important;
+    grid-template-columns: none !important;
+  }
+  
+  .brand-logo {
+    position: static !important;
+    justify-content: flex-start !important;
+  }
+  
+  .brand-logo .light-version-logo,
+  .brand-logo .dark-version-logo {
+    font-size: 1.5rem !important;
+  }
+}

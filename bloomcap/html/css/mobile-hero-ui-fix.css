@@ -1,0 +1,455 @@
+/* ===================================================================
+   MOBILE HERO UI/UX FIX - Solution experte responsive
+   Corrige : duplication logo, chevauchement boutons, layout hero, animations
+   =================================================================== */
+
+/* === VARIABLES DESIGN SYSTEM === */
+:root {
+  --mobile-header-height: 64px;
+  --mobile-hero-min-height: 75vh;
+  --mobile-container-padding: 1rem;
+  --mobile-element-gap: 1.25rem;
+  --mobile-button-height: 44px;
+  --mobile-button-radius: 10px;
+  --mobile-text-padding: 0.75rem;
+  --animation-easing: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --shadow-subtle: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --shadow-elevated: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+/* === MOBILE ONLY FIXES (≤ 768px) === */
+@media screen and (max-width: 768px) {
+  
+  /* === 1. HEADER STRUCTURE CORRIGÉE === */
+  .site-header {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 1050 !important;
+    height: var(--mobile-header-height) !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    box-shadow: var(--shadow-subtle) !important;
+    padding: 0 !important;
+  }
+  
+  .site-header .container {
+    height: 100% !important;
+    padding: 0 var(--mobile-container-padding) !important;
+    display: flex !important;
+    align-items: center !important;
+  }
+  
+  .site-header .navbar {
+    width: 100% !important;
+    height: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 0 !important;
+    position: relative !important;
+  }
+  
+  /* === 2. CORRECTION DU LOGO (SUPPRESSION DOUBLON) === */
+  .brand-logo {
+    position: absolute !important;
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    z-index: 1051 !important;
+    order: 2 !important;
+  }
+  
+  .brand-logo a {
+    text-decoration: none !important;
+  }
+  
+  /* Afficher seulement la version claire, masquer la sombre */
+  .brand-logo .light-version-logo {
+    display: inline-block !important;
+    font-size: 1.3rem !important;
+    font-weight: 800 !important;
+    color: #1e40af !important;
+    font-family: 'Inter', sans-serif !important;
+  }
+  
+  .brand-logo .dark-version-logo {
+    display: none !important;
+  }
+  
+  /* === 3. MENU BURGER POSITION === */
+  .mobile-menu-trigger {
+    position: relative !important;
+    order: 1 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 42px !important;
+    height: 42px !important;
+    background: rgba(30, 64, 175, 0.08) !important;
+    border-radius: var(--mobile-button-radius) !important;
+    cursor: pointer !important;
+    transition: all 0.3s var(--animation-easing) !important;
+    flex-shrink: 0 !important;
+  }
+  
+  .mobile-menu-trigger:active {
+    transform: scale(0.95) !important;
+    background: rgba(30, 64, 175, 0.15) !important;
+  }
+  
+  .mobile-menu-trigger span {
+    width: 18px !important;
+    height: 2px !important;
+    background: #1e40af !important;
+    border-radius: 1px !important;
+    position: relative !important;
+    transition: all 0.3s var(--animation-easing) !important;
+  }
+  
+  .mobile-menu-trigger span::before,
+  .mobile-menu-trigger span::after {
+    content: '' !important;
+    position: absolute !important;
+    width: 18px !important;
+    height: 2px !important;
+    background: #1e40af !important;
+    border-radius: 1px !important;
+    transition: all 0.3s var(--animation-easing) !important;
+  }
+  
+  .mobile-menu-trigger span::before {
+    top: -5px !important;
+  }
+  
+  .mobile-menu-trigger span::after {
+    bottom: -5px !important;
+  }
+  
+  /* === 4. BOUTON CTA HEADER OPTIMISÉ === */
+  .header-btn {
+    order: 3 !important;
+    flex-shrink: 0 !important;
+  }
+  
+  /* Masquer le bouton desktop, créer une version mobile */
+  .header-btn .d-none.d-sm-flex {
+    display: none !important;
+  }
+  
+  /* Nouveau bouton CTA mobile dans le header */
+  .header-btn::after {
+    content: "Démarrer" !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    height: 36px !important;
+    padding: 0 0.875rem !important;
+    font-size: 0.8rem !important;
+    font-weight: 600 !important;
+    color: white !important;
+    background: linear-gradient(135deg, #1e40af, #3b82f6) !important;
+    border-radius: 8px !important;
+    text-decoration: none !important;
+    cursor: pointer !important;
+    transition: all 0.3s var(--animation-easing) !important;
+    box-shadow: 0 2px 8px rgba(30, 64, 175, 0.3) !important;
+  }
+  
+  /* === 5. HERO SECTION RESTRUCTURÉE === */
+  .welcome-area {
+    min-height: var(--mobile-hero-min-height) !important;
+    padding-top: calc(var(--mobile-header-height) + 1rem) !important;
+    padding-bottom: 2rem !important;
+    display: flex !important;
+    align-items: center !important;
+    position: relative !important;
+  }
+  
+  .welcome-area .container {
+    min-height: auto !important;
+    padding: 0 var(--mobile-container-padding) !important;
+  }
+  
+  /* === 6. LAYOUT HERO ÉQUILIBRÉ === */
+  .welcome-area .row {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    gap: var(--mobile-element-gap) !important;
+    min-height: auto !important;
+  }
+  
+  /* Contenu textuel en premier */
+  .welcome-area .col-lg-7,
+  .welcome-area .col-xl-6,
+  .welcome-area .col-md-7 {
+    order: 1 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-bottom: var(--mobile-element-gap) !important;
+  }
+  
+  /* Image en second, bien centrée */
+  .welcome-area .col-lg-5 {
+    order: 2 !important;
+    width: 100% !important;
+    max-width: 300px !important;
+    margin: 0 auto !important;
+  }
+  
+  /* === 7. CONTENU TEXTUEL ESPACÉ === */
+  .welcome-content--l3 {
+    text-align: center !important;
+    padding: 0 var(--mobile-text-padding) !important;
+  }
+  
+  /* Badge optimisé */
+  .welcome-content--l3 .d-inline-flex {
+    font-size: 0.75rem !important;
+    padding: 0.6rem 1rem !important;
+    margin-bottom: var(--mobile-element-gap) !important;
+    border-radius: 20px !important;
+    max-width: 85% !important;
+    line-height: 1.3 !important;
+    backdrop-filter: blur(12px) !important;
+  }
+  
+  /* Titre principal équilibré */
+  .welcome-content--l3 h1 {
+    font-size: 1.75rem !important;
+    line-height: 1.25 !important;
+    font-weight: 700 !important;
+    color: white !important;
+    margin-bottom: var(--mobile-element-gap) !important;
+    padding: 0 var(--mobile-text-padding) !important;
+    letter-spacing: -0.015em !important;
+  }
+  
+  /* Paragraphe principal */
+  .welcome-content--l3 p[style*="font-size: 1.25rem"] {
+    font-size: 1rem !important;
+    line-height: 1.5 !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+    margin-bottom: 0.875rem !important;
+    padding: 0 var(--mobile-text-padding) !important;
+    max-width: 90% !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+  
+  /* Texte italique */
+  .welcome-content--l3 p[style*="font-style: italic"] {
+    font-size: 0.875rem !important;
+    color: rgba(255, 255, 255, 0.75) !important;
+    margin-bottom: 1.5rem !important;
+    padding: 0 var(--mobile-text-padding) !important;
+    line-height: 1.4 !important;
+  }
+  
+  /* === 8. BOUTONS CTA REDIMENSIONNÉS === */
+  .welcome-content--l3 .d-flex.flex-wrap {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.875rem !important;
+    align-items: center !important;
+    width: 100% !important;
+    max-width: 280px !important;
+    margin: 0 auto !important;
+  }
+  
+  /* Bouton vidéo compact */
+  .welcome-content--l3 a[href*="youtube"] {
+    width: 100% !important;
+    height: var(--mobile-button-height) !important;
+    padding: 0 1.25rem !important;
+    font-size: 0.875rem !important;
+    font-weight: 500 !important;
+    border-radius: var(--mobile-button-radius) !important;
+    background: rgba(255, 255, 255, 0.12) !important;
+    backdrop-filter: blur(12px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.25) !important;
+    color: white !important;
+    text-decoration: none !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.5rem !important;
+    transition: all 0.3s var(--animation-easing) !important;
+  }
+  
+  /* Bouton CTA principal compact */
+  .welcome-content--l3 a[href="#formulaire"] {
+    width: 100% !important;
+    height: 48px !important;
+    padding: 0 1.25rem !important;
+    font-size: 0.95rem !important;
+    font-weight: 600 !important;
+    border-radius: var(--mobile-button-radius) !important;
+    background: linear-gradient(135deg, #fbbf24, #f59e0b) !important;
+    color: #1e40af !important;
+    text-decoration: none !important;
+    text-align: center !important;
+    box-shadow: 0 4px 16px rgba(251, 191, 36, 0.35) !important;
+    transition: all 0.3s var(--animation-easing) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  
+  /* Touch feedback pour boutons */
+  .welcome-content--l3 a:active {
+    transform: scale(0.98) !important;
+    transition: transform 0.1s ease !important;
+  }
+  
+  /* === 9. IMAGE DE LA FEMME OPTIMISÉE === */
+  .welcome-area .position-relative[style*="max-width: 420px"] {
+    max-width: 280px !important;
+    margin: 0 auto !important;
+    padding-bottom: 1rem !important;
+  }
+  
+  .welcome-area .p-4.rounded-4 {
+    padding: 1rem !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    backdrop-filter: blur(16px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border-radius: 18px !important;
+    box-shadow: var(--shadow-elevated) !important;
+    margin-bottom: 0.5rem !important;
+  }
+  
+  .welcome-area .p-4.rounded-4 img {
+    border-radius: 14px !important;
+    width: 100% !important;
+    height: auto !important;
+    object-fit: cover !important;
+  }
+  
+  /* Masquer les éléments décoratifs encombrants */
+  .welcome-area .position-absolute[style*="background: white"] {
+    display: none !important;
+  }
+  
+  /* === 10. ANIMATIONS AOS OPTIMISÉES MOBILE === */
+  
+  /* Configuration globale AOS pour mobile */
+  [data-aos] {
+    transition-duration: 0.5s !important;
+    transition-timing-function: var(--animation-easing) !important;
+  }
+  
+  /* Animation progressive du contenu hero */
+  .welcome-content--l3 > * {
+    opacity: 0;
+    transform: translateY(12px);
+    animation: mobileSlideUp 0.5s var(--animation-easing) forwards;
+  }
+  
+  /* Délais staggerés subtils */
+  .welcome-content--l3 > *:nth-child(1) { animation-delay: 0.1s; }
+  .welcome-content--l3 > *:nth-child(2) { animation-delay: 0.2s; }
+  .welcome-content--l3 > *:nth-child(3) { animation-delay: 0.3s; }
+  .welcome-content--l3 > *:nth-child(4) { animation-delay: 0.4s; }
+  .welcome-content--l3 > *:nth-child(5) { animation-delay: 0.5s; }
+  
+  /* Animation de l'image avec délai */
+  .welcome-area .col-lg-5 {
+    opacity: 0;
+    transform: translateY(16px);
+    animation: mobileSlideUp 0.6s var(--animation-easing) 0.5s forwards;
+  }
+  
+  @keyframes mobileSlideUp {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* Réduction des animations trop lourdes */
+  [data-aos="zoom-in"],
+  [data-aos="flip-up"],
+  [data-aos="flip-down"] {
+    transition-duration: 0.4s !important;
+  }
+  
+  /* === 11. OPTIMISATIONS PERFORMANCE === */
+  
+  /* Réduire les effets visuels coûteux */
+  .welcome-area > div[style*="filter: blur"] {
+    filter: blur(25px) !important;
+    opacity: 0.4 !important;
+    will-change: auto !important;
+  }
+  
+  /* Désactiver hover sur tactile */
+  @media (hover: none) and (pointer: coarse) {
+    .welcome-content--l3 a:hover {
+      transform: none !important;
+    }
+    
+    .mobile-menu-trigger:hover {
+      background: rgba(30, 64, 175, 0.08) !important;
+    }
+  }
+  
+  /* === 12. RESPONSIVE BREAKPOINTS === */
+  
+  /* Petits écrans (≤ 480px) */
+  @media screen and (max-width: 480px) {
+    :root {
+      --mobile-hero-min-height: 70vh;
+      --mobile-container-padding: 0.875rem;
+      --mobile-element-gap: 1rem;
+      --mobile-text-padding: 0.5rem;
+    }
+    
+    .welcome-content--l3 h1 {
+      font-size: 1.6rem !important;
+    }
+    
+    .welcome-content--l3 .d-flex.flex-wrap {
+      max-width: 260px !important;
+    }
+    
+    .welcome-area .position-relative[style*="max-width: 420px"] {
+      max-width: 240px !important;
+    }
+    
+    .header-btn::after {
+      font-size: 0.75rem !important;
+      padding: 0 0.75rem !important;
+    }
+  }
+  
+  /* Très petits écrans (≤ 360px) */
+  @media screen and (max-width: 360px) {
+    .welcome-content--l3 h1 {
+      font-size: 1.5rem !important;
+      padding: 0 0.25rem !important;
+    }
+    
+    .welcome-content--l3 .d-inline-flex {
+      font-size: 0.7rem !important;
+      max-width: 95% !important;
+    }
+    
+    .welcome-content--l3 .d-flex.flex-wrap {
+      max-width: 240px !important;
+    }
+    
+    .brand-logo .light-version-logo {
+      font-size: 1.2rem !important;
+    }
+  }
+}
+
+/* === PRÉSERVATION DESKTOP === */
+@media screen and (min-width: 769px) {
+  /* Desktop reste exactement comme avant - aucune modification */
+}

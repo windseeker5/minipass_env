@@ -1,0 +1,437 @@
+/* ===================================================================
+   MOBILE FIX COMPLETE - Correction menu + image, desktop 100% intact
+   =================================================================== */
+
+/* === DESKTOP TOTALEMENT PRÉSERVÉ (≥ 992px) === */
+@media screen and (min-width: 992px) {
+  /* Masquer seulement le hamburger sur desktop */
+  .mobile-menu-trigger {
+    display: none !important;
+  }
+  
+  /* Pas d'autres règles - desktop reste identique */
+}
+
+/* === MOBILE UNIQUEMENT (≤ 991px) === */
+@media screen and (max-width: 991px) {
+  
+  /* === 1. HEADER MOBILE FONCTIONNEL === */
+  .site-header {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 1050 !important;
+    height: 64px !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(15px) !important;
+    -webkit-backdrop-filter: blur(15px) !important;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1) !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06) !important;
+    transition: all 0.3s ease !important;
+  }
+  
+  .site-header.scrolled {
+    background: rgba(255, 255, 255, 0.98) !important;
+    box-shadow: 0 4px 25px rgba(0, 0, 0, 0.15) !important;
+  }
+  
+  .site-header .container {
+    height: 100% !important;
+    padding: 0 1rem !important;
+    max-width: 100% !important;
+  }
+  
+  .site-header .navbar {
+    width: 100% !important;
+    height: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 0 !important;
+    position: relative !important;
+  }
+  
+  /* === 2. LOGO CENTRÉ === */
+  .brand-logo {
+    position: absolute !important;
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    z-index: 1051 !important;
+  }
+  
+  .brand-logo a {
+    text-decoration: none !important;
+    transition: all 0.3s ease !important;
+  }
+  
+  .brand-logo .light-version-logo {
+    display: inline-block !important;
+    font-size: 1.25rem !important;
+    font-weight: 800 !important;
+    color: #1e40af !important;
+    font-family: 'Inter', sans-serif !important;
+    letter-spacing: -0.02em !important;
+  }
+  
+  .brand-logo .dark-version-logo {
+    display: none !important;
+  }
+  
+  /* === 3. HAMBURGER MENU SIMPLE ET EFFICACE === */
+  .mobile-menu-trigger {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 42px !important;
+    height: 42px !important;
+    background: rgba(30, 64, 175, 0.1) !important;
+    border: none !important;
+    border-radius: 10px !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    order: 1 !important;
+    flex-shrink: 0 !important;
+  }
+  
+  .mobile-menu-trigger:hover {
+    background: rgba(30, 64, 175, 0.15) !important;
+    transform: scale(1.05) !important;
+  }
+  
+  .mobile-menu-trigger:active {
+    transform: scale(0.95) !important;
+  }
+  
+  .mobile-menu-trigger span {
+    display: block !important;
+    width: 18px !important;
+    height: 2px !important;
+    background: #1e40af !important;
+    border-radius: 1px !important;
+    position: relative !important;
+    transition: all 0.3s ease !important;
+  }
+  
+  .mobile-menu-trigger span::before,
+  .mobile-menu-trigger span::after {
+    content: '' !important;
+    position: absolute !important;
+    width: 18px !important;
+    height: 2px !important;
+    background: #1e40af !important;
+    border-radius: 1px !important;
+    transition: all 0.3s ease !important;
+  }
+  
+  .mobile-menu-trigger span::before {
+    top: -5px !important;
+  }
+  
+  .mobile-menu-trigger span::after {
+    bottom: -5px !important;
+  }
+  
+  /* Animation hamburger vers X */
+  .mobile-menu-trigger.is-active span {
+    background: transparent !important;
+  }
+  
+  .mobile-menu-trigger.is-active span::before {
+    top: 0 !important;
+    transform: rotate(45deg) !important;
+    background: #ef4444 !important;
+  }
+  
+  .mobile-menu-trigger.is-active span::after {
+    bottom: 0 !important;
+    transform: rotate(-45deg) !important;
+    background: #ef4444 !important;
+  }
+  
+  /* === 4. BOUTON CTA MASQUÉ SUR MOBILE === */
+  .header-btn {
+    display: none !important;
+  }
+  
+  /* === 5. MENU MOBILE OVERLAY === */
+  .menu-overlay {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    background: rgba(0, 0, 0, 0.5) !important;
+    backdrop-filter: blur(5px) !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transition: all 0.3s ease !important;
+    z-index: 1040 !important;
+  }
+  
+  .menu-overlay.is-active {
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+  
+  /* === 6. MENU BLOCK MODERNE === */
+  .menu-block {
+    position: fixed !important;
+    top: 64px !important;
+    left: 0 !important;
+    right: 0 !important;
+    background: white !important;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15) !important;
+    border-radius: 0 0 16px 16px !important;
+    transform: translateY(-100%) !important;
+    transition: transform 0.3s ease !important;
+    z-index: 1041 !important;
+    max-height: calc(100vh - 64px) !important;
+    overflow-y: auto !important;
+    border-top: 2px solid #1e40af !important;
+  }
+  
+  .menu-block.is-active {
+    transform: translateY(0) !important;
+  }
+  
+  /* Masquer le header mobile par défaut */
+  .mobile-menu-head {
+    display: none !important;
+  }
+  
+  /* === 7. NAVIGATION ITEMS CLEAN === */
+  .site-menu-main {
+    padding: 1.5rem 0 2rem !important;
+    margin: 0 !important;
+    list-style: none !important;
+  }
+  
+  .site-menu-main li {
+    margin: 0 !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+  }
+  
+  .site-menu-main li:last-child {
+    border-bottom: none !important;
+  }
+  
+  .site-menu-main a {
+    display: flex !important;
+    align-items: center !important;
+    padding: 1.2rem 1.5rem !important;
+    color: #1f2937 !important;
+    font-weight: 500 !important;
+    font-size: 1rem !important;
+    text-decoration: none !important;
+    transition: all 0.3s ease !important;
+    font-family: 'Inter', sans-serif !important;
+  }
+  
+  .site-menu-main a:hover {
+    background: linear-gradient(90deg, rgba(30, 64, 175, 0.08), rgba(30, 64, 175, 0.04)) !important;
+    color: #1e40af !important;
+    padding-left: 2rem !important;
+  }
+  
+  .site-menu-main a:active {
+    background: rgba(30, 64, 175, 0.12) !important;
+  }
+  
+  /* Icônes dans les liens */
+  .site-menu-main a i {
+    margin-right: 0.75rem !important;
+    color: #6b7280 !important;
+    transition: color 0.3s ease !important;
+  }
+  
+  .site-menu-main a:hover i {
+    color: #1e40af !important;
+  }
+  
+  /* === 8. SOUS-MENUS === */
+  .site-menu-main .sub-menu {
+    background: rgba(248, 250, 252, 0.9) !important;
+    border-radius: 8px !important;
+    margin: 0.5rem 1rem !important;
+    overflow: hidden !important;
+  }
+  
+  .site-menu-main .sub-menu a {
+    padding: 1rem 1.5rem !important;
+    font-size: 0.9rem !important;
+    color: #4b5563 !important;
+  }
+  
+  .site-menu-main .sub-menu a:hover {
+    background: rgba(30, 64, 175, 0.06) !important;
+    color: #1e40af !important;
+  }
+  
+  /* === 9. HERO SECTION ADJUSTMENT === */
+  .welcome-area {
+    padding-top: 84px !important; /* Compenser le header fixe */
+  }
+  
+  /* === 10. IMAGE MOBILE AVEC STATS "5j" ET "90%" === */
+  
+  /* Container de l'image */
+  .welcome-area .col-lg-5 {
+    order: 2 !important;
+    margin-top: 2rem !important;
+  }
+  
+  .welcome-area .position-relative[style*="max-width: 420px"] {
+    max-width: 280px !important;
+    margin: 0 auto !important;
+  }
+  
+  /* Image principale */
+  .welcome-area .p-4.rounded-4 {
+    padding: 1rem !important;
+    background: rgba(255, 255, 255, 0.12) !important;
+    backdrop-filter: blur(16px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border-radius: 16px !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15) !important;
+  }
+  
+  .welcome-area .p-4.rounded-4 img {
+    border-radius: 12px !important;
+    width: 100% !important;
+    height: auto !important;
+  }
+  
+  /* === STATS CARDS "90%" ET "5j" VISIBLES === */
+  
+  /* Card "90%" - en haut à droite */
+  .welcome-area .position-absolute[style*="top: 10%"][style*="right: -10%"] {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    top: 5% !important;
+    right: -8% !important;
+    background: white !important;
+    padding: 0.75rem 1rem !important;
+    border-radius: 12px !important;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15) !important;
+    z-index: 15 !important;
+    transform: scale(0.9) !important;
+  }
+  
+  .welcome-area .position-absolute[style*="top: 10%"] .fw-bold {
+    color: #1e40af !important;
+    font-size: 1.3rem !important;
+    font-weight: 800 !important;
+    font-family: 'Inter', sans-serif !important;
+  }
+  
+  .welcome-area .position-absolute[style*="top: 10%"] div[style*="color: #6b7280"] {
+    color: #6b7280 !important;
+    font-size: 0.7rem !important;
+    font-weight: 500 !important;
+  }
+  
+  /* Card "5j" - en bas à gauche */
+  .welcome-area .position-absolute[style*="bottom: 15%"][style*="left: -15%"] {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    bottom: 10% !important;
+    left: -8% !important;
+    background: white !important;
+    padding: 0.75rem 1rem !important;
+    border-radius: 12px !important;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15) !important;
+    z-index: 15 !important;
+    transform: scale(0.9) !important;
+  }
+  
+  .welcome-area .position-absolute[style*="bottom: 15%"] .fw-bold {
+    color: #fbbf24 !important;
+    font-size: 1.3rem !important;
+    font-weight: 800 !important;
+    font-family: 'Inter', sans-serif !important;
+  }
+  
+  .welcome-area .position-absolute[style*="bottom: 15%"] div[style*="color: #6b7280"] {
+    color: #6b7280 !important;
+    font-size: 0.7rem !important;
+    font-weight: 500 !important;
+  }
+  
+  /* === 11. RESPONSIVE BREAKPOINTS === */
+  
+  /* Petits écrans */
+  @media screen and (max-width: 480px) {
+    .site-header {
+      height: 60px !important;
+    }
+    
+    .menu-block {
+      top: 60px !important;
+      max-height: calc(100vh - 60px) !important;
+    }
+    
+    .welcome-area {
+      padding-top: 80px !important;
+    }
+    
+    .mobile-menu-trigger {
+      width: 38px !important;
+      height: 38px !important;
+    }
+    
+    .mobile-menu-trigger span,
+    .mobile-menu-trigger span::before,
+    .mobile-menu-trigger span::after {
+      width: 16px !important;
+    }
+    
+    .brand-logo .light-version-logo {
+      font-size: 1.1rem !important;
+    }
+    
+    .welcome-area .position-relative[style*="max-width: 420px"] {
+      max-width: 240px !important;
+    }
+    
+    /* Stats cards plus petites sur très petits écrans */
+    .welcome-area .position-absolute[style*="top: 10%"],
+    .welcome-area .position-absolute[style*="bottom: 15%"] {
+      padding: 0.6rem 0.8rem !important;
+      transform: scale(0.85) !important;
+    }
+    
+    .welcome-area .position-absolute .fw-bold {
+      font-size: 1.1rem !important;
+    }
+    
+    .welcome-area .position-absolute div[style*="color: #6b7280"] {
+      font-size: 0.65rem !important;
+    }
+  }
+  
+  /* === 12. ACCESSIBILITÉ === */
+  .mobile-menu-trigger:focus {
+    outline: 2px solid #1e40af !important;
+    outline-offset: 2px !important;
+  }
+  
+  .site-menu-main a:focus {
+    outline: 2px solid #1e40af !important;
+    outline-offset: 2px !important;
+  }
+  
+  /* Réduction mouvement si préféré */
+  @media (prefers-reduced-motion: reduce) {
+    .mobile-menu-trigger,
+    .menu-block,
+    .menu-overlay,
+    .site-menu-main a {
+      transition: none !important;
+      animation: none !important;
+    }
+  }
+}
