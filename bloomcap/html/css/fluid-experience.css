@@ -1,0 +1,494 @@
+/* ==============================================
+   FLUID EXPERIENCE CSS - FINTECH MODERNE
+   Améliore la fluidité, les animations et transitions
+   ============================================== */
+
+/* === ANIMATIONS AOS PERSONNALISÉES === */
+
+/* Configuration générale AOS */
+[data-aos] {
+  opacity: 0;
+  transition-property: opacity, transform, scale;
+}
+
+[data-aos].aos-animate {
+  opacity: 1;
+}
+
+/* Animations d'apparition fluides - Optimisées mobile */
+@keyframes smoothFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px); /* Réduit de 60px à 30px */
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Version mobile encore plus légère */
+@media (max-width: 768px) {
+  @keyframes smoothFadeUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+@keyframes smoothSlideLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px); /* Réduit de 60px */
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes smoothSlideRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px); /* Réduit de 60px */
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Animations horizontales désactivées sur mobile */
+@media (max-width: 768px) {
+  @keyframes smoothSlideLeft,
+  @keyframes smoothSlideRight {
+    from {
+      opacity: 0;
+      transform: translateX(0);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+}
+
+@keyframes smoothZoomIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* === TRANSITIONS ENTRE SECTIONS === */
+
+/* Séparateurs visuels subtils */
+.section-separator {
+  position: relative;
+  overflow: hidden;
+}
+
+.section-separator::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(30, 64, 175, 0.1), transparent);
+}
+
+/* Effet diagonale douce entre sections */
+.section-diagonal {
+  position: relative;
+  overflow: hidden;
+}
+
+.section-diagonal::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 60px;
+  background: linear-gradient(135deg, currentColor 0%, transparent 100%);
+  opacity: 0.03;
+  pointer-events: none;
+}
+
+/* Arrondissement haut de section */
+.section-rounded-top {
+  position: relative;
+  border-radius: 40px 40px 0 0;
+  margin-top: -40px;
+  padding-top: calc(var(--section-padding, 5rem) + 40px);
+}
+
+/* === BACKGROUNDS ALTERNÉS FLUIDES === */
+
+/* Système de couleurs cohérent */
+:root {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8fafc;
+  --bg-tertiary: #f1f5f9;
+  --bg-accent: #e6f3ff;
+  --bg-gradient-1: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  --bg-gradient-2: linear-gradient(135deg, #f8fafc 0%, #e6f3ff 50%, #dbeafe 100%);
+  --bg-gradient-3: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+}
+
+/* Classes pour alternance fluide */
+.section-bg-primary {
+  background: var(--bg-primary) !important;
+  transition: background-color 0.6s ease !important;
+}
+
+.section-bg-secondary {
+  background: var(--bg-secondary) !important;
+  transition: background-color 0.6s ease !important;
+}
+
+.section-bg-tertiary {
+  background: var(--bg-tertiary) !important;
+  transition: background-color 0.6s ease !important;
+}
+
+.section-bg-accent {
+  background: var(--bg-accent) !important;
+  transition: background-color 0.6s ease !important;
+}
+
+.section-bg-gradient-1 {
+  background: var(--bg-gradient-1) !important;
+}
+
+.section-bg-gradient-2 {
+  background: var(--bg-gradient-2) !important;
+}
+
+.section-bg-gradient-3 {
+  background: var(--bg-gradient-3) !important;
+}
+
+/* === ESPACEMENTS HARMONISÉS === */
+
+/* Standardisation des espacements */
+.section-padding-xl {
+  padding-top: 6rem !important;
+  padding-bottom: 6rem !important;
+}
+
+.section-padding-lg {
+  padding-top: 5rem !important;
+  padding-bottom: 5rem !important;
+}
+
+.section-padding-md {
+  padding-top: 4rem !important;
+  padding-bottom: 4rem !important;
+}
+
+.section-padding-sm {
+  padding-top: 3rem !important;
+  padding-bottom: 3rem !important;
+}
+
+/* Respiration entre sections importantes */
+.section-hero {
+  padding-bottom: 6rem !important;
+}
+
+.section-cta {
+  padding-top: 6rem !important;
+  padding-bottom: 6rem !important;
+}
+
+/* === MICRO-INTERACTIONS === */
+
+/* Hover doux sur cartes */
+.card-interactive {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  cursor: pointer;
+}
+
+.card-interactive:hover {
+  transform: translateY(-8px) !important;
+  box-shadow: 
+    0 20px 50px rgba(0, 0, 0, 0.1),
+    0 8px 20px rgba(0, 0, 0, 0.06) !important;
+}
+
+/* Hover sur éléments de service/feature */
+.service-item,
+.feature-item {
+  transition: all 0.25s ease !important;
+}
+
+.service-item:hover,
+.feature-item:hover {
+  transform: translateY(-4px) !important;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Hover sur boutons génériques */
+.btn-smooth {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.btn-smooth:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Hover sur liens */
+.link-smooth {
+  transition: color 0.2s ease, border-color 0.2s ease !important;
+}
+
+.link-smooth:hover {
+  text-decoration: none !important;
+  opacity: 0.8 !important;
+}
+
+/* === ANIMATIONS SPÉCIFIQUES PAR SECTION === */
+
+/* Hero section - Animation en cascade */
+.hero-title {
+  animation: smoothFadeUp 0.8s ease-out 0.2s both;
+}
+
+.hero-subtitle {
+  animation: smoothFadeUp 0.8s ease-out 0.4s both;
+}
+
+.hero-description {
+  animation: smoothFadeUp 0.8s ease-out 0.6s both;
+}
+
+.hero-cta {
+  animation: smoothFadeUp 0.8s ease-out 0.8s both;
+}
+
+.hero-visual {
+  animation: smoothSlideRight 1s ease-out 0.6s both;
+}
+
+/* Cards en grille - Animation staggered */
+.grid-card:nth-child(1) { animation-delay: 0.1s; }
+.grid-card:nth-child(2) { animation-delay: 0.2s; }
+.grid-card:nth-child(3) { animation-delay: 0.3s; }
+.grid-card:nth-child(4) { animation-delay: 0.4s; }
+.grid-card:nth-child(5) { animation-delay: 0.5s; }
+.grid-card:nth-child(6) { animation-delay: 0.6s; }
+
+/* FAQ accordion - Animation douce */
+.accordion-item {
+  transition: all 0.3s ease !important;
+}
+
+.accordion-button {
+  transition: all 0.2s ease !important;
+}
+
+.accordion-button:not(.collapsed) {
+  background-color: rgba(30, 64, 175, 0.05) !important;
+  border-color: rgba(30, 64, 175, 0.1) !important;
+}
+
+/* === RESPONSIVE ANIMATIONS === */
+
+/* Réduction des animations sur mobile pour performance */
+@media (max-width: 768px) {
+  
+  /* Désactiver animations complexes */
+  .hero-visual,
+  .grid-card,
+  [data-aos*="slide"],
+  [data-aos*="zoom"] {
+    animation: simpleFade 0.4s ease-out both !important;
+  }
+  
+  @keyframes simpleFade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  /* Simplification des hover effects */
+  .card-interactive:hover {
+    transform: translateY(-4px) !important;
+  }
+  
+  .service-item:hover,
+  .feature-item:hover {
+    transform: translateY(-2px) !important;
+  }
+  
+  /* Réduction des délais d'animation */
+  .grid-card:nth-child(n) {
+    animation-delay: 0s !important;
+  }
+  
+  /* Désactiver les animations en cascade sur mobile */
+  .hero-title,
+  .hero-subtitle,
+  .hero-description,
+  .hero-cta {
+    animation-delay: 0s !important;
+  }
+  
+  /* Espacements mobiles */
+  .section-padding-xl {
+    padding-top: 4rem !important;
+    padding-bottom: 4rem !important;
+  }
+  
+  .section-padding-lg {
+    padding-top: 3.5rem !important;
+    padding-bottom: 3.5rem !important;
+  }
+  
+  .section-padding-md {
+    padding-top: 3rem !important;
+    padding-bottom: 3rem !important;
+  }
+}
+
+/* === PERFORMANCE ET FLUIDITÉ === */
+
+/* Optimisations de performance */
+.section-bg-gradient-1,
+.section-bg-gradient-2,
+.section-bg-gradient-3 {
+  background-attachment: scroll !important;
+}
+
+/* Performance mobile - désactiver effets lourds */
+@media (max-width: 768px) {
+  /* Désactiver parallaxe sur mobile */
+  .parallax-subtle {
+    background-attachment: scroll !important;
+  }
+  
+  /* Supprimer les effets de glow */
+  .section-glow::after {
+    display: none !important;
+  }
+  
+  /* Simplifier les transitions */
+  * {
+    transition-duration: 0.3s !important;
+  }
+}
+
+/* Amélioration de la fluidité scroll */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Désactivation des animations si préférence utilisateur */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  
+  [data-aos] {
+    animation: none !important;
+  }
+}
+
+/* === OPTIMISATIONS MOBILE SUPPLÉMENTAIRES === */
+@media (max-width: 576px) {
+  /* Forcer l'accélération matérielle pour fluidité */
+  .card,
+  .widgets,
+  .step-card,
+  .service-item,
+  .feature-item {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+  }
+  
+  /* Amélioration du scroll */
+  .site-wrapper {
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Réduction des ombres pour performance */
+  .card,
+  .widgets {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+  }
+  
+  .card:hover,
+  .widgets:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12) !important;
+  }
+}
+
+/* === EFFETS VISUELS PREMIUM === */
+
+/* Effet de parallaxe subtil sur les backgrounds */
+.parallax-subtle {
+  background-attachment: fixed;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+/* Overlay subtil pour améliorer la lisibilité */
+.section-overlay {
+  position: relative;
+}
+
+.section-overlay::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.02);
+  pointer-events: none;
+}
+
+/* Glow effect doux pour sections importantes */
+.section-glow {
+  position: relative;
+  overflow: hidden;
+}
+
+.section-glow::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(
+    circle at center,
+    rgba(30, 64, 175, 0.03) 0%,
+    transparent 50%
+  );
+  pointer-events: none;
+  animation: gentle-pulse 6s ease-in-out infinite;
+}
+
+@keyframes gentle-pulse {
+  0%, 100% { opacity: 0.5; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1); }
+}
