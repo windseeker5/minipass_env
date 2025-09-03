@@ -11,8 +11,7 @@ venv/
 .env
 
 # SQLite / Local DB
-
-# *.db
+*.db
 
 # IDEs and editors
 .vscode/
