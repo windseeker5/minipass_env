@@ -12,6 +12,7 @@ venv/
 
 # SQLite / Local DB
 *.db
+*.tgz
 
 # IDEs and editors
 .vscode/
