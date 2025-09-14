@@ -21,10 +21,13 @@ fi
 
 echo "🔄 Pulling latest code while preserving local database..."
 # Stash local changes (database and .gitignore) before pulling
-git stash push -u -m "Deploy stash: preserve local database and config" 2>/dev/null || true
-git pull origin v1
-# Restore the local database and .gitignore
-git stash pop 2>/dev/null || echo "No stash to restore (this is fine)"
+#git stash push -u -m "Deploy stash: preserve local database and config" 2>/dev/null || true
+#git pull origin v1
+## Restore the local database and .gitignore
+#git stash pop 2>/dev/null || echo "No stash to restore (this is fine)"
+# This handles any staging/conflict issues you mentioned
+git fetch origin v1
+git reset --hard origin/v1
 cd ..
 
 echo "🧹 Aggressive Docker cache clearing to prevent cache issues..."
