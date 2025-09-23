@@ -1,0 +1,514 @@
+/* ===================================================================
+   CORRECTION FINALE MOBILE - Header et Hero qui fonctionnent
+   Résout les problèmes d'alignement et d'affichage sur mobile
+   =================================================================== */
+
+/* === 1. HEADER MOBILE - SOLUTION FLEX WRAP FONCTIONNELLE === */
+@media screen and (max-width: 768px) {
+  
+  /* Header fixe sans débordement */
+  .site-header {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 1000 !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    box-shadow: 0 1px 0 rgba(0,0,0,0.08) !important;
+    padding: 0 !important;
+  }
+  
+  .site-header .container {
+    padding: 0 1rem !important;
+    max-width: 100% !important;
+  }
+  
+  /* Navbar en deux lignes sur mobile */
+  .site-header .navbar {
+    display: flex !important;
+    flex-direction: column !important;
+    padding: 0.75rem 0 !important;
+    gap: 0.75rem !important;
+    align-items: center !important;
+  }
+  
+  /* Ligne 1: Menu burger + Logo */
+  .navbar-top {
+    display: flex !important;
+    width: 100% !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+  }
+  
+  /* Menu burger repositionné */
+  .mobile-menu-trigger {
+    order: 1 !important;
+    width: 44px !important;
+    height: 44px !important;
+    background: rgba(30, 64, 175, 0.08) !important;
+    border-radius: 12px !important;
+    border: none !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+  }
+  
+  /* Logo centré */
+  .brand-logo {
+    order: 2 !important;
+    position: absolute !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+  }
+  
+  .brand-logo span {
+    font-size: 1.25rem !important;
+    font-weight: 800 !important;
+    color: #1e40af !important;
+  }
+  
+  /* Ligne 2: Bouton CTA centré */
+  .header-btn {
+    order: 3 !important;
+    width: 100% !important;
+    display: flex !important;
+    justify-content: center !important;
+  }
+  
+  .header-btn .btn {
+    display: inline-flex !important;
+    padding: 0.625rem 1.5rem !important;
+    font-size: 0.9rem !important;
+    font-weight: 600 !important;
+    border-radius: 20px !important;
+    background: linear-gradient(135deg, #1e40af, #3b82f6) !important;
+    color: white !important;
+    border: none !important;
+    min-width: 200px !important;
+    justify-content: center !important;
+    text-decoration: none !important;
+  }
+}
+
+/* === 2. HERO SECTION - CORRECTION COMPLÈTE === */
+@media screen and (max-width: 768px) {
+  
+  /* Container hero avec padding pour header fixe */
+  .welcome-area {
+    min-height: auto !important;
+    max-height: none !important;
+    padding-top: 140px !important; /* Space pour header 2 lignes */
+    padding-bottom: 40px !important;
+    display: block !important;
+    position: relative !important;
+  }
+  
+  /* Masquer éléments décoratifs lourds */
+  .welcome-area > div[style*="filter: blur"],
+  .welcome-area > div[style*="background: rgba(255, 255, 255, 0.1)"],
+  .welcome-area > div[style*="background: rgba(251, 191, 36, 0.2)"] {
+    display: none !important;
+  }
+  
+  .welcome-area .container {
+    padding: 0 1rem !important;
+  }
+  
+  /* Forcer layout mobile en une colonne */
+  .welcome-area .row {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    gap: 2rem !important;
+  }
+  
+  /* Texte en premier */
+  .welcome-area .col-lg-7,
+  .welcome-area .col-xl-6,
+  .welcome-area .col-md-7 {
+    order: 1 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    flex: none !important;
+  }
+  
+  /* Image en second, réduite */
+  .welcome-area .col-lg-5 {
+    order: 2 !important;
+    width: 100% !important;
+    max-width: 300px !important;
+    flex: none !important;
+    margin: 0 auto !important;
+  }
+}
+
+/* === 3. CONTENU TEXTUEL HERO - TAILLES VISIBLES === */
+@media screen and (max-width: 768px) {
+  
+  /* Container contenu */
+  .welcome-content--l3 {
+    text-align: center !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+  }
+  
+  /* Badge d'introduction */
+  .welcome-content--l3 .d-inline-flex {
+    font-size: 0.75rem !important;
+    padding: 0.5rem 1rem !important;
+    margin-bottom: 1.25rem !important;
+    border-radius: 24px !important;
+    background: rgba(251, 191, 36, 0.15) !important;
+    border: 1px solid rgba(251, 191, 36, 0.3) !important;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+  }
+  
+  /* TITRE PRINCIPAL - FORCER L'AFFICHAGE */
+  .welcome-content--l3 h1 {
+    font-size: 1.75rem !important;
+    line-height: 1.25 !important;
+    font-weight: 700 !important;
+    margin-bottom: 1rem !important;
+    color: white !important;
+    text-shadow: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    display: block !important;
+    position: relative !important;
+    z-index: 10 !important;
+  }
+  
+  /* Span doré dans le titre */
+  .welcome-content--l3 h1 span[style*="color: #fbbf24"] {
+    color: #fbbf24 !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+  
+  /* Paragraphe principal */
+  .welcome-content--l3 p[style*="font-size: 1.25rem"] {
+    font-size: 1rem !important;
+    line-height: 1.5 !important;
+    margin-bottom: 0.75rem !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    max-width: 90% !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+  
+  /* Texte italique */
+  .welcome-content--l3 p[style*="font-style: italic"] {
+    font-size: 0.875rem !important;
+    color: rgba(255, 255, 255, 0.7) !important;
+    margin-bottom: 2rem !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+}
+
+/* === 4. BOUTONS CTA - DISPOSITION VERTICALE === */
+@media screen and (max-width: 768px) {
+  
+  /* Container boutons */
+  .welcome-area .d-flex.flex-wrap.gap-3 {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 1rem !important;
+    align-items: center !important;
+    width: 100% !important;
+    max-width: 300px !important;
+    margin: 0 auto !important;
+  }
+  
+  /* Bouton vidéo */
+  .welcome-area a[href*="youtube"] {
+    width: 100% !important;
+    padding: 0.875rem 1.5rem !important;
+    font-size: 0.9rem !important;
+    font-weight: 500 !important;
+    border-radius: 14px !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: white !important;
+    text-decoration: none !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.5rem !important;
+    transition: all 0.2s ease !important;
+  }
+  
+  /* Bouton CTA principal */
+  .welcome-area a[href="#formulaire"] {
+    width: 100% !important;
+    padding: 1rem 1.5rem !important;
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+    border-radius: 14px !important;
+    background: linear-gradient(135deg, #fbbf24, #f59e0b) !important;
+    color: #1e40af !important;
+    text-decoration: none !important;
+    display: block !important;
+    text-align: center !important;
+    box-shadow: 0 4px 16px rgba(251, 191, 36, 0.3) !important;
+    transition: all 0.2s ease !important;
+  }
+  
+  /* Effets tactiles */
+  .welcome-area a:active {
+    transform: scale(0.98) !important;
+  }
+}
+
+/* === 5. IMAGE HERO - VERSION MOBILE === */
+@media screen and (max-width: 768px) {
+  
+  /* Container image */
+  .welcome-area .position-relative[style*="max-width: 420px"] {
+    max-width: 280px !important;
+    margin: 0 auto !important;
+  }
+  
+  /* Card glassmorphism */
+  .welcome-area .p-4.rounded-4 {
+    padding: 1rem !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    border-radius: 20px !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+  }
+  
+  .welcome-area .p-4.rounded-4 img {
+    border-radius: 16px !important;
+    filter: brightness(1.05) !important;
+  }
+  
+  /* Masquer les stats flottantes */
+  .welcome-area .position-absolute[style*="background: white"] {
+    display: none !important;
+  }
+}
+
+/* === 6. ANIMATIONS MOBILES FONCTIONNELLES === */
+@media screen and (max-width: 768px) {
+  
+  /* États initiaux */
+  .welcome-content--l3 > * {
+    opacity: 0 !important;
+    transform: translateY(20px) !important;
+  }
+  
+  .welcome-area .col-lg-5 {
+    opacity: 0 !important;
+    transform: translateY(30px) !important;
+  }
+  
+  /* Animation CSS qui se déclenche automatiquement */
+  .welcome-content--l3 > *:nth-child(1) {
+    animation: mobileSlideUp 0.6s ease-out 0.2s forwards !important;
+  }
+  
+  .welcome-content--l3 > *:nth-child(2) {
+    animation: mobileSlideUp 0.6s ease-out 0.4s forwards !important;
+  }
+  
+  .welcome-content--l3 > *:nth-child(3) {
+    animation: mobileSlideUp 0.6s ease-out 0.6s forwards !important;
+  }
+  
+  .welcome-content--l3 > *:nth-child(4) {
+    animation: mobileSlideUp 0.6s ease-out 0.8s forwards !important;
+  }
+  
+  .welcome-content--l3 > *:nth-child(5) {
+    animation: mobileSlideUp 0.6s ease-out 1s forwards !important;
+  }
+  
+  .welcome-area .col-lg-5 {
+    animation: mobileSlideUp 0.8s ease-out 1.2s forwards !important;
+  }
+  
+  @keyframes mobileSlideUp {
+    to {
+      opacity: 1 !important;
+      transform: translateY(0) !important;
+    }
+  }
+}
+
+/* === 7. MENU MOBILE - OVERLAY CORRIGÉ === */
+@media screen and (max-width: 768px) {
+  
+  /* Menu overlay pleine largeur */
+  .menu-block {
+    position: fixed !important;
+    top: 0 !important;
+    right: -100% !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    background: #ffffff !important;
+    box-shadow: none !important;
+    transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    z-index: 1002 !important;
+    overflow-y: auto !important;
+  }
+  
+  .menu-block.is-active {
+    right: 0 !important;
+  }
+  
+  /* Header du menu */
+  .mobile-menu-head {
+    background: linear-gradient(135deg, #1e40af, #3b82f6) !important;
+    color: white !important;
+    padding: 2rem 1.5rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+  }
+  
+  .mobile-menu-close {
+    width: 40px !important;
+    height: 40px !important;
+    background: rgba(255, 255, 255, 0.15) !important;
+    border-radius: 10px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 1.5rem !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+  }
+  
+  .mobile-menu-close:hover {
+    background: rgba(255, 255, 255, 0.25) !important;
+  }
+  
+  /* Items du menu */
+  .site-menu-main {
+    padding: 2rem 0 !important;
+  }
+  
+  .site-menu-main li {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important;
+  }
+  
+  .site-menu-main a {
+    display: block !important;
+    padding: 1.25rem 1.5rem !important;
+    color: #1f2937 !important;
+    font-weight: 500 !important;
+    font-size: 1rem !important;
+    text-decoration: none !important;
+    transition: all 0.2s ease !important;
+  }
+  
+  .site-menu-main a:hover {
+    background: #f9fafb !important;
+    color: #1e40af !important;
+    padding-left: 2rem !important;
+  }
+  
+  /* Overlay sombre */
+  .menu-overlay {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    background: rgba(0, 0, 0, 0.5) !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transition: all 0.3s ease !important;
+    z-index: 1001 !important;
+  }
+  
+  .menu-overlay.is-active {
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+}
+
+/* === 8. RESPONSIVE SUPPLÉMENTAIRE === */
+@media screen and (max-width: 576px) {
+  
+  /* Header encore plus compact */
+  .site-header .navbar {
+    padding: 0.5rem 0 !important;
+    gap: 0.5rem !important;
+  }
+  
+  .header-btn .btn {
+    min-width: 180px !important;
+    font-size: 0.85rem !important;
+    padding: 0.5rem 1.25rem !important;
+  }
+  
+  /* Hero plus compact */
+  .welcome-area {
+    padding-top: 120px !important;
+  }
+  
+  .welcome-content--l3 h1 {
+    font-size: 1.6rem !important;
+  }
+  
+  .welcome-content--l3 p[style*="font-size: 1.25rem"] {
+    font-size: 0.95rem !important;
+  }
+  
+  /* Boutons plus petits */
+  .welcome-area .d-flex.flex-wrap.gap-3 {
+    max-width: 280px !important;
+  }
+  
+  .welcome-area a {
+    padding: 0.75rem 1.25rem !important;
+    font-size: 0.875rem !important;
+  }
+  
+  /* Image réduite */
+  .welcome-area .position-relative[style*="max-width: 420px"] {
+    max-width: 240px !important;
+  }
+}
+
+@media screen and (max-width: 374px) {
+  
+  /* Header minimal */
+  .header-btn .btn {
+    min-width: 160px !important;
+    font-size: 0.8rem !important;
+  }
+  
+  /* Hero minimal */
+  .welcome-area {
+    padding-top: 110px !important;
+  }
+  
+  .welcome-content--l3 h1 {
+    font-size: 1.45rem !important;
+  }
+  
+  /* Boutons minimaux */
+  .welcome-area .d-flex.flex-wrap.gap-3 {
+    max-width: 260px !important;
+  }
+  
+  .welcome-area a {
+    font-size: 0.8rem !important;
+  }
+}

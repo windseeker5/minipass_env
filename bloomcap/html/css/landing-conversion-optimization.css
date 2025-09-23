@@ -1,0 +1,245 @@
+/* Landing Page Conversion Optimization - Amélioration du parcours utilisateur */
+/* Optimisations pour améliorer la visibilité du formulaire et la conversion */
+
+/* 1. RÉDUCTION DE L'ESPACE BLANC AU-DESSUS DU FORMULAIRE */
+#formulaire {
+  padding: 30px 0 60px 0 !important; /* Réduit le padding top de 60px à 30px */
+  min-height: auto !important;
+}
+
+/* En-tête du formulaire plus compact */
+#formulaire .text-center.mb-5:first-child {
+  margin-bottom: 2rem !important; /* Réduit de 3rem à 2rem */
+}
+
+/* Titre principal du formulaire plus proche */
+#formulaire h1.display-4 {
+  margin-bottom: 1rem !important; /* Réduit l'espace sous le titre */
+}
+
+/* Badge "Offre sous 48h" plus compact */
+#formulaire .d-inline-flex.rounded-pill {
+  margin-bottom: 1rem !important; /* Réduit l'espace sous le badge */
+}
+
+/* 2. AMÉLIORATION DU CONTRASTE DU TEXTE SOUS "OFFRE SOUS 48H" */
+#formulaire .lead {
+  color: white !important; /* Passe de rgba(255,255,255,0.9) à blanc pur */
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.4) !important;
+  font-weight: 500 !important; /* Augmente légèrement le poids de la police */
+  background: rgba(0, 0, 0, 0.15); /* Ajoute un fond sombre subtil */
+  padding: 1rem 2rem;
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  margin: 1rem auto 2rem auto !important;
+}
+
+/* 3. CARTE DU FORMULAIRE PLUS PROCHE ET VISIBLE */
+#formulaire .form-card {
+  margin-top: 2rem !important; /* Réduit de 40px à 32px */
+  margin-bottom: 2rem !important;
+  box-shadow: 0 30px 100px rgba(30, 64, 175, 0.25) !important; /* Ombre plus prononcée */
+  border: 2px solid rgba(255, 255, 255, 0.3) !important; /* Bordure plus visible */
+  background: rgba(255, 255, 255, 0.99) !important; /* Légèrement plus opaque */
+  animation: formPulse 2s ease-in-out infinite; /* Animation subtile pour attirer l'attention */
+}
+
+@keyframes formPulse {
+  0%, 100% {
+    box-shadow: 0 30px 100px rgba(30, 64, 175, 0.25);
+    transform: translateY(0);
+  }
+  50% {
+    box-shadow: 0 35px 110px rgba(30, 64, 175, 0.3);
+    transform: translateY(-2px);
+  }
+}
+
+/* Arrête l'animation au survol */
+#formulaire .form-card:hover {
+  animation: none;
+  box-shadow: 0 40px 120px rgba(30, 64, 175, 0.35) !important;
+  transform: translateY(-3px);
+  transition: all 0.3s ease;
+}
+
+/* 4. TITRE "VOS INFORMATIONS" PLUS VISIBLE */
+.step-title {
+  font-size: 2rem !important; /* Augmente légèrement la taille */
+  color: #1e40af !important;
+  margin-bottom: 1.5rem !important; /* Réduit l'espace sous le titre */
+  text-align: center;
+  font-weight: 700 !important;
+  position: relative;
+  padding-bottom: 1rem;
+}
+
+/* Ligne décorative sous le titre */
+.step-title::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, #FF5722, #fbbf24);
+  border-radius: 2px;
+}
+
+/* 5. RÉDUCTION DES ESPACES DANS LA CARTE */
+#formulaire .p-4.p-md-6 {
+  padding: 1.5rem !important; /* Uniforme sur tous les écrans */
+}
+
+@media (min-width: 768px) {
+  #formulaire .p-4.p-md-6 {
+    padding: 2.5rem !important; /* Réduit de 3rem à 2.5rem sur desktop */
+  }
+}
+
+/* Trust badges plus compacts */
+#formulaire .d-flex.align-items-center.justify-content-center.gap-4.mb-5 {
+  margin-bottom: 2rem !important; /* Réduit de 3rem à 2rem */
+  gap: 1rem !important; /* Réduit l'espacement entre badges */
+}
+
+/* 6. PROGRESSION VISUELLE DU CTA VERS LE FORMULAIRE */
+/* Flèche indicatrice après le scroll */
+#formulaire::before {
+  content: '↓';
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 2rem;
+  color: rgba(255, 255, 255, 0.8);
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateX(-50%) translateY(0);
+  }
+  40% {
+    transform: translateX(-50%) translateY(-10px);
+  }
+  60% {
+    transform: translateX(-50%) translateY(-5px);
+  }
+}
+
+/* 7. BARRE DE PROGRESSION PLUS VISIBLE */
+#formulaire .card.mb-5 {
+  background: white !important;
+  border: 2px solid #e5e7eb !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1) !important;
+  margin-bottom: 2rem !important; /* Réduit l'espace sous la barre */
+}
+
+/* 8. BOUTONS D'ACTION PLUS ENGAGEANTS */
+#formulaire button[type="submit"],
+#formulaire button[onclick*="nextStep"] {
+  background: linear-gradient(135deg, #FF5722, #E64A19) !important;
+  box-shadow: 0 6px 20px rgba(255, 87, 34, 0.35) !important;
+  transform: scale(1.05); /* Légèrement plus grand */
+  font-size: 1.1rem !important;
+  padding: 1rem 2rem !important;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Effet de brillance sur les boutons */
+#formulaire button[type="submit"]::before,
+#formulaire button[onclick*="nextStep"]::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transform: rotate(45deg);
+  transition: all 0.5s;
+  opacity: 0;
+}
+
+#formulaire button[type="submit"]:hover::before,
+#formulaire button[onclick*="nextStep"]:hover::before {
+  animation: shine 0.5s ease-in-out;
+}
+
+@keyframes shine {
+  0% {
+    transform: translateX(-100%) translateY(-100%) rotate(45deg);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(100%) translateY(100%) rotate(45deg);
+    opacity: 0;
+  }
+}
+
+/* 9. CHAMPS DE FORMULAIRE PLUS VISIBLES */
+#formulaire .form-control:focus {
+  border-color: #FF5722 !important;
+  box-shadow: 0 0 0 4px rgba(255, 87, 34, 0.15) !important;
+  transform: translateY(-1px);
+}
+
+/* 10. AJUSTEMENTS MOBILE SPÉCIFIQUES */
+@media (max-width: 768px) {
+  #formulaire {
+    padding: 20px 0 40px 0 !important;
+  }
+  
+  #formulaire .form-card {
+    margin: 1rem 15px !important; /* Marges latérales sur mobile */
+    border-radius: 16px !important;
+  }
+  
+  .step-title {
+    font-size: 1.5rem !important;
+  }
+  
+  #formulaire .lead {
+    font-size: 1rem !important;
+    padding: 0.75rem 1rem;
+  }
+}
+
+/* 11. INDICATEUR DE SCROLL IMMÉDIAT */
+.welcome-area--l3 a.btn[href="#formulaire"] {
+  position: relative;
+}
+
+.welcome-area--l3 a.btn[href="#formulaire"]::after {
+  content: '↓';
+  position: absolute;
+  bottom: -25px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1.2rem;
+  animation: bounceArrow 2s infinite;
+  opacity: 0.7;
+}
+
+@keyframes bounceArrow {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(5px); }
+}
+
+/* 12. TRANSITION FLUIDE AU SCROLL */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Focus trap visual pour accessibilité */
+#formulaire .form-card:focus-within {
+  outline: 3px solid #FF5722;
+  outline-offset: 3px;
+}

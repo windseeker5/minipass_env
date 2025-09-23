@@ -1,0 +1,211 @@
+<!-- MOBILE MENU - À inclure dans toutes les pages -->
+<style>
+@media (max-width: 991px) {
+  /* Header fixe sur mobile */
+  .site-header {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    z-index: 9990;
+    background: white !important;
+    border-top: none !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  
+  /* Logo bleu sur mobile */
+  .brand-logo span {
+    color: #1e40af !important;
+  }
+  
+  /* Ajuste le contenu pour le header fixe */
+  body {
+    padding-top: 70px;
+  }
+  
+  /* Affiche le bouton CTA sur mobile */
+  .header-btn {
+    display: block !important;
+  }
+  
+  .header-btn .btn {
+    font-size: 14px !important;
+    padding: 8px 16px !important;
+    background: #1e40af !important;
+    color: white !important;
+  }
+  
+  /* Assure que le header prend toute la largeur */
+  .container-fluid {
+    width: 100% !important;
+    padding-left: 15px !important;
+    padding-right: 15px !important;
+  }
+  /* Cache l'ancien menu */
+  .mobile-menu-trigger { display: none !important; }
+  .menu-block { display: none !important; }
+  .menu-overlay { display: none !important; }
+  .mobile-menu-head { display: none !important; }
+  
+  /* Nouveau hamburger */
+  #new-hamburger {
+    position: fixed;
+    top: 15px;
+    right: 15px;
+    width: 45px;
+    height: 45px;
+    background: #1e40af;
+    border-radius: 5px;
+    cursor: pointer;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+  }
+  
+  #new-hamburger span {
+    display: block;
+    width: 25px;
+    height: 2px;
+    background: white;
+    margin: 3px 0;
+    transition: 0.3s;
+  }
+  
+  #new-hamburger.active span:nth-child(1) {
+    transform: rotate(45deg) translate(5px, 5px);
+  }
+  
+  #new-hamburger.active span:nth-child(2) {
+    opacity: 0;
+  }
+  
+  #new-hamburger.active span:nth-child(3) {
+    transform: rotate(-45deg) translate(5px, -5px);
+  }
+  
+  /* Nouveau menu */
+  #new-menu {
+    position: fixed;
+    top: 0;
+    right: -300px;
+    width: 300px;
+    height: 100vh;
+    background: white;
+    box-shadow: -2px 0 10px rgba(0,0,0,0.2);
+    transition: right 0.3s ease;
+    z-index: 9998;
+    overflow-y: auto;
+  }
+  
+  #new-menu.open {
+    right: 0;
+  }
+  
+  #new-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background: rgba(0,0,0,0.5);
+    display: none;
+    z-index: 9997;
+  }
+  
+  #new-overlay.open {
+    display: block;
+  }
+  
+  body.menu-locked {
+    overflow: hidden;
+  }
+  
+  /* Centre le logo */
+  .site-navbar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 15px;
+  }
+  
+  .brand-logo {
+    margin: 0 auto;
+  }
+  
+}
+
+@media (min-width: 992px) {
+  #new-hamburger, #new-menu, #new-overlay {
+    display: none !important;
+  }
+}
+</style>
+
+<!-- Hamburger -->
+<div id="new-hamburger">
+  <span></span>
+  <span></span>
+  <span></span>
+</div>
+
+<!-- Menu -->
+<div id="new-menu">
+  <div style="display: flex; justify-content: flex-end; align-items: center; padding: 20px; background: white; border-bottom: 1px solid #ddd;">
+    <span id="new-close" style="font-size: 30px; cursor: pointer; color: #333;">&times;</span>
+  </div>
+  <div style="padding: 20px;">
+    <a href="#" onclick="toggleSubmenu(event)" style="display: block; padding: 15px 10px; color: #333; text-decoration: none; border-bottom: 1px solid #eee; font-size: 16px;">
+      Solutions de liquidité ▼
+    </a>
+    <div id="submenu" style="display: none; padding-left: 20px; background: #f8f9fa;">
+      <a href="/index.html" style="display: block; padding: 10px; color: #666; text-decoration: none; font-size: 14px;">Sale & Leaseback</a>
+      <a href="/financement-rapide.html" style="display: block; padding: 10px; color: #666; text-decoration: none; font-size: 14px;">Financement rapide</a>
+    </div>
+    <a href="/a-propos.html" style="display: block; padding: 15px 10px; color: #333; text-decoration: none; border-bottom: 1px solid #eee; font-size: 16px;">À propos</a>
+  </div>
+</div>
+
+<!-- Overlay -->
+<div id="new-overlay"></div>
+
+<script>
+// Mobile menu script
+if (!window.mobileMenuInitialized) {
+  window.mobileMenuInitialized = true;
+  
+  document.addEventListener('DOMContentLoaded', function() {
+    const hamburger = document.getElementById('new-hamburger');
+    const menu = document.getElementById('new-menu');
+    const overlay = document.getElementById('new-overlay');
+    const closeBtn = document.getElementById('new-close');
+    
+    function toggleMenu() {
+      const isOpen = menu.classList.contains('open');
+      if (isOpen) {
+        menu.classList.remove('open');
+        overlay.classList.remove('open');
+        hamburger.classList.remove('active');
+        document.body.classList.remove('menu-locked');
+      } else {
+        menu.classList.add('open');
+        overlay.classList.add('open');
+        hamburger.classList.add('active');
+        document.body.classList.add('menu-locked');
+      }
+    }
+    
+    hamburger.addEventListener('click', toggleMenu);
+    closeBtn.addEventListener('click', toggleMenu);
+    overlay.addEventListener('click', toggleMenu);
+    
+    window.toggleSubmenu = function(e) {
+      e.preventDefault();
+      const submenu = document.getElementById('submenu');
+      submenu.style.display = submenu.style.display === 'none' ? 'block' : 'none';
+    };
+  });
+}
+</script>

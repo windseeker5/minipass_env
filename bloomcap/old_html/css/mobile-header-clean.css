@@ -1,0 +1,358 @@
+/* ===================================================================
+   MOBILE HEADER CLEAN - Header mobile minimaliste et professionnel
+   Problèmes corrigés: doublon bouton, hamburger mal positionné, hauteur
+   =================================================================== */
+
+/* === VARIABLES DESIGN SYSTEM === */
+:root {
+  --mobile-header-height: 56px;
+  --mobile-padding: 1rem;
+  --hamburger-size: 20px;
+  --logo-size: 1.2rem;
+  --transition-smooth: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --header-bg: rgba(255, 255, 255, 0.95);
+  --header-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  --menu-overlay-bg: rgba(0, 0, 0, 0.5);
+  --menu-bg: #ffffff;
+  --brand-color: #1e40af;
+}
+
+/* === MOBILE ONLY (≤ 991px) === */
+@media screen and (max-width: 991px) {
+  
+  /* === 1. HEADER STRUCTURE MINIMALISTE === */
+  .site-header {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 1050 !important;
+    height: var(--mobile-header-height) !important;
+    background: var(--header-bg) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    box-shadow: var(--header-shadow) !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06) !important;
+    transition: var(--transition-smooth) !important;
+  }
+  
+  .site-header.scrolled {
+    background: rgba(255, 255, 255, 0.98) !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12) !important;
+  }
+  
+  .site-header .container {
+    height: 100% !important;
+    padding: 0 var(--mobile-padding) !important;
+    max-width: 100% !important;
+  }
+  
+  /* === 2. NAVBAR BOOTSTRAP FLEX === */
+  .site-header .navbar {
+    width: 100% !important;
+    height: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  
+  /* === 3. HAMBURGER MENU BIEN POSITIONNÉ === */
+  .mobile-menu-trigger {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 40px !important;
+    height: 40px !important;
+    background: transparent !important;
+    border: none !important;
+    border-radius: 8px !important;
+    cursor: pointer !important;
+    transition: var(--transition-smooth) !important;
+    order: 1 !important;
+    margin-right: 0.5rem !important;
+  }
+  
+  .mobile-menu-trigger:hover {
+    background: rgba(30, 64, 175, 0.08) !important;
+  }
+  
+  .mobile-menu-trigger:active {
+    transform: scale(0.95) !important;
+    background: rgba(30, 64, 175, 0.12) !important;
+  }
+  
+  /* Icône hamburger simple */
+  .mobile-menu-trigger span {
+    display: block !important;
+    width: var(--hamburger-size) !important;
+    height: 2px !important;
+    background: var(--brand-color) !important;
+    border-radius: 1px !important;
+    position: relative !important;
+    transition: var(--transition-smooth) !important;
+  }
+  
+  .mobile-menu-trigger span::before,
+  .mobile-menu-trigger span::after {
+    content: '' !important;
+    display: block !important;
+    position: absolute !important;
+    width: var(--hamburger-size) !important;
+    height: 2px !important;
+    background: var(--brand-color) !important;
+    border-radius: 1px !important;
+    transition: var(--transition-smooth) !important;
+  }
+  
+  .mobile-menu-trigger span::before {
+    top: -6px !important;
+  }
+  
+  .mobile-menu-trigger span::after {
+    bottom: -6px !important;
+  }
+  
+  /* Animation hamburger vers X */
+  .mobile-menu-trigger.is-active span {
+    background: transparent !important;
+  }
+  
+  .mobile-menu-trigger.is-active span::before {
+    top: 0 !important;
+    transform: rotate(45deg) !important;
+  }
+  
+  .mobile-menu-trigger.is-active span::after {
+    bottom: 0 !important;
+    transform: rotate(-45deg) !important;
+  }
+  
+  /* === 4. LOGO CENTRÉ AVEC BOOTSTRAP === */
+  .brand-logo {
+    position: absolute !important;
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    order: 2 !important;
+    z-index: 1051 !important;
+  }
+  
+  .brand-logo a {
+    text-decoration: none !important;
+    transition: var(--transition-smooth) !important;
+  }
+  
+  .brand-logo a:hover {
+    transform: scale(1.02) !important;
+  }
+  
+  /* Afficher seulement la version claire */
+  .brand-logo .light-version-logo {
+    display: inline-block !important;
+    font-size: var(--logo-size) !important;
+    font-weight: 800 !important;
+    color: var(--brand-color) !important;
+    font-family: 'Inter', sans-serif !important;
+    letter-spacing: -0.02em !important;
+  }
+  
+  .brand-logo .dark-version-logo {
+    display: none !important;
+  }
+  
+  /* === 5. SUPPRESSION COMPLÈTE DU BOUTON CTA HEADER === */
+  .header-btn {
+    display: none !important; /* Complètement masqué sur mobile */
+  }
+  
+  /* Supprimer tout bouton dans le header */
+  .header-btn .d-none.d-sm-flex {
+    display: none !important;
+  }
+  
+  /* Supprimer le pseudo-élément ::after qui crée le bouton */
+  .header-btn::after {
+    display: none !important;
+    content: none !important;
+  }
+  
+  /* === 6. MENU MOBILE SLIDE-DOWN FLUIDE === */
+  .menu-overlay {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    background: var(--menu-overlay-bg) !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transition: var(--transition-smooth) !important;
+    z-index: 1040 !important;
+    backdrop-filter: blur(6px) !important;
+  }
+  
+  .menu-overlay.is-active {
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+  
+  /* Menu qui glisse depuis le haut */
+  .menu-block {
+    position: fixed !important;
+    top: var(--mobile-header-height) !important;
+    left: 0 !important;
+    right: 0 !important;
+    background: var(--menu-bg) !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15) !important;
+    transform: translateY(-100%) !important;
+    transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+    z-index: 1041 !important;
+    max-height: calc(100vh - var(--mobile-header-height)) !important;
+    overflow-y: auto !important;
+    border-radius: 0 0 16px 16px !important;
+  }
+  
+  .menu-block.is-active {
+    transform: translateY(0) !important;
+  }
+  
+  /* === 7. MENU MOBILE HEADER (masquer) === */
+  .mobile-menu-head {
+    display: none !important;
+  }
+  
+  /* === 8. NAVIGATION ITEMS ÉPURÉS === */
+  .site-menu-main {
+    padding: 1.5rem 0 2rem !important;
+    margin: 0 !important;
+    list-style: none !important;
+  }
+  
+  .site-menu-main li {
+    margin: 0 !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06) !important;
+  }
+  
+  .site-menu-main li:last-child {
+    border-bottom: none !important;
+  }
+  
+  .site-menu-main a {
+    display: flex !important;
+    align-items: center !important;
+    padding: 1rem var(--mobile-padding) !important;
+    color: #1f2937 !important;
+    font-weight: 500 !important;
+    font-size: 1rem !important;
+    text-decoration: none !important;
+    transition: var(--transition-smooth) !important;
+    font-family: 'Inter', sans-serif !important;
+  }
+  
+  .site-menu-main a:hover {
+    background: rgba(30, 64, 175, 0.05) !important;
+    color: var(--brand-color) !important;
+    padding-left: calc(var(--mobile-padding) + 0.5rem) !important;
+  }
+  
+  .site-menu-main a:active {
+    background: rgba(30, 64, 175, 0.1) !important;
+  }
+  
+  /* === 9. ANIMATIONS MENU STAGGERÉES === */
+  .menu-block.is-active .site-menu-main li {
+    opacity: 0;
+    transform: translateY(-8px);
+    animation: slideInMenuItem 0.3s ease-out forwards;
+  }
+  
+  .menu-block.is-active .site-menu-main li:nth-child(1) { animation-delay: 0.1s; }
+  .menu-block.is-active .site-menu-main li:nth-child(2) { animation-delay: 0.15s; }
+  .menu-block.is-active .site-menu-main li:nth-child(3) { animation-delay: 0.2s; }
+  .menu-block.is-active .site-menu-main li:nth-child(4) { animation-delay: 0.25s; }
+  .menu-block.is-active .site-menu-main li:nth-child(5) { animation-delay: 0.3s; }
+  
+  @keyframes slideInMenuItem {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* === 10. RESPONSIVE BREAKPOINTS === */
+  
+  /* Tablette */
+  @media screen and (min-width: 768px) and (max-width: 991px) {
+    :root {
+      --mobile-header-height: 60px;
+      --mobile-padding: 1.25rem;
+      --logo-size: 1.3rem;
+    }
+    
+    .mobile-menu-trigger {
+      width: 44px !important;
+      height: 44px !important;
+    }
+  }
+  
+  /* Petits écrans */
+  @media screen and (max-width: 480px) {
+    :root {
+      --mobile-header-height: 52px;
+      --mobile-padding: 0.875rem;
+      --logo-size: 1.1rem;
+      --hamburger-size: 18px;
+    }
+    
+    .mobile-menu-trigger {
+      width: 36px !important;
+      height: 36px !important;
+      margin-right: 0.25rem !important;
+    }
+  }
+  
+  /* === 11. ACCESSIBILITÉ === */
+  .mobile-menu-trigger:focus {
+    outline: 2px solid var(--brand-color) !important;
+    outline-offset: 2px !important;
+  }
+  
+  .site-menu-main a:focus {
+    outline: 2px solid var(--brand-color) !important;
+    outline-offset: 2px !important;
+  }
+  
+  /* Réduire les animations si nécessaire */
+  @media (prefers-reduced-motion: reduce) {
+    .mobile-menu-trigger,
+    .menu-block,
+    .menu-overlay,
+    .site-menu-main a {
+      transition: none !important;
+      animation: none !important;
+    }
+  }
+}
+
+/* === DESKTOP PRESERVATION (≥ 992px) === */
+@media screen and (min-width: 992px) {
+  .mobile-menu-trigger {
+    display: none !important;
+  }
+  
+  /* Restaurer le comportement desktop normal */
+  .site-header .navbar {
+    display: flex !important;
+  }
+  
+  .brand-logo {
+    position: static !important;
+    transform: none !important;
+  }
+  
+  .header-btn {
+    display: block !important;
+  }
+}

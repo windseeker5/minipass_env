@@ -1,0 +1,2885 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Bloomcap - Transformez vos équipements en liquidités | Sale-Leaseback PME</title>
+  <meta name="description" content="Débloquez jusqu'à 90% de la valeur de vos équipements avec notre solution de sale-leaseback. Financement rapide, sans dette au bilan, 100% déductible.">
+  <link rel="shortcut icon" href="image/png/favicon.png" type="image/x-icon">
+  <!-- Bootstrap , fonts & icons  -->
+  <link rel="stylesheet" href="css/bootstrap.css">
+  <link rel="stylesheet" href="fonts/icon-font/css/style.css">
+  <link rel="stylesheet" href="fonts/typography-font/typo.css">
+  <link rel="stylesheet" href="fonts/fontawesome-5/css/all.css">
+  <!-- Plugin'stylesheets  -->
+  <link rel="stylesheet" href="plugins/aos/aos.min.css">
+  <link rel="stylesheet" href="plugins/fancybox/jquery.fancybox.min.css">
+  <link rel="stylesheet" href="plugins/nice-select/nice-select.min.css">
+  <link rel="stylesheet" href="plugins/slick/slick.min.css">
+  <!-- Vendor stylesheets  -->
+  <link rel="stylesheet" href="plugins/theme-mode-switcher/switcher-panel.css">
+  <link rel="stylesheet" href="css/main.css">
+  <!-- Custom stylesheet -->
+  <!-- Mobile Fix Complete - Menu + Image corrigés, desktop intact -->
+  <link rel="stylesheet" href="css/mobile-fix-complete.css">
+  <!-- Mobile Hero UI Fix - Solution experte responsive -->
+  <link rel="stylesheet" href="css/mobile-hero-ui-fix.css">
+  <!-- Mobile Header Improved - Header et navigation optimisés -->
+  <link rel="stylesheet" href="css/mobile-header-improved.css">
+  <!-- Mobile Animations - Animations fluides au scroll pour mobile -->
+  <link rel="stylesheet" href="css/mobile-animations.css">
+  <style>
+    /* Améliorations minimalistes Bloomcap */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    
+    :root {
+      --bloomcap-blue: #1e40af;
+      --bloomcap-gold: #fbbf24;
+      --bloomcap-red: #ef4444;
+      --text-dark: #1f2937;
+      --text-light: #6b7280;
+      --bg-light: #f9fafb;
+    }
+    
+    /* Typographie améliorée */
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+      font-weight: 400;
+      line-height: 1.6;
+    }
+    
+    h1, h2, h3, h4, h5, h6 {
+      font-family: 'Inter', sans-serif !important;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+    }
+    
+    /* Header amélioré */
+    .site-header {
+      backdrop-filter: blur(10px);
+      background: rgba(255, 255, 255, 0.95) !important;
+      border-bottom: 1px solid rgba(229, 231, 235, 0.8);
+    }
+    
+    .brand-logo span {
+      color: var(--bloomcap-blue) !important;
+      font-family: 'Inter', sans-serif !important;
+      font-weight: 800 !important;
+    }
+    
+    /* Boutons modernisés */
+    .btn-electric-violet-2 {
+      background: linear-gradient(135deg, var(--bloomcap-blue), #2563eb) !important;
+      border: none !important;
+      padding: 12px 24px !important;
+      border-radius: 12px !important;
+      font-weight: 600 !important;
+      transition: all 0.3s ease !important;
+      box-shadow: 0 4px 14px rgba(30, 64, 175, 0.3) !important;
+    }
+    
+    .btn-electric-violet-2:hover {
+      transform: translateY(-2px) !important;
+      box-shadow: 0 8px 25px rgba(30, 64, 175, 0.4) !important;
+    }
+    
+    /* Hero section optimisée */
+    .welcome-area {
+      background: linear-gradient(135deg, var(--bloomcap-blue) 0%, #2563eb 50%, #3b82f6 100%) !important;
+    }
+    
+    /* Cards modernisées */
+    .card, .single-feature, .single-service {
+      border-radius: 16px !important;
+      border: none !important;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+      transition: all 0.3s ease !important;
+    }
+    
+    .card:hover, .single-feature:hover, .single-service:hover {
+      transform: translateY(-4px) !important;
+      box-shadow: 0 20px 25px rgba(0, 0, 0, 0.1), 0 8px 10px rgba(0, 0, 0, 0.05) !important;
+    }
+    
+    /* Sections avec background subtil */
+    .bg-default-2 {
+      background: var(--bg-light) !important;
+    }
+    
+    /* Problèmes section - utilise le rouge uniquement ici */
+    .problem-card {
+      border-left: 4px solid var(--bloomcap-red) !important;
+    }
+    
+    /* Amélioration de l'espacement */
+    .section-padding {
+      padding: 6rem 0 !important;
+    }
+    
+    .section-padding-sm {
+      padding: 4rem 0 !important;
+    }
+    
+    /* Textes plus lisibles */
+    .text-muted {
+      color: var(--text-light) !important;
+    }
+    
+    /* Formulaire modernisé */
+    .form-control {
+      border-radius: 8px !important;
+      border: 2px solid #e5e7eb !important;
+      padding: 12px 16px !important;
+      font-family: 'Inter', sans-serif !important;
+      transition: all 0.3s ease !important;
+    }
+    
+    .form-control:focus {
+      border-color: var(--bloomcap-gold) !important;
+      box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.1) !important;
+    }
+    
+    /* Boutons accent avec l'or */
+    .btn-accent {
+      background: linear-gradient(135deg, var(--bloomcap-gold), #f59e0b) !important;
+      color: var(--text-dark) !important;
+      border: none !important;
+      font-weight: 600 !important;
+      border-radius: 12px !important;
+      padding: 12px 24px !important;
+      transition: all 0.3s ease !important;
+    }
+    
+    .btn-accent:hover {
+      transform: translateY(-2px) !important;
+      box-shadow: 0 8px 25px rgba(251, 191, 36, 0.4) !important;
+      color: var(--text-dark) !important;
+    }
+    
+    /* Animation douce pour les éléments AOS */
+    [data-aos] {
+      transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+    
+    /* SIMPLIFICATION CIBLÉE - Sections spécifiques seulement */
+    
+    /* 1. Bénéfices complets - Supprimer couleurs des boutons */
+    .service-area .btn:not(.btn-accent):not(.btn-primary):not([href*="#formulaire"]) {
+      background: white !important;
+      color: var(--bloomcap-blue) !important;
+      border: 1px solid #e5e7eb !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
+    }
+    
+    .service-area .btn:not(.btn-accent):not(.btn-primary):hover {
+      background: #f9fafb !important;
+      color: var(--bloomcap-blue) !important;
+      transform: translateY(-1px) !important;
+    }
+    
+    /* 2. Sections bénéfices - Icônes simplifiées en bleu/blanc */
+    .service-area div[style*="linear-gradient"]:not([style*="#ef4444"]) {
+      background: white !important;
+      border: 2px solid #f3f4f6 !important;
+      color: var(--bloomcap-blue) !important;
+    }
+    
+    .service-area div[style*="linear-gradient"] i:not(.fa-clock):not(.fa-times):not(.fa-lock):not(.fa-bomb) {
+      color: var(--bloomcap-blue) !important;
+      background: none !important;
+    }
+    
+    /* 3. Types d'équipements - Icônes simplifiées */
+    .widgets div[style*="linear-gradient"]:not([style*="#ef4444"]) {
+      background: white !important;
+      border: 2px solid #f3f4f6 !important;
+      color: var(--bloomcap-blue) !important;
+    }
+    
+    .widgets div[style*="linear-gradient"] i:not(.fa-clock):not(.fa-times):not(.fa-lock):not(.fa-bomb) {
+      color: var(--bloomcap-blue) !important;
+      background: none !important;
+    }
+    
+    /* Section FAQ simplifiée */
+    .accordion-item {
+      border: none !important;
+      margin-bottom: 0.5rem !important;
+      border-radius: 12px !important;
+      overflow: hidden !important;
+    }
+    
+    .accordion-button {
+      background: white !important;
+      border: none !important;
+      padding: 1.5rem !important;
+      font-weight: 600 !important;
+      color: var(--text-dark) !important;
+    }
+    
+    .accordion-button:focus {
+      box-shadow: none !important;
+      border-color: transparent !important;
+    }
+    
+    
+  </style>
+</head>
+
+<body data-theme-mode-panel-active data-theme="light">
+  <div class="site-wrapper overflow-hidden ">
+    <div id="loading">
+      <style>
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      </style>
+      <div style="display: flex; justify-content: center; align-items: center; height: 100vh; font-size: 4rem; color: #1e40af; animation: spin 1s linear infinite;">$</div>
+    </div>
+    <!-- Clean The Code And Hop in -->
+    <!-- Header Area -->
+    <!-- Preloader -->
+    <!-- <div id="loading">
+    <div class="preloader">
+     <img src="./image/preloader-3.gif" alt="preloader">
+   </div>
+   </div>   -->
+    <!-- Header Area -->
+    <header class="site-header site-header--menu-left dynamic-sticky-bg mt-2 mt-lg-0 light-mode-texts site-header--absolute site-header--sticky">
+      <div class="container">
+        <nav class="navbar site-navbar">
+          <!-- Brand Logo-->
+          <div class="brand-logo">
+            <a href="https://finestwp.co/home-marketing.html" style="text-decoration: none;">
+              <span style="font-size: 24px; font-weight: bold; color: #333;" class="light-version-logo">Bloomcap</span>
+              <span style="font-size: 24px; font-weight: bold; color: #fff;" class="dark-version-logo">Bloomcap</span>
+            </a>
+          </div>
+          <div class="menu-block-wrapper  menu-sep-left">
+            <div class="menu-overlay"></div>
+            <nav class="menu-block" id="append-menu-header">
+              <div class="mobile-menu-head">
+                <div class="go-back">
+                  <i class="fa fa-angle-left"></i>
+                </div>
+                <div class="current-menu-title"></div>
+                <div class="mobile-menu-close">&times;</div>
+              </div>
+              <ul class="site-menu-main">
+                <li class="nav-item nav-item-has-children">
+                  <a href="#" data-menu-get="h3" class="nav-link-item drop-trigger">Solutions de liquidité <i class="fas fa-angle-down"></i></a>
+                  <ul class="sub-menu" id="submenu-solutions">
+                    <li class="sub-menu--item">
+                      <a href="index.html" class="nav-link-item">Sale & Leaseback</a>
+                    </li>
+                    <li class="sub-menu--item">
+                      <a href="financement-rapide.html" class="nav-link-item">Financement rapide</a>
+                    </li>
+                  </ul>
+                </li>
+                <li class="nav-item">
+                  <a href="a-propos.html" class="nav-link-item">À propos</a>
+                </li>
+              </ul>
+            </nav>
+          </div>
+          <div class="header-btn ">
+            <a class="btn btn btn-electric-violet-2 rounded-50 ms-lg-2 shadow--electric-violet-2-4 ms-auto text-white d-none d-sm-flex" href="home-it-services.html#">
+              Démarrer maintenant
+            </a>
+          </div>
+          <!-- mobile menu trigger -->
+          <div class="mobile-menu-trigger">
+            <span></span>
+          </div>
+          <!--/.Mobile Menu Hamburger Ends-->
+        </nav>
+      </div>
+    </header>
+    <!-- navbar- -->
+
+    
+    <!--/ .Header Area -->
+    <!-- Hero Area -->
+
+<!-- Hero Area -->
+<div class="welcome-area welcome-area--l3 py-16" style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #60a5fa 100%); min-height: 90vh; position: relative; overflow: hidden;">
+  <!-- Modern geometric background elements -->
+  <div style="position: absolute; top: -10%; right: -5%; width: 300px; height: 300px; background: rgba(255, 255, 255, 0.1); border-radius: 50%; filter: blur(100px);"></div>
+  <div style="position: absolute; bottom: -10%; left: -5%; width: 200px; height: 200px; background: rgba(251, 191, 36, 0.2); border-radius: 50%; filter: blur(80px);"></div>
+  <div class="container position-relative d-flex align-items-center" style="min-height: 90vh;">
+    <div class="row align-items-center justify-content-between w-100">
+      
+      <!-- Text Column -->
+      <div class="col-lg-7 col-xl-6 col-md-7">
+        <div class="welcome-content welcome-content--l3 text-start">
+          <!-- Ligne 1 -->
+          <div class="d-inline-flex align-items-center mb-6 px-4 py-2" style="background: rgba(251, 191, 36, 0.15); border: 1px solid rgba(251, 191, 36, 0.3); border-radius: 40px;">
+            <span class="fw-semibold" style="font-size: 0.85rem; color: #fbbf24; text-transform: uppercase; letter-spacing: 0.8px;">
+              ✨ Financement stratégique pour PME ambitieuses
+            </span>
+          </div>
+
+          <!-- Ligne 2 -->
+          <h1 class="fw-bold mb-6 text-white" style="font-size: 3.5rem; line-height: 1.1; letter-spacing: -0.02em; font-family: 'Inter', -apple-system, sans-serif;">
+            Transformez vos équipements<br>en <span style="color: #fbbf24;">capital de croissance</span>
+          </h1>
+
+          <!-- Ligne 3 -->
+          <p class="fw-medium mb-6" style="font-size: 1.25rem; color: rgba(255, 255, 255, 0.9); line-height: 1.6; max-width: 500px;">
+            Débloquez jusqu’à 90 % de la valeur de vos équipements. Sans dette au bilan. 100 % déductible.
+          </p>
+
+          <!-- Ligne 4 -->
+          <p class="mb-8" style="font-size: 1rem; color: rgba(255, 255, 255, 0.7); font-style: italic;">
+            Sans jamais interrompre leur usage ni vos activités.
+          </p>
+
+          <!-- CTA Buttons -->
+          <div class="d-flex flex-wrap gap-3 justify-content-center mt-4">
+            <a href="https://www.youtube.com/watch?v=LWZ7iytIA6k"
+               class="btn btn-lg px-4 py-3 d-flex align-items-center gap-2" 
+               style="background: rgba(255, 255, 255, 0.1); color: white; border: 1px solid rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px); border-radius: 12px; transition: all 0.3s ease; text-decoration: none;"
+               onmouseover="this.style.background='rgba(255, 255, 255, 0.2)'"
+               onmouseout="this.style.background='rgba(255, 255, 255, 0.1)'">
+              <i class="fas fa-play"></i>
+              Voir la vidéo
+            </a>
+            <a href="#formulaire"
+               class="btn btn-lg px-5 py-3 fw-semibold" 
+               style="background: linear-gradient(45deg, #fbbf24, #f59e0b); color: #1e40af; border: none; border-radius: 12px; box-shadow: 0 8px 32px rgba(251, 191, 36, 0.3); transition: all 0.3s ease; transform: translateY(0); text-decoration: none;"
+               onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 12px 40px rgba(251, 191, 36, 0.4)'"
+               onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 32px rgba(251, 191, 36, 0.3)'">
+              Démarrer maintenant
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Image Column -->
+      <div class="col-lg-5 col-xl-6 col-md-5 d-flex justify-content-center">
+        <div class="position-relative" style="max-width: 420px;">
+          <!-- Modern card-style image container -->
+          <div class="p-4 rounded-4 shadow-lg" style="background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.2);">
+            <img class="w-100 rounded-3" src="image/home-3/welcome-woman-l3.png" alt="Professional team" style="filter: brightness(1.1);">
+          </div>
+          
+          <!-- Floating stats cards -->
+          <div class="position-absolute" style="top: 10%; right: -10%; background: white; padding: 1rem; border-radius: 12px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1); z-index: 10;">
+            <div class="text-center">
+              <div class="fw-bold" style="color: #1e40af; font-size: 1.5rem;">90%</div>
+              <div style="color: #6b7280; font-size: 0.8rem;">débloqué</div>
+            </div>
+          </div>
+          
+          <div class="position-absolute" style="bottom: 15%; left: -15%; background: white; padding: 1rem; border-radius: 12px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1); z-index: 10;">
+            <div class="text-center">
+              <div class="fw-bold" style="color: #fbbf24; font-size: 1.5rem;">5j</div>
+              <div style="color: #6b7280; font-size: 0.8rem;">Rapidité</div>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+<!-- /Hero Area -->
+
+<!-- Add Inter font for better typography -->
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+  
+  /* Modern service cards styling */
+  .widgets.widgets__services-single {
+    background: white !important;
+    border-radius: 16px !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
+    border: 1px solid rgba(0, 0, 0, 0.05) !important;
+    transition: all 0.3s ease !important;
+    padding: 2rem !important;
+  }
+  
+  .widgets.widgets__services-single:hover {
+    transform: translateY(-8px) !important;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.12) !important;
+  }
+  
+  .widgets__heading {
+    color: #1e40af !important;
+    font-size: 1.25rem !important;
+    font-family: 'Inter', sans-serif !important;
+    font-weight: 700 !important;
+    margin-bottom: 1rem !important;
+  }
+  
+  .widgets__text {
+    color: #6b7280 !important;
+    line-height: 1.6 !important;
+    font-size: 0.95rem !important;
+  }
+  
+  /* Modern checklist styling */
+  .services-content-box__list li {
+    margin-bottom: 1rem !important;
+    display: flex !important;
+    align-items: flex-start !important;
+    font-size: 1.1rem !important;
+    line-height: 1.8 !important;
+  }
+</style>
+
+
+
+<!-- /Hero Area -->
+
+
+
+
+
+
+
+
+
+
+
+    <!-- Services Area -->
+<div class="service-area service-area--l7 py-16" style="background: #f8fafc;">
+  <div class="container">
+    <!-- Titre Centré -->
+    <div class="row justify-content-center text-center">
+      <div class="col-lg-10">
+        <div class="section-title section-title--l7 mb-8">
+          <div class="d-inline-flex align-items-center mb-3 px-3 py-2 rounded-pill" style="background: rgba(30, 64, 175, 0.1); border: 1px solid rgba(30, 64, 175, 0.2);">
+            <span class="fw-semibold" style="font-size: 0.85rem; color: #1e40af; text-transform: uppercase; letter-spacing: 0.5px;">
+              Problématiques actuelles
+            </span>
+          </div>
+          <h2 class="section-title__heading fw-bold mb-6 hero-title" data-aos="fade-up" data-aos-duration="800" data-aos-once="true" style="color: #1e40af; font-size: 2.5rem; line-height: 1.2; font-family: 'Inter', sans-serif;">
+            Le parcours de financement, encore mal adapté aux réalités des PME
+          </h2>
+          <div class="mx-auto mb-6" style="width: 80px; height: 3px; background: linear-gradient(45deg, #1e40af, #fbbf24); border-radius: 2px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Blocs de problèmes -->
+    <div class="row justify-content-center text-start">
+      <!-- Bloc 1 -->
+      <div class="col-md-6 col-lg-3 mb-6">
+        <div class="widgets widgets__services-single text-center h-100 p-4 rounded bg-light shadow-sm">
+          <div class="d-flex align-items-center justify-content-center mb-6" style="width: 60px; height: 60px; background: linear-gradient(135deg, #ef4444, #dc2626); border-radius: 16px; margin: 0 auto;">
+            <i class="fas fa-clock" style="font-size: 1.5rem; color: white;"></i>
+          </div>
+          <div class="widgets-services__single-content">
+            <h3 class="fw-bold mb-3" style="color: #1e40af; font-size: 1.25rem; font-family: 'Inter', sans-serif;">Délais bancaires interminables</h3>
+            <p class="widgets__text">Vous faites une demande… et des semaines plus tard, c’est un refus. Pendant ce temps, l’opportunité est passée.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bloc 2 -->
+      <div class="col-md-6 col-lg-3 mb-6">
+        <div class="widgets widgets__services-single text-center h-100 p-4 rounded bg-light shadow-sm">
+          <div class="d-flex align-items-center justify-content-center mb-6" style="width: 60px; height: 60px; background: linear-gradient(135deg, #ef4444, #dc2626); border-radius: 16px; margin: 0 auto;">
+            <i class="fas fa-times" style="font-size: 1.5rem; color: white;"></i>
+          </div>
+          <div class="widgets-services__single-content">
+            <h3 class="widgets__heading">Taux de refus élevé (80 %)</h3>
+            <p class="widgets__text">Sans crédit parfait ni ratio financier irréprochable, votre dossier est écarté sans discussion.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bloc 3 -->
+      <div class="col-md-6 col-lg-3 mb-6">
+        <div class="widgets widgets__services-single text-center h-100 p-4 rounded bg-light shadow-sm">
+          <div class="d-flex align-items-center justify-content-center mb-6" style="width: 60px; height: 60px; background: linear-gradient(135deg, #ef4444, #dc2626); border-radius: 16px; margin: 0 auto;">
+            <i class="fas fa-lock" style="font-size: 1.5rem; color: white;"></i>
+          </div>
+          <div class="widgets-services__single-content">
+            <h3 class="widgets__heading">Garanties personnelles exigées</h3>
+            <p class="widgets__text">Même pour un petit montant, on vous demande une hypothèque ou un cautionnement personnel.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bloc 4 -->
+      <div class="col-md-6 col-lg-3 mb-6">
+        <div class="widgets widgets__services-single text-center h-100 p-4 rounded bg-light shadow-sm">
+          <div class="d-flex align-items-center justify-content-center mb-6" style="width: 60px; height: 60px; background: linear-gradient(135deg, #ef4444, #dc2626); border-radius: 16px; margin: 0 auto;">
+            <i class="fas fa-bomb" style="font-size: 1.5rem; color: white;"></i>
+          </div>
+          <div class="widgets-services__single-content">
+            <h3 class="widgets__heading">Taux abusifs chez les prêteurs privés</h3>
+            <p class="widgets__text">Des taux à 24 %, des frais cachés, des clauses floues… ce qui semblait simple devient un piège coûteux.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+<!--/ .Services Area -->
+
+
+
+
+
+ <!-- About Us Area -->
+<div class="about-us-section about-us-section--l7 section-padding-lg section-bg-gradient-1 section-separator">
+  <div class="container">
+    <div class="row align-items-center justify-content-center">
+      
+      <!-- Text Content (toujours en haut sur mobile) -->
+      <div class="col-xl-5 col-lg-6 col-md-10 order-1 order-lg-1">
+        <div class="about-us-left mt-3 mt-lg-5">
+          <div class="text-center text-lg-start" data-aos="fade-up" data-aos-duration="500">
+            
+            <div class="d-inline-flex align-items-center mb-6 px-3 py-2 rounded-pill" style="background: rgba(251, 191, 36, 0.1); border: 1px solid rgba(251, 191, 36, 0.2);">
+              <span class="fw-semibold" style="font-size: 0.85rem; color: #fbbf24; text-transform: uppercase; letter-spacing: 0.5px;">
+                Notre solution
+              </span>
+            </div>
+            
+            <!-- Ligne 1 -->
+            <h2 class="fw-bold mb-6" style="font-size: 2.75rem; line-height: 1.2; color: #1e40af; font-family: 'Inter', sans-serif;">
+              Une alternative simple, rapide et <span style="color: #fbbf24;">stratégique</span>
+            </h2>
+
+            <!-- Ligne 2 -->
+            <p class="fw-medium mb-3" style="font-size: 1.25rem; color: #374151; line-height: 1.6;">
+              Découvrez comment financer votre croissance<br class="d-none d-md-block">
+              sans alourdir votre bilan.
+            </p>
+
+            <!-- Ligne 3 -->
+            <p class="fw-semibold mb-4" style="font-size: 1.1rem; color: #fbbf24;">
+              … en moins de&nbsp;5&nbsp;jours.
+            </p>
+            
+            <!-- CTA Button Desktop - Positionnement stratégique -->
+            <div class="hero-cta-container text-lg-start text-center d-lg-block d-none mt-5" data-aos="fade-up" data-aos-duration="700" data-aos-delay="300">
+              <a href="#formulaire" class="btn btn-electric-violet-2 btn-lg px-5 py-3 fw-semibold text-white">
+                Démarrer maintenant
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Video Content (toujours en bas sur mobile) -->
+      <div class="col-xl-7 col-lg-6 col-md-10 order-2 order-lg-2 d-flex justify-content-center">
+        <div class="about-us__image text-center position-relative" data-aos="fade-left" data-aos-duration="500">
+          <div class="position-relative" style="max-width: 600px; border-radius: 25px; overflow: hidden; box-shadow: 0 25px 80px rgba(0, 0, 0, 0.2);">
+            <img class="w-100" src="https://img.youtube.com/vi/Ljid39JfZXo/maxresdefault.jpg" alt="Video preview" style="filter: brightness(0.9);" />
+            <div class="position-absolute top-50 start-50 translate-middle">
+              <a class="d-flex align-items-center justify-content-center" href="https://youtu.be/Ljid39JfZXo?si=pm-ZN0nMLraGREjA" 
+                 style="width: 100px; height: 100px; background: linear-gradient(45deg, #fbbf24, #f59e0b); border-radius: 50%; color: white; text-decoration: none; box-shadow: 0 12px 40px rgba(251, 191, 36, 0.5); transition: all 0.3s ease; transform: scale(1);"
+                 onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 16px 50px rgba(251, 191, 36, 0.7)'"
+                 onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 12px 40px rgba(251, 191, 36, 0.5)'">
+                <i class="fas fa-play" style="font-size: 2rem; margin-left: 6px;"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- CTA Button Mobile - Après la vidéo -->
+    <div class="row justify-content-center d-lg-none mt-4">
+      <div class="col-12 text-center" data-aos="fade-up" data-aos-duration="700" data-aos-delay="200">
+        <a href="#formulaire" class="btn btn-electric-violet-2 btn-lg px-5 py-3 fw-semibold text-white">
+          Démarrer maintenant
+        </a>
+      </div>
+    </div>
+
+  </div>
+</div>
+<!-- /About Us Area -->
+
+<!--/ .About Us Area -->
+
+
+
+<!-- Services Area --> 
+<div class="service-area service-area--l7 section-padding-xl" style="background: linear-gradient(135deg, #f8fafc 0%, #e6f3ff 50%, #dbeafe 100%); position: relative; overflow: hidden; padding: 5rem 0;">
+  <!-- Éléments décoratifs subtils -->
+  <div class="position-absolute" style="top: -5%; right: -3%; width: 200px; height: 200px; background: rgba(30, 64, 175, 0.05); border-radius: 50%; filter: blur(60px);"></div>
+  <div class="position-absolute" style="bottom: -8%; left: -5%; width: 150px; height: 150px; background: rgba(251, 191, 36, 0.08); border-radius: 50%; filter: blur(40px);"></div>
+  
+  <div class="container position-relative">
+    <!-- Titre Centré avec ligne et espace -->
+    <div class="row justify-content-center text-center">
+      <div class="col-lg-10">
+        <div class="section-title section-title--l7 mb-8">
+          <div class="d-inline-flex align-items-center mb-3 px-3 py-2 rounded-pill" style="background: rgba(251, 191, 36, 0.1); border: 1px solid rgba(251, 191, 36, 0.2);">
+            <span class="fw-semibold" style="font-size: 0.85rem; color: #fbbf24; text-transform: uppercase; letter-spacing: 0.5px;">
+              Bénéfices concrets
+            </span>
+          </div>
+          <h2 class="section-title__heading fw-bold mb-8" data-aos="fade-up" data-aos-duration="500" data-aos-once="true" style="color: #1e40af; font-size: 2.5rem; line-height: 1.2; font-family: 'Inter', sans-serif; text-shadow: 0 2px 4px rgba(30, 64, 175, 0.1);">
+            Concrètement, voici ce que ça vous apporte
+          </h2>
+          <div class="mx-auto mb-6" style="width: 80px; height: 3px; background: linear-gradient(45deg, #fbbf24, #1e40af); border-radius: 2px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Blocs de bénéfices -->
+    <div class="row justify-content-center text-start">
+      <!-- Bloc 1 -->
+      <div class="col-md-6 col-lg-3 mb-6" data-aos="fade-up" data-aos-duration="800" data-aos-delay="100">
+        <div class="widgets widgets__services-single text-center h-100 p-4 rounded bg-light shadow-sm animate-card animate-delay-1">
+          <div class="d-flex align-items-center justify-content-center mb-6" style="width: 60px; height: 60px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 16px; margin: 0 auto;">
+            <i class="fas fa-coins" style="font-size: 1.5rem; color: white;"></i>
+          </div>
+          <div class="widgets-services__single-content">
+            <h3 class="widgets__heading">Liquidités&nbsp;immédiates</h3>
+            <p class="widgets__text">Transformez jusqu'à 90 % de la valeur de vos équipements en capital disponible. Financement rapide en moins de&nbsp;5&nbsp;jours.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bloc 2 -->
+      <div class="col-md-6 col-lg-3 mb-6" data-aos="fade-up" data-aos-duration="800" data-aos-delay="200">
+        <div class="widgets widgets__services-single text-center h-100 p-4 rounded bg-light shadow-sm animate-card animate-delay-2">
+          <div class="d-flex align-items-center justify-content-center mb-6" style="width: 60px; height: 60px; background: linear-gradient(135deg, #3b82f6, #1e40af); border-radius: 16px; margin: 0 auto;">
+            <i class="fas fa-chart-line" style="font-size: 1.5rem; color: white;"></i>
+          </div>
+          <div class="widgets-services__single-content">
+            <h3 class="widgets__heading">Paiements mensuels plus&nbsp;bas</h3>
+            <p class="widgets__text">Payez uniquement la dépréciation réelle de vos équipements. Des mensualités allégées par rapport aux prêts&nbsp;classiques.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bloc 3 -->
+      <div class="col-md-6 col-lg-3 mb-6" data-aos="fade-up" data-aos-duration="800" data-aos-delay="300">
+        <div class="widgets widgets__services-single text-center h-100 p-4 rounded bg-light shadow-sm animate-card animate-delay-3">
+          <div class="d-flex align-items-center justify-content-center mb-6" style="width: 60px; height: 60px; background: linear-gradient(135deg, #fbbf24, #f59e0b); border-radius: 16px; margin: 0 auto;">
+            <i class="fas fa-receipt" style="font-size: 1.5rem; color: white;"></i>
+          </div>
+          <div class="widgets-services__single-content">
+            <h3 class="widgets__heading">Paiements 100 % déductibles</h3>
+            <p class="widgets__text">Chaque versement est entièrement déductible des revenus de votre&nbsp;entreprise. Un avantage fiscal direct, dès la première&nbsp;année.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bloc 4 -->
+      <div class="col-md-6 col-lg-3 mb-6" data-aos="fade-up" data-aos-duration="800" data-aos-delay="400">
+        <div class="widgets widgets__services-single text-center h-100 p-4 rounded bg-light shadow-sm animate-card animate-delay-4">
+          <div class="d-flex align-items-center justify-content-center mb-6" style="width: 60px; height: 60px; background: linear-gradient(135deg, #8b5cf6, #7c3aed); border-radius: 16px; margin: 0 auto;">
+            <i class="fas fa-cogs" style="font-size: 1.5rem; color: white;"></i>
+          </div>
+          <div class="widgets-services__single-content">
+            <h3 class="widgets__heading">Vous gardez vos&nbsp;équipements</h3>
+            <p class="widgets__text">Vous continuez de les utiliser sans&nbsp;interruption. À la fin, rachetez-les, renouvelez ou retournez selon vos&nbsp;besoins.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bandeau informatif -->
+    <div class="container-fluid py-3 mt-4">
+      <div class="row justify-content-center">
+        <div class="col-lg-10 col-xl-8">
+          <div class="d-flex align-items-center justify-content-center p-4 rounded shadow-sm" data-aos="fade-up" data-aos-delay="150" style="background: #f4f9ff;">
+            <i class="ti ti-shield-check text-primary me-2" style="font-size: 1.25rem;"></i>
+            <p class="mb-0 text-center fw-medium" style="color: #374151; font-family: 'Inter', sans-serif; line-height: 1.6;">
+              <strong style="color: #1e40af;">À savoir :</strong> Le crédit-bail ne compte pas comme une dette. Vos ratios financiers restent optimaux, votre capacité d'emprunt intacte.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bouton CTA bleu avec écriture blanche -->
+    <div class="row justify-content-center mt-4">
+      <div class="col-auto">
+        <a href="#formulaire"
+           class="btn btn-lg px-5 py-3 fw-semibold" 
+           style="background: linear-gradient(45deg, #1e40af, #3b82f6); color: white; border: none; border-radius: 12px; box-shadow: 0 8px 32px rgba(30, 64, 175, 0.3); transition: all 0.3s ease; transform: translateY(0); text-decoration: none;"
+           onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 12px 40px rgba(30, 64, 175, 0.4)'"
+           onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 32px rgba(30, 64, 175, 0.3)'"
+           data-aos="fade-up" data-aos-duration="500" data-aos-delay="500" data-aos-once="true">
+          Évaluer mon équipement maintenant
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+<!--/ .Services Area -->
+
+
+
+
+
+
+<!-- Section Fusionnée : Éligibilité + Exemples -->
+<section class="section-padding-lg section-bg-secondary section-separator" data-aos="fade-up" data-aos-duration="800">
+  <div class="container">
+    
+    <!-- En-tête de section -->
+    <div class="text-center mb-12">
+      <div class="d-inline-flex align-items-center mb-4 px-4 py-2 rounded-pill" style="background: rgba(30, 64, 175, 0.1); border: 1px solid rgba(30, 64, 175, 0.2);">
+        <span class="fw-semibold" style="font-size: 0.85rem; color: #1e40af; text-transform: uppercase; letter-spacing: 0.5px;">
+          Vérification
+        </span>
+      </div>
+      <h2 class="fw-bold mb-4" style="font-size: 2.5rem; line-height: 1.2; font-family: 'Inter', sans-serif; color: #1e40af;">
+        Est-ce adapté à votre situation ?
+      </h2>
+      <p class="mx-auto mb-6" style="font-size: 1.1rem; line-height: 1.6; max-width: 600px; color: #6b7280; font-family: 'Inter', sans-serif;">
+        Vérifiez votre éligibilité et découvrez comment d'autres entrepreneurs ont transformé leurs équipements en liquidités
+      </p>
+      
+      <!-- Image illustrative -->
+      <div class="text-center mb-8">
+        <img src="image/dessin1.svg" alt="Éligibilité" class="img-fluid" style="max-width: 350px; opacity: 0.9;">
+      </div>
+    </div>
+
+    <!-- Critères d'éligibilité - Version Bootstrap 5 Responsive -->
+    <div class="row justify-content-center mb-5">
+      <div class="col-12 col-md-10 col-lg-8">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body p-4 p-md-5">
+            <h3 class="card-title text-center fw-bold mb-4" style="color: #1e40af;">
+              Vérifiez ces 3 critères :
+            </h3>
+            
+            <!-- Critères avec icônes Bootstrap -->
+            <div class="row g-4">
+              <!-- Critère 1 -->
+              <div class="col-12">
+                <div class="d-flex align-items-start">
+                  <div class="flex-shrink-0 me-3">
+                    <div class="rounded-circle bg-primary bg-opacity-10 p-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#1e40af" class="bi bi-lightning-charge-fill" viewBox="0 0 16 16">
+                        <path d="M11.251.068a.5.5 0 0 1 .227.58L9.677 6.5H13a.5.5 0 0 1 .364.843l-8 8.5a.5.5 0 0 1-.842-.49L6.323 9.5H3a.5.5 0 0 1-.364-.843l8-8.5a.5.5 0 0 1 .615-.09z"/>
+                      </svg>
+                    </div>
+                  </div>
+                  <div class="flex-grow-1">
+                    <p class="mb-0 text-secondary">
+                      Vous avez une opportunité, une dépense ou une croissance à financer rapidement ?
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Critère 2 -->
+              <div class="col-12">
+                <div class="d-flex align-items-start">
+                  <div class="flex-shrink-0 me-3">
+                    <div class="rounded-circle bg-primary bg-opacity-10 p-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#1e40af" class="bi bi-gear-fill" viewBox="0 0 16 16">
+                        <path d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.686.705-1.987 1.987l.169.311c.446.82.023 1.841-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.698 1.283.705 2.686 1.987 1.987l.311-.169a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.686-.705 1.987-1.987l-.169-.311a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.698-1.283-.705-2.686-1.987-1.987l-.311.169a1.464 1.464 0 0 1-2.105-.872l-.1-.34zM8 10.93a2.929 2.929 0 1 1 0-5.86 2.929 2.929 0 0 1 0 5.858z"/>
+                      </svg>
+                    </div>
+                  </div>
+                  <div class="flex-grow-1">
+                    <p class="mb-0 text-secondary">
+                      Votre entreprise possède de l'équipement, payé ou partiellement payé, que vous utilisez dans vos activités ?
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Critère 3 -->
+              <div class="col-12">
+                <div class="d-flex align-items-start">
+                  <div class="flex-shrink-0 me-3">
+                    <div class="rounded-circle bg-primary bg-opacity-10 p-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#1e40af" class="bi bi-shield-check" viewBox="0 0 16 16">
+                        <path d="M5.338 1.59a61.44 61.44 0 0 0-2.837.856.481.481 0 0 0-.328.39c-.554 4.157.726 7.19 2.253 9.188a10.725 10.725 0 0 0 2.287 2.233c.346.244.652.42.893.533.12.057.218.095.293.118a.55.55 0 0 0 .101.025.615.615 0 0 0 .1-.025c.076-.023.174-.061.294-.118.24-.113.547-.29.893-.533a10.726 10.726 0 0 0 2.287-2.233c1.527-1.997 2.807-5.031 2.253-9.188a.48.48 0 0 0-.328-.39c-.651-.213-1.75-.56-2.837-.855C9.552 1.29 8.531 1.067 8 1.067c-.53 0-1.552.223-2.662.524zM5.072.56C6.157.265 7.31 0 8 0s1.843.265 2.928.56c1.11.3 2.229.655 2.887.87a1.54 1.54 0 0 1 1.044 1.262c.596 4.477-.787 7.795-2.465 9.99a11.775 11.775 0 0 1-2.517 2.453 7.159 7.159 0 0 1-1.048.625c-.28.132-.581.24-.829.24s-.548-.108-.829-.24a7.158 7.158 0 0 1-1.048-.625 11.777 11.777 0 0 1-2.517-2.453C1.928 10.487.545 7.169 1.141 2.692A1.54 1.54 0 0 1 2.185 1.43 62.456 62.456 0 0 1 5.072.56z"/>
+                        <path d="M10.854 5.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 7.793l2.646-2.647a.5.5 0 0 1 .708 0z"/>
+                      </svg>
+                    </div>
+                  </div>
+                  <div class="flex-grow-1">
+                    <p class="mb-0 text-secondary">
+                      Vous ne voulez pas alourdir votre bilan avec une nouvelle dette ?
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+          </div>
+        </div>
+      </div>
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+
+  </div>
+</section>
+
+<!-- Équipements Admissibles Section -->
+<section class="section-padding-md section-bg-gradient-3 section-separator" style="position: relative; overflow: hidden;" data-aos="fade-up" data-aos-duration="800">
+  <!-- Background Elements -->
+  <div class="position-absolute" style="top: -50%; left: -10%; width: 200px; height: 200px; background: linear-gradient(45deg, rgba(59, 130, 246, 0.1), rgba(251, 191, 36, 0.1)); border-radius: 50%; filter: blur(60px);"></div>
+  <div class="position-absolute" style="bottom: -30%; right: -5%; width: 150px; height: 150px; background: linear-gradient(45deg, rgba(251, 191, 36, 0.1), rgba(59, 130, 246, 0.1)); border-radius: 50%; filter: blur(40px);"></div>
+  
+  <div class="container position-relative">
+    <div class="row justify-content-center">
+      <div class="col-lg-9 px-4">
+        
+        <!-- Espace préservé pour l'élément supprimé -->
+        <div class="mb-3"></div>
+        
+        <!-- Section Header -->
+        <div class="text-center mb-5">
+          <h2 class="fw-bold mb-4" style="color: #1e40af; font-size: 2.8rem; line-height: 1.2; font-family: 'Inter', sans-serif;">
+            Convertissez vos équipements professionnels en liquidités
+          </h2>
+          <p class="mx-auto mb-0" style="color: #4b5563; font-size: 1.2rem; line-height: 1.7; max-width: 700px; font-family: 'Inter', sans-serif;">
+            Nous finançons les actifs déjà en votre possession, selon leur valeur marchande et leur usage professionnel.
+          </p>
+        </div>
+
+        <!-- Equipment Categories Grid - Simplified -->
+        <div class="row g-4 mb-5 justify-content-center">
+          
+          <!-- Transport -->
+          <div class="col-md-6 col-lg-3">
+            <div class="text-center p-4 bg-white border rounded-3 h-100">
+              <div class="mb-3">
+                <i class="fas fa-truck" style="font-size: 2.5rem; color: #1e40af;"></i>
+              </div>
+              <h4 class="fw-bold mb-2" style="color: #1e40af; font-family: 'Inter', sans-serif; font-size: 1.2rem;">Transport</h4>
+              <p class="mb-0" style="color: #6b7280; font-size: 0.9rem; line-height: 1.4;">Camions, tracteurs routiers, remorques</p>
+            </div>
+          </div>
+
+          <!-- Construction -->
+          <div class="col-md-6 col-lg-3">
+            <div class="text-center p-4 bg-white border rounded-3 h-100">
+              <div class="mb-3">
+                <i class="fas fa-hard-hat" style="font-size: 2.5rem; color: #1e40af;"></i>
+              </div>
+              <h4 class="fw-bold mb-2" style="color: #1e40af; font-family: 'Inter', sans-serif; font-size: 1.2rem;">Construction</h4>
+              <p class="mb-0" style="color: #6b7280; font-size: 0.9rem; line-height: 1.4;">Pelles, chargeurs, grues, équipements de chantier</p>
+            </div>
+          </div>
+
+          <!-- Industriel -->
+          <div class="col-md-6 col-lg-3">
+            <div class="text-center p-4 bg-white border rounded-3 h-100">
+              <div class="mb-3">
+                <i class="fas fa-industry" style="font-size: 2.5rem; color: #1e40af;"></i>
+              </div>
+              <h4 class="fw-bold mb-2" style="color: #1e40af; font-family: 'Inter', sans-serif; font-size: 1.2rem;">Industriel</h4>
+              <p class="mb-0" style="color: #6b7280; font-size: 0.9rem; line-height: 1.4;">Machines CNC, presses, équipements manufacturiers</p>
+            </div>
+          </div>
+
+          <!-- Autres -->
+          <div class="col-md-6 col-lg-3">
+            <div class="text-center p-4 bg-white border rounded-3 h-100">
+              <div class="mb-3">
+                <i class="fas fa-ellipsis-h" style="font-size: 2.5rem; color: #1e40af;"></i>
+              </div>
+              <h4 class="fw-bold mb-2" style="color: #1e40af; font-family: 'Inter', sans-serif; font-size: 1.2rem;">Et bien plus</h4>
+              <p class="mb-0" style="color: #6b7280; font-size: 0.9rem; line-height: 1.4;">Agriculture, médical, restauration, informatique...</p>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Espacement conservé -->
+        <div class="text-center" style="height: 80px;"></div>
+        
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- How it Works Section - Version Optimisée -->
+<section class="how-it-works-section" style="background: linear-gradient(135deg, #f8fafc 0%, #e6f3ff 50%, #dbeafe 100%); position: relative; overflow: hidden; padding: 5rem 0;">
+  <!-- Éléments décoratifs subtils -->
+  <div class="position-absolute" style="top: -5%; right: -3%; width: 200px; height: 200px; background: rgba(30, 64, 175, 0.05); border-radius: 50%; filter: blur(60px);"></div>
+  <div class="position-absolute" style="bottom: -8%; left: -5%; width: 150px; height: 150px; background: rgba(251, 191, 36, 0.08); border-radius: 50%; filter: blur(40px);"></div>
+  
+  <div class="container position-relative">
+    <!-- Section Header -->
+    <div class="text-center mb-5">
+      <div class="d-inline-flex align-items-center mb-4 px-4 py-3" style="background: rgba(30, 64, 175, 0.1); border: 1px solid rgba(30, 64, 175, 0.2); border-radius: 50px;">
+        <div class="d-flex align-items-center justify-content-center me-3" style="width: 32px; height: 32px; background: linear-gradient(135deg, #1e40af, #3b82f6); border-radius: 8px;">
+          <i class="fas fa-route" style="font-size: 0.9rem; color: white;"></i>
+        </div>
+        <span class="fw-bold" style="font-size: 0.9rem; color: #1e40af; text-transform: uppercase; letter-spacing: 0.8px; font-family: 'Inter', sans-serif;">
+          Processus simplifié
+        </span>
+      </div>
+      
+      <h2 class="fw-bold mb-4" style="color: #1e40af; font-size: 2.8rem; line-height: 1.2; font-family: 'Inter', sans-serif;">
+        Voici comment ça fonctionne
+      </h2>
+      
+      <p class="mx-auto mb-0" style="color: #4b5563; font-size: 1.2rem; line-height: 1.7; max-width: 700px; font-family: 'Inter', sans-serif;">
+        Un processus transparent et efficace, conçu pour les entrepreneurs qui privilégient la rapidité et la simplicité.
+      </p>
+    </div>
+
+    <!-- Process Steps -->
+    <div class="row justify-content-center g-4 mb-5">
+      
+      <!-- Step 1 -->
+      <div class="col-lg-6 col-xl-3 col-md-6" data-aos="fade-up" data-aos-duration="800" data-aos-delay="100">
+        <div class="step-card position-relative bg-white rounded-4 shadow-lg h-100 animate-card animate-delay-1" style="padding: 2.5rem 2rem;">
+          
+          <!-- Badge numéro -->
+          <div class="position-absolute" style="top: -15px; left: 2rem;">
+            <span class="badge rounded-pill px-3 py-2" style="background: linear-gradient(135deg, #1e40af, #3b82f6); color: white; font-size: 0.875rem; font-weight: 600; box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3);">
+              Étape 1
+            </span>
+          </div>
+          
+          <!-- Icône -->
+          <div class="text-center mb-4 mt-3">
+            <div class="d-inline-flex align-items-center justify-content-center" style="width: 70px; height: 70px; background: rgba(30, 64, 175, 0.1); border-radius: 20px;">
+              <i class="fas fa-file-alt" style="color: #1e40af; font-size: 1.75rem;"></i>
+            </div>
+          </div>
+          
+          <!-- Contenu -->
+          <h3 class="text-center fw-bold mb-4" style="color: #1e40af; font-size: 1.4rem; font-family: 'Inter', sans-serif; line-height: 1.3;">
+            Remplissez le formulaire
+          </h3>
+          <p class="text-center mb-0" style="color: #6b7280; font-size: 1.05rem; line-height: 1.7; font-family: 'Inter', sans-serif;">
+            En moins de 5 minutes, décrivez votre situation et vos équipements. Notre équipe vous répond sous 24h.
+          </p>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="col-lg-6 col-xl-3 col-md-6" data-aos="fade-up" data-aos-duration="800" data-aos-delay="200">
+        <div class="step-card position-relative bg-white rounded-4 shadow-lg h-100 animate-card animate-delay-2" style="padding: 2.5rem 2rem;">
+          
+          <!-- Badge numéro -->
+          <div class="position-absolute" style="top: -15px; left: 2rem;">
+            <span class="badge rounded-pill px-3 py-2" style="background: linear-gradient(135deg, #1e40af, #3b82f6); color: white; font-size: 0.875rem; font-weight: 600; box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3);">
+              Étape 2
+            </span>
+          </div>
+          
+          <!-- Icône -->
+          <div class="text-center mb-4 mt-3">
+            <div class="d-inline-flex align-items-center justify-content-center" style="width: 70px; height: 70px; background: rgba(30, 64, 175, 0.1); border-radius: 20px;">
+              <i class="fas fa-search-dollar" style="color: #1e40af; font-size: 1.75rem;"></i>
+            </div>
+          </div>
+          
+          <!-- Contenu -->
+          <h3 class="text-center fw-bold mb-4" style="color: #1e40af; font-size: 1.4rem; font-family: 'Inter', sans-serif; line-height: 1.3;">
+            Recevez une offre personnalisée
+          </h3>
+          <p class="text-center mb-0" style="color: #6b7280; font-size: 1.05rem; line-height: 1.7; font-family: 'Inter', sans-serif;">
+            Nous évaluons vos actifs selon leur valeur marchande et vous proposons une offre adaptée, sans engagement.
+          </p>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="col-lg-6 col-xl-3 col-md-6" data-aos="fade-up" data-aos-duration="800" data-aos-delay="300">
+        <div class="step-card position-relative bg-white rounded-4 shadow-lg h-100 animate-card animate-delay-3" style="padding: 2.5rem 2rem;">
+          
+          <!-- Badge numéro -->
+          <div class="position-absolute" style="top: -15px; left: 2rem;">
+            <span class="badge rounded-pill px-3 py-2" style="background: linear-gradient(135deg, #1e40af, #3b82f6); color: white; font-size: 0.875rem; font-weight: 600; box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3);">
+              Étape 3
+            </span>
+          </div>
+          
+          <!-- Icône -->
+          <div class="text-center mb-4 mt-3">
+            <div class="d-inline-flex align-items-center justify-content-center" style="width: 70px; height: 70px; background: rgba(30, 64, 175, 0.1); border-radius: 20px;">
+              <i class="fas fa-handshake" style="color: #1e40af; font-size: 1.75rem;"></i>
+            </div>
+          </div>
+          
+          <!-- Contenu -->
+          <h3 class="text-center fw-bold mb-4" style="color: #1e40af; font-size: 1.4rem; font-family: 'Inter', sans-serif; line-height: 1.3;">
+            Signez le contrat
+          </h3>
+          <p class="text-center mb-0" style="color: #6b7280; font-size: 1.05rem; line-height: 1.7; font-family: 'Inter', sans-serif;">
+            Une fois l'offre acceptée, nous finalisons rapidement le contrat de sale-leaseback avec des conditions transparentes.
+          </p>
+        </div>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="col-lg-6 col-xl-3 col-md-6" data-aos="fade-up" data-aos-duration="800" data-aos-delay="400">
+        <div class="step-card position-relative bg-white rounded-4 shadow-lg h-100 animate-card animate-delay-4" style="padding: 2.5rem 2rem;">
+          
+          <!-- Badge numéro -->
+          <div class="position-absolute" style="top: -15px; left: 2rem;">
+            <span class="badge rounded-pill px-3 py-2" style="background: linear-gradient(135deg, #1e40af, #3b82f6); color: white; font-size: 0.875rem; font-weight: 600; box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3);">
+              Étape 4
+            </span>
+          </div>
+          
+          <!-- Icône -->
+          <div class="text-center mb-4 mt-3">
+            <div class="d-inline-flex align-items-center justify-content-center" style="width: 70px; height: 70px; background: rgba(30, 64, 175, 0.1); border-radius: 20px;">
+              <i class="fas fa-hand-holding-usd" style="color: #1e40af; font-size: 1.75rem;"></i>
+            </div>
+          </div>
+          
+          <!-- Contenu -->
+          <h3 class="text-center fw-bold mb-4" style="color: #1e40af; font-size: 1.4rem; font-family: 'Inter', sans-serif; line-height: 1.3;">
+            Recevez vos fonds
+          </h3>
+          <p class="text-center mb-0" style="color: #6b7280; font-size: 1.05rem; line-height: 1.7; font-family: 'Inter', sans-serif;">
+            Recevez jusqu'à 90% de la valeur en 5 jours tout en gardant et utilisant vos équipements comme avant.
+          </p>
+        </div>
+      </div>
+      
+    </div>
+
+    <!-- CTA Final -->
+    <div class="text-center mt-5">
+      <p class="mb-4" style="color: #6b7280; font-size: 1.1rem; font-family: 'Inter', sans-serif; font-weight: 500;">
+        Prêt à transformer vos équipements en liquidités ?
+      </p>
+      <a href="#formulaire" class="btn btn-lg px-5 py-3 fw-semibold" style="background: linear-gradient(45deg, #fbbf24, #f59e0b); color: #1e40af; border: none; border-radius: 12px; box-shadow: 0 8px 32px rgba(251, 191, 36, 0.3); transition: all 0.3s ease; text-decoration: none; font-family: 'Inter', sans-serif;">
+        Commencer l'évaluation
+      </a>
+    </div>
+    
+  </div>
+</section>
+
+<!-- Alternative Solution Section -->
+<section class="py-5 bg-white">
+  <div class="container py-4">
+    <div class="row align-items-center">
+      
+      <!-- Illustration -->
+      <div class="col-md-6 order-2 order-md-1 text-center">
+        <img src="image/image2.svg" alt="Options alternatives" class="img-fluid rounded" style="max-width: 400px;">
+      </div>
+      
+      <!-- Content -->
+      <div class="col-md-6 order-1 order-md-2">
+        <div class="ps-md-4">
+          <!-- Title with icon -->
+          <h5 class="fw-bold mb-3 d-flex align-items-center" style="color: #1e40af; font-size: 1.4rem; font-family: 'Inter', sans-serif;">
+            <i class="fas fa-question-circle text-primary me-2" style="font-size: 1.2rem;"></i>
+            Votre entreprise ne possède pas d'équipements ?
+          </h5>
+          
+          <!-- Description -->
+          <p class="text-muted mb-4" style="font-size: 1rem; line-height: 1.6; font-family: 'Inter', sans-serif;">
+            Pas de souci. Nous proposons aussi une solution adaptée aux entreprises qui ne sont pas admissibles à cette offre.
+          </p>
+          
+          <!-- CTA Button -->
+          <a href="financement-rapide.html" class="btn d-inline-flex align-items-center" style="background: #ef4444; color: white; border: none; font-weight: 500; font-family: 'Inter', sans-serif; padding: 0.75rem 1.5rem; border-radius: 8px;">
+            Découvrir notre autre solution
+            <i class="fas fa-arrow-right ms-2" style="font-size: 0.9rem;"></i>
+          </a>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</section>
+
+<!-- FAQ Section -->
+<section class="py-20" style="background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); margin-top: 3rem;">
+  <div class="container">
+    <!-- Section Header -->
+    <div class="text-center mb-8">
+      <div class="d-inline-flex align-items-center mb-4 px-4 py-3" style="background: rgba(251, 191, 36, 0.1); border: 1px solid rgba(251, 191, 36, 0.2); border-radius: 50px;">
+        <div class="d-flex align-items-center justify-content-center me-3" style="width: 32px; height: 32px; background: linear-gradient(135deg, #fbbf24, #f59e0b); border-radius: 8px;">
+          <i class="fas fa-question" style="font-size: 0.9rem; color: white;"></i>
+        </div>
+        <span class="fw-bold" style="font-size: 0.9rem; color: #f59e0b; text-transform: uppercase; letter-spacing: 0.8px; font-family: 'Inter', sans-serif;">
+          Questions fréquentes
+        </span>
+      </div>
+      <h2 class="fw-bold mb-4" style="color: #1e40af; font-size: 2.8rem; line-height: 1.2; font-family: 'Inter', sans-serif;">
+        FAQ
+      </h2>
+      <p class="mx-auto mb-6" style="color: #4b5563; font-size: 1.2rem; line-height: 1.7; max-width: 700px; font-family: 'Inter', sans-serif;">
+        Retrouvez les réponses aux questions les plus fréquemment posées sur notre solution de financement par sale-leaseback d'équipement.
+      </p>
+      
+      <!-- Image illustrative -->
+      <div class="text-center mb-8">
+        <img src="image/image3.svg" alt="Questions fréquentes" class="img-fluid" style="max-width: 300px; opacity: 0.8;">
+      </div>
+    </div>
+
+    <div class="row justify-content-center">
+      <div class="col-lg-8 px-4">
+        <div class="accordion" id="faqAccordion">
+          <!-- FAQ Item 1 -->
+          <div class="accordion-item mb-4" style="border: 1px solid rgba(30, 64, 175, 0.1); border-radius: 16px; background: rgba(248, 250, 252, 0.5); box-shadow: 0 4px 20px rgba(30, 64, 175, 0.05);">
+            <h2 class="accordion-header" id="faq1">
+              <button class="accordion-button fw-semibold collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse1" aria-expanded="false" aria-controls="collapse1" style="background: transparent; border: none; border-radius: 16px; color: #1e40af; font-family: 'Inter', sans-serif; padding: 1.5rem;">
+                <i class="fas fa-plus me-3" style="color: #f59e0b; transition: transform 0.3s ease;"></i>
+                En quoi consiste le financement par sale-leaseback d'équipement ?
+              </button>
+            </h2>
+            <div id="collapse1" class="accordion-collapse collapse" aria-labelledby="faq1" data-bs-parent="#faqAccordion">
+              <div class="accordion-body" style="padding: 0 1.5rem 1.5rem; color: #4b5563; font-family: 'Inter', sans-serif; line-height: 1.6;">
+                Le financement par sale-leaseback implique qu'une entreprise vende ses équipements à une société de location puis les reprenne en location pour continuer à les utiliser. Cela permet à l'entreprise d'accéder à des liquidités immédiates tout en conservant l'usage de ses équipements essentiels.
+              </div>
+            </div>
+          </div>
+
+          <!-- FAQ Item 2 -->
+          <div class="accordion-item mb-3" style="border: 1px solid rgba(30, 64, 175, 0.1); border-radius: 16px; background: rgba(248, 250, 252, 0.5);">
+            <h2 class="accordion-header" id="faq2">
+              <button class="accordion-button fw-semibold collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse2" aria-expanded="false" aria-controls="collapse2" style="background: transparent; border: none; border-radius: 16px; color: #1e40af; font-family: 'Inter', sans-serif; padding: 1.5rem;">
+                <i class="fas fa-plus me-3" style="color: #f59e0b; transition: transform 0.3s ease;"></i>
+                Quels sont les principaux avantages de cette solution ?
+              </button>
+            </h2>
+            <div id="collapse2" class="accordion-collapse collapse" aria-labelledby="faq2" data-bs-parent="#faqAccordion">
+              <div class="accordion-body" style="padding: 0 1.5rem 1.5rem; color: #4b5563; font-family: 'Inter', sans-serif; line-height: 1.6;">
+                Les avantages incluent l'amélioration du flux de trésorerie, la libération de la valeur immobilisée dans les équipements et l'évitement des coûts et responsabilités de propriété. Cela permet également aux entreprises d'investir le capital libéré dans la croissance ou d'autres besoins opérationnels.
+              </div>
+            </div>
+          </div>
+
+          <!-- FAQ Item 3 -->
+          <div class="accordion-item mb-3" style="border: 1px solid rgba(30, 64, 175, 0.1); border-radius: 16px; background: rgba(248, 250, 252, 0.5);">
+            <h2 class="accordion-header" id="faq3">
+              <button class="accordion-button fw-semibold collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse3" aria-expanded="false" aria-controls="collapse3" style="background: transparent; border: none; border-radius: 16px; color: #1e40af; font-family: 'Inter', sans-serif; padding: 1.5rem;">
+                <i class="fas fa-plus me-3" style="color: #f59e0b; transition: transform 0.3s ease;"></i>
+                Mon entreprise est-elle admissible à ce type de financement ?
+              </button>
+            </h2>
+            <div id="collapse3" class="accordion-collapse collapse" aria-labelledby="faq3" data-bs-parent="#faqAccordion">
+              <div class="accordion-body" style="padding: 0 1.5rem 1.5rem; color: #4b5563; font-family: 'Inter', sans-serif; line-height: 1.6;">
+                Toute entreprise qui possède des équipements de valeur et a besoin de capital peut être admissible. Les secteurs comme la fabrication, la construction, le transport et la santé utilisent souvent cette méthode de financement. Un bon historique de crédit et un flux de trésorerie fiable sont des facteurs importants d'admissibilité.
+              </div>
+            </div>
+          </div>
+
+
+          <!-- FAQ Item 4 -->
+          <div class="accordion-item mb-3" style="border: 1px solid rgba(30, 64, 175, 0.1); border-radius: 16px; background: rgba(248, 250, 252, 0.5);">
+            <h2 class="accordion-header" id="faq4">
+              <button class="accordion-button fw-semibold collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse4" aria-expanded="false" aria-controls="collapse4" style="background: transparent; border: none; border-radius: 16px; color: #1e40af; font-family: 'Inter', sans-serif; padding: 1.5rem;">
+                <i class="fas fa-plus me-3" style="color: #f59e0b; transition: transform 0.3s ease;"></i>
+                Quels types d'équipements sont généralement acceptés ?
+              </button>
+            </h2>
+            <div id="collapse4" class="accordion-collapse collapse" aria-labelledby="faq4" data-bs-parent="#faqAccordion">
+              <div class="accordion-body" style="padding: 0 1.5rem 1.5rem; color: #4b5563; font-family: 'Inter', sans-serif; line-height: 1.6;">
+                Les types courants comprennent la machinerie de fabrication, l'équipement de construction, les appareils médicaux, les véhicules de transport et le matériel informatique. L'équipement doit être en bon état et essentiel aux opérations de l'entreprise.
+              </div>
+            </div>
+          </div>
+
+
+          <!-- FAQ Item 5 -->
+          <div class="accordion-item mb-3" style="border: 1px solid rgba(30, 64, 175, 0.1); border-radius: 16px; background: rgba(248, 250, 252, 0.5);">
+            <h2 class="accordion-header" id="faq5">
+              <button class="accordion-button fw-semibold collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse5" aria-expanded="false" aria-controls="collapse5" style="background: transparent; border: none; border-radius: 16px; color: #1e40af; font-family: 'Inter', sans-serif; padding: 1.5rem;">
+                <i class="fas fa-plus me-3" style="color: #f59e0b; transition: transform 0.3s ease;"></i>
+                Combien de temps faut-il pour accéder aux fonds ?
+              </button>
+            </h2>
+            <div id="collapse5" class="accordion-collapse collapse" aria-labelledby="faq5" data-bs-parent="#faqAccordion">
+              <div class="accordion-body" style="padding: 0 1.5rem 1.5rem; color: #4b5563; font-family: 'Inter', sans-serif; line-height: 1.6;">
+                Le délai pour accéder aux fonds peut varier selon la complexité de la transaction, mais reste généralement plus rapide que les méthodes de financement traditionnelles. Une fois l'équipement approuvé et l'entente finalisée, les entreprises peuvent souvent recevoir les fonds environ 5 jours ouvrables plus tard.
+              </div>
+            </div>
+          </div>
+
+
+          <!-- FAQ Item 6 -->
+          <div class="accordion-item mb-3" style="border: 1px solid rgba(30, 64, 175, 0.1); border-radius: 16px; background: rgba(248, 250, 252, 0.5);">
+            <h2 class="accordion-header" id="faq6">
+              <button class="accordion-button fw-semibold collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse6" aria-expanded="false" aria-controls="collapse6" style="background: transparent; border: none; border-radius: 16px; color: #1e40af; font-family: 'Inter', sans-serif; padding: 1.5rem;">
+                <i class="fas fa-plus me-3" style="color: #f59e0b; transition: transform 0.3s ease;"></i>
+                Puis-je racheter mon équipement à la fin du bail ?
+              </button>
+            </h2>
+            <div id="collapse6" class="accordion-collapse collapse" aria-labelledby="faq6" data-bs-parent="#faqAccordion">
+              <div class="accordion-body" style="padding: 0 1.5rem 1.5rem; color: #4b5563; font-family: 'Inter', sans-serif; line-height: 1.6;">
+                Oui, les ententes de sale-leaseback d'équipement incluent une option de rachat de l'équipement à la fin du terme de location. Le prix de rachat est typiquement convenu lors de la transaction initiale et est généralement fixé à un montant nominal tel que 10$.
+              </div>
+            </div>
+          </div>
+
+          <!-- FAQ Item 7 -->
+          <div class="accordion-item mb-3" style="border: 1px solid rgba(30, 64, 175, 0.1); border-radius: 16px; background: rgba(248, 250, 252, 0.5);">
+            <h2 class="accordion-header" id="faq7">
+              <button class="accordion-button fw-semibold collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse7" aria-expanded="false" aria-controls="collapse7" style="background: transparent; border: none; border-radius: 16px; color: #1e40af; font-family: 'Inter', sans-serif; padding: 1.5rem;">
+                <i class="fas fa-plus me-3" style="color: #f59e0b; transition: transform 0.3s ease;"></i>
+                Comment cette solution se compare-t-elle aux prêts ou locations traditionnels ?
+              </button>
+            </h2>
+            <div id="collapse7" class="accordion-collapse collapse" aria-labelledby="faq7" data-bs-parent="#faqAccordion">
+              <div class="accordion-body" style="padding: 0 1.5rem 1.5rem; color: #4b5563; font-family: 'Inter', sans-serif; line-height: 1.6;">
+                Un sale-leaseback peut fournir du capital immédiat sans contracter de dette supplémentaire, contrairement aux prêts ou locations traditionnels. Il peut être plus flexible et ne nécessite pas de garantie au-delà de l'équipement lui-même.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- Ultra-Modern Glassmorphism Lead Generation Form -->
+<section class="py-5" id="formulaire" style="
+  background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #60a5fa 100%);
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+">
+  
+  <!-- Animated Background Elements -->
+  <div class="position-absolute top-0 start-0 w-100 h-100" style="
+    background: url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"><defs><pattern id=\"dots\" width=\"20\" height=\"20\" patternUnits=\"userSpaceOnUse\"><circle cx=\"10\" cy=\"10\" r=\"1\" fill=\"%23ffffff\" opacity=\"0.1\"/></pattern></defs><rect width=\"100\" height=\"100\" fill=\"url(%23dots)\"/></svg>');
+    animation: drift 20s ease-in-out infinite alternate;
+  "></div>
+  
+  <!-- Floating Orbs -->
+  <div class="position-absolute" style="
+    top: 20%;
+    left: 10%;
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+    border-radius: 50%;
+    animation: float 6s ease-in-out infinite;
+  "></div>
+  <div class="position-absolute" style="
+    bottom: 30%;
+    right: 15%;
+    width: 150px;
+    height: 150px;
+    background: radial-gradient(circle, rgba(251, 191, 36, 0.2) 0%, transparent 70%);
+    border-radius: 50%;
+    animation: float 8s ease-in-out infinite reverse;
+  "></div>
+  
+  <div class="container position-relative" style="z-index: 10;">
+    <div class="row justify-content-center">
+      <div class="col-lg-10 col-xl-8">
+        
+        <!-- Header Section -->
+        <div class="text-center mb-5" data-aos="fade-up" data-aos-duration="800">
+          <h1 class="display-4 fw-bold mb-4" style="
+            color: white;
+            font-family: 'Poppins', sans-serif;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+          ">
+            Transformez vos équipements en liquidités
+          </h1>
+          
+          <div class="d-inline-flex align-items-center gap-3 px-6 py-3 mb-4 rounded-pill" style="
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+          ">
+            <div class="pulse-dot"></div>
+            <span style="color: white; font-weight: 600; font-size: 1.1rem; font-family: 'Inter', sans-serif;">
+              Offre sous 48h
+            </span>
+          </div>
+          
+          <p class="lead mb-0" style="
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.2rem;
+            line-height: 1.6;
+            font-family: 'Inter', sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+          ">
+            Transformez vos équipements en liquidités immédiates, bénéficiez d'avantages fiscaux optimisés, 
+            le tout sans nouvelle dette au bilan.
+          </p>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="mb-5" data-aos="fade-up" data-aos-delay="200">
+          <div class="progress-container" style="
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50px;
+            padding: 4px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+          ">
+            <div id="progressBar" class="progress-bar" style="
+              height: 8px;
+              background: linear-gradient(90deg, #1e40af, #3b82f6);
+              border-radius: 50px;
+              width: 0%;
+              transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+              box-shadow: 0 4px 20px rgba(30, 64, 175, 0.3);
+            "></div>
+          </div>
+          <div class="d-flex justify-content-between mt-2">
+            <small style="color: rgba(255, 255, 255, 0.7); font-family: 'Inter', sans-serif;">Informations personnelles</small>
+            <small style="color: rgba(255, 255, 255, 0.7); font-family: 'Inter', sans-serif;">Besoins financiers</small>
+            <small style="color: rgba(255, 255, 255, 0.7); font-family: 'Inter', sans-serif;">Détails équipements</small>
+          </div>
+        </div>
+
+        <!-- Glassmorphism Form Card -->
+        <div class="form-card" style="
+          background: rgba(255, 255, 255, 0.98);
+          backdrop-filter: blur(20px);
+          border-radius: 24px;
+          border: 1px solid rgba(30, 64, 175, 0.1);
+          box-shadow: 0 20px 80px rgba(30, 64, 175, 0.15);
+          overflow: hidden;
+        " data-aos="fade-up" data-aos-duration="1000" data-aos-delay="400">
+          
+          <div class="p-4 p-md-6">
+            
+            <!-- Trust Signals Header -->
+            <div class="d-flex justify-content-center gap-4 mb-5 flex-wrap">
+              <div class="trust-badge">
+                <i class="fas fa-clock"></i>
+                <span>48h</span>
+              </div>
+              <div class="trust-badge">
+                <i class="fas fa-shield-alt"></i>
+                <span>Confidentiel</span>
+              </div>
+              <div class="trust-badge">
+                <i class="fas fa-handshake"></i>
+                <span>Sans engagement</span>
+              </div>
+            </div>
+            
+            <form id="ultraModernForm" novalidate class="needs-validation">
+              
+              <!-- Step 1: Personal Information -->
+              <div class="form-step active" data-step="1">
+                <h3 class="step-title">Vos informations</h3>
+                
+                <!-- Floating Label Input - Nom -->
+                <div class="floating-input mb-4">
+                  <input type="text" id="fullName" name="fullName" required class="form-input" placeholder=" ">
+                  <label for="fullName" class="floating-label">Nom complet *</label>
+                  <div class="input-icon">
+                    <i class="fas fa-user"></i>
+                  </div>
+                  <div class="validation-feedback"></div>
+                </div>
+                
+                <!-- Floating Label Input - Email -->
+                <div class="floating-input mb-4">
+                  <input type="email" id="email" name="email" required class="form-input" placeholder=" ">
+                  <label for="email" class="floating-label">Email professionnel *</label>
+                  <div class="input-icon">
+                    <i class="fas fa-envelope"></i>
+                  </div>
+                  <div class="validation-icon"></div>
+                  <div class="validation-feedback"></div>
+                </div>
+                
+                <!-- Floating Label Input - Téléphone -->
+                <div class="floating-input mb-4">
+                  <input type="tel" id="phone" name="phone" required class="form-input" placeholder=" ">
+                  <label for="phone" class="floating-label">Téléphone *</label>
+                  <div class="input-icon">
+                    <i class="fas fa-phone"></i>
+                  </div>
+                  <div class="validation-feedback"></div>
+                </div>
+                
+                <!-- Company Name -->
+                <div class="floating-input mb-4">
+                  <input type="text" id="companyName" name="companyName" required class="form-input" placeholder=" ">
+                  <label for="companyName" class="floating-label">Nom de l'entreprise *</label>
+                  <div class="input-icon">
+                    <i class="fas fa-building"></i>
+                  </div>
+                  <div class="validation-feedback"></div>
+                </div>
+                
+                <!-- Website (Optional) -->
+                <div class="floating-input mb-5">
+                  <input type="url" id="website" name="website" class="form-input" placeholder=" ">
+                  <label for="website" class="floating-label">Site web (optionnel)</label>
+                  <div class="input-icon">
+                    <i class="fas fa-globe"></i>
+                  </div>
+                  <div class="validation-feedback"></div>
+                </div>
+                
+                <button type="button" class="next-btn" onclick="nextStep()">
+                  Continuer
+                  <i class="fas fa-arrow-right ms-2"></i>
+                </button>
+              </div>
+              
+              <!-- Step 2: Equipment Information -->
+              <div class="form-step" data-step="2">
+                <h3 class="step-title">Vos besoins financiers</h3>
+                
+                <!-- Desired Amount -->
+                <div class="floating-input mb-5">
+                  <input type="text" id="desiredAmount" name="desiredAmount" required class="form-input" placeholder=" ">
+                  <label for="desiredAmount" class="floating-label">Montant souhaité ($) *</label>
+                  <div class="input-icon">
+                    <i class="fas fa-dollar-sign"></i>
+                  </div>
+                  <div class="validation-feedback"></div>
+                </div>
+                
+                <!-- Value Selection Cards -->
+                <div class="mb-4">
+                  <label class="form-section-label">Utilisation des fonds *</label>
+                  <div class="value-cards-grid">
+                    <div class="value-card" data-value="croissance">
+                      <div class="card-icon">
+                        <i class="fas fa-rocket"></i>
+                      </div>
+                      <div class="card-amount">Croissance</div>
+                      <div class="value-description">Expansion de l'entreprise</div>
+                    </div>
+                    <div class="value-card" data-value="investissement">
+                      <div class="card-icon">
+                        <i class="fas fa-chart-line"></i>
+                      </div>
+                      <div class="card-amount">Investissement</div>
+                      <div class="value-description">Nouveaux équipements</div>
+                    </div>
+                    <div class="value-card" data-value="depense-importante">
+                      <div class="card-icon">
+                        <i class="fas fa-file-invoice-dollar"></i>
+                      </div>
+                      <div class="card-amount">Dépense importante</div>
+                      <div class="value-description">Besoins ponctuels</div>
+                    </div>
+                    <div class="value-card" data-value="consolidation">
+                      <div class="card-icon">
+                        <i class="fas fa-compress-arrows-alt"></i>
+                      </div>
+                      <div class="card-amount">Consolidation</div>
+                      <div class="value-description">Refinancement de dettes</div>
+                    </div>
+                    <div class="value-card" data-value="autre">
+                      <div class="card-icon">
+                        <i class="fas fa-ellipsis-h"></i>
+                      </div>
+                      <div class="card-amount">Autre</div>
+                      <div class="value-description">Autres besoins</div>
+                    </div>
+                  </div>
+                  <input type="hidden" id="fundUsage" name="fundUsage" required>
+                  <div class="validation-feedback text-center"></div>
+                </div>
+                
+                <!-- Urgency Scale -->
+                <div class="mb-5">
+                  <label class="form-section-label">Urgence du besoin *</label>
+                  <div class="urgency-scale">
+                    <input type="range" id="urgencyLevel" name="urgencyLevel" min="1" max="5" value="3" class="urgency-slider">
+                    <div class="urgency-labels d-flex justify-content-between mt-3">
+                      <span class="urgency-label" data-value="1">Non urgent</span>
+                      <span class="urgency-label" data-value="2">Peu urgent</span>
+                      <span class="urgency-label active" data-value="3">Modéré</span>
+                      <span class="urgency-label" data-value="4">Urgent</span>
+                      <span class="urgency-label" data-value="5">Très urgent</span>
+                    </div>
+                    <div class="urgency-description text-center mt-3">
+                      <p id="urgencyDesc" class="mb-0" style="color: #6b7280; font-size: 0.95rem;">Urgence modérée</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="d-flex gap-3">
+                  <button type="button" class="prev-btn" onclick="prevStep()">
+                    <i class="fas fa-arrow-left me-2"></i>
+                    Retour
+                  </button>
+                  <button type="button" class="next-btn" onclick="nextStep()">
+                    Continuer
+                    <i class="fas fa-arrow-right ms-2"></i>
+                  </button>
+                </div>
+              </div>
+              
+              <!-- Step 3: Financing Details -->
+              <div class="form-step" data-step="3">
+                <h3 class="step-title">Informations sur votre entreprise</h3>
+                
+                <!-- Industry Sector -->
+                <div class="mb-5">
+                  <label for="industrySector" class="form-section-label">Secteur d'activité *</label>
+                  <select id="industrySector" name="industrySector" required class="simple-form-input sector-select">
+                    <option value="" disabled selected hidden>-- Choisir --</option>
+                    <option value="agriculture">Agriculture</option>
+                    <option value="construction">Construction</option>
+                    <option value="transport">Transport</option>
+                    <option value="restauration">Restauration</option>
+                    <option value="sante">Santé / Médical</option>
+                    <option value="informatique">Informatique</option>
+                    <option value="industrie">Industrie</option>
+                    <option value="commerce">Commerce</option>
+                    <option value="services">Services</option>
+                    <option value="autre">Autre</option>
+                  </select>
+                  <div class="validation-feedback"></div>
+                </div>
+                
+                <!-- Equipment Value -->
+                <div class="mb-4">
+                  <label for="equipmentValue" class="form-section-label">Valeur estimée de l'équipement ($) *</label>
+                  <input type="text" id="equipmentValue" name="equipmentValue" required class="simple-form-input" placeholder="Ex: 250,000">
+                  <div class="validation-feedback"></div>
+                </div>
+                
+                <!-- Notes (Optional) -->
+                <div class="mb-5">
+                  <label for="additionalNotes" class="form-section-label">Notes additionnelles (type équipement, modèle, année, utilisation dans l'entreprise, etc.)</label>
+                  <textarea id="additionalNotes" name="additionalNotes" class="simple-form-input" rows="4" placeholder="Décrivez vos besoins spécifiques ou ajoutez des détails..." style="resize: vertical; min-height: 120px;"></textarea>
+                  <div class="validation-feedback"></div>
+                </div>
+                
+                <div class="d-flex gap-3">
+                  <button type="button" class="prev-btn" onclick="prevStep()">
+                    <i class="fas fa-arrow-left me-2"></i>
+                    Retour
+                  </button>
+                  <button type="submit" class="submit-btn" id="submitBtn">
+                    <span class="btn-content">
+                      <i class="fas fa-paper-plane me-2"></i>
+                      <span class="btn-text">Recevoir mon offre personnalisée</span>
+                    </span>
+                    <div class="btn-loading d-none">
+                      <div class="spinner"></div>
+                      <span>Envoi en cours...</span>
+                    </div>
+                  </button>
+                </div>
+              </div>
+              
+            </form>
+            
+            <!-- Success State -->
+            <div id="successState" class="success-state d-none">
+              <div class="success-animation">
+                <div class="success-icon">
+                  <i class="fas fa-check"></i>
+                </div>
+                <div class="confetti"></div>
+              </div>
+              <h3>Demande envoyée avec succès !</h3>
+              <p>Un conseiller spécialisé vous contactera dans les 24h pour finaliser votre dossier.</p>
+              <p class="mb-4" style="color: #6b7280; font-size: 0.95rem;">
+                Un membre de notre équipe communiquera avec vous pour vous informer des documents à fournir afin de compléter votre demande de financement.
+              </p>
+              <div class="success-stats">
+                <div class="stat">
+                  <strong>+2000</strong>
+                  <span>Entreprises accompagnées</span>
+                </div>
+                <div class="stat">
+                  <strong>4.9/5</strong>
+                  <span>Satisfaction client</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Ultra-Modern Styles -->
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700;800&display=swap');
+
+/* Animations */
+@keyframes drift {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-20px) rotate(180deg); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px) scale(1); }
+  50% { transform: translateY(-30px) scale(1.05); }
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.2); }
+}
+
+@keyframes slideInUp {
+  from { transform: translateY(30px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes success-pop {
+  0% { transform: scale(0) rotate(0deg); }
+  80% { transform: scale(1.1) rotate(5deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+
+/* Pulse Dot */
+.pulse-dot {
+  width: 8px;
+  height: 8px;
+  background: #fbbf24;
+  border-radius: 50%;
+  animation: pulse-dot 2s infinite;
+}
+
+/* Trust Badges */
+.trust-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50px;
+  color: white;
+  font-size: 0.9rem;
+  font-weight: 500;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.trust-badge:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+/* Form Steps */
+.form-step {
+  display: none;
+  animation: slideInUp 0.6s ease;
+}
+
+.form-step.active {
+  display: block;
+}
+
+.step-title {
+  color: #1e40af;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  font-size: 1.8rem;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.form-section-label {
+  color: #1e40af;
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+/* Floating Input Labels */
+.floating-input {
+  position: relative;
+}
+
+.form-input {
+  width: 100%;
+  padding: 20px 60px 20px 20px;
+  background: rgba(255, 255, 255, 0.95);
+  border: 2px solid rgba(30, 64, 175, 0.2);
+  border-radius: 16px;
+  color: #1e40af;
+  font-size: 1.1rem;
+  font-family: 'Inter', sans-serif;
+  backdrop-filter: blur(10px);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  outline: none;
+}
+
+select.form-input {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%231e40af' d='M10.293 3.293L6 7.586 1.707 3.293A1 1 0 00.293 4.707l5 5a1 1 0 001.414 0l5-5a1 1 0 10-1.414-1.414z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 60px center;
+  padding-right: 100px;
+}
+
+select.form-input option {
+  background: white;
+  color: #1e40af;
+  padding: 12px;
+}
+
+textarea.form-input {
+  line-height: 1.5;
+}
+
+.form-input:focus {
+  border-color: #1e40af;
+  background: rgba(255, 255, 255, 1);
+  box-shadow: 0 0 0 4px rgba(30, 64, 175, 0.2);
+  transform: translateY(-2px);
+}
+
+.form-input::placeholder {
+  color: transparent;
+}
+
+.floating-label {
+  position: absolute;
+  left: 20px;
+  top: 22px;
+  color: #6b7280;
+  font-size: 1.1rem;
+  font-family: 'Inter', sans-serif;
+  pointer-events: none;
+  transition: all 0.3s ease;
+  z-index: 1;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 0 4px;
+}
+
+.form-input:focus + .floating-label,
+.form-input:not(:placeholder-shown) + .floating-label,
+.form-input:valid + .floating-label,
+select.form-input:focus + .floating-label,
+select.form-input:valid + .floating-label,
+textarea.form-input:focus + .floating-label,
+textarea.form-input:not(:placeholder-shown) + .floating-label,
+input[type="url"].form-input:focus + .floating-label,
+input[type="url"].form-input:not(:placeholder-shown) + .floating-label,
+input[type="url"].form-input:valid + .floating-label {
+  top: -8px;
+  left: 16px;
+  font-size: 0.8rem;
+  color: #1e40af;
+  font-weight: 500;
+}
+
+.input-icon {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+  font-size: 1.2rem;
+  transition: color 0.3s ease;
+}
+
+.form-input:focus ~ .input-icon {
+  color: #1e40af;
+}
+
+/* Validation */
+.validation-icon {
+  position: absolute;
+  right: 55px;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.form-input.is-valid ~ .validation-icon::after {
+  content: '✓';
+  color: #10b981;
+  font-weight: bold;
+  opacity: 1;
+}
+
+.form-input.is-invalid ~ .validation-icon::after {
+  content: '✕';
+  color: #ef4444;
+  font-weight: bold;
+  opacity: 1;
+}
+
+.validation-feedback {
+  color: #ef4444;
+  font-size: 0.9rem;
+  margin-top: 8px;
+  font-family: 'Inter', sans-serif;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.validation-feedback.show {
+  opacity: 1;
+}
+
+/* Value Selection Cards */
+.value-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.value-card {
+  background: rgba(255, 255, 255, 0.95);
+  border: 2px solid rgba(30, 64, 175, 0.2);
+  border-radius: 16px;
+  padding: 1.5rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
+}
+
+.value-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transition: left 0.6s ease;
+}
+
+.value-card:hover::before {
+  left: 100%;
+}
+
+.value-card:hover {
+  border-color: #1e40af;
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 20px 40px rgba(30, 64, 175, 0.2);
+}
+
+.value-card.selected {
+  border-color: #1e40af;
+  background: rgba(30, 64, 175, 0.1);
+  box-shadow: 0 10px 30px rgba(30, 64, 175, 0.3);
+}
+
+.card-icon {
+  font-size: 2rem;
+  color: #1e40af;
+  margin-bottom: 0.5rem;
+}
+
+.card-amount {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #1e40af;
+  font-family: 'Poppins', sans-serif;
+  margin-bottom: 0.25rem;
+}
+
+.value-description {
+  font-size: 0.85rem;
+  color: #6b7280;
+  font-family: 'Inter', sans-serif;
+  margin-top: 0.25rem;
+}
+
+/* Urgency Scale */
+.urgency-scale {
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 16px;
+  border: 2px solid rgba(30, 64, 175, 0.1);
+}
+
+.urgency-slider {
+  width: 100%;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 8px;
+  background: rgba(30, 64, 175, 0.1);
+  outline: none;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.urgency-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  background: #1e40af;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(30, 64, 175, 0.3);
+}
+
+.urgency-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+  box-shadow: 0 4px 12px rgba(30, 64, 175, 0.5);
+}
+
+.urgency-slider::-moz-range-thumb {
+  width: 24px;
+  height: 24px;
+  background: #1e40af;
+  cursor: pointer;
+  border-radius: 50%;
+  border: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(30, 64, 175, 0.3);
+}
+
+.urgency-label {
+  font-size: 0.85rem;
+  color: #9ca3af;
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.urgency-label.active {
+  color: #1e40af;
+  font-weight: 600;
+}
+
+/* Simple Form Inputs for Step 3 */
+.simple-input {
+  position: relative;
+}
+
+.simple-form-input {
+  width: 100%;
+  padding: 16px 20px;
+  background: rgba(255, 255, 255, 0.95);
+  border: 2px solid rgba(30, 64, 175, 0.2);
+  border-radius: 12px;
+  color: #1e40af;
+  font-size: 1rem;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+.simple-form-input:focus {
+  border-color: #1e40af;
+  background: rgba(255, 255, 255, 1);
+  box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+}
+
+select.simple-form-input {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%231e40af' d='M10.293 3.293L6 7.586 1.707 3.293A1 1 0 00.293 4.707l5 5a1 1 0 001.414 0l5-5a1 1 0 10-1.414-1.414z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 20px center;
+  cursor: pointer;
+}
+
+select.simple-form-input option {
+  background: white;
+  color: #1e40af;
+  padding: 10px;
+}
+
+/* Correction spécifique pour le secteur d'activité */
+.sector-select {
+  height: 58px;
+  line-height: 1.5;
+  padding: 16px 50px 16px 20px;
+  text-decoration: none;
+  vertical-align: middle;
+}
+
+.sector-select:focus {
+  text-decoration: none;
+}
+
+/* CORRECTION FORCÉE pour le champ Site web */
+#website.form-input {
+  width: 100% !important;
+  padding: 20px 60px 20px 20px !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+  border: 2px solid rgba(30, 64, 175, 0.2) !important;
+  border-radius: 16px !important;
+  color: #1e40af !important;
+  font-size: 1.1rem !important;
+  font-family: 'Inter', sans-serif !important;
+  backdrop-filter: blur(10px) !important;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  outline: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: textfield !important;
+  appearance: none !important;
+  text-decoration: none !important;
+  box-shadow: none !important;
+}
+
+#website.form-input:focus {
+  border-color: #1e40af !important;
+  background: rgba(255, 255, 255, 1) !important;
+  box-shadow: 0 0 0 4px rgba(30, 64, 175, 0.2) !important;
+  transform: translateY(-2px) !important;
+  text-decoration: none !important;
+}
+
+#website.form-input::placeholder {
+  color: transparent !important;
+}
+
+/* Label flottant pour Site web */
+#website.form-input + .floating-label {
+  position: absolute !important;
+  left: 20px !important;
+  top: 22px !important;
+  color: #6b7280 !important;
+  font-size: 1.1rem !important;
+  font-family: 'Inter', sans-serif !important;
+  pointer-events: none !important;
+  transition: all 0.3s ease !important;
+  z-index: 1 !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+  padding: 0 4px !important;
+}
+
+#website.form-input:focus + .floating-label,
+#website.form-input:not(:placeholder-shown) + .floating-label {
+  top: -8px !important;
+  left: 16px !important;
+  font-size: 0.8rem !important;
+  color: #1e40af !important;
+  font-weight: 500 !important;
+}
+
+textarea.simple-form-input {
+  line-height: 1.5;
+  resize: vertical;
+}
+
+
+/* Custom Select */
+.custom-select-wrapper {
+  position: relative;
+}
+
+.custom-select {
+  width: 100%;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.95);
+  border: 2px solid rgba(30, 64, 175, 0.2);
+  border-radius: 16px;
+  color: #1e40af;
+  font-size: 1.1rem;
+  font-family: 'Inter', sans-serif;
+  backdrop-filter: blur(10px);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  appearance: none;
+}
+
+.custom-select:focus {
+  border-color: #1e40af;
+  box-shadow: 0 0 0 4px rgba(30, 64, 175, 0.2);
+  outline: none;
+}
+
+.custom-select option {
+  background: white;
+  color: #1e40af;
+  padding: 10px;
+}
+
+
+/* Buttons */
+.next-btn, .prev-btn, .submit-btn {
+  padding: 16px 32px;
+  border-radius: 50px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 1.1rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.next-btn, .submit-btn {
+  background: linear-gradient(135deg, #1e40af, #3b82f6);
+  color: white;
+  flex: 1;
+  min-height: 60px;
+  box-shadow: 0 10px 30px rgba(30, 64, 175, 0.3);
+}
+
+.next-btn:hover, .submit-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 20px 40px rgba(30, 64, 175, 0.4);
+}
+
+.prev-btn {
+  background: rgba(255, 255, 255, 0.95);
+  color: #1e40af;
+  border: 2px solid rgba(30, 64, 175, 0.3);
+  backdrop-filter: blur(10px);
+}
+
+.prev-btn:hover {
+  background: rgba(30, 64, 175, 0.05);
+  transform: translateY(-2px);
+}
+
+.submit-btn .btn-loading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(30, 64, 175, 0.3);
+  border-top: 2px solid #1e40af;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Success State */
+.success-state {
+  text-align: center;
+  padding: 3rem 2rem;
+  color: #1e40af;
+}
+
+.success-animation {
+  position: relative;
+  margin-bottom: 2rem;
+}
+
+.success-icon {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, #10b981, #059669);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 2rem;
+  font-size: 2.5rem;
+  color: white;
+  animation: success-pop 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.success-state h3 {
+  font-family: 'Poppins', sans-serif;
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.success-state p {
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+  opacity: 0.9;
+}
+
+.success-stats {
+  display: flex;
+  justify-content: center;
+  gap: 3rem;
+  flex-wrap: wrap;
+}
+
+.stat {
+  text-align: center;
+}
+
+.stat strong {
+  display: block;
+  font-size: 1.5rem;
+  color: #fbbf24;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+}
+
+.stat span {
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .value-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+  
+  .value-card {
+    padding: 1rem;
+  }
+  
+  .card-amount {
+    font-size: 1.1rem;
+  }
+  
+  .success-stats {
+    gap: 2rem;
+  }
+  
+  .d-flex.gap-3 {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .prev-btn {
+    order: 2;
+  }
+  
+  .next-btn, .submit-btn {
+    order: 1;
+  }
+}
+
+@media (max-width: 576px) {
+  .value-cards-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .display-4 {
+    font-size: 2rem;
+  }
+  
+  .step-title {
+    font-size: 1.5rem;
+  }
+  
+  /* Amélioration de l'espacement de l'échelle d'urgence sur mobile */
+  .urgency-scale {
+    padding: 1rem;
+  }
+  
+  .urgency-labels {
+    gap: 0.5rem;
+  }
+  
+  .urgency-label {
+    font-size: 0.75rem;
+    padding: 0 0.25rem;
+    text-align: center;
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+/* Media query additionnelle pour très petits écrans */
+@media (max-width: 380px) {
+  .urgency-label {
+    font-size: 0.7rem;
+    padding: 0 0.15rem;
+  }
+  
+  .urgency-scale {
+    padding: 0.75rem;
+  }
+}
+</style>
+
+<!-- Ultra-Modern JavaScript -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Form state management
+  let currentStep = 1;
+  const totalSteps = 3;
+  let formData = {};
+  
+  // Initialize form
+  initializeForm();
+  
+  function initializeForm() {
+    updateProgressBar();
+    initializeValidation();
+    initializeValueCards();
+    initializeSelect();
+    initializeUrgencyScale();
+    setupFormSubmission();
+  }
+  
+  // Progress bar
+  function updateProgressBar() {
+    const progress = (currentStep / totalSteps) * 100;
+    document.getElementById('progressBar').style.width = progress + '%';
+  }
+  
+  // Step navigation
+  window.nextStep = function() {
+    if (validateCurrentStep()) {
+      if (currentStep < totalSteps) {
+        // Hide current step
+        document.querySelector(`[data-step="${currentStep}"]`).classList.remove('active');
+        
+        // Show next step
+        currentStep++;
+        setTimeout(() => {
+          document.querySelector(`[data-step="${currentStep}"]`).classList.add('active');
+          updateProgressBar();
+        }, 300);
+      }
+    }
+  };
+  
+  window.prevStep = function() {
+    if (currentStep > 1) {
+      // Hide current step
+      document.querySelector(`[data-step="${currentStep}"]`).classList.remove('active');
+      
+      // Show previous step
+      currentStep--;
+      setTimeout(() => {
+        document.querySelector(`[data-step="${currentStep}"]`).classList.add('active');
+        updateProgressBar();
+      }, 300);
+    }
+  };
+  
+  // Real-time validation
+  function initializeValidation() {
+    const inputs = document.querySelectorAll('.form-input');
+    inputs.forEach(input => {
+      input.addEventListener('blur', validateField);
+      input.addEventListener('input', function(e) {
+        clearValidation(e.target);
+        if (e.target.type === 'email') {
+          validateEmail(e.target);
+        }
+      });
+    });
+  }
+  
+  function validateField(e) {
+    const field = e.target;
+    const value = field.value.trim();
+    
+    clearValidation(field);
+    
+    if (field.hasAttribute('required') && !value) {
+      showError(field, 'Ce champ est obligatoire');
+      return false;
+    }
+    
+    // Specific validations
+    switch(field.id) {
+      case 'email':
+        return validateEmail(field);
+      case 'phone':
+        return validatePhone(field);
+      case 'desiredAmount':
+        return validateAmount(field);
+      case 'equipmentValue':
+        return validateAmount(field);
+    }
+    
+    switch(field.type) {
+      case 'email':
+        return validateEmail(field);
+      case 'tel':
+        return validatePhone(field);
+    }
+    
+    showSuccess(field);
+    return true;
+  }
+  
+  function validateEmail(field) {
+    const email = field.value.trim();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    
+    if (email && !emailRegex.test(email)) {
+      showError(field, 'Format d\'email invalide');
+      return false;
+    } else if (email && emailRegex.test(email)) {
+      showSuccess(field);
+      return true;
+    }
+    return true;
+  }
+  
+  function validatePhone(field) {
+    const phone = field.value.trim();
+    
+    if (phone) {
+      showSuccess(field);
+      return true;
+    }
+    return true;
+  }
+  
+  function validateAmount(field) {
+    const value = field.value.replace(/[\s,$]/g, '');
+    const amount = parseFloat(value);
+    
+    if (isNaN(amount) || amount <= 0) {
+      showError(field, 'Veuillez entrer un montant valide');
+      return false;
+    }
+    
+    // Format the number with thousand separators
+    const formatted = amount.toLocaleString('fr-CA');
+    field.value = formatted;
+    
+    showSuccess(field);
+    return true;
+  }
+  
+  function showError(field, message) {
+    field.classList.add('is-invalid');
+    field.classList.remove('is-valid');
+    const feedback = field.parentElement.querySelector('.validation-feedback');
+    feedback.textContent = message;
+    feedback.classList.add('show');
+  }
+  
+  function showSuccess(field) {
+    field.classList.add('is-valid');
+    field.classList.remove('is-invalid');
+    const feedback = field.parentElement.querySelector('.validation-feedback');
+    feedback.classList.remove('show');
+  }
+  
+  function clearValidation(field) {
+    field.classList.remove('is-invalid', 'is-valid');
+    const feedback = field.parentElement.querySelector('.validation-feedback');
+    feedback.classList.remove('show');
+  }
+  
+  // Value cards interaction
+  function initializeValueCards() {
+    const cards = document.querySelectorAll('.value-card');
+    const hiddenInput = document.getElementById('fundUsage');
+    
+    cards.forEach(card => {
+      card.addEventListener('click', function() {
+        // Remove selection from all cards
+        cards.forEach(c => c.classList.remove('selected'));
+        
+        // Add selection to clicked card
+        this.classList.add('selected');
+        
+        // Update hidden input
+        hiddenInput.value = this.dataset.value;
+        
+        // Clear validation error if exists
+        const feedback = this.parentElement.querySelector('.validation-feedback');
+        if (feedback) {
+          feedback.classList.remove('show');
+        }
+        
+        // Add success animation
+        this.style.animation = 'none';
+        setTimeout(() => {
+          this.style.animation = 'success-pop 0.5s ease';
+        }, 10);
+      });
+    });
+  }
+  
+  // Initialize select validation
+  function initializeSelect() {
+    const select = document.getElementById('fundUsage');
+    if (select) {
+      select.addEventListener('change', function() {
+        if (this.value) {
+          showSuccess(this);
+        } else {
+          clearValidation(this);
+        }
+      });
+    }
+  }
+  
+  // Initialize urgency scale
+  function initializeUrgencyScale() {
+    const slider = document.getElementById('urgencyLevel');
+    const labels = document.querySelectorAll('.urgency-label');
+    const description = document.getElementById('urgencyDesc');
+    
+    const urgencyDescriptions = {
+      '1': 'Aucune urgence particulière',
+      '2': 'Peu urgent',
+      '3': 'Urgence modérée',
+      '4': 'Assez urgent',
+      '5': 'Très urgent'
+    };
+    
+    function updateUrgency(value) {
+      labels.forEach(label => {
+        if (label.dataset.value === value) {
+          label.classList.add('active');
+        } else {
+          label.classList.remove('active');
+        }
+      });
+      
+      if (description) {
+        description.textContent = urgencyDescriptions[value];
+      }
+    }
+    
+    if (slider) {
+      slider.addEventListener('input', function() {
+        updateUrgency(this.value);
+      });
+      
+      labels.forEach(label => {
+        label.addEventListener('click', function() {
+          const value = this.dataset.value;
+          slider.value = value;
+          updateUrgency(value);
+        });
+      });
+    }
+  }
+  
+  // Step validation
+  function validateCurrentStep() {
+    let isValid = true;
+    
+    switch(currentStep) {
+      case 1:
+        const personalFields = ['fullName', 'email', 'phone', 'companyName'];
+        personalFields.forEach(fieldId => {
+          const field = document.getElementById(fieldId);
+          if (!validateField({ target: field })) {
+            isValid = false;
+          }
+        });
+        break;
+        
+      case 2:
+        const amountField = document.getElementById('desiredAmount');
+        const usageField = document.getElementById('fundUsage');
+        
+        if (!validateField({ target: amountField })) {
+          isValid = false;
+        }
+        
+        if (!usageField.value) {
+          const feedback = document.querySelector('.value-cards-grid').parentElement.querySelector('.validation-feedback');
+          feedback.textContent = 'Veuillez sélectionner une utilisation des fonds';
+          feedback.classList.add('show');
+          isValid = false;
+        }
+        break;
+        
+      case 3:
+        const sectorField = document.getElementById('industrySector');
+        const equipmentValueField = document.getElementById('equipmentValue');
+        
+        if (!validateField({ target: sectorField })) {
+          isValid = false;
+        }
+        
+        if (!validateField({ target: equipmentValueField })) {
+          isValid = false;
+        }
+        break;
+    }
+    
+    if (!isValid) {
+      // Shake animation for invalid form
+      const currentStepEl = document.querySelector(`[data-step="${currentStep}"]`);
+      currentStepEl.style.animation = 'none';
+      setTimeout(() => {
+        currentStepEl.style.animation = 'shake 0.5s ease-in-out';
+      }, 10);
+    }
+    
+    return isValid;
+  }
+  
+  // Form submission
+  function setupFormSubmission() {
+    const form = document.getElementById('ultraModernForm');
+    const submitBtn = document.getElementById('submitBtn');
+    
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      if (!validateCurrentStep()) {
+        return;
+      }
+      
+      // Show loading state
+      submitBtn.querySelector('.btn-content').classList.add('d-none');
+      submitBtn.querySelector('.btn-loading').classList.remove('d-none');
+      submitBtn.disabled = true;
+      
+      // Collect all form data
+      const formData = new FormData(form);
+      const data = Object.fromEntries(formData.entries());
+      
+      try {
+        // Simulate API call (replace with actual endpoint)
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        // Show success state
+        showSuccessState();
+        
+        // Here you would send data to your webhook/API
+        console.log('Form data:', data);
+        
+      } catch (error) {
+        console.error('Submission error:', error);
+        
+        // Reset button state
+        submitBtn.querySelector('.btn-content').classList.remove('d-none');
+        submitBtn.querySelector('.btn-loading').classList.add('d-none');
+        submitBtn.disabled = false;
+        
+        // Show error message
+        alert('Erreur lors de l\'envoi. Veuillez réessayer.');
+      }
+    });
+  }
+  
+  function showSuccessState() {
+    const formCard = document.querySelector('.form-card .p-4');
+    formCard.innerHTML = document.getElementById('successState').innerHTML;
+    
+    // Trigger success animations
+    setTimeout(() => {
+      const successIcon = document.querySelector('.success-icon');
+      if (successIcon) {
+        successIcon.style.animation = 'success-pop 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
+      }
+    }, 100);
+    
+    // Add confetti effect
+    createConfetti();
+  }
+  
+  function createConfetti() {
+    // Simple confetti effect (you can enhance this)
+    for (let i = 0; i < 50; i++) {
+      const confetti = document.createElement('div');
+      confetti.style.cssText = `
+        position: fixed;
+        width: 6px;
+        height: 6px;
+        background: ${['#fbbf24', '#f59e0b', '#10b981', '#3b82f6'][Math.floor(Math.random() * 4)]};
+        top: -10px;
+        left: ${Math.random() * window.innerWidth}px;
+        border-radius: 50%;
+        z-index: 9999;
+        pointer-events: none;
+        animation: confetti-fall ${Math.random() * 2 + 3}s linear forwards;
+      `;
+      
+      document.body.appendChild(confetti);
+      
+      setTimeout(() => {
+        confetti.remove();
+      }, 5000);
+    }
+  }
+  
+  // Add confetti animation
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes confetti-fall {
+      0% {
+        transform: translateY(-100vh) rotate(0deg);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(100vh) rotate(360deg);
+        opacity: 0;
+      }
+    }
+    
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+  `;
+  document.head.appendChild(style);
+});
+</script>
+
+
+
+
+
+
+
+
+    <!-- Footer Area -->
+    <footer class="footer-section footer-section--l3 position-relative bg-default" style="padding-top: 4rem;">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-4 col-md-7 col-xs-9">
+            <div class="footer-brand-block footer-brand-block--l3 mb-7 mb-lg-5">
+              <p class="footer-brand-block--l3__text">There are many variations of passages of Lorem Ipsum available, but the majority have suffered.</p>
+              <div class="newsletter-form newsletter-form--rounded">
+                <form action="https://finestwp.co/">
+                  <div class="d-flex align-items-center justify-content-center flex-column flex-xs-row">
+                    <input class="form-control " type="email" placeholder="Subscribe Our newsletter" required>
+                    <button class=" btn-icon" type="submit"><i class="fas fa-long-arrow-alt-right"></i></button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-8">
+            <div class="row">
+              <div class="col-xxl-4 col-xl-5 col-lg-4 col-md-4 col-sm-6 col-xs-6">
+                <div class="footer-list-block footer-list-block--2 mb-8">
+                  <h4 class="footer-block-title">Contact</h4>
+                  <ul class="footer-widgets__list footer-widgets__list--l3 footer-widgets__list--l3__address">
+                    <li> Patricia C. Amedee 4401 Waldeck New Street </li>
+                    <li>info@yourdomain.com </li>
+                    <li> +99 (0) 101 0000 888</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="col-xxl-3 col-xl-3 col-lg-3 col-md-3 col-sm-6 col-xs-6">
+                <div class="footer-list-block footer-list-block--3 mb-8">
+                  <h4 class="footer-block-title">Quick Links</h4>
+                  <ul class="footer-widgets__list footer-widgets__list--l3">
+                    <li>
+                      <a href="home-it-services.html#">Home</a>
+                    </li>
+                    <li>
+                      <a href="home-it-services.html#">About</a>
+                    </li>
+                    <li>
+                      <a href="home-it-services.html#">Contact</a>
+                    </li>
+                    <li>
+                      <a href="home-it-services.html#">Blog</a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <div class=" offset-xxl-1 col-xl-4 col-lg-5 col-md-4 col-xs-8">
+                <div class="footer-widget footer-widget--l3 mb-8">
+                  <h4 class="footer-block-title">Instagram</h4>
+                  <div class="footer-insta-gallery row">
+                    <div class="col-4">
+                      <img src="image/home-3/insta-1.png" alt="" class="w-100">
+                    </div>
+                    <div class="col-4">
+                      <img src="image/home-3/insta-2.png" alt="" class="w-100">
+                    </div>
+                    <div class="col-4">
+                      <img src="image/home-3/insta-3.png" alt="" class="w-100">
+                    </div>
+                    <div class="col-4">
+                      <img src="image/home-3/insta-4.png" alt="" class="w-100">
+                    </div>
+                    <div class="col-4">
+                      <img src="image/home-3/insta-5.png" alt="" class="w-100">
+                    </div>
+                    <div class="col-4">
+                      <img src="image/home-3/insta-6.png" alt="" class="w-100">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="copyright-block copyright-block--l3">
+          <div class="row  text-center align-items-center">
+            <div class="col-xs-6 text-sm-start">
+              <p class="copyright-text--l3 ">© 2021 Bloomcap Web Ui Template</p>
+            </div>
+            <div class="col-xs-6 text-sm-end">
+              <ul class="footer-social-share footer-social-share--rounded">
+                <li>
+                  <a href="home-it-services.html#">
+                    <i
+                                        class="fab fa-facebook-square"></i>
+                  </a>
+                </li>
+                <li>
+                  <a href="home-it-services.html#">
+                    <i
+                                        class="fab fa-twitter"></i>
+                  </a>
+                </li>
+                <li>
+                  <a href="home-it-services.html#">
+                    <i
+                                        class="fab fa-instagram"></i>
+                  </a>
+                </li>
+                <li>
+                  <a href="home-it-services.html#">
+                    <i
+                                        class="fab fa-linkedin"></i>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+    <!--/ .Footer Area -->
+  </div>
+  <!-- Plugin's Scripts -->
+  <script src="plugins/jquery/jquery.min.js"></script>
+  <script src="plugins/jquery/jquery-migrate.min.js"></script>
+  <script src="js/bootstrap.bundle.js"></script>
+  <script src="plugins/fancybox/jquery.fancybox.min.js"></script>
+  <script src="plugins/nice-select/jquery.nice-select.min.js"></script>
+  <script src="plugins/aos/aos.min.js"></script>
+  <script src="plugins/counter-up/jquery.counterup.min.js"></script>
+  <script src="plugins/counter-up/waypoints.min.js"></script>
+  <script src="plugins/slick/slick.min.js"></script>
+  <script src="plugins/skill-bar/skill.bars.jquery.js"></script>
+  <script src="plugins/isotope/isotope.pkgd.min.js"></script>
+  <!--<script src="./plugins/theme-mode-switcher/gr-theme-mode-switcher.js"></script>-->
+  <!-- Activation Script -->
+  <script src="js/menu.js"></script>
+  <script src="js/custom.js"></script>
+  <!-- Mobile Menu Simple - Fiable et léger, desktop intact -->
+  <script src="js/mobile-menu-simple.js"></script>
+  <!-- Hero Mobile Enhancer - Optimisations JavaScript mobiles -->
+  <script src="js/hero-mobile-enhancer.js"></script>
+  <!-- Mobile Hero Animations - Animations fluides et optimisées -->
+  <script src="js/mobile-hero-animations.js"></script>
+  <!-- Mobile Scroll Animations - Observer léger pour animations au scroll -->
+  <script src="js/mobile-scroll-animations.js"></script>
+  
+</body>
+
+</html>

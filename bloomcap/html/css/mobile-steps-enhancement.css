@@ -1,0 +1,79 @@
+/* Amélioration des badges d'étapes pour mobile */
+
+/* Sur mobile, s'assurer que les badges sont visibles */
+@media (max-width: 768px) {
+  /* IMPORTANT: Permettre le débordement sur la section */
+  .how-it-works-section {
+    overflow: visible !important;
+  }
+  
+  /* Ajuster les cartes pour accommoder les badges */
+  .how-it-works-section .step-card {
+    margin-top: 30px !important;
+    position: relative !important;
+    overflow: visible !important;
+  }
+  
+  /* S'assurer que les conteneurs permettent le débordement */
+  .how-it-works-section .container,
+  .how-it-works-section .row,
+  .how-it-works-section [class*="col-"] {
+    overflow: visible !important;
+  }
+  
+  /* Style des badges sur mobile */
+  .how-it-works-section .step-card .badge {
+    position: absolute !important;
+    top: -20px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    z-index: 100 !important;
+    white-space: nowrap !important;
+    display: inline-block !important;
+    font-size: 1rem !important;
+    padding: 0.6rem 1.2rem !important;
+    font-weight: 600 !important;
+    background: linear-gradient(135deg, #1e40af, #3b82f6) !important;
+    color: white !important;
+    box-shadow: 0 4px 15px rgba(30, 64, 175, 0.4) !important;
+  }
+  
+  /* Ajuster l'espacement entre les cartes sur mobile */
+  .how-it-works-section .row > [class*="col-"] {
+    margin-bottom: 3rem;
+  }
+  
+  /* Ajouter du padding en haut de la section pour le premier badge */
+  .how-it-works-section {
+    padding-top: 6rem !important;
+  }
+  
+  /* S'assurer que le div parent du badge est visible */
+  .how-it-works-section .position-absolute {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+}
+
+/* Sur très petits écrans, ajuster la taille */
+@media (max-width: 400px) {
+  .how-it-works-section .step-card .badge {
+    font-size: 0.85rem !important;
+    padding: 0.5rem 1rem !important;
+  }
+}
+
+/* Forcer l'affichage des badges sur tous les écrans */
+.how-it-works-section .badge {
+  display: inline-block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Sur desktop, garder la position originale */
+@media (min-width: 769px) {
+  .how-it-works-section .step-card {
+    overflow: visible !important;
+  }
+}

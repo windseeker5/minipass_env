@@ -1,0 +1,330 @@
+/* ===================================================================
+   HERO MOBILE OPTIMIZATION - Expert UI/UX Solution
+   Résout les problèmes : hauteur excessive, menu mal positionné, 
+   texte mal espacé, animations mobiles
+   =================================================================== */
+
+/* === VARIABLES POUR COHÉRENCE === */
+:root {
+  --mobile-hero-height: 65vh;
+  --mobile-header-height: 70px;
+  --mobile-padding: 1.25rem;
+  --mobile-text-spacing: 1rem;
+  --animation-duration: 0.6s;
+  --animation-stagger: 0.15s;
+}
+
+/* === OPTIMISATIONS MOBILES UNIQUEMENT === */
+@media screen and (max-width: 768px) {
+  
+  /* === 1. HEADER FIXE OPTIMISÉ === */
+  .site-header {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 1050 !important;
+    height: var(--mobile-header-height) !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08) !important;
+    transition: all 0.3s ease !important;
+  }
+  
+  /* === 2. MENU HAMBURGER PARFAITEMENT POSITIONNÉ === */
+  .mobile-menu-trigger {
+    position: absolute !important;
+    left: var(--mobile-padding) !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    width: 44px !important;
+    height: 44px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: rgba(30, 64, 175, 0.1) !important;
+    border-radius: 12px !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    z-index: 1051 !important;
+  }
+  
+  .mobile-menu-trigger:active {
+    transform: translateY(-50%) scale(0.95) !important;
+    background: rgba(30, 64, 175, 0.15) !important;
+  }
+  
+  /* Icône hamburger optimisée */
+  .mobile-menu-trigger span {
+    width: 20px !important;
+    height: 2px !important;
+    background: #1e40af !important;
+    border-radius: 1px !important;
+    position: relative !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  }
+  
+  .mobile-menu-trigger span::before,
+  .mobile-menu-trigger span::after {
+    content: '' !important;
+    position: absolute !important;
+    width: 20px !important;
+    height: 2px !important;
+    background: #1e40af !important;
+    border-radius: 1px !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  }
+  
+  .mobile-menu-trigger span::before {
+    top: -6px !important;
+  }
+  
+  .mobile-menu-trigger span::after {
+    bottom: -6px !important;
+  }
+  
+  /* === 3. HERO SECTION HAUTEUR OPTIMISÉE === */
+  .welcome-area {
+    min-height: var(--mobile-hero-height) !important;
+    padding-top: calc(var(--mobile-header-height) + 1rem) !important;
+    padding-bottom: 2rem !important;
+    display: flex !important;
+    align-items: center !important;
+  }
+  
+  .welcome-area .container {
+    min-height: auto !important;
+    padding-left: var(--mobile-padding) !important;
+    padding-right: var(--mobile-padding) !important;
+  }
+  
+  /* === 4. LAYOUT MOBILE OPTIMISÉ === */
+  .welcome-area .row {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    gap: 2rem !important;
+    min-height: auto !important;
+  }
+  
+  /* Colonne de texte en premier */
+  .welcome-area .col-lg-7,
+  .welcome-area .col-xl-6,
+  .welcome-area .col-md-7 {
+    order: 1 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-bottom: 1.5rem !important;
+  }
+  
+  /* Colonne d'image en second */
+  .welcome-area .col-lg-5 {
+    order: 2 !important;
+    width: 100% !important;
+    max-width: 280px !important;
+    margin: 0 auto !important;
+  }
+  
+  /* === 5. CONTENU TEXTUEL ESPACÉ ET LISIBLE === */
+  .welcome-content--l3 {
+    text-align: center !important;
+    padding: 0 0.5rem !important;
+  }
+  
+  /* Badge au sommet */
+  .welcome-content--l3 .d-inline-flex {
+    font-size: 0.75rem !important;
+    padding: 0.6rem 1.2rem !important;
+    margin-bottom: var(--mobile-text-spacing) !important;
+    border-radius: 25px !important;
+    max-width: 90% !important;
+    text-align: center !important;
+  }
+  
+  /* Titre principal responsive */
+  .welcome-content--l3 h1 {
+    font-size: 1.75rem !important;
+    line-height: 1.3 !important;
+    font-weight: 700 !important;
+    color: white !important;
+    margin-bottom: var(--mobile-text-spacing) !important;
+    padding: 0 0.5rem !important;
+    letter-spacing: -0.01em !important;
+  }
+  
+  /* Texte de description */
+  .welcome-content--l3 p[style*="font-size: 1.25rem"] {
+    font-size: 1rem !important;
+    line-height: 1.5 !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+    margin-bottom: 0.75rem !important;
+    padding: 0 1rem !important;
+    max-width: 100% !important;
+  }
+  
+  /* Texte italique */
+  .welcome-content--l3 p[style*="font-style: italic"] {
+    font-size: 0.875rem !important;
+    color: rgba(255, 255, 255, 0.75) !important;
+    margin-bottom: 1.5rem !important;
+    padding: 0 1rem !important;
+  }
+  
+  /* === 6. BOUTONS CTA MOBILES === */
+  .welcome-content--l3 .d-flex.flex-wrap {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 1rem !important;
+    align-items: center !important;
+    width: 100% !important;
+    max-width: 300px !important;
+    margin: 0 auto !important;
+  }
+  
+  /* Bouton vidéo */
+  .welcome-content--l3 a[href*="youtube"] {
+    width: 100% !important;
+    padding: 0.875rem 1.5rem !important;
+    font-size: 0.9rem !important;
+    font-weight: 500 !important;
+    border-radius: 12px !important;
+    background: rgba(255, 255, 255, 0.12) !important;
+    backdrop-filter: blur(12px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: white !important;
+    text-decoration: none !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.5rem !important;
+    transition: all 0.3s ease !important;
+  }
+  
+  .welcome-content--l3 a[href*="youtube"]:active {
+    transform: scale(0.95) !important;
+  }
+  
+  /* Bouton CTA principal */
+  .welcome-content--l3 a[href="#formulaire"] {
+    width: 100% !important;
+    padding: 1rem 1.5rem !important;
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+    border-radius: 12px !important;
+    background: linear-gradient(135deg, #fbbf24, #f59e0b) !important;
+    color: #1e40af !important;
+    text-decoration: none !important;
+    text-align: center !important;
+    box-shadow: 0 6px 20px rgba(251, 191, 36, 0.4) !important;
+    transition: all 0.3s ease !important;
+  }
+  
+  .welcome-content--l3 a[href="#formulaire"]:active {
+    transform: scale(0.95) !important;
+  }
+  
+  /* === 7. IMAGE HERO MOBILE === */
+  .welcome-area .position-relative[style*="max-width: 420px"] {
+    max-width: 260px !important;
+    margin: 0 auto !important;
+  }
+  
+  .welcome-area .p-4.rounded-4 {
+    padding: 1rem !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    backdrop-filter: blur(16px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    border-radius: 20px !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12) !important;
+  }
+  
+  .welcome-area .p-4.rounded-4 img {
+    border-radius: 16px !important;
+    width: 100% !important;
+    height: auto !important;
+  }
+  
+  /* Masquer les éléments décoratifs lourds */
+  .welcome-area .position-absolute[style*="background: white"] {
+    display: none !important;
+  }
+  
+  /* === 8. ANIMATIONS MOBILES SUBTILES === */
+  
+  /* Animation d'apparition progressive */
+  .welcome-content--l3 > * {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: mobileSlideIn var(--animation-duration) ease-out forwards;
+  }
+  
+  /* Délais échelonnés pour effet stagger */
+  .welcome-content--l3 > *:nth-child(1) { animation-delay: 0.1s; }
+  .welcome-content--l3 > *:nth-child(2) { animation-delay: 0.2s; }
+  .welcome-content--l3 > *:nth-child(3) { animation-delay: 0.3s; }
+  .welcome-content--l3 > *:nth-child(4) { animation-delay: 0.4s; }
+  .welcome-content--l3 > *:nth-child(5) { animation-delay: 0.5s; }
+  
+  /* Animation de l'image */
+  .welcome-area .col-lg-5 {
+    opacity: 0;
+    transform: translateY(30px);
+    animation: mobileSlideIn var(--animation-duration) ease-out 0.6s forwards;
+  }
+  
+  @keyframes mobileSlideIn {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* === 9. OPTIMISATIONS PERFORMANCE MOBILE === */
+  
+  /* Réduire les effets de flou sur mobile pour la performance */
+  .welcome-area > div[style*="filter: blur"] {
+    filter: blur(40px) !important;
+    opacity: 0.6 !important;
+  }
+  
+  /* Disable hover effects on touch devices */
+  @media (hover: none) and (pointer: coarse) {
+    .welcome-content--l3 a:hover {
+      transform: none !important;
+    }
+  }
+}
+
+/* === TRÈS PETITS ÉCRANS (≤ 480px) === */
+@media screen and (max-width: 480px) {
+  :root {
+    --mobile-hero-height: 60vh;
+    --mobile-padding: 1rem;
+    --mobile-text-spacing: 0.875rem;
+  }
+  
+  .welcome-content--l3 h1 {
+    font-size: 1.6rem !important;
+    padding: 0 0.25rem !important;
+  }
+  
+  .welcome-content--l3 .d-inline-flex {
+    font-size: 0.7rem !important;
+    padding: 0.5rem 1rem !important;
+  }
+  
+  .welcome-area .position-relative[style*="max-width: 420px"] {
+    max-width: 220px !important;
+  }
+  
+  .welcome-content--l3 .d-flex.flex-wrap {
+    max-width: 280px !important;
+  }
+}
+
+/* === ÉCRANS TRÈS LARGES - PRÉSERVATION === */
+@media screen and (min-width: 769px) {
+  /* Aucune modification sur desktop - préservation totale */
+}

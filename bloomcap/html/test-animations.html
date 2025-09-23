@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test des Animations Scroll Reveal</title>
+    <link rel="stylesheet" href="css/bootstrap.css">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/micro-animations.css">
+    <style>
+        .test-section {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        .test-section:nth-child(odd) {
+            background: #f8f9fa;
+        }
+        .test-card {
+            padding: 2rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin: 1rem;
+        }
+        .debug-info {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 1rem;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            z-index: 9999;
+        }
+    </style>
+</head>
+<body>
+    <div class="debug-info">
+        <div>Scroll pour tester</div>
+        <div>Classes détectées: <span id="class-count">0</span></div>
+        <div>Éléments visibles: <span id="visible-count">0</span></div>
+    </div>
+
+    <!-- Section 1: Test reveal-fade -->
+    <div class="test-section">
+        <div class="container">
+            <h2 class="text-center mb-5 reveal-fade">Test Reveal Fade</h2>
+            <div class="row">
+                <div class="col-md-4 reveal-fade reveal-delay-1">
+                    <div class="test-card">
+                        <h3>Fade avec délai 1</h3>
+                        <p>Cette carte apparaît avec un fade et un délai de 100ms</p>
+                    </div>
+                </div>
+                <div class="col-md-4 reveal-fade reveal-delay-2">
+                    <div class="test-card">
+                        <h3>Fade avec délai 2</h3>
+                        <p>Cette carte apparaît avec un fade et un délai de 200ms</p>
+                    </div>
+                </div>
+                <div class="col-md-4 reveal-fade reveal-delay-3">
+                    <div class="test-card">
+                        <h3>Fade avec délai 3</h3>
+                        <p>Cette carte apparaît avec un fade et un délai de 300ms</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 2: Test reveal-up -->
+    <div class="test-section">
+        <div class="container">
+            <h2 class="text-center mb-5 reveal-title">Test Reveal Up</h2>
+            <div class="row">
+                <div class="col-md-6 reveal-up">
+                    <div class="test-card">
+                        <h3>Slide depuis le bas 1</h3>
+                        <p>Cette carte glisse depuis le bas</p>
+                    </div>
+                </div>
+                <div class="col-md-6 reveal-up reveal-delay-2">
+                    <div class="test-card">
+                        <h3>Slide depuis le bas 2</h3>
+                        <p>Cette carte glisse depuis le bas avec délai</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 3: Test reveal-left et reveal-right -->
+    <div class="test-section">
+        <div class="container">
+            <h2 class="text-center mb-5 reveal-scale">Test Reveal Left/Right</h2>
+            <div class="row">
+                <div class="col-md-6 reveal-left">
+                    <div class="test-card">
+                        <h3>Slide depuis la gauche</h3>
+                        <p>Cette carte arrive depuis la gauche</p>
+                    </div>
+                </div>
+                <div class="col-md-6 reveal-right">
+                    <div class="test-card">
+                        <h3>Slide depuis la droite</h3>
+                        <p>Cette carte arrive depuis la droite</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 4: Test reveal-stagger -->
+    <div class="test-section">
+        <div class="container">
+            <h2 class="text-center mb-5 reveal-title">Test Reveal Stagger</h2>
+            <div class="row reveal-stagger">
+                <div class="col-md-3">
+                    <div class="test-card">
+                        <h3>Carte 1</h3>
+                        <p>Animation échelonnée</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="test-card">
+                        <h3>Carte 2</h3>
+                        <p>Animation échelonnée</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="test-card">
+                        <h3>Carte 3</h3>
+                        <p>Animation échelonnée</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="test-card">
+                        <h3>Carte 4</h3>
+                        <p>Animation échelonnée</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 5: Test classes service-area -->
+    <div class="test-section service-area">
+        <div class="container">
+            <h2 class="text-center mb-5 reveal-title">Test Service Area</h2>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="widgets-services__single test-card">
+                        <h3>Service 1</h3>
+                        <p>Animation automatique</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="single-service test-card">
+                        <h3>Service 2</h3>
+                        <p>Animation automatique</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="single-feature test-card">
+                        <h3>Feature 1</h3>
+                        <p>Animation automatique</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="plugins/jquery/jquery.min.js"></script>
+    <script src="js/micro-animations.js"></script>
+    
+    <script>
+        // Debug script
+        function updateDebugInfo() {
+            const allRevealElements = document.querySelectorAll('[class*="reveal"], .widgets-services__single, .single-service, .single-feature, .card');
+            const visibleElements = document.querySelectorAll('.is-visible, .visible');
+            
+            document.getElementById('class-count').textContent = allRevealElements.length;
+            document.getElementById('visible-count').textContent = visibleElements.length;
+        }
+        
+        // Update debug info every 500ms
+        setInterval(updateDebugInfo, 500);
+        
+        // Log animations to console
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.attributeName === 'class') {
+                    const target = mutation.target;
+                    if (target.classList.contains('is-visible') || target.classList.contains('visible')) {
+                        console.log('Animation triggered:', target.className);
+                    }
+                }
+            });
+        });
+        
+        // Observe all elements
+        document.querySelectorAll('[class*="reveal"], .widgets-services__single, .single-service, .single-feature, .card').forEach(function(el) {
+            observer.observe(el, { attributes: true, attributeFilter: ['class'] });
+        });
+    </script>
+</body>
+</html>

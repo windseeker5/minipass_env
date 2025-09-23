@@ -1,0 +1,386 @@
+/* ===================================================================
+   MOBILE HERO FINAL FIX - Solution experte UI/UX
+   Résout : doublon logo, encombrement, espacement, boutons, animations
+   =================================================================== */
+
+/* === VARIABLES OPTIMISÉES === */
+:root {
+  --mobile-hero-height: 70vh;
+  --mobile-header-height: 65px;
+  --mobile-spacing-xs: 0.75rem;
+  --mobile-spacing-sm: 1rem;
+  --mobile-spacing-md: 1.5rem;
+  --mobile-spacing-lg: 2rem;
+  --mobile-border-radius: 12px;
+  --mobile-button-height: 48px;
+  --animation-mobile: 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* === MOBILE UNIQUEMENT (≤ 768px) === */
+@media screen and (max-width: 768px) {
+  
+  /* === 1. HEADER COMPACT ET LOGO UNIQUE === */
+  .site-header {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 1050 !important;
+    height: var(--mobile-header-height) !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    box-shadow: 0 1px 10px rgba(0, 0, 0, 0.1) !important;
+    padding: 0 !important;
+  }
+  
+  .site-header .container {
+    height: 100% !important;
+    padding: 0 var(--mobile-spacing-sm) !important;
+    display: flex !important;
+    align-items: center !important;
+  }
+  
+  .site-header .navbar {
+    width: 100% !important;
+    height: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 0 !important;
+  }
+  
+  /* === 2. LOGO UNIQUE - SUPPRIMER DOUBLON === */
+  .brand-logo {
+    order: 2 !important;
+    position: absolute !important;
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    z-index: 1051 !important;
+  }
+  
+  /* Afficher seulement la version claire */
+  .brand-logo .light-version-logo {
+    display: inline !important;
+    font-size: 1.3rem !important;
+    font-weight: 800 !important;
+    color: #1e40af !important;
+    font-family: 'Inter', sans-serif !important;
+  }
+  
+  /* Masquer la version sombre pour éviter le doublon */
+  .brand-logo .dark-version-logo {
+    display: none !important;
+  }
+  
+  /* === 3. MENU HAMBURGER OPTIMISÉ === */
+  .mobile-menu-trigger {
+    order: 1 !important;
+    position: relative !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 44px !important;
+    height: 44px !important;
+    background: rgba(30, 64, 175, 0.08) !important;
+    border-radius: var(--mobile-border-radius) !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    flex-shrink: 0 !important;
+  }
+  
+  .mobile-menu-trigger:active {
+    transform: scale(0.95) !important;
+    background: rgba(30, 64, 175, 0.15) !important;
+  }
+  
+  /* === 4. BOUTON CTA HEADER COMPACT === */
+  .header-btn {
+    order: 3 !important;
+    flex-shrink: 0 !important;
+  }
+  
+  .header-btn .btn {
+    height: 40px !important;
+    padding: 0 1rem !important;
+    font-size: 0.85rem !important;
+    font-weight: 600 !important;
+    border-radius: 10px !important;
+    background: linear-gradient(135deg, #1e40af, #3b82f6) !important;
+    color: white !important;
+    border: none !important;
+    text-decoration: none !important;
+    white-space: nowrap !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-width: auto !important;
+  }
+  
+  /* === 5. HERO SECTION COMPACTE === */
+  .welcome-area {
+    min-height: var(--mobile-hero-height) !important;
+    padding-top: calc(var(--mobile-header-height) + var(--mobile-spacing-sm)) !important;
+    padding-bottom: var(--mobile-spacing-lg) !important;
+    display: flex !important;
+    align-items: center !important;
+  }
+  
+  .welcome-area .container {
+    min-height: auto !important;
+    padding: 0 var(--mobile-spacing-sm) !important;
+  }
+  
+  /* === 6. LAYOUT HERO OPTIMISÉ === */
+  .welcome-area .row {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    gap: var(--mobile-spacing-lg) !important;
+    min-height: auto !important;
+  }
+  
+  .welcome-area .col-lg-7,
+  .welcome-area .col-xl-6,
+  .welcome-area .col-md-7 {
+    order: 1 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  
+  .welcome-area .col-lg-5 {
+    order: 2 !important;
+    width: 100% !important;
+    max-width: 280px !important;
+    margin: 0 auto !important;
+  }
+  
+  /* === 7. ESPACEMENT AÉRÉ POUR LE CONTENU === */
+  .welcome-content--l3 {
+    text-align: center !important;
+    padding: 0 var(--mobile-spacing-xs) !important;
+  }
+  
+  /* Badge avec espacement optimisé */
+  .welcome-content--l3 .d-inline-flex {
+    font-size: 0.75rem !important;
+    padding: var(--mobile-spacing-xs) var(--mobile-spacing-sm) !important;
+    margin-bottom: var(--mobile-spacing-md) !important;
+    border-radius: 20px !important;
+    max-width: 90% !important;
+    line-height: 1.4 !important;
+  }
+  
+  /* Titre avec espacement généreux */
+  .welcome-content--l3 h1 {
+    font-size: 1.8rem !important;
+    line-height: 1.25 !important;
+    font-weight: 700 !important;
+    color: white !important;
+    margin-bottom: var(--mobile-spacing-md) !important;
+    padding: 0 var(--mobile-spacing-xs) !important;
+    letter-spacing: -0.02em !important;
+  }
+  
+  /* Paragraphe principal aéré */
+  .welcome-content--l3 p[style*="font-size: 1.25rem"] {
+    font-size: 1.05rem !important;
+    line-height: 1.5 !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+    margin-bottom: var(--mobile-spacing-sm) !important;
+    padding: 0 var(--mobile-spacing-sm) !important;
+    max-width: 95% !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+  
+  /* Texte italique avec bon espacement */
+  .welcome-content--l3 p[style*="font-style: italic"] {
+    font-size: 0.9rem !important;
+    color: rgba(255, 255, 255, 0.75) !important;
+    margin-bottom: var(--mobile-spacing-lg) !important;
+    padding: 0 var(--mobile-spacing-sm) !important;
+    line-height: 1.4 !important;
+  }
+  
+  /* === 8. BOUTONS CTA OPTIMISÉS === */
+  .welcome-content--l3 .d-flex.flex-wrap {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: var(--mobile-spacing-sm) !important;
+    align-items: center !important;
+    width: 100% !important;
+    max-width: 320px !important;
+    margin: 0 auto !important;
+  }
+  
+  /* Bouton vidéo compact */
+  .welcome-content--l3 a[href*="youtube"] {
+    width: 100% !important;
+    height: var(--mobile-button-height) !important;
+    padding: 0 var(--mobile-spacing-md) !important;
+    font-size: 0.9rem !important;
+    font-weight: 500 !important;
+    border-radius: var(--mobile-border-radius) !important;
+    background: rgba(255, 255, 255, 0.12) !important;
+    backdrop-filter: blur(12px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: white !important;
+    text-decoration: none !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.5rem !important;
+    transition: all var(--animation-mobile) !important;
+  }
+  
+  /* Bouton CTA principal optimisé */
+  .welcome-content--l3 a[href="#formulaire"] {
+    width: 100% !important;
+    height: 52px !important; /* Légèrement plus grand car principal */
+    padding: 0 var(--mobile-spacing-md) !important;
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+    border-radius: var(--mobile-border-radius) !important;
+    background: linear-gradient(135deg, #fbbf24, #f59e0b) !important;
+    color: #1e40af !important;
+    text-decoration: none !important;
+    text-align: center !important;
+    box-shadow: 0 4px 16px rgba(251, 191, 36, 0.3) !important;
+    transition: all var(--animation-mobile) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  
+  /* États actifs pour boutons */
+  .welcome-content--l3 a:active {
+    transform: scale(0.98) !important;
+    transition: transform 0.1s ease !important;
+  }
+  
+  /* === 9. IMAGE HERO PROPORTIONNÉE === */
+  .welcome-area .position-relative[style*="max-width: 420px"] {
+    max-width: 260px !important;
+    margin: 0 auto !important;
+  }
+  
+  .welcome-area .p-4.rounded-4 {
+    padding: var(--mobile-spacing-sm) !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    backdrop-filter: blur(16px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    border-radius: 16px !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12) !important;
+  }
+  
+  .welcome-area .p-4.rounded-4 img {
+    border-radius: 12px !important;
+    width: 100% !important;
+    height: auto !important;
+  }
+  
+  /* Masquer éléments décoratifs */
+  .welcome-area .position-absolute[style*="background: white"] {
+    display: none !important;
+  }
+  
+  /* === 10. ANIMATIONS FLUIDES MOBILES === */
+  
+  /* Override AOS pour mobile avec animations plus douces */
+  [data-aos="fade-up"] {
+    transition-duration: 0.6s !important;
+    transition-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+  }
+  
+  /* Animation progressive pour le contenu hero */
+  .welcome-content--l3 > * {
+    opacity: 0;
+    transform: translateY(15px);
+    animation: mobileHeroSlide 0.6s ease-out forwards;
+  }
+  
+  /* Délais staggerés */
+  .welcome-content--l3 > *:nth-child(1) { animation-delay: 0.1s; }
+  .welcome-content--l3 > *:nth-child(2) { animation-delay: 0.2s; }
+  .welcome-content--l3 > *:nth-child(3) { animation-delay: 0.3s; }
+  .welcome-content--l3 > *:nth-child(4) { animation-delay: 0.4s; }
+  .welcome-content--l3 > *:nth-child(5) { animation-delay: 0.5s; }
+  
+  /* Animation de l'image */
+  .welcome-area .col-lg-5 {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: mobileHeroSlide 0.7s ease-out 0.6s forwards;
+  }
+  
+  @keyframes mobileHeroSlide {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* === 11. OPTIMISATIONS PERFORMANCE === */
+  
+  /* Réduire les effets coûteux sur mobile */
+  .welcome-area > div[style*="filter: blur"] {
+    filter: blur(30px) !important;
+    opacity: 0.5 !important;
+  }
+  
+  /* Désactiver les hovers sur mobile tactile */
+  @media (hover: none) and (pointer: coarse) {
+    .welcome-content--l3 a:hover,
+    .mobile-menu-trigger:hover {
+      transform: none !important;
+    }
+  }
+  
+  /* === 12. MICRO-AJUSTEMENTS SELON TAILLE === */
+  
+  /* Très petits écrans (≤ 480px) */
+  @media screen and (max-width: 480px) {
+    :root {
+      --mobile-hero-height: 65vh;
+      --mobile-spacing-xs: 0.625rem;
+      --mobile-spacing-sm: 0.875rem;
+      --mobile-spacing-md: 1.25rem;
+    }
+    
+    .welcome-content--l3 h1 {
+      font-size: 1.65rem !important;
+    }
+    
+    .welcome-content--l3 .d-flex.flex-wrap {
+      max-width: 300px !important;
+    }
+    
+    .header-btn .btn {
+      font-size: 0.8rem !important;
+      padding: 0 0.875rem !important;
+    }
+  }
+  
+  /* Écrans très étroits (≤ 360px) */
+  @media screen and (max-width: 360px) {
+    .welcome-content--l3 h1 {
+      font-size: 1.5rem !important;
+    }
+    
+    .welcome-content--l3 .d-flex.flex-wrap {
+      max-width: 280px !important;
+    }
+    
+    .welcome-area .position-relative[style*="max-width: 420px"] {
+      max-width: 240px !important;
+    }
+  }
+}
+
+/* === PRÉSERVATION DESKTOP === */
+@media screen and (min-width: 769px) {
+  /* Desktop reste intact - aucune modification */
+}
