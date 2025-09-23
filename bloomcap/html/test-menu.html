@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Menu Mobile</title>
+    <style>
+        body { font-family: Arial; margin: 0; padding: 20px; }
+        .test-button { 
+            background: #1e40af; 
+            color: white; 
+            padding: 15px 30px; 
+            border: none; 
+            border-radius: 8px; 
+            font-size: 16px;
+            margin: 10px 0;
+            display: block;
+            width: 100%;
+            cursor: pointer;
+        }
+        .submenu {
+            background: #f0f0f0;
+            padding: 20px;
+            margin: 10px 0;
+            border-radius: 8px;
+        }
+        .submenu a {
+            display: block;
+            padding: 10px;
+            color: #333;
+            text-decoration: none;
+            background: white;
+            margin: 5px 0;
+            border-radius: 4px;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 20px;
+            background: #e0e0e0;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test du Menu Mobile</h1>
+    
+    <h2>Test 1: JavaScript de base</h2>
+    <button class="test-button" onclick="alert('JavaScript fonctionne!')">
+        Cliquez ici pour tester JavaScript
+    </button>
+    
+    <h2>Test 2: Toggle simple</h2>
+    <button class="test-button" onclick="document.getElementById('test-submenu').style.display = document.getElementById('test-submenu').style.display === 'block' ? 'none' : 'block';">
+        Cliquer pour ouvrir/fermer
+    </button>
+    <div id="test-submenu" class="submenu" style="display: none;">
+        <a href="index.html">Sale & Leaseback</a>
+        <a href="financement-rapide.html">Financement rapide</a>
+    </div>
+    
+    <h2>Test 3: Console Log</h2>
+    <button class="test-button" onclick="console.log('Test console: ' + new Date()); document.getElementById('result').innerHTML = 'Check console (F12) - Log envoyé à ' + new Date().toLocaleTimeString();">
+        Test Console Log
+    </button>
+    
+    <div id="result">
+        Les résultats des tests apparaîtront ici
+    </div>
+    
+    <h2>Test 4: Navigation directe</h2>
+    <div class="submenu">
+        <p>Ces liens devraient toujours fonctionner :</p>
+        <a href="index.html">→ Aller à l'accueil</a>
+        <a href="financement-rapide.html">→ Aller à Financement rapide</a>
+    </div>
+
+    <script>
+        // Test au chargement
+        console.log('Page de test chargée');
+        document.getElementById('result').innerHTML += '<br>Page chargée à ' + new Date().toLocaleTimeString();
+    </script>
+</body>
+</html>

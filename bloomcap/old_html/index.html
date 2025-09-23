@@ -1,0 +1,1494 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Bloomcap - Transformez vos équipements en liquidités | Sale-Leaseback PME</title>
+  <meta name="description" content="Débloquez jusqu'à 90% de la valeur de vos équipements avec notre solution de sale-leaseback. Financement rapide, sans dette au bilan, 100% déductible.">
+  <link rel="shortcut icon" href="image/png/favicon.png" type="image/x-icon">
+  <!-- Bootstrap , fonts & icons  -->
+  <link rel="stylesheet" href="css/bootstrap.css">
+  <link rel="stylesheet" href="fonts/icon-font/css/style.css">
+  <link rel="stylesheet" href="fonts/typography-font/typo.css">
+  <link rel="stylesheet" href="fonts/fontawesome-5/css/all.css">
+  <!-- Plugin'stylesheets  -->
+  <link rel="stylesheet" href="plugins/aos/aos.min.css">
+  <link rel="stylesheet" href="plugins/fancybox/jquery.fancybox.min.css">
+  <link rel="stylesheet" href="plugins/nice-select/nice-select.min.css">
+  <link rel="stylesheet" href="plugins/slick/slick.min.css">
+  <!-- Vendor stylesheets  -->
+  <link rel="stylesheet" href="plugins/theme-mode-switcher/switcher-panel.css">
+  <link rel="stylesheet" href="css/main.css">
+  <!-- Custom stylesheet -->
+  <!-- Mobile Fix Complete - Menu + Image corrigés, desktop intact -->
+  <link rel="stylesheet" href="css/mobile-fix-complete.css">
+  <!-- Mobile Hero UI Fix - Solution experte responsive -->
+  <link rel="stylesheet" href="css/mobile-hero-ui-fix.css">
+  <!-- Mobile Header Improved - Header et navigation optimisés -->
+  <link rel="stylesheet" href="css/mobile-header-improved.css">
+  <!-- Mobile Animations - Animations fluides au scroll pour mobile -->
+  <link rel="stylesheet" href="css/mobile-animations.css">
+  <style>
+    /* Améliorations minimalistes Bloomcap */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    
+    :root {
+      --bloomcap-blue: #1e40af;
+      --bloomcap-gold: #fbbf24;
+      --bloomcap-red: #ef4444;
+      --text-dark: #1f2937;
+      --text-light: #6b7280;
+      --bg-light: #f9fafb;
+    }
+    
+    /* Typographie améliorée */
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+      font-weight: 400;
+      line-height: 1.6;
+    }
+    
+    h1, h2, h3, h4, h5, h6 {
+      font-family: 'Inter', sans-serif !important;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+    }
+    
+    /* Header amélioré */
+    .site-header {
+      backdrop-filter: blur(10px);
+      background: rgba(255, 255, 255, 0.95) !important;
+      border-bottom: 1px solid rgba(229, 231, 235, 0.8);
+    }
+    
+    .brand-logo span {
+      color: var(--bloomcap-blue) !important;
+      font-family: 'Inter', sans-serif !important;
+      font-weight: 800 !important;
+    }
+    
+    /* Boutons modernisés */
+    .btn-electric-violet-2 {
+      background: linear-gradient(135deg, var(--bloomcap-blue), #2563eb) !important;
+      border: none !important;
+      padding: 12px 24px !important;
+      border-radius: 12px !important;
+      font-weight: 600 !important;
+      transition: all 0.3s ease !important;
+      box-shadow: 0 4px 14px rgba(30, 64, 175, 0.3) !important;
+    }
+    
+    .btn-electric-violet-2:hover {
+      transform: translateY(-2px) !important;
+      box-shadow: 0 8px 25px rgba(30, 64, 175, 0.4) !important;
+    }
+    
+    /* Hero section optimisée */
+    .welcome-area {
+      background: linear-gradient(135deg, var(--bloomcap-blue) 0%, #2563eb 50%, #3b82f6 100%) !important;
+    }
+    
+    /* Cards modernisées */
+    .card, .single-feature, .single-service {
+      border-radius: 16px !important;
+      border: none !important;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+      transition: all 0.3s ease !important;
+    }
+    
+    .card:hover, .single-feature:hover, .single-service:hover {
+      transform: translateY(-4px) !important;
+      box-shadow: 0 20px 25px rgba(0, 0, 0, 0.1), 0 8px 10px rgba(0, 0, 0, 0.05) !important;
+    }
+    
+    /* Sections avec background subtil */
+    .bg-default-2 {
+      background: var(--bg-light) !important;
+    }
+    
+    /* Problèmes section - utilise le rouge uniquement ici */
+    .problem-card {
+      border-left: 4px solid var(--bloomcap-red) !important;
+    }
+    
+    /* Amélioration de l'espacement */
+    .section-padding {
+      padding: 6rem 0 !important;
+    }
+    
+    .section-padding-sm {
+      padding: 4rem 0 !important;
+    }
+    
+    /* Textes plus lisibles */
+    .text-muted {
+      color: var(--text-light) !important;
+    }
+    
+    /* Formulaire modernisé */
+    .form-control {
+      border-radius: 8px !important;
+      border: 2px solid #e5e7eb !important;
+      padding: 12px 16px !important;
+      font-family: 'Inter', sans-serif !important;
+      transition: all 0.3s ease !important;
+    }
+    
+    .form-control:focus {
+      border-color: var(--bloomcap-gold) !important;
+      box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.1) !important;
+    }
+    
+    /* Boutons accent avec l'or */
+    .btn-accent {
+      background: linear-gradient(135deg, var(--bloomcap-gold), #f59e0b) !important;
+      color: var(--text-dark) !important;
+      border: none !important;
+      font-weight: 600 !important;
+      border-radius: 12px !important;
+      padding: 12px 24px !important;
+      transition: all 0.3s ease !important;
+    }
+    
+    .btn-accent:hover {
+      transform: translateY(-2px) !important;
+      box-shadow: 0 8px 25px rgba(251, 191, 36, 0.4) !important;
+      color: var(--text-dark) !important;
+    }
+    
+    /* Animation douce pour les éléments AOS */
+    [data-aos] {
+      transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+    
+    /* SIMPLIFICATION CIBLÉE - Sections spécifiques seulement */
+    
+    /* 1. Bénéfices complets - Supprimer couleurs des boutons */
+    .service-area .btn:not(.btn-accent):not(.btn-primary):not([href*="#formulaire"]) {
+      background: white !important;
+      color: var(--bloomcap-blue) !important;
+      border: 1px solid #e5e7eb !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
+    }
+    
+    .service-area .btn:not(.btn-accent):not(.btn-primary):hover {
+      background: #f9fafb !important;
+      color: var(--bloomcap-blue) !important;
+      transform: translateY(-1px) !important;
+    }
+    
+    /* 2. Sections bénéfices - Icônes simplifiées en bleu/blanc */
+    .service-area div[style*="linear-gradient"]:not([style*="#ef4444"]) {
+      background: white !important;
+      border: 2px solid #f3f4f6 !important;
+      color: var(--bloomcap-blue) !important;
+    }
+    
+    .service-area div[style*="linear-gradient"] i:not(.fa-clock):not(.fa-times):not(.fa-lock):not(.fa-bomb) {
+      color: var(--bloomcap-blue) !important;
+      background: none !important;
+    }
+    
+    /* 3. Types d'équipements - Icônes simplifiées */
+    .widgets div[style*="linear-gradient"]:not([style*="#ef4444"]) {
+      background: white !important;
+      border: 2px solid #f3f4f6 !important;
+      color: var(--bloomcap-blue) !important;
+    }
+    
+    .widgets div[style*="linear-gradient"] i:not(.fa-clock):not(.fa-times):not(.fa-lock):not(.fa-bomb) {
+      color: var(--bloomcap-blue) !important;
+      background: none !important;
+    }
+    
+    /* Section FAQ simplifiée */
+    .accordion-item {
+      border: none !important;
+      margin-bottom: 0.5rem !important;
+      border-radius: 12px !important;
+      overflow: hidden !important;
+    }
+    
+    .accordion-button {
+      background: white !important;
+      border: none !important;
+      padding: 1.5rem !important;
+      font-weight: 600 !important;
+      color: var(--text-dark) !important;
+    }
+    
+    .accordion-button:focus {
+      box-shadow: none !important;
+      border-color: transparent !important;
+    }
+    
+    
+  </style>
+</head>
+
+<body data-theme-mode-panel-active data-theme="light">
+  <div class="site-wrapper overflow-hidden ">
+    <div id="loading">
+      <style>
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      </style>
+      <div style="display: flex; justify-content: center; align-items: center; height: 100vh; font-size: 4rem; color: #1e40af; animation: spin 1s linear infinite;">$</div>
+    </div>
+    <!-- Clean The Code And Hop in -->
+    <!-- Header Area -->
+    <!-- Preloader -->
+    <!-- <div id="loading">
+    <div class="preloader">
+     <img src="./image/preloader-3.gif" alt="preloader">
+   </div>
+   </div>   -->
+    <!-- Header Area -->
+    <header class="site-header site-header--menu-left dynamic-sticky-bg mt-2 mt-lg-0 light-mode-texts site-header--absolute site-header--sticky">
+      <div class="container">
+        <nav class="navbar site-navbar">
+          <!-- Brand Logo-->
+          <div class="brand-logo">
+            <a href="https://finestwp.co/home-marketing.html" style="text-decoration: none;">
+              <span style="font-size: 24px; font-weight: bold; color: #333;" class="light-version-logo">Bloomcap</span>
+              <span style="font-size: 24px; font-weight: bold; color: #fff;" class="dark-version-logo">Bloomcap</span>
+            </a>
+          </div>
+          <div class="menu-block-wrapper  menu-sep-left">
+            <div class="menu-overlay"></div>
+            <nav class="menu-block" id="append-menu-header">
+              <div class="mobile-menu-head">
+                <div class="go-back">
+                  <i class="fa fa-angle-left"></i>
+                </div>
+                <div class="current-menu-title"></div>
+                <div class="mobile-menu-close">&times;</div>
+              </div>
+              <ul class="site-menu-main">
+                <li class="nav-item nav-item-has-children">
+                  <a href="#" data-menu-get="h3" class="nav-link-item drop-trigger">Solutions de liquidité <i class="fas fa-angle-down"></i></a>
+                  <ul class="sub-menu" id="submenu-solutions">
+                    <li class="sub-menu--item">
+                      <a href="index.html" class="nav-link-item">Sale & Leaseback</a>
+                    </li>
+                    <li class="sub-menu--item">
+                      <a href="financement-rapide.html" class="nav-link-item">Financement rapide</a>
+                    </li>
+                  </ul>
+                </li>
+                <li class="nav-item">
+                  <a href="a-propos.html" class="nav-link-item">À propos</a>
+                </li>
+              </ul>
+            </nav>
+          </div>
+          <div class="header-btn ">
+            <a class="btn btn btn-electric-violet-2 rounded-50 ms-lg-2 shadow--electric-violet-2-4 ms-auto text-white d-none d-sm-flex" href="home-it-services.html#">
+              Démarrer maintenant
+            </a>
+          </div>
+          <!-- mobile menu trigger -->
+          <div class="mobile-menu-trigger">
+            <span></span>
+          </div>
+          <!--/.Mobile Menu Hamburger Ends-->
+        </nav>
+      </div>
+    </header>
+    <!-- navbar- -->
+
+    
+    <!--/ .Header Area -->
+    <!-- Hero Area -->
+
+<!-- Hero Area -->
+<div class="welcome-area welcome-area--l3 py-16" style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #60a5fa 100%); min-height: 90vh; position: relative; overflow: hidden;">
+  <!-- Modern geometric background elements -->
+  <div style="position: absolute; top: -10%; right: -5%; width: 300px; height: 300px; background: rgba(255, 255, 255, 0.1); border-radius: 50%; filter: blur(100px);"></div>
+  <div style="position: absolute; bottom: -10%; left: -5%; width: 200px; height: 200px; background: rgba(251, 191, 36, 0.2); border-radius: 50%; filter: blur(80px);"></div>
+  <div class="container position-relative d-flex align-items-center" style="min-height: 90vh;">
+    <div class="row align-items-center justify-content-between w-100">
+      
+      <!-- Text Column -->
+      <div class="col-lg-7 col-xl-6 col-md-7">
+        <div class="welcome-content welcome-content--l3 text-start">
+          <!-- Ligne 1 -->
+          <div class="d-inline-flex align-items-center mb-6 px-4 py-2" style="background: rgba(251, 191, 36, 0.15); border: 1px solid rgba(251, 191, 36, 0.3); border-radius: 40px;">
+            <span class="fw-semibold" style="font-size: 0.85rem; color: #fbbf24; text-transform: uppercase; letter-spacing: 0.8px;">
+              ✨ Financement stratégique pour PME ambitieuses
+            </span>
+          </div>
+
+          <!-- Ligne 2 -->
+          <h1 class="fw-bold mb-6 text-white" style="font-size: 3.5rem; line-height: 1.1; letter-spacing: -0.02em; font-family: 'Inter', -apple-system, sans-serif;">
+            Transformez vos équipements<br>en <span style="color: #fbbf24;">capital de croissance</span>
+          </h1>
+
+          <!-- Ligne 3 -->
+          <p class="fw-medium mb-6" style="font-size: 1.25rem; color: rgba(255, 255, 255, 0.9); line-height: 1.6; max-width: 500px;">
+            Débloquez jusqu’à 90 % de la valeur de vos équipements. Sans dette au bilan. 100 % déductible.
+          </p>
+
+          <!-- Ligne 4 -->
+          <p class="mb-8" style="font-size: 1rem; color: rgba(255, 255, 255, 0.7); font-style: italic;">
+            Sans jamais interrompre leur usage ni vos activités.
+          </p>
+
+          <!-- CTA Buttons -->
+          <div class="d-flex flex-wrap gap-3 justify-content-center mt-4">
+            <a href="https://www.youtube.com/watch?v=LWZ7iytIA6k"
+               class="btn btn-lg px-4 py-3 d-flex align-items-center gap-2" 
+               style="background: rgba(255, 255, 255, 0.1); color: white; border: 1px solid rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px); border-radius: 12px; transition: all 0.3s ease; text-decoration: none;"
+               onmouseover="this.style.background='rgba(255, 255, 255, 0.2)'"
+               onmouseout="this.style.background='rgba(255, 255, 255, 0.1)'">
+              <i class="fas fa-play"></i>
+              Voir la vidéo
+            </a>
+            <a href="#formulaire"
+               class="btn btn-lg px-5 py-3 fw-semibold" 
+               style="background: linear-gradient(45deg, #fbbf24, #f59e0b); color: #1e40af; border: none; border-radius: 12px; box-shadow: 0 8px 32px rgba(251, 191, 36, 0.3); transition: all 0.3s ease; transform: translateY(0); text-decoration: none;"
+               onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 12px 40px rgba(251, 191, 36, 0.4)'"
+               onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 32px rgba(251, 191, 36, 0.3)'">
+              Démarrer maintenant
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Image Column -->
+      <div class="col-lg-5 col-xl-6 col-md-5 d-flex justify-content-center">
+        <div class="position-relative" style="max-width: 420px;">
+          <!-- Modern card-style image container -->
+          <div class="p-4 rounded-4 shadow-lg" style="background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.2);">
+            <img class="w-100 rounded-3" src="image/home-3/welcome-woman-l3.png" alt="Professional team" style="filter: brightness(1.1);">
+          </div>
+          
+          <!-- Floating stats cards -->
+          <div class="position-absolute" style="top: 10%; right: -10%; background: white; padding: 1rem; border-radius: 12px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1); z-index: 10;">
+            <div class="text-center">
+              <div class="fw-bold" style="color: #1e40af; font-size: 1.5rem;">90%</div>
+              <div style="color: #6b7280; font-size: 0.8rem;">débloqué</div>
+            </div>
+          </div>
+          
+          <div class="position-absolute" style="bottom: 15%; left: -15%; background: white; padding: 1rem; border-radius: 12px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1); z-index: 10;">
+            <div class="text-center">
+              <div class="fw-bold" style="color: #fbbf24; font-size: 1.5rem;">5j</div>
+              <div style="color: #6b7280; font-size: 0.8rem;">Rapidité</div>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+<!-- /Hero Area -->
+
+<!-- Add Inter font for better typography -->
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+  
+  /* Modern service cards styling */
+  .widgets.widgets__services-single {
+    background: white !important;
+    border-radius: 16px !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
+    border: 1px solid rgba(0, 0, 0, 0.05) !important;
+    transition: all 0.3s ease !important;
+    padding: 2rem !important;
+  }
+  
+  .widgets.widgets__services-single:hover {
+    transform: translateY(-8px) !important;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.12) !important;
+  }
+  
+  .widgets__heading {
+    color: #1e40af !important;
+    font-size: 1.25rem !important;
+    font-family: 'Inter', sans-serif !important;
+    font-weight: 700 !important;
+    margin-bottom: 1rem !important;
+  }
+  
+  .widgets__text {
+    color: #6b7280 !important;
+    line-height: 1.6 !important;
+    font-size: 0.95rem !important;
+  }
+  
+  /* Modern checklist styling */
+  .services-content-box__list li {
+    margin-bottom: 1rem !important;
+    display: flex !important;
+    align-items: flex-start !important;
+    font-size: 1.1rem !important;
+    line-height: 1.8 !important;
+  }
+</style>
+
+
+
+<!-- /Hero Area -->
+
+
+
+
+
+
+
+
+
+
+
+    <!-- Services Area -->
+<div class="service-area service-area--l7 py-16" style="background: #f8fafc;">
+  <div class="container">
+    <!-- Titre Centré -->
+    <div class="row justify-content-center text-center">
+      <div class="col-lg-10">
+        <div class="section-title section-title--l7 mb-8">
+          <div class="d-inline-flex align-items-center mb-3 px-3 py-2 rounded-pill" style="background: rgba(30, 64, 175, 0.1); border: 1px solid rgba(30, 64, 175, 0.2);">
+            <span class="fw-semibold" style="font-size: 0.85rem; color: #1e40af; text-transform: uppercase; letter-spacing: 0.5px;">
+              Problématiques actuelles
+            </span>
+          </div>
+          <h2 class="section-title__heading fw-bold mb-6 hero-title" data-aos="fade-up" data-aos-duration="800" data-aos-once="true" style="color: #1e40af; font-size: 2.5rem; line-height: 1.2; font-family: 'Inter', sans-serif;">
+            Le parcours de financement, encore mal adapté aux réalités des PME
+          </h2>
+          <div class="mx-auto mb-6" style="width: 80px; height: 3px; background: linear-gradient(45deg, #1e40af, #fbbf24); border-radius: 2px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Blocs de problèmes -->
+    <div class="row justify-content-center text-start">
+      <!-- Bloc 1 -->
+      <div class="col-md-6 col-lg-3 mb-6">
+        <div class="widgets widgets__services-single text-center h-100 p-4 rounded bg-light shadow-sm">
+          <div class="d-flex align-items-center justify-content-center mb-6" style="width: 60px; height: 60px; background: linear-gradient(135deg, #ef4444, #dc2626); border-radius: 16px; margin: 0 auto;">
+            <i class="fas fa-clock" style="font-size: 1.5rem; color: white;"></i>
+          </div>
+          <div class="widgets-services__single-content">
+            <h3 class="fw-bold mb-3" style="color: #1e40af; font-size: 1.25rem; font-family: 'Inter', sans-serif;">Délais bancaires interminables</h3>
+            <p class="widgets__text">Vous faites une demande… et des semaines plus tard, c’est un refus. Pendant ce temps, l’opportunité est passée.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bloc 2 -->
+      <div class="col-md-6 col-lg-3 mb-6">
+        <div class="widgets widgets__services-single text-center h-100 p-4 rounded bg-light shadow-sm">
+          <div class="d-flex align-items-center justify-content-center mb-6" style="width: 60px; height: 60px; background: linear-gradient(135deg, #ef4444, #dc2626); border-radius: 16px; margin: 0 auto;">
+            <i class="fas fa-times" style="font-size: 1.5rem; color: white;"></i>
+          </div>
+          <div class="widgets-services__single-content">
+            <h3 class="widgets__heading">Taux de refus élevé (80 %)</h3>
+            <p class="widgets__text">Sans crédit parfait ni ratio financier irréprochable, votre dossier est écarté sans discussion.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bloc 3 -->
+      <div class="col-md-6 col-lg-3 mb-6">
+        <div class="widgets widgets__services-single text-center h-100 p-4 rounded bg-light shadow-sm">
+          <div class="d-flex align-items-center justify-content-center mb-6" style="width: 60px; height: 60px; background: linear-gradient(135deg, #ef4444, #dc2626); border-radius: 16px; margin: 0 auto;">
+            <i class="fas fa-lock" style="font-size: 1.5rem; color: white;"></i>
+          </div>
+          <div class="widgets-services__single-content">
+            <h3 class="widgets__heading">Garanties personnelles exigées</h3>
+            <p class="widgets__text">Même pour un petit montant, on vous demande une hypothèque ou un cautionnement personnel.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bloc 4 -->
+      <div class="col-md-6 col-lg-3 mb-6">
+        <div class="widgets widgets__services-single text-center h-100 p-4 rounded bg-light shadow-sm">
+          <div class="d-flex align-items-center justify-content-center mb-6" style="width: 60px; height: 60px; background: linear-gradient(135deg, #ef4444, #dc2626); border-radius: 16px; margin: 0 auto;">
+            <i class="fas fa-bomb" style="font-size: 1.5rem; color: white;"></i>
+          </div>
+          <div class="widgets-services__single-content">
+            <h3 class="widgets__heading">Taux abusifs chez les prêteurs privés</h3>
+            <p class="widgets__text">Des taux à 24 %, des frais cachés, des clauses floues… ce qui semblait simple devient un piège coûteux.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+<!--/ .Services Area -->
+
+
+
+
+
+ <!-- About Us Area -->
+<div class="about-us-section about-us-section--l7 section-padding-lg section-bg-gradient-1 section-separator">
+  <div class="container">
+    <div class="row align-items-center justify-content-center">
+      
+      <!-- Text Content (toujours en haut sur mobile) -->
+      <div class="col-xl-5 col-lg-6 col-md-10 order-1 order-lg-1">
+        <div class="about-us-left mt-3 mt-lg-5">
+          <div class="text-center text-lg-start" data-aos="fade-up" data-aos-duration="500">
+            
+            <div class="d-inline-flex align-items-center mb-6 px-3 py-2 rounded-pill" style="background: rgba(251, 191, 36, 0.1); border: 1px solid rgba(251, 191, 36, 0.2);">
+              <span class="fw-semibold" style="font-size: 0.85rem; color: #fbbf24; text-transform: uppercase; letter-spacing: 0.5px;">
+                Notre solution
+              </span>
+            </div>
+            
+            <!-- Ligne 1 -->
+            <h2 class="fw-bold mb-6" style="font-size: 2.75rem; line-height: 1.2; color: #1e40af; font-family: 'Inter', sans-serif;">
+              Une alternative simple, rapide et <span style="color: #fbbf24;">stratégique</span>
+            </h2>
+
+            <!-- Ligne 2 -->
+            <p class="fw-medium mb-3" style="font-size: 1.25rem; color: #374151; line-height: 1.6;">
+              Découvrez comment financer votre croissance<br class="d-none d-md-block">
+              sans alourdir votre bilan.
+            </p>
+
+            <!-- Ligne 3 -->
+            <p class="fw-semibold mb-4" style="font-size: 1.1rem; color: #fbbf24;">
+              … en moins de&nbsp;5&nbsp;jours.
+            </p>
+            
+            <!-- CTA Button Desktop - Positionnement stratégique -->
+            <div class="hero-cta-container text-lg-start text-center d-lg-block d-none mt-5" data-aos="fade-up" data-aos-duration="700" data-aos-delay="300">
+              <a href="#formulaire" class="btn btn-electric-violet-2 btn-lg px-5 py-3 fw-semibold text-white">
+                Démarrer maintenant
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Video Content (toujours en bas sur mobile) -->
+      <div class="col-xl-7 col-lg-6 col-md-10 order-2 order-lg-2 d-flex justify-content-center">
+        <div class="about-us__image text-center position-relative" data-aos="fade-left" data-aos-duration="500">
+          <div class="position-relative" style="max-width: 600px; border-radius: 25px; overflow: hidden; box-shadow: 0 25px 80px rgba(0, 0, 0, 0.2);">
+            <img class="w-100" src="https://img.youtube.com/vi/Ljid39JfZXo/maxresdefault.jpg" alt="Video preview" style="filter: brightness(0.9);" />
+            <div class="position-absolute top-50 start-50 translate-middle">
+              <a class="d-flex align-items-center justify-content-center" href="https://youtu.be/Ljid39JfZXo?si=pm-ZN0nMLraGREjA" 
+                 style="width: 100px; height: 100px; background: linear-gradient(45deg, #fbbf24, #f59e0b); border-radius: 50%; color: white; text-decoration: none; box-shadow: 0 12px 40px rgba(251, 191, 36, 0.5); transition: all 0.3s ease; transform: scale(1);"
+                 onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 16px 50px rgba(251, 191, 36, 0.7)'"
+                 onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 12px 40px rgba(251, 191, 36, 0.5)'">
+                <i class="fas fa-play" style="font-size: 2rem; margin-left: 6px;"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- CTA Button Mobile - Après la vidéo -->
+    <div class="row justify-content-center d-lg-none mt-4">
+      <div class="col-12 text-center" data-aos="fade-up" data-aos-duration="700" data-aos-delay="200">
+        <a href="#formulaire" class="btn btn-electric-violet-2 btn-lg px-5 py-3 fw-semibold text-white">
+          Démarrer maintenant
+        </a>
+      </div>
+    </div>
+
+  </div>
+</div>
+<!-- /About Us Area -->
+
+<!--/ .About Us Area -->
+
+
+
+<!-- Services Area --> 
+<div class="service-area service-area--l7 section-padding-xl section-bg-gradient-2 section-separator">
+  <div class="container">
+    <!-- Titre Centré avec ligne et espace -->
+    <div class="row justify-content-center text-center">
+      <div class="col-lg-10">
+        <div class="section-title section-title--l7 mb-8">
+          <div class="d-inline-flex align-items-center mb-3 px-3 py-2 rounded-pill" style="background: rgba(251, 191, 36, 0.1); border: 1px solid rgba(251, 191, 36, 0.2);">
+            <span class="fw-semibold" style="font-size: 0.85rem; color: #fbbf24; text-transform: uppercase; letter-spacing: 0.5px;">
+              Bénéfices concrets
+            </span>
+          </div>
+          <h2 class="section-title__heading fw-bold mb-8" data-aos="fade-up" data-aos-duration="500" data-aos-once="true" style="color: #1e40af; font-size: 2.5rem; line-height: 1.2; font-family: 'Inter', sans-serif; text-shadow: 0 2px 4px rgba(30, 64, 175, 0.1);">
+            Concrètement, voici ce que ça vous apporte
+          </h2>
+          <div class="mx-auto mb-6" style="width: 80px; height: 3px; background: linear-gradient(45deg, #fbbf24, #1e40af); border-radius: 2px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Blocs de bénéfices -->
+    <div class="row justify-content-center text-start">
+      <!-- Bloc 1 -->
+      <div class="col-md-6 col-lg-3 mb-6" data-aos="fade-up" data-aos-duration="800" data-aos-delay="100">
+        <div class="widgets widgets__services-single text-center h-100 p-4 rounded bg-light shadow-sm animate-card animate-delay-1">
+          <div class="d-flex align-items-center justify-content-center mb-6" style="width: 60px; height: 60px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 16px; margin: 0 auto;">
+            <i class="fas fa-coins" style="font-size: 1.5rem; color: white;"></i>
+          </div>
+          <div class="widgets-services__single-content">
+            <h3 class="widgets__heading">Liquidités&nbsp;immédiates</h3>
+            <p class="widgets__text">Transformez jusqu'à 90 % de la valeur de vos équipements en capital disponible. Financement rapide en moins de&nbsp;5&nbsp;jours.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bloc 2 -->
+      <div class="col-md-6 col-lg-3 mb-6" data-aos="fade-up" data-aos-duration="800" data-aos-delay="200">
+        <div class="widgets widgets__services-single text-center h-100 p-4 rounded bg-light shadow-sm animate-card animate-delay-2">
+          <div class="d-flex align-items-center justify-content-center mb-6" style="width: 60px; height: 60px; background: linear-gradient(135deg, #3b82f6, #1e40af); border-radius: 16px; margin: 0 auto;">
+            <i class="fas fa-chart-line" style="font-size: 1.5rem; color: white;"></i>
+          </div>
+          <div class="widgets-services__single-content">
+            <h3 class="widgets__heading">Paiements mensuels plus&nbsp;bas</h3>
+            <p class="widgets__text">Payez uniquement la dépréciation réelle de vos équipements. Des mensualités allégées par rapport aux prêts&nbsp;classiques.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bloc 3 -->
+      <div class="col-md-6 col-lg-3 mb-6" data-aos="fade-up" data-aos-duration="800" data-aos-delay="300">
+        <div class="widgets widgets__services-single text-center h-100 p-4 rounded bg-light shadow-sm animate-card animate-delay-3">
+          <div class="d-flex align-items-center justify-content-center mb-6" style="width: 60px; height: 60px; background: linear-gradient(135deg, #fbbf24, #f59e0b); border-radius: 16px; margin: 0 auto;">
+            <i class="fas fa-receipt" style="font-size: 1.5rem; color: white;"></i>
+          </div>
+          <div class="widgets-services__single-content">
+            <h3 class="widgets__heading">Paiements 100 % déductibles</h3>
+            <p class="widgets__text">Chaque versement est entièrement déductible des revenus de votre&nbsp;entreprise. Un avantage fiscal direct, dès la première&nbsp;année.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bloc 4 -->
+      <div class="col-md-6 col-lg-3 mb-6" data-aos="fade-up" data-aos-duration="800" data-aos-delay="400">
+        <div class="widgets widgets__services-single text-center h-100 p-4 rounded bg-light shadow-sm animate-card animate-delay-4">
+          <div class="d-flex align-items-center justify-content-center mb-6" style="width: 60px; height: 60px; background: linear-gradient(135deg, #8b5cf6, #7c3aed); border-radius: 16px; margin: 0 auto;">
+            <i class="fas fa-cogs" style="font-size: 1.5rem; color: white;"></i>
+          </div>
+          <div class="widgets-services__single-content">
+            <h3 class="widgets__heading">Vous gardez vos&nbsp;équipements</h3>
+            <p class="widgets__text">Vous continuez de les utiliser sans&nbsp;interruption. À la fin, rachetez-les, renouvelez ou retournez selon vos&nbsp;besoins.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bandeau informatif -->
+    <div class="container-fluid py-3 mt-4">
+      <div class="row justify-content-center">
+        <div class="col-lg-10 col-xl-8">
+          <div class="d-flex align-items-center justify-content-center p-4 rounded shadow-sm" data-aos="fade-up" data-aos-delay="150" style="background: #f4f9ff;">
+            <i class="ti ti-shield-check text-primary me-2" style="font-size: 1.25rem;"></i>
+            <p class="mb-0 text-center fw-medium" style="color: #374151; font-family: 'Inter', sans-serif; line-height: 1.6;">
+              <strong style="color: #1e40af;">À savoir :</strong> Le crédit-bail ne compte pas comme une dette. Vos ratios financiers restent optimaux, votre capacité d'emprunt intacte.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bouton CTA bleu avec écriture blanche -->
+    <div class="row justify-content-center mt-4">
+      <div class="col-auto">
+        <a href="#formulaire"
+           class="btn btn-lg px-5 py-3 fw-semibold" 
+           style="background: linear-gradient(45deg, #1e40af, #3b82f6); color: white; border: none; border-radius: 12px; box-shadow: 0 8px 32px rgba(30, 64, 175, 0.3); transition: all 0.3s ease; transform: translateY(0); text-decoration: none;"
+           onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 12px 40px rgba(30, 64, 175, 0.4)'"
+           onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 32px rgba(30, 64, 175, 0.3)'"
+           data-aos="fade-up" data-aos-duration="500" data-aos-delay="500" data-aos-once="true">
+          Évaluer mon équipement maintenant
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+<!--/ .Services Area -->
+
+
+
+
+
+
+<!-- Section Fusionnée : Éligibilité + Exemples -->
+<section class="section-padding-lg section-bg-secondary section-separator" data-aos="fade-up" data-aos-duration="800">
+  <div class="container">
+    
+    <!-- En-tête de section -->
+    <div class="text-center mb-12">
+      <div class="d-inline-flex align-items-center mb-4 px-4 py-2 rounded-pill" style="background: rgba(30, 64, 175, 0.1); border: 1px solid rgba(30, 64, 175, 0.2);">
+        <span class="fw-semibold" style="font-size: 0.85rem; color: #1e40af; text-transform: uppercase; letter-spacing: 0.5px;">
+          Vérification
+        </span>
+      </div>
+      <h2 class="fw-bold mb-4" style="font-size: 2.5rem; line-height: 1.2; font-family: 'Inter', sans-serif; color: #1e40af;">
+        Est-ce adapté à votre situation ?
+      </h2>
+      <p class="mx-auto mb-6" style="font-size: 1.1rem; line-height: 1.6; max-width: 600px; color: #6b7280; font-family: 'Inter', sans-serif;">
+        Vérifiez votre éligibilité et découvrez comment d'autres entrepreneurs ont transformé leurs équipements en liquidités
+      </p>
+      
+      <!-- Image illustrative -->
+      <div class="text-center mb-8">
+        <img src="image/dessin1.svg" alt="Éligibilité" class="img-fluid" style="max-width: 350px; opacity: 0.9;">
+      </div>
+    </div>
+
+    <!-- Critères d'éligibilité - Version Bootstrap 5 Responsive -->
+    <div class="row justify-content-center mb-5">
+      <div class="col-12 col-md-10 col-lg-8">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body p-4 p-md-5">
+            <h3 class="card-title text-center fw-bold mb-4" style="color: #1e40af;">
+              Vérifiez ces 3 critères :
+            </h3>
+            
+            <!-- Critères avec icônes Bootstrap -->
+            <div class="row g-4">
+              <!-- Critère 1 -->
+              <div class="col-12">
+                <div class="d-flex align-items-start">
+                  <div class="flex-shrink-0 me-3">
+                    <div class="rounded-circle bg-primary bg-opacity-10 p-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#1e40af" class="bi bi-lightning-charge-fill" viewBox="0 0 16 16">
+                        <path d="M11.251.068a.5.5 0 0 1 .227.58L9.677 6.5H13a.5.5 0 0 1 .364.843l-8 8.5a.5.5 0 0 1-.842-.49L6.323 9.5H3a.5.5 0 0 1-.364-.843l8-8.5a.5.5 0 0 1 .615-.09z"/>
+                      </svg>
+                    </div>
+                  </div>
+                  <div class="flex-grow-1">
+                    <p class="mb-0 text-secondary">
+                      Vous avez une opportunité, une dépense ou une croissance à financer rapidement ?
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Critère 2 -->
+              <div class="col-12">
+                <div class="d-flex align-items-start">
+                  <div class="flex-shrink-0 me-3">
+                    <div class="rounded-circle bg-primary bg-opacity-10 p-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#1e40af" class="bi bi-gear-fill" viewBox="0 0 16 16">
+                        <path d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.686.705-1.987 1.987l.169.311c.446.82.023 1.841-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.698 1.283.705 2.686 1.987 1.987l.311-.169a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.686-.705 1.987-1.987l-.169-.311a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.698-1.283-.705-2.686-1.987-1.987l-.311.169a1.464 1.464 0 0 1-2.105-.872l-.1-.34zM8 10.93a2.929 2.929 0 1 1 0-5.86 2.929 2.929 0 0 1 0 5.858z"/>
+                      </svg>
+                    </div>
+                  </div>
+                  <div class="flex-grow-1">
+                    <p class="mb-0 text-secondary">
+                      Votre entreprise possède de l'équipement, payé ou partiellement payé, que vous utilisez dans vos activités ?
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Critère 3 -->
+              <div class="col-12">
+                <div class="d-flex align-items-start">
+                  <div class="flex-shrink-0 me-3">
+                    <div class="rounded-circle bg-primary bg-opacity-10 p-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#1e40af" class="bi bi-shield-check" viewBox="0 0 16 16">
+                        <path d="M5.338 1.59a61.44 61.44 0 0 0-2.837.856.481.481 0 0 0-.328.39c-.554 4.157.726 7.19 2.253 9.188a10.725 10.725 0 0 0 2.287 2.233c.346.244.652.42.893.533.12.057.218.095.293.118a.55.55 0 0 0 .101.025.615.615 0 0 0 .1-.025c.076-.023.174-.061.294-.118.24-.113.547-.29.893-.533a10.726 10.726 0 0 0 2.287-2.233c1.527-1.997 2.807-5.031 2.253-9.188a.48.48 0 0 0-.328-.39c-.651-.213-1.75-.56-2.837-.855C9.552 1.29 8.531 1.067 8 1.067c-.53 0-1.552.223-2.662.524zM5.072.56C6.157.265 7.31 0 8 0s1.843.265 2.928.56c1.11.3 2.229.655 2.887.87a1.54 1.54 0 0 1 1.044 1.262c.596 4.477-.787 7.795-2.465 9.99a11.775 11.775 0 0 1-2.517 2.453 7.159 7.159 0 0 1-1.048.625c-.28.132-.581.24-.829.24s-.548-.108-.829-.24a7.158 7.158 0 0 1-1.048-.625 11.777 11.777 0 0 1-2.517-2.453C1.928 10.487.545 7.169 1.141 2.692A1.54 1.54 0 0 1 2.185 1.43 62.456 62.456 0 0 1 5.072.56z"/>
+                        <path d="M10.854 5.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 7.793l2.646-2.647a.5.5 0 0 1 .708 0z"/>
+                      </svg>
+                    </div>
+                  </div>
+                  <div class="flex-grow-1">
+                    <p class="mb-0 text-secondary">
+                      Vous ne voulez pas alourdir votre bilan avec une nouvelle dette ?
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+          </div>
+        </div>
+      </div>
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+
+  </div>
+</section>
+
+<!-- Équipements Admissibles Section -->
+<section class="section-padding-md section-bg-gradient-3 section-separator" style="position: relative; overflow: hidden;" data-aos="fade-up" data-aos-duration="800">
+  <!-- Background Elements -->
+  <div class="position-absolute" style="top: -50%; left: -10%; width: 200px; height: 200px; background: linear-gradient(45deg, rgba(59, 130, 246, 0.1), rgba(251, 191, 36, 0.1)); border-radius: 50%; filter: blur(60px);"></div>
+  <div class="position-absolute" style="bottom: -30%; right: -5%; width: 150px; height: 150px; background: linear-gradient(45deg, rgba(251, 191, 36, 0.1), rgba(59, 130, 246, 0.1)); border-radius: 50%; filter: blur(40px);"></div>
+  
+  <div class="container position-relative">
+    <div class="row justify-content-center">
+      <div class="col-lg-9 px-4">
+        
+        <!-- Espace préservé pour l'élément supprimé -->
+        <div class="mb-3"></div>
+        
+        <!-- Section Header -->
+        <div class="text-center mb-5">
+          <h2 class="fw-bold mb-4" style="color: #1e40af; font-size: 2.8rem; line-height: 1.2; font-family: 'Inter', sans-serif;">
+            Convertissez vos équipements professionnels en liquidités
+          </h2>
+          <p class="mx-auto mb-0" style="color: #4b5563; font-size: 1.2rem; line-height: 1.7; max-width: 700px; font-family: 'Inter', sans-serif;">
+            Nous finançons les actifs déjà en votre possession, selon leur valeur marchande et leur usage professionnel.
+          </p>
+        </div>
+
+        <!-- Equipment Categories Grid - Simplified -->
+        <div class="row g-4 mb-5 justify-content-center">
+          
+          <!-- Transport -->
+          <div class="col-md-6 col-lg-3">
+            <div class="text-center p-4 bg-white border rounded-3 h-100">
+              <div class="mb-3">
+                <i class="fas fa-truck" style="font-size: 2.5rem; color: #1e40af;"></i>
+              </div>
+              <h4 class="fw-bold mb-2" style="color: #1e40af; font-family: 'Inter', sans-serif; font-size: 1.2rem;">Transport</h4>
+              <p class="mb-0" style="color: #6b7280; font-size: 0.9rem; line-height: 1.4;">Camions, tracteurs routiers, remorques</p>
+            </div>
+          </div>
+
+          <!-- Construction -->
+          <div class="col-md-6 col-lg-3">
+            <div class="text-center p-4 bg-white border rounded-3 h-100">
+              <div class="mb-3">
+                <i class="fas fa-hard-hat" style="font-size: 2.5rem; color: #1e40af;"></i>
+              </div>
+              <h4 class="fw-bold mb-2" style="color: #1e40af; font-family: 'Inter', sans-serif; font-size: 1.2rem;">Construction</h4>
+              <p class="mb-0" style="color: #6b7280; font-size: 0.9rem; line-height: 1.4;">Pelles, chargeurs, grues, équipements de chantier</p>
+            </div>
+          </div>
+
+          <!-- Industriel -->
+          <div class="col-md-6 col-lg-3">
+            <div class="text-center p-4 bg-white border rounded-3 h-100">
+              <div class="mb-3">
+                <i class="fas fa-industry" style="font-size: 2.5rem; color: #1e40af;"></i>
+              </div>
+              <h4 class="fw-bold mb-2" style="color: #1e40af; font-family: 'Inter', sans-serif; font-size: 1.2rem;">Industriel</h4>
+              <p class="mb-0" style="color: #6b7280; font-size: 0.9rem; line-height: 1.4;">Machines CNC, presses, équipements manufacturiers</p>
+            </div>
+          </div>
+
+          <!-- Autres -->
+          <div class="col-md-6 col-lg-3">
+            <div class="text-center p-4 bg-white border rounded-3 h-100">
+              <div class="mb-3">
+                <i class="fas fa-ellipsis-h" style="font-size: 2.5rem; color: #1e40af;"></i>
+              </div>
+              <h4 class="fw-bold mb-2" style="color: #1e40af; font-family: 'Inter', sans-serif; font-size: 1.2rem;">Et bien plus</h4>
+              <p class="mb-0" style="color: #6b7280; font-size: 0.9rem; line-height: 1.4;">Agriculture, médical, restauration, informatique...</p>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Espacement conservé -->
+        <div class="text-center" style="height: 80px;"></div>
+        
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- How it Works Section - Version Optimisée -->
+<section class="how-it-works-section" style="background: linear-gradient(135deg, #f8fafc 0%, #e6f3ff 50%, #dbeafe 100%); position: relative; overflow: hidden; padding: 5rem 0;">
+  <!-- Éléments décoratifs subtils -->
+  <div class="position-absolute" style="top: -5%; right: -3%; width: 200px; height: 200px; background: rgba(30, 64, 175, 0.05); border-radius: 50%; filter: blur(60px);"></div>
+  <div class="position-absolute" style="bottom: -8%; left: -5%; width: 150px; height: 150px; background: rgba(251, 191, 36, 0.08); border-radius: 50%; filter: blur(40px);"></div>
+  
+  <div class="container position-relative">
+    <!-- Section Header -->
+    <div class="text-center mb-5">
+      <div class="d-inline-flex align-items-center mb-4 px-4 py-3" style="background: rgba(30, 64, 175, 0.1); border: 1px solid rgba(30, 64, 175, 0.2); border-radius: 50px;">
+        <div class="d-flex align-items-center justify-content-center me-3" style="width: 32px; height: 32px; background: linear-gradient(135deg, #1e40af, #3b82f6); border-radius: 8px;">
+          <i class="fas fa-route" style="font-size: 0.9rem; color: white;"></i>
+        </div>
+        <span class="fw-bold" style="font-size: 0.9rem; color: #1e40af; text-transform: uppercase; letter-spacing: 0.8px; font-family: 'Inter', sans-serif;">
+          Processus simplifié
+        </span>
+      </div>
+      
+      <h2 class="fw-bold mb-4" style="color: #1e40af; font-size: 2.8rem; line-height: 1.2; font-family: 'Inter', sans-serif;">
+        Voici comment ça fonctionne
+      </h2>
+      
+      <p class="mx-auto mb-0" style="color: #4b5563; font-size: 1.2rem; line-height: 1.7; max-width: 700px; font-family: 'Inter', sans-serif;">
+        Un processus transparent et efficace, conçu pour les entrepreneurs qui privilégient la rapidité et la simplicité.
+      </p>
+    </div>
+
+    <!-- Process Steps -->
+    <div class="row justify-content-center g-4 mb-5">
+      
+      <!-- Step 1 -->
+      <div class="col-lg-6 col-xl-3 col-md-6" data-aos="fade-up" data-aos-duration="800" data-aos-delay="100">
+        <div class="step-card position-relative bg-white rounded-4 shadow-lg h-100 animate-card animate-delay-1" style="padding: 2.5rem 2rem;">
+          
+          <!-- Badge numéro -->
+          <div class="position-absolute" style="top: -15px; left: 2rem;">
+            <span class="badge rounded-pill px-3 py-2" style="background: linear-gradient(135deg, #1e40af, #3b82f6); color: white; font-size: 0.875rem; font-weight: 600; box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3);">
+              Étape 1
+            </span>
+          </div>
+          
+          <!-- Icône -->
+          <div class="text-center mb-4 mt-3">
+            <div class="d-inline-flex align-items-center justify-content-center" style="width: 70px; height: 70px; background: rgba(30, 64, 175, 0.1); border-radius: 20px;">
+              <i class="fas fa-file-alt" style="color: #1e40af; font-size: 1.75rem;"></i>
+            </div>
+          </div>
+          
+          <!-- Contenu -->
+          <h3 class="text-center fw-bold mb-4" style="color: #1e40af; font-size: 1.4rem; font-family: 'Inter', sans-serif; line-height: 1.3;">
+            Remplissez le formulaire
+          </h3>
+          <p class="text-center mb-0" style="color: #6b7280; font-size: 1.05rem; line-height: 1.7; font-family: 'Inter', sans-serif;">
+            En moins de 5 minutes, décrivez votre situation et vos équipements. Notre équipe vous répond sous 24h.
+          </p>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="col-lg-6 col-xl-3 col-md-6" data-aos="fade-up" data-aos-duration="800" data-aos-delay="200">
+        <div class="step-card position-relative bg-white rounded-4 shadow-lg h-100 animate-card animate-delay-2" style="padding: 2.5rem 2rem;">
+          
+          <!-- Badge numéro -->
+          <div class="position-absolute" style="top: -15px; left: 2rem;">
+            <span class="badge rounded-pill px-3 py-2" style="background: linear-gradient(135deg, #1e40af, #3b82f6); color: white; font-size: 0.875rem; font-weight: 600; box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3);">
+              Étape 2
+            </span>
+          </div>
+          
+          <!-- Icône -->
+          <div class="text-center mb-4 mt-3">
+            <div class="d-inline-flex align-items-center justify-content-center" style="width: 70px; height: 70px; background: rgba(30, 64, 175, 0.1); border-radius: 20px;">
+              <i class="fas fa-search-dollar" style="color: #1e40af; font-size: 1.75rem;"></i>
+            </div>
+          </div>
+          
+          <!-- Contenu -->
+          <h3 class="text-center fw-bold mb-4" style="color: #1e40af; font-size: 1.4rem; font-family: 'Inter', sans-serif; line-height: 1.3;">
+            Recevez une offre personnalisée
+          </h3>
+          <p class="text-center mb-0" style="color: #6b7280; font-size: 1.05rem; line-height: 1.7; font-family: 'Inter', sans-serif;">
+            Nous évaluons vos actifs selon leur valeur marchande et vous proposons une offre adaptée, sans engagement.
+          </p>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="col-lg-6 col-xl-3 col-md-6" data-aos="fade-up" data-aos-duration="800" data-aos-delay="300">
+        <div class="step-card position-relative bg-white rounded-4 shadow-lg h-100 animate-card animate-delay-3" style="padding: 2.5rem 2rem;">
+          
+          <!-- Badge numéro -->
+          <div class="position-absolute" style="top: -15px; left: 2rem;">
+            <span class="badge rounded-pill px-3 py-2" style="background: linear-gradient(135deg, #1e40af, #3b82f6); color: white; font-size: 0.875rem; font-weight: 600; box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3);">
+              Étape 3
+            </span>
+          </div>
+          
+          <!-- Icône -->
+          <div class="text-center mb-4 mt-3">
+            <div class="d-inline-flex align-items-center justify-content-center" style="width: 70px; height: 70px; background: rgba(30, 64, 175, 0.1); border-radius: 20px;">
+              <i class="fas fa-handshake" style="color: #1e40af; font-size: 1.75rem;"></i>
+            </div>
+          </div>
+          
+          <!-- Contenu -->
+          <h3 class="text-center fw-bold mb-4" style="color: #1e40af; font-size: 1.4rem; font-family: 'Inter', sans-serif; line-height: 1.3;">
+            Signez le contrat
+          </h3>
+          <p class="text-center mb-0" style="color: #6b7280; font-size: 1.05rem; line-height: 1.7; font-family: 'Inter', sans-serif;">
+            Une fois l'offre acceptée, nous finalisons rapidement le contrat de sale-leaseback avec des conditions transparentes.
+          </p>
+        </div>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="col-lg-6 col-xl-3 col-md-6" data-aos="fade-up" data-aos-duration="800" data-aos-delay="400">
+        <div class="step-card position-relative bg-white rounded-4 shadow-lg h-100 animate-card animate-delay-4" style="padding: 2.5rem 2rem;">
+          
+          <!-- Badge numéro -->
+          <div class="position-absolute" style="top: -15px; left: 2rem;">
+            <span class="badge rounded-pill px-3 py-2" style="background: linear-gradient(135deg, #1e40af, #3b82f6); color: white; font-size: 0.875rem; font-weight: 600; box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3);">
+              Étape 4
+            </span>
+          </div>
+          
+          <!-- Icône -->
+          <div class="text-center mb-4 mt-3">
+            <div class="d-inline-flex align-items-center justify-content-center" style="width: 70px; height: 70px; background: rgba(30, 64, 175, 0.1); border-radius: 20px;">
+              <i class="fas fa-hand-holding-usd" style="color: #1e40af; font-size: 1.75rem;"></i>
+            </div>
+          </div>
+          
+          <!-- Contenu -->
+          <h3 class="text-center fw-bold mb-4" style="color: #1e40af; font-size: 1.4rem; font-family: 'Inter', sans-serif; line-height: 1.3;">
+            Recevez vos fonds
+          </h3>
+          <p class="text-center mb-0" style="color: #6b7280; font-size: 1.05rem; line-height: 1.7; font-family: 'Inter', sans-serif;">
+            Recevez jusqu'à 90% de la valeur en 5 jours tout en gardant et utilisant vos équipements comme avant.
+          </p>
+        </div>
+      </div>
+      
+    </div>
+
+    <!-- CTA Final -->
+    <div class="text-center mt-5">
+      <p class="mb-4" style="color: #6b7280; font-size: 1.1rem; font-family: 'Inter', sans-serif; font-weight: 500;">
+        Prêt à transformer vos équipements en liquidités ?
+      </p>
+      <a href="#formulaire" class="btn btn-lg px-5 py-3 fw-semibold" style="background: linear-gradient(45deg, #fbbf24, #f59e0b); color: #1e40af; border: none; border-radius: 12px; box-shadow: 0 8px 32px rgba(251, 191, 36, 0.3); transition: all 0.3s ease; text-decoration: none; font-family: 'Inter', sans-serif;">
+        Commencer l'évaluation
+      </a>
+    </div>
+    
+  </div>
+</section>
+
+<!-- Alternative Solution Section -->
+<section class="py-5 bg-white">
+  <div class="container py-4">
+    <div class="row align-items-center">
+      
+      <!-- Illustration -->
+      <div class="col-md-6 order-2 order-md-1 text-center">
+        <img src="image/image2.svg" alt="Options alternatives" class="img-fluid rounded" style="max-width: 400px;">
+      </div>
+      
+      <!-- Content -->
+      <div class="col-md-6 order-1 order-md-2">
+        <div class="ps-md-4">
+          <!-- Title with icon -->
+          <h5 class="fw-bold mb-3 d-flex align-items-center" style="color: #1e40af; font-size: 1.4rem; font-family: 'Inter', sans-serif;">
+            <i class="fas fa-question-circle text-primary me-2" style="font-size: 1.2rem;"></i>
+            Votre entreprise ne possède pas d'équipements ?
+          </h5>
+          
+          <!-- Description -->
+          <p class="text-muted mb-4" style="font-size: 1rem; line-height: 1.6; font-family: 'Inter', sans-serif;">
+            Pas de souci. Nous proposons aussi une solution adaptée aux entreprises qui ne sont pas admissibles à cette offre.
+          </p>
+          
+          <!-- CTA Button -->
+          <a href="financement-rapide.html" class="btn d-inline-flex align-items-center" style="background: #ef4444; color: white; border: none; font-weight: 500; font-family: 'Inter', sans-serif; padding: 0.75rem 1.5rem; border-radius: 8px;">
+            Découvrir notre autre solution
+            <i class="fas fa-arrow-right ms-2" style="font-size: 0.9rem;"></i>
+          </a>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</section>
+
+<!-- FAQ Section -->
+<section class="py-20" style="background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); margin-top: 3rem;">
+  <div class="container">
+    <!-- Section Header -->
+    <div class="text-center mb-8">
+      <div class="d-inline-flex align-items-center mb-4 px-4 py-3" style="background: rgba(251, 191, 36, 0.1); border: 1px solid rgba(251, 191, 36, 0.2); border-radius: 50px;">
+        <div class="d-flex align-items-center justify-content-center me-3" style="width: 32px; height: 32px; background: linear-gradient(135deg, #fbbf24, #f59e0b); border-radius: 8px;">
+          <i class="fas fa-question" style="font-size: 0.9rem; color: white;"></i>
+        </div>
+        <span class="fw-bold" style="font-size: 0.9rem; color: #f59e0b; text-transform: uppercase; letter-spacing: 0.8px; font-family: 'Inter', sans-serif;">
+          Questions fréquentes
+        </span>
+      </div>
+      <h2 class="fw-bold mb-4" style="color: #1e40af; font-size: 2.8rem; line-height: 1.2; font-family: 'Inter', sans-serif;">
+        FAQ
+      </h2>
+      <p class="mx-auto mb-6" style="color: #4b5563; font-size: 1.2rem; line-height: 1.7; max-width: 700px; font-family: 'Inter', sans-serif;">
+        Retrouvez les réponses aux questions les plus fréquemment posées sur notre solution de financement par sale-leaseback d'équipement.
+      </p>
+      
+      <!-- Image illustrative -->
+      <div class="text-center mb-8">
+        <img src="image/image3.svg" alt="Questions fréquentes" class="img-fluid" style="max-width: 300px; opacity: 0.8;">
+      </div>
+    </div>
+
+    <div class="row justify-content-center">
+      <div class="col-lg-8 px-4">
+        <div class="accordion" id="faqAccordion">
+          <!-- FAQ Item 1 -->
+          <div class="accordion-item mb-4" style="border: 1px solid rgba(30, 64, 175, 0.1); border-radius: 16px; background: rgba(248, 250, 252, 0.5); box-shadow: 0 4px 20px rgba(30, 64, 175, 0.05);">
+            <h2 class="accordion-header" id="faq1">
+              <button class="accordion-button fw-semibold collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse1" aria-expanded="false" aria-controls="collapse1" style="background: transparent; border: none; border-radius: 16px; color: #1e40af; font-family: 'Inter', sans-serif; padding: 1.5rem;">
+                <i class="fas fa-plus me-3" style="color: #f59e0b; transition: transform 0.3s ease;"></i>
+                En quoi consiste le financement par sale-leaseback d'équipement ?
+              </button>
+            </h2>
+            <div id="collapse1" class="accordion-collapse collapse" aria-labelledby="faq1" data-bs-parent="#faqAccordion">
+              <div class="accordion-body" style="padding: 0 1.5rem 1.5rem; color: #4b5563; font-family: 'Inter', sans-serif; line-height: 1.6;">
+                Le financement par sale-leaseback implique qu'une entreprise vende ses équipements à une société de location puis les reprenne en location pour continuer à les utiliser. Cela permet à l'entreprise d'accéder à des liquidités immédiates tout en conservant l'usage de ses équipements essentiels.
+              </div>
+            </div>
+          </div>
+
+          <!-- FAQ Item 2 -->
+          <div class="accordion-item mb-3" style="border: 1px solid rgba(30, 64, 175, 0.1); border-radius: 16px; background: rgba(248, 250, 252, 0.5);">
+            <h2 class="accordion-header" id="faq2">
+              <button class="accordion-button fw-semibold collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse2" aria-expanded="false" aria-controls="collapse2" style="background: transparent; border: none; border-radius: 16px; color: #1e40af; font-family: 'Inter', sans-serif; padding: 1.5rem;">
+                <i class="fas fa-plus me-3" style="color: #f59e0b; transition: transform 0.3s ease;"></i>
+                Quels sont les principaux avantages de cette solution ?
+              </button>
+            </h2>
+            <div id="collapse2" class="accordion-collapse collapse" aria-labelledby="faq2" data-bs-parent="#faqAccordion">
+              <div class="accordion-body" style="padding: 0 1.5rem 1.5rem; color: #4b5563; font-family: 'Inter', sans-serif; line-height: 1.6;">
+                Les avantages incluent l'amélioration du flux de trésorerie, la libération de la valeur immobilisée dans les équipements et l'évitement des coûts et responsabilités de propriété. Cela permet également aux entreprises d'investir le capital libéré dans la croissance ou d'autres besoins opérationnels.
+              </div>
+            </div>
+          </div>
+
+          <!-- FAQ Item 3 -->
+          <div class="accordion-item mb-3" style="border: 1px solid rgba(30, 64, 175, 0.1); border-radius: 16px; background: rgba(248, 250, 252, 0.5);">
+            <h2 class="accordion-header" id="faq3">
+              <button class="accordion-button fw-semibold collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse3" aria-expanded="false" aria-controls="collapse3" style="background: transparent; border: none; border-radius: 16px; color: #1e40af; font-family: 'Inter', sans-serif; padding: 1.5rem;">
+                <i class="fas fa-plus me-3" style="color: #f59e0b; transition: transform 0.3s ease;"></i>
+                Mon entreprise est-elle admissible à ce type de financement ?
+              </button>
+            </h2>
+            <div id="collapse3" class="accordion-collapse collapse" aria-labelledby="faq3" data-bs-parent="#faqAccordion">
+              <div class="accordion-body" style="padding: 0 1.5rem 1.5rem; color: #4b5563; font-family: 'Inter', sans-serif; line-height: 1.6;">
+                Toute entreprise qui possède des équipements de valeur et a besoin de capital peut être admissible. Les secteurs comme la fabrication, la construction, le transport et la santé utilisent souvent cette méthode de financement. Un bon historique de crédit et un flux de trésorerie fiable sont des facteurs importants d'admissibilité.
+              </div>
+            </div>
+          </div>
+
+          <!-- FAQ Item 4 -->
+          <div class="accordion-item mb-3" style="border: 1px solid rgba(30, 64, 175, 0.1); border-radius: 16px; background: rgba(248, 250, 252, 0.5);">
+            <h2 class="accordion-header" id="faq4">
+              <button class="accordion-button fw-semibold collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse4" aria-expanded="false" aria-controls="collapse4" style="background: transparent; border: none; border-radius: 16px; color: #1e40af; font-family: 'Inter', sans-serif; padding: 1.5rem;">
+                <i class="fas fa-plus me-3" style="color: #f59e0b; transition: transform 0.3s ease;"></i>
+                Comment cela peut-il améliorer ma trésorerie ?
+              </button>
+            </h2>
+            <div id="collapse4" class="accordion-collapse collapse" aria-labelledby="faq4" data-bs-parent="#faqAccordion">
+              <div class="accordion-body" style="padding: 0 1.5rem 1.5rem; color: #4b5563; font-family: 'Inter', sans-serif; line-height: 1.6;">
+                En vendant l'équipement et en le reprenant en location, une entreprise peut convertir la valeur de l'actif en espèces, qui peuvent être utilisées à diverses fins commerciales. Cela aide à améliorer la liquidité sans perturber les opérations quotidiennes, car l'équipement reste en usage.
+              </div>
+            </div>
+          </div>
+
+          <!-- FAQ Item 5 -->
+          <div class="accordion-item mb-3" style="border: 1px solid rgba(30, 64, 175, 0.1); border-radius: 16px; background: rgba(248, 250, 252, 0.5);">
+            <h2 class="accordion-header" id="faq5">
+              <button class="accordion-button fw-semibold collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse5" aria-expanded="false" aria-controls="collapse5" style="background: transparent; border: none; border-radius: 16px; color: #1e40af; font-family: 'Inter', sans-serif; padding: 1.5rem;">
+                <i class="fas fa-plus me-3" style="color: #f59e0b; transition: transform 0.3s ease;"></i>
+                Quels types d'équipements sont généralement acceptés ?
+              </button>
+            </h2>
+            <div id="collapse5" class="accordion-collapse collapse" aria-labelledby="faq5" data-bs-parent="#faqAccordion">
+              <div class="accordion-body" style="padding: 0 1.5rem 1.5rem; color: #4b5563; font-family: 'Inter', sans-serif; line-height: 1.6;">
+                Les types courants comprennent la machinerie de fabrication, l'équipement de construction, les appareils médicaux, les véhicules de transport et le matériel informatique. L'équipement doit être en bon état et essentiel aux opérations de l'entreprise.
+              </div>
+            </div>
+          </div>
+
+          <!-- FAQ Item 6 -->
+          <div class="accordion-item mb-3" style="border: 1px solid rgba(30, 64, 175, 0.1); border-radius: 16px; background: rgba(248, 250, 252, 0.5);">
+            <h2 class="accordion-header" id="faq6">
+              <button class="accordion-button fw-semibold collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse6" aria-expanded="false" aria-controls="collapse6" style="background: transparent; border: none; border-radius: 16px; color: #1e40af; font-family: 'Inter', sans-serif; padding: 1.5rem;">
+                <i class="fas fa-plus me-3" style="color: #f59e0b; transition: transform 0.3s ease;"></i>
+                Quelle est la durée typique d'un contrat de location ?
+              </button>
+            </h2>
+            <div id="collapse6" class="accordion-collapse collapse" aria-labelledby="faq6" data-bs-parent="#faqAccordion">
+              <div class="accordion-body" style="padding: 0 1.5rem 1.5rem; color: #4b5563; font-family: 'Inter', sans-serif; line-height: 1.6;">
+                La durée du bail est habituellement basée sur la vie utile restante de l'équipement et les besoins opérationnels de l'entreprise. Les termes peuvent varier, avec des options pour des baux à court ou long terme, et la possibilité d'acheter l'équipement à la fin du terme.
+              </div>
+            </div>
+          </div>
+
+          <!-- FAQ Item 7 -->
+          <div class="accordion-item mb-3" style="border: 1px solid rgba(30, 64, 175, 0.1); border-radius: 16px; background: rgba(248, 250, 252, 0.5);">
+            <h2 class="accordion-header" id="faq7">
+              <button class="accordion-button fw-semibold collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse7" aria-expanded="false" aria-controls="collapse7" style="background: transparent; border: none; border-radius: 16px; color: #1e40af; font-family: 'Inter', sans-serif; padding: 1.5rem;">
+                <i class="fas fa-plus me-3" style="color: #f59e0b; transition: transform 0.3s ease;"></i>
+                Combien de temps faut-il pour accéder aux fonds ?
+              </button>
+            </h2>
+            <div id="collapse7" class="accordion-collapse collapse" aria-labelledby="faq7" data-bs-parent="#faqAccordion">
+              <div class="accordion-body" style="padding: 0 1.5rem 1.5rem; color: #4b5563; font-family: 'Inter', sans-serif; line-height: 1.6;">
+                Le délai pour accéder aux fonds peut varier selon la complexité de la transaction, mais reste généralement plus rapide que les méthodes de financement traditionnelles. Une fois l'équipement approuvé et l'entente finalisée, les entreprises peuvent souvent recevoir les fonds environ 5 jours ouvrables plus tard.
+              </div>
+            </div>
+          </div>
+
+          <!-- FAQ Item 8 -->
+          <div class="accordion-item mb-3" style="border: 1px solid rgba(30, 64, 175, 0.1); border-radius: 16px; background: rgba(248, 250, 252, 0.5);">
+            <h2 class="accordion-header" id="faq8">
+              <button class="accordion-button fw-semibold collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse8" aria-expanded="false" aria-controls="collapse8" style="background: transparent; border: none; border-radius: 16px; color: #1e40af; font-family: 'Inter', sans-serif; padding: 1.5rem;">
+                <i class="fas fa-plus me-3" style="color: #f59e0b; transition: transform 0.3s ease;"></i>
+                Comment déterminez-vous la valeur de mon équipement ?
+              </button>
+            </h2>
+            <div id="collapse8" class="accordion-collapse collapse" aria-labelledby="faq8" data-bs-parent="#faqAccordion">
+              <div class="accordion-body" style="padding: 0 1.5rem 1.5rem; color: #4b5563; font-family: 'Inter', sans-serif; line-height: 1.6;">
+                La valeur de l'équipement est déterminée par un processus d'évaluation qui considère des facteurs comme la demande du marché, l'état, l'âge et l'utilisation future prévue. Si l'équipement a été acheté dans l'année, vous pouvez souvent récupérer 100% du prix d'achat.
+              </div>
+            </div>
+          </div>
+
+          <!-- FAQ Item 9 -->
+          <div class="accordion-item mb-3" style="border: 1px solid rgba(30, 64, 175, 0.1); border-radius: 16px; background: rgba(248, 250, 252, 0.5);">
+            <h2 class="accordion-header" id="faq9">
+              <button class="accordion-button fw-semibold collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse9" aria-expanded="false" aria-controls="collapse9" style="background: transparent; border: none; border-radius: 16px; color: #1e40af; font-family: 'Inter', sans-serif; padding: 1.5rem;">
+                <i class="fas fa-plus me-3" style="color: #f59e0b; transition: transform 0.3s ease;"></i>
+                Puis-je racheter mon équipement à la fin du bail ?
+              </button>
+            </h2>
+            <div id="collapse9" class="accordion-collapse collapse" aria-labelledby="faq9" data-bs-parent="#faqAccordion">
+              <div class="accordion-body" style="padding: 0 1.5rem 1.5rem; color: #4b5563; font-family: 'Inter', sans-serif; line-height: 1.6;">
+                Oui, les ententes de sale-leaseback d'équipement incluent une option de rachat de l'équipement à la fin du terme de location. Le prix de rachat est typiquement convenu lors de la transaction initiale et est généralement fixé à un montant nominal tel que 10$.
+              </div>
+            </div>
+          </div>
+
+          <!-- FAQ Item 10 -->
+          <div class="accordion-item mb-3" style="border: 1px solid rgba(30, 64, 175, 0.1); border-radius: 16px; background: rgba(248, 250, 252, 0.5);">
+            <h2 class="accordion-header" id="faq10">
+              <button class="accordion-button fw-semibold collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse10" aria-expanded="false" aria-controls="collapse10" style="background: transparent; border: none; border-radius: 16px; color: #1e40af; font-family: 'Inter', sans-serif; padding: 1.5rem;">
+                <i class="fas fa-plus me-3" style="color: #f59e0b; transition: transform 0.3s ease;"></i>
+                Comment cette solution se compare-t-elle aux prêts ou locations traditionnels ?
+              </button>
+            </h2>
+            <div id="collapse10" class="accordion-collapse collapse" aria-labelledby="faq10" data-bs-parent="#faqAccordion">
+              <div class="accordion-body" style="padding: 0 1.5rem 1.5rem; color: #4b5563; font-family: 'Inter', sans-serif; line-height: 1.6;">
+                Un sale-leaseback peut fournir du capital immédiat sans contracter de dette supplémentaire, contrairement aux prêts ou locations traditionnels. Il peut être plus flexible et ne nécessite pas de garantie au-delà de l'équipement lui-même.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- CTA with Form Section -->
+<section class="py-5" id="formulaire">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-8 mx-auto">
+        <div class="text-center mb-5">
+          <h2 class="fw-bold mb-4" style="color: #1e40af; font-size: 2.8rem; line-height: 1.2; font-family: 'Inter', sans-serif; text-shadow: 0 2px 20px rgba(30, 64, 175, 0.1);">
+            Prêt à débloquer vos <span style="color: #fbbf24;">liquidités</span> ?
+          </h2>
+        </div>
+
+        <div class="bg-white shadow-sm rounded p-4 my-5">
+          <form action="index.html" method="post">
+            <div class="mb-3">
+              <input type="text" class="form-control form-control-lg" id="fullName" name="fullName" placeholder="Nom complet" required>
+            </div>
+            
+            <div class="mb-3">
+              <input type="email" class="form-control form-control-lg" id="email" name="email" placeholder="Courriel" required>
+            </div>
+            
+            <div class="mb-3">
+              <input type="tel" class="form-control form-control-lg" id="phone" name="phone" placeholder="Téléphone" required>
+            </div>
+            
+            <div class="mb-3">
+              <select class="form-control form-control-lg" id="equipmentType" name="equipmentType" required>
+                <option value="">Type d'équipement à monétiser</option>
+                <option value="agriculture">Agriculture</option>
+                <option value="transport">Transport</option>
+                <option value="construction">Construction</option>
+                <option value="industriel">Industriel</option>
+                <option value="medical">Médical</option>
+                <option value="restauration">Restauration</option>
+                <option value="autre">Autre</option>
+              </select>
+            </div>
+            
+            <div class="mb-4">
+              <input type="number" class="form-control form-control-lg" id="estimatedValue" name="estimatedValue" placeholder="Valeur estimée (€)" min="0" step="1000">
+            </div>
+            
+            <button type="submit" class="btn btn-primary btn-lg w-100 rounded-pill">
+              Obtenir mon estimation
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+
+
+
+
+
+    <!-- Footer Area -->
+    <footer class="footer-section footer-section--l3 position-relative bg-default" style="padding-top: 4rem;">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-4 col-md-7 col-xs-9">
+            <div class="footer-brand-block footer-brand-block--l3 mb-7 mb-lg-5">
+              <p class="footer-brand-block--l3__text">There are many variations of passages of Lorem Ipsum available, but the majority have suffered.</p>
+              <div class="newsletter-form newsletter-form--rounded">
+                <form action="https://finestwp.co/">
+                  <div class="d-flex align-items-center justify-content-center flex-column flex-xs-row">
+                    <input class="form-control " type="email" placeholder="Subscribe Our newsletter" required>
+                    <button class=" btn-icon" type="submit"><i class="fas fa-long-arrow-alt-right"></i></button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-8">
+            <div class="row">
+              <div class="col-xxl-4 col-xl-5 col-lg-4 col-md-4 col-sm-6 col-xs-6">
+                <div class="footer-list-block footer-list-block--2 mb-8">
+                  <h4 class="footer-block-title">Contact</h4>
+                  <ul class="footer-widgets__list footer-widgets__list--l3 footer-widgets__list--l3__address">
+                    <li> Patricia C. Amedee 4401 Waldeck New Street </li>
+                    <li>info@yourdomain.com </li>
+                    <li> +99 (0) 101 0000 888</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="col-xxl-3 col-xl-3 col-lg-3 col-md-3 col-sm-6 col-xs-6">
+                <div class="footer-list-block footer-list-block--3 mb-8">
+                  <h4 class="footer-block-title">Quick Links</h4>
+                  <ul class="footer-widgets__list footer-widgets__list--l3">
+                    <li>
+                      <a href="home-it-services.html#">Home</a>
+                    </li>
+                    <li>
+                      <a href="home-it-services.html#">About</a>
+                    </li>
+                    <li>
+                      <a href="home-it-services.html#">Contact</a>
+                    </li>
+                    <li>
+                      <a href="home-it-services.html#">Blog</a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <div class=" offset-xxl-1 col-xl-4 col-lg-5 col-md-4 col-xs-8">
+                <div class="footer-widget footer-widget--l3 mb-8">
+                  <h4 class="footer-block-title">Instagram</h4>
+                  <div class="footer-insta-gallery row">
+                    <div class="col-4">
+                      <img src="image/home-3/insta-1.png" alt="" class="w-100">
+                    </div>
+                    <div class="col-4">
+                      <img src="image/home-3/insta-2.png" alt="" class="w-100">
+                    </div>
+                    <div class="col-4">
+                      <img src="image/home-3/insta-3.png" alt="" class="w-100">
+                    </div>
+                    <div class="col-4">
+                      <img src="image/home-3/insta-4.png" alt="" class="w-100">
+                    </div>
+                    <div class="col-4">
+                      <img src="image/home-3/insta-5.png" alt="" class="w-100">
+                    </div>
+                    <div class="col-4">
+                      <img src="image/home-3/insta-6.png" alt="" class="w-100">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="copyright-block copyright-block--l3">
+          <div class="row  text-center align-items-center">
+            <div class="col-xs-6 text-sm-start">
+              <p class="copyright-text--l3 ">© 2021 Bloomcap Web Ui Template</p>
+            </div>
+            <div class="col-xs-6 text-sm-end">
+              <ul class="footer-social-share footer-social-share--rounded">
+                <li>
+                  <a href="home-it-services.html#">
+                    <i
+                                        class="fab fa-facebook-square"></i>
+                  </a>
+                </li>
+                <li>
+                  <a href="home-it-services.html#">
+                    <i
+                                        class="fab fa-twitter"></i>
+                  </a>
+                </li>
+                <li>
+                  <a href="home-it-services.html#">
+                    <i
+                                        class="fab fa-instagram"></i>
+                  </a>
+                </li>
+                <li>
+                  <a href="home-it-services.html#">
+                    <i
+                                        class="fab fa-linkedin"></i>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+    <!--/ .Footer Area -->
+  </div>
+  <!-- Plugin's Scripts -->
+  <script src="plugins/jquery/jquery.min.js"></script>
+  <script src="plugins/jquery/jquery-migrate.min.js"></script>
+  <script src="js/bootstrap.bundle.js"></script>
+  <script src="plugins/fancybox/jquery.fancybox.min.js"></script>
+  <script src="plugins/nice-select/jquery.nice-select.min.js"></script>
+  <script src="plugins/aos/aos.min.js"></script>
+  <script src="plugins/counter-up/jquery.counterup.min.js"></script>
+  <script src="plugins/counter-up/waypoints.min.js"></script>
+  <script src="plugins/slick/slick.min.js"></script>
+  <script src="plugins/skill-bar/skill.bars.jquery.js"></script>
+  <script src="plugins/isotope/isotope.pkgd.min.js"></script>
+  <!--<script src="./plugins/theme-mode-switcher/gr-theme-mode-switcher.js"></script>-->
+  <!-- Activation Script -->
+  <script src="js/menu.js"></script>
+  <script src="js/custom.js"></script>
+  <!-- Mobile Menu Simple - Fiable et léger, desktop intact -->
+  <script src="js/mobile-menu-simple.js"></script>
+  <!-- Hero Mobile Enhancer - Optimisations JavaScript mobiles -->
+  <script src="js/hero-mobile-enhancer.js"></script>
+  <!-- Mobile Hero Animations - Animations fluides et optimisées -->
+  <script src="js/mobile-hero-animations.js"></script>
+  <!-- Mobile Scroll Animations - Observer léger pour animations au scroll -->
+  <script src="js/mobile-scroll-animations.js"></script>
+  
+</body>
+
+</html>

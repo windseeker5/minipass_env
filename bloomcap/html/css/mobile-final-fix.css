@@ -1,0 +1,130 @@
+/* Mobile Final Fix - Navbar uniformisée */
+@media (max-width: 991px) {
+  /* Cache complètement l'ancien header complexe */
+  .site-header {
+    display: none !important;
+  }
+  
+  /* Assure que le menu mobile fonctionne toujours */
+  #new-hamburger {
+    display: none !important;
+  }
+}
+
+/* Nouveau header mobile avec style uniformisé */
+@media (max-width: 991px) {
+  #simple-mobile-header {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    height: 60px !important;
+    background: white !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+    z-index: 99999 !important;
+    display: grid !important;
+    grid-template-columns: auto 1fr auto !important;
+    align-items: center !important;
+    gap: 10px !important;
+    padding: 0 15px !important;
+  }
+  
+  /* Logo aligné à gauche */
+  #simple-mobile-header .logo {
+    font-size: 20px !important;
+    font-weight: bold !important;
+    color: #1e40af !important;
+    text-decoration: none !important;
+    justify-self: start !important;
+  }
+  
+  /* Bouton CTA avec la même couleur que sur desktop */
+  #simple-mobile-header .cta {
+    height: 40px !important;
+    padding: 0 15px !important;
+    border-radius: 8px !important;
+    border: none !important;
+    background-color: #FF5722 !important;
+    border-color: #FF5722 !important;
+    color: white !important;
+    text-decoration: none !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    white-space: nowrap !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    justify-self: center !important;
+    transition: all 0.2s ease !important;
+    box-shadow: 0 2px 8px rgba(255, 87, 34, 0.25) !important;
+  }
+  
+  /* Hover du CTA */
+  #simple-mobile-header .cta:hover {
+    background-color: #f4511e !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(255, 87, 34, 0.35) !important;
+  }
+  
+  /* Hamburger reste bleu */
+  #simple-mobile-header .hamburger {
+    height: 40px !important;
+    width: 40px !important;
+    min-width: 40px !important;
+    border-radius: 8px !important;
+    border: none !important;
+    background: #1e40af !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-direction: column !important;
+    padding: 0 !important;
+    justify-self: end !important;
+    transition: all 0.2s ease !important;
+  }
+  
+  /* Hover du hamburger */
+  #simple-mobile-header .hamburger:hover {
+    background: #1a3a9f !important;
+    box-shadow: 0 2px 8px rgba(30, 64, 175, 0.3) !important;
+  }
+  
+  #simple-mobile-header .hamburger span {
+    display: block !important;
+    width: 18px !important;
+    height: 2px !important;
+    background: white !important;
+    margin: 2px 0 !important;
+    transition: 0.3s !important;
+  }
+  
+  /* Animation du hamburger quand le menu est ouvert */
+  body.menu-locked #simple-mobile-header .hamburger {
+    background: #1e40af !important;
+  }
+  
+  body.menu-locked #simple-mobile-header .hamburger span:nth-child(1) {
+    transform: rotate(45deg) translate(4px, 4px) !important;
+  }
+  
+  body.menu-locked #simple-mobile-header .hamburger span:nth-child(2) {
+    opacity: 0 !important;
+  }
+  
+  body.menu-locked #simple-mobile-header .hamburger span:nth-child(3) {
+    transform: rotate(-45deg) translate(4px, -4px) !important;
+  }
+  
+  body {
+    padding-top: 60px !important;
+  }
+}
+
+@media (min-width: 992px) {
+  #simple-mobile-header {
+    display: none !important;
+  }
+}

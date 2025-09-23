@@ -1,0 +1,1137 @@
+/* =================================
+   RESPONSIVE MOBILE DESIGN - WEBPHIL
+   Optimisé pour viewport 375px (iPhone 12)
+   ================================= */
+
+/* === DESIGN MOBILE PREMIUM - NOUVEAU === */
+@media (max-width: 768px) {
+  /* Corps et scrolling optimisé */
+  body {
+    -webkit-font-smoothing: antialiased !important;
+    -moz-osx-font-smoothing: grayscale !important;
+  }
+  
+  .site-wrapper {
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  
+  /* Header fixe moderne */
+  .site-header {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 1000 !important;
+    transition: all 0.3s ease !important;
+  }
+  
+  /* Hero plein écran moderne */
+  .welcome-area {
+    min-height: 100vh !important;
+    min-height: 100dvh !important; /* Dynamic viewport height */
+    display: flex !important;
+    align-items: center !important;
+    padding-top: 60px !important; /* Hauteur du header */
+    padding-bottom: 20px !important;
+  }
+  
+  .welcome-area .container {
+    width: 100% !important;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+  
+  /* Suppression éléments superflus */
+  .welcome-area > div[style*="filter: blur"],
+  .welcome-area .position-absolute[style*="background: rgba(255, 255, 255, 0.1)"],
+  .welcome-area .position-absolute[style*="background: rgba(251, 191, 36, 0.2)"] {
+    display: none !important;
+  }
+  
+  /* Animations performantes */
+  [data-aos] {
+    transition-duration: 0.3s !important;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;
+  }
+  
+  /* Disable heavy animations */
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+  
+  /* Touch-friendly interactions */
+  a, button, .btn, .card, .widgets {
+    -webkit-tap-highlight-color: transparent !important;
+    touch-action: manipulation !important;
+  }
+}
+
+@media (max-width: 576px) {
+  
+  /* === RESET GÉNÉRAL === */
+  * {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+  
+  /* === TYPOGRAPHIE MOBILE === */
+  
+  /* Titres principaux - Hero */
+  .welcome-content--l3 h1,
+  h1 {
+    font-size: 1.75rem !important; /* Au lieu de 3.5rem */
+    line-height: 1.3 !important;
+    margin-bottom: 1rem !important;
+  }
+  
+  /* Titres de sections */
+  h2, .section-title__heading {
+    font-size: 1.5rem !important; /* Au lieu de 2.5rem */
+    line-height: 1.3 !important;
+    margin-bottom: 1rem !important;
+  }
+  
+  /* Sous-titres */
+  h3, h4, .widgets__heading {
+    font-size: 1.1rem !important;
+    line-height: 1.4 !important;
+    margin-bottom: 0.75rem !important;
+  }
+  
+  /* Paragraphes et texte général */
+  p, .widgets__text {
+    font-size: 0.95rem !important;
+    line-height: 1.6 !important;
+    margin-bottom: 1rem !important;
+  }
+  
+  /* Texte plus grand (lead) */
+  p.fw-medium, p[style*="font-size: 1.25rem"] {
+    font-size: 1.05rem !important;
+  }
+  
+  /* Petits textes */
+  small, .small, .text-muted {
+    font-size: 0.85rem !important;
+  }
+  
+  /* === ESPACEMENT VERTICAL === */
+  
+  /* Réduction du padding des sections */
+  .py-16, .py-20, .section-padding {
+    padding-top: 2.5rem !important;
+    padding-bottom: 2.5rem !important;
+  }
+  
+  .py-8 {
+    padding-top: 1.5rem !important;
+    padding-bottom: 1.5rem !important;
+  }
+  
+  .py-5 {
+    padding-top: 1.25rem !important;
+    padding-bottom: 1.25rem !important;
+  }
+  
+  /* Marges bottom réduites */
+  .mb-8 {
+    margin-bottom: 2rem !important;
+  }
+  
+  .mb-6 {
+    margin-bottom: 1.5rem !important;
+  }
+  
+  .mb-4 {
+    margin-bottom: 1rem !important;
+  }
+  
+  .mb-3 {
+    margin-bottom: 0.75rem !important;
+  }
+  
+  /* === HERO MOBILE MODERNE === */
+  .welcome-area {
+    min-height: 100vh !important;
+    min-height: 100dvh !important;
+    padding-top: 70px !important;
+    padding-bottom: 20px !important;
+    display: flex !important;
+    align-items: center !important;
+  }
+  
+  /* Contenu hero centré et compact */
+  .welcome-content--l3 {
+    text-align: center !important;
+    animation: heroFadeIn 0.8s ease-out !important;
+  }
+  
+  @keyframes heroFadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* Titre impact mais lisible */
+  .welcome-content--l3 h1 {
+    font-size: 1.875rem !important;
+    line-height: 1.2 !important;
+    margin-bottom: 1rem !important;
+    font-weight: 800 !important;
+  }
+  
+  /* Badge premium style iOS */
+  .welcome-content--l3 .d-inline-flex {
+    font-size: 0.7rem !important;
+    padding: 0.4rem 0.875rem !important;
+    margin-bottom: 1rem !important;
+    border-radius: 20px !important;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+    animation: badgeFadeIn 0.8s ease-out 0.2s backwards !important;
+  }
+  
+  @keyframes badgeFadeIn {
+    from {
+      opacity: 0;
+      transform: scale(0.9);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  
+  /* Boutons hero verticaux pour meilleure UX */
+  .welcome-area .d-flex.gap-3 {
+    flex-direction: column !important;
+    gap: 0.75rem !important;
+    align-items: center !important;
+    width: 100% !important;
+    margin-top: 1.5rem !important;
+  }
+  
+  /* Boutons style app moderne */
+  .welcome-area .btn,
+  .welcome-area a[href*="youtube"],
+  .welcome-area a[href="#formulaire"] {
+    width: 100% !important;
+    max-width: 280px !important;
+    padding: 0.875rem 1.5rem !important;
+    font-size: 0.95rem !important;
+    font-weight: 600 !important;
+    border-radius: 14px !important;
+    transition: all 0.2s ease !important;
+    position: relative !important;
+    overflow: hidden !important;
+  }
+  
+  /* Effet tap mobile */
+  .welcome-area .btn:active,
+  .welcome-area a:active {
+    transform: scale(0.98) !important;
+    transition: transform 0.1s ease !important;
+  }
+  
+  /* Image hero - Version mobile optimisée */
+  .welcome-area .col-lg-5 {
+    display: block !important;
+    margin-top: 2rem !important;
+    animation: imageFadeIn 0.8s ease-out 0.6s backwards !important;
+  }
+  
+  @keyframes imageFadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px) scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+  
+  .welcome-area .position-relative[style*="max-width: 420px"] {
+    max-width: 260px !important;
+    margin: 0 auto !important;
+  }
+  
+  /* Glassmorphism sur l'image */
+  .welcome-area .p-4.rounded-4 {
+    padding: 0.75rem !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.18) !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08) !important;
+  }
+  
+  /* Hide stats on mobile */
+  .welcome-area .position-absolute {
+    display: none !important;
+  }
+  
+  /* === BOUTONS GLOBAUX === */
+  .btn {
+    padding: 0.75rem 1.5rem !important;
+    font-size: 0.95rem !important;
+    border-radius: 8px !important;
+  }
+  
+  .btn-lg {
+    padding: 0.875rem 1.75rem !important;
+    font-size: 1rem !important;
+  }
+  
+  /* Centrage des boutons */
+  .btn:not(.btn-icon) {
+    display: block !important;
+    width: 100% !important;
+    max-width: 300px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    text-align: center !important;
+  }
+  
+  /* === NAVIGATION PREMIUM MOBILE === */
+  .site-header {
+    padding: 0 !important;
+    background: rgba(255, 255, 255, 0.98) !important;
+    backdrop-filter: blur(20px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.05) !important;
+  }
+  
+  /* Hide on scroll down, show on scroll up */
+  .site-header.scrolled-down {
+    transform: translateY(-100%) !important;
+  }
+  
+  .navbar {
+    padding: 0.75rem 0 !important;
+    min-height: 60px !important;
+  }
+  
+  /* Logo animation on load */
+  @keyframes logoSlide {
+    from {
+      opacity: 0;
+      transform: translateX(-50%) translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  }
+  
+  .brand-logo {
+    animation: logoSlide 0.5s ease-out !important;
+  }
+  
+  /* Menu burger interactif */
+  @keyframes burgerPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
+  
+  .mobile-menu-trigger:active {
+    animation: burgerPulse 0.3s ease !important;
+  }
+  
+  /* Menu slide moderne */
+  .menu-block {
+    transform: translateX(100%) !important;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  }
+  
+  .menu-block.is-active {
+    transform: translateX(0) !important;
+  }
+  
+  /* === CARDS ET WIDGETS === */
+  .widgets, .single-feature, .single-service, .card {
+    margin-bottom: 1.5rem !important;
+    padding: 1.5rem !important;
+  }
+  
+  /* Icônes dans les cards */
+  .widgets div[style*="width: 60px"] {
+    width: 50px !important;
+    height: 50px !important;
+    margin-bottom: 1rem !important;
+  }
+  
+  .widgets i {
+    font-size: 1.25rem !important;
+  }
+  
+  /* === IMAGES === */
+  img {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+  
+  /* Images avec max-width fixe */
+  img[style*="max-width: 300px"],
+  img[style*="max-width: 350px"],
+  img[style*="max-width: 400px"],
+  img[style*="max-width: 420px"],
+  img[style*="max-width: 600px"] {
+    max-width: 100% !important;
+  }
+  
+  /* === SECTION FAQ === */
+  .accordion-button {
+    padding: 1rem !important;
+    font-size: 0.95rem !important;
+  }
+  
+  .accordion-body {
+    padding: 1rem !important;
+    font-size: 0.9rem !important;
+  }
+  
+  .accordion-item {
+    margin-bottom: 0.75rem !important;
+  }
+  
+  /* === FORMULAIRE === */
+  .form-control, .form-select {
+    padding: 0.75rem 1rem !important;
+    font-size: 0.95rem !important;
+  }
+  
+  .form-floating label {
+    font-size: 0.9rem !important;
+  }
+  
+  /* Checkbox mobile */
+  .form-check-label {
+    font-size: 0.85rem !important;
+    line-height: 1.4 !important;
+  }
+  
+  /* === SECTION PROCESS (Comment ça fonctionne) === */
+  .card-body {
+    padding: 1.25rem !important;
+  }
+  
+  .card-body i[style*="font-size: 3rem"] {
+    font-size: 2rem !important;
+  }
+  
+  .card h4 {
+    font-size: 1.1rem !important;
+  }
+  
+  /* === COLONNES BOOTSTRAP === */
+  /* Force tout en colonne sur mobile */
+  .row > [class*="col-"] {
+    margin-bottom: 1rem !important;
+  }
+  
+  .col-md-4, .col-lg-3, .col-lg-4, .col-xl-6 {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  
+  /* === UTILITIES === */
+  /* Cacher les éléments décoratifs */
+  div[style*="position: absolute"][style*="filter: blur"] {
+    display: none !important;
+  }
+  
+  /* Texte centré sur mobile */
+  .text-start {
+    text-align: center !important;
+  }
+  
+  /* === SPÉCIFIQUE SECTIONS === */
+  
+  /* Section éligibilité */
+  .bg-white.p-6 {
+    padding: 1.5rem !important;
+  }
+  
+  /* Bouton alternative rouge */
+  a.btn[style*="background: #ef4444"] {
+    margin-top: 1rem !important;
+    display: block !important;
+    width: 100% !important;
+    max-width: 280px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+  
+  /* === ANIMATIONS FLUIDES MOBILE === */
+  /* Keep light animations for better UX */
+  [data-aos] {
+    opacity: 0 !important;
+    transition: opacity 0.4s ease-out, transform 0.4s ease-out !important;
+  }
+  
+  [data-aos].aos-animate {
+    opacity: 1 !important;
+  }
+  
+  [data-aos="fade-up"].aos-animate {
+    transform: translateY(0) !important;
+  }
+  
+  [data-aos="fade-up"] {
+    transform: translateY(20px) !important;
+  }
+  
+  /* Simple scale animation for cards */
+  @keyframes cardAppear {
+    from { 
+      opacity: 0;
+      transform: translateY(15px) scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+  
+  .card, .widgets {
+    animation: cardAppear 0.4s ease-out backwards !important;
+  }
+  
+  .card:nth-child(1) { animation-delay: 0.1s !important; }
+  .card:nth-child(2) { animation-delay: 0.2s !important; }
+  .card:nth-child(3) { animation-delay: 0.3s !important; }
+}
+
+/* === OPTIMISATIONS SUPPLÉMENTAIRES === */
+
+/* Formulaire de contact mobile */
+@media (max-width: 576px) {
+  #formulaire .form-control-lg {
+    padding: 0.625rem 0.875rem !important;
+    font-size: 0.95rem !important;
+  }
+  
+  #formulaire .btn-lg {
+    padding: 0.75rem 1.5rem !important;
+    font-size: 1rem !important;
+  }
+  
+  #formulaire .col-md-8 {
+    padding: 0 1rem !important;
+  }
+}
+
+/* === MEDIA QUERY POUR TRÈS PETITS ÉCRANS (< 375px) === */
+@media (max-width: 374px) {
+  h1, .welcome-content--l3 h1 {
+    font-size: 1.35rem !important;
+  }
+  
+  h2 {
+    font-size: 1.2rem !important;
+  }
+  
+  .welcome-area .btn {
+    font-size: 0.8rem !important;
+    padding: 0.5rem 0.75rem !important;
+    max-width: 140px !important;
+  }
+  
+  .container {
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+  }
+  
+  /* Navigation encore plus compacte */
+  .brand-logo span {
+    font-size: 1.1rem !important;
+  }
+  
+  .header-btn .btn {
+    font-size: 0.75rem !important;
+    padding: 0.4rem 0.75rem !important;
+  }
+}
+
+/* === SECTION "COMMENT ÇA FONCTIONNE" - CSS FINTECH MODERNE AMÉLIORÉ === */
+
+/* === ANIMATIONS KEYFRAMES === */
+
+/* Animation d'apparition fluide personnalisée */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Animation slide avec échelle */
+@keyframes slideScale {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Animation pour les badges */
+@keyframes badgeFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+/* Animation pulse raffinée */
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(30, 64, 175, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(30, 64, 175, 0);
+  }
+}
+
+/* === STYLES AMÉLIORÉS POUR LES CARTES === */
+
+/* Carte de base avec améliorations visuelles */
+.step-card {
+  background: linear-gradient(145deg, #ffffff, #f8fafc) !important;
+  border: 1px solid rgba(30, 64, 175, 0.08) !important;
+  box-shadow: 
+    0 4px 20px rgba(0, 0, 0, 0.08),
+    0 1px 4px rgba(0, 0, 0, 0.04) !important;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  position: relative !important;
+  overflow: visible !important;
+}
+
+/* Effet de survol raffiné */
+.step-card:hover {
+  transform: translateY(-12px) scale(1.02) !important;
+  box-shadow: 
+    0 25px 50px rgba(30, 64, 175, 0.15),
+    0 8px 20px rgba(0, 0, 0, 0.1) !important;
+  border-color: rgba(30, 64, 175, 0.2) !important;
+  background: linear-gradient(145deg, #ffffff, #f1f5f9) !important;
+}
+
+/* Pseudo-élément pour effet de brillance */
+.step-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  transition: left 0.6s ease;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.step-card:hover::before {
+  left: 100%;
+}
+
+/* === RYTHME VISUEL - EFFET ZÉBRÉ SUBTIL === */
+
+/* Alternance subtile pour créer du rythme */
+.step-card:nth-child(even) {
+  background: linear-gradient(145deg, #ffffff, #f1f5f9) !important;
+  border-color: rgba(59, 130, 246, 0.08) !important;
+}
+
+.step-card:nth-child(odd) {
+  background: linear-gradient(145deg, #fefefe, #f8fafc) !important;
+  border-color: rgba(30, 64, 175, 0.08) !important;
+}
+
+/* Décalage Y léger entre les cartes (desktop) */
+@media (min-width: 992px) {
+  .step-card:nth-child(even) {
+    margin-top: 1.5rem !important;
+  }
+  
+  .step-card:nth-child(odd) {
+    margin-bottom: 1.5rem !important;
+  }
+}
+
+/* === AMÉLIORATIONS DES BADGES === */
+
+.step-card .badge {
+  animation: badgeFloat 3s ease-in-out infinite !important;
+  position: relative !important;
+  z-index: 10 !important;
+}
+
+.step-card:hover .badge {
+  animation-play-state: paused !important;
+  transform: scale(1.05) !important;
+}
+
+/* Force l'affichage des badges au-dessus de tout */
+.step-card .position-absolute {
+  z-index: 10 !important;
+}
+
+/* === AMÉLIORATIONS DES ICÔNES === */
+
+.step-card .d-inline-flex {
+  transition: all 0.3s ease !important;
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+.step-card:hover .d-inline-flex {
+  transform: scale(1.1) !important;
+  animation: pulse-glow 2s infinite !important;
+}
+
+/* === AMÉLIORATIONS TYPOGRAPHIQUES === */
+
+.step-card h3 {
+  position: relative !important;
+  z-index: 2 !important;
+  transition: color 0.3s ease !important;
+}
+
+.step-card:hover h3 {
+  color: #1e40af !important;
+}
+
+.step-card p {
+  position: relative !important;
+  z-index: 2 !important;
+  transition: color 0.3s ease !important;
+}
+
+.step-card:hover p {
+  color: #374151 !important;
+}
+
+/* === CLASSES POUR ANIMATIONS AOS === */
+
+/* Classes personnalisées pour AOS */
+.animate-card {
+  animation: slideScale 0.8s ease-out forwards;
+}
+
+/* Application des mêmes animations aux widgets - AMÉLIORÉ POUR BÉNÉFICES */
+.widgets.animate-card {
+  animation: slideScale 0.8s ease-out forwards;
+  background: linear-gradient(145deg, #ffffff, #f8fafc) !important;
+  border: 1px solid rgba(30, 64, 175, 0.08) !important;
+  box-shadow: 
+    0 4px 20px rgba(0, 0, 0, 0.08),
+    0 1px 4px rgba(0, 0, 0, 0.04) !important;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  position: relative !important;
+  overflow: visible !important;
+}
+
+.widgets.animate-card:hover {
+  transform: translateY(-12px) scale(1.02) !important;
+  box-shadow: 
+    0 25px 50px rgba(30, 64, 175, 0.15),
+    0 8px 20px rgba(0, 0, 0, 0.1) !important;
+  border-color: rgba(30, 64, 175, 0.2) !important;
+  background: linear-gradient(145deg, #ffffff, #f1f5f9) !important;
+}
+
+/* Pseudo-élément pour effet de brillance sur les widgets bénéfices */
+.widgets.animate-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  transition: left 0.6s ease;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.widgets.animate-card:hover::before {
+  left: 100%;
+}
+
+/* Rythme visuel - Alternance pour les widgets bénéfices */
+.widgets.animate-card:nth-child(even) {
+  background: linear-gradient(145deg, #ffffff, #f1f5f9) !important;
+  border-color: rgba(59, 130, 246, 0.08) !important;
+}
+
+.widgets.animate-card:nth-child(odd) {
+  background: linear-gradient(145deg, #fefefe, #f8fafc) !important;
+  border-color: rgba(30, 64, 175, 0.08) !important;
+}
+
+/* Alignement correct des cartes bénéfices - suppression des décalages */
+@media (min-width: 992px) {
+  .col-md-6 .widgets.animate-card {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+  }
+}
+
+/* Améliorations des icônes dans les widgets bénéfices */
+.widgets.animate-card .d-flex {
+  transition: all 0.3s ease !important;
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+.widgets.animate-card:hover .d-flex {
+  transform: scale(1.1) !important;
+  animation: pulse-glow 2s infinite !important;
+}
+
+/* Améliorations typographiques pour widgets bénéfices */
+.widgets.animate-card h3 {
+  position: relative !important;
+  z-index: 2 !important;
+  transition: color 0.3s ease !important;
+}
+
+.widgets.animate-card:hover h3 {
+  color: #1e40af !important;
+}
+
+.widgets.animate-card p {
+  position: relative !important;
+  z-index: 2 !important;
+  transition: color 0.3s ease !important;
+}
+
+.widgets.animate-card:hover p {
+  color: #374151 !important;
+}
+
+.animate-delay-1 { animation-delay: 0.1s; }
+.animate-delay-2 { animation-delay: 0.2s; }
+.animate-delay-3 { animation-delay: 0.3s; }
+.animate-delay-4 { animation-delay: 0.4s; }
+
+/* === BOUTON CTA HERO - DESIGN PREMIUM === */
+
+/* Styles de base pour le bouton CTA */
+.hero-cta-btn {
+  background: linear-gradient(135deg, #1e40af, #3b82f6) !important;
+  color: white !important;
+  border: none !important;
+  border-radius: 12px !important;
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 600 !important;
+  text-decoration: none !important;
+  text-align: center !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: 
+    0 8px 32px rgba(30, 64, 175, 0.3),
+    0 2px 8px rgba(0, 0, 0, 0.1) !important;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+/* Effet de survol premium */
+.hero-cta-btn:hover {
+  transform: translateY(-3px) scale(1.02) !important;
+  box-shadow: 
+    0 12px 40px rgba(30, 64, 175, 0.4),
+    0 4px 16px rgba(0, 0, 0, 0.15) !important;
+  background: linear-gradient(135deg, #1d3aa0, #2563eb) !important;
+  color: white !important;
+}
+
+/* Effet de brillance au survol */
+.hero-cta-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: left 0.6s ease;
+  z-index: 1;
+}
+
+.hero-cta-btn:hover::before {
+  left: 100%;
+}
+
+/* S'assurer que le texte reste au-dessus ET centré */
+.hero-cta-btn span,
+.hero-cta-btn {
+  position: relative;
+  z-index: 2;
+}
+
+/* Force le centrage du texte dans le bouton */
+.hero-cta-btn {
+  text-align: center !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+}
+
+.hero-cta-btn * {
+  text-align: center !important;
+}
+
+/* === POSITIONNEMENT RESPONSIVE === */
+
+/* Desktop - Aligné à gauche pour suivre le flow de lecture */
+.hero-cta-container {
+  margin-top: 2.5rem !important;
+  margin-bottom: 1rem !important;
+}
+
+/* Positionnement stratégique desktop */
+@media (min-width: 992px) {
+  .hero-cta-container {
+    text-align: left !important;
+  }
+  
+  .hero-cta-btn {
+    display: inline-block !important;
+    margin-left: 0 !important;
+  }
+}
+
+/* Mobile - Après la vidéo, bien espacé */
+@media (max-width: 991.98px) {
+  .hero-cta-container {
+    margin-top: 1.5rem !important;
+  }
+  
+  /* Bouton mobile plus grand et centré */
+  .hero-cta-btn {
+    width: 100% !important;
+    max-width: 280px !important;
+    margin: 0 auto !important;
+    display: block !important;
+  }
+}
+
+/* Très petits écrans */
+@media (max-width: 374px) {
+  .hero-cta-btn {
+    font-size: 0.95rem !important;
+    padding: 0.875rem 1.5rem !important;
+  }
+}
+
+/* === ANIMATIONS D'APPARITION === */
+
+/* Animation personnalisée pour le CTA */
+@keyframes heroCtaFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* État initial pour l'animation */
+.hero-cta-container[data-aos] {
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+/* Animation déclenchée par AOS */
+.hero-cta-container[data-aos].aos-animate {
+  animation: heroCtaFadeUp 0.7s ease-out forwards;
+}
+
+/* === ÉTATS FOCUS ET ACTIVE === */
+
+.hero-cta-btn:focus {
+  outline: none !important;
+  box-shadow: 
+    0 8px 32px rgba(30, 64, 175, 0.3),
+    0 0 0 3px rgba(59, 130, 246, 0.3) !important;
+}
+
+.hero-cta-btn:active {
+  transform: translateY(-1px) scale(1.01) !important;
+  transition: all 0.1s ease !important;
+}
+
+/* === RESPONSIVE MOBILE POUR LA SECTION === */
+@media (max-width: 768px) {
+  
+  /* Section "Comment ça fonctionne" */
+  .how-it-works-section {
+    padding: 3rem 0 !important;
+  }
+  
+  /* Header de section */
+  .how-it-works-section .mb-5 {
+    margin-bottom: 2.5rem !important;
+  }
+  
+  .how-it-works-section h2 {
+    font-size: 2.2rem !important;
+    margin-bottom: 1.5rem !important;
+  }
+  
+  .how-it-works-section p {
+    font-size: 1.05rem !important;
+    margin-bottom: 0 !important;
+  }
+  
+  /* Badge processus */
+  .how-it-works-section .d-inline-flex.px-4 {
+    padding: 0.75rem 1.5rem !important;
+    margin-bottom: 1.5rem !important;
+  }
+  
+  .how-it-works-section .d-inline-flex span {
+    font-size: 0.8rem !important;
+  }
+  
+  /* Cards d'étapes - padding généreux */
+  .step-card {
+    padding: 2rem 1.5rem !important;
+    margin-bottom: 2rem !important;
+    border-width: 1px !important;
+  }
+  
+  /* Badges d'étapes */
+  .step-card .position-absolute[style*="top: -15px"] {
+    top: -12px !important;
+    left: 1.5rem !important;
+  }
+  
+  .step-card .badge {
+    padding: 0.5rem 1rem !important;
+    font-size: 0.8rem !important;
+  }
+  
+  /* Titres H3 plus visibles */
+  .step-card h3 {
+    font-size: 1.25rem !important;
+    margin-bottom: 1.25rem !important;
+    line-height: 1.4 !important;
+  }
+  
+  /* Paragraphes aérés */
+  .step-card p {
+    font-size: 1rem !important;
+    line-height: 1.7 !important;
+    margin-bottom: 0 !important;
+  }
+  
+  /* Icônes dans les cards */
+  .step-card .d-inline-flex {
+    width: 60px !important;
+    height: 60px !important;
+    margin-bottom: 1.5rem !important;
+    border-radius: 16px !important;
+  }
+  
+  .step-card i {
+    font-size: 1.5rem !important;
+  }
+  
+  /* Espacement entre colonnes plus généreux */
+  .how-it-works-section .g-4 {
+    gap: 2rem !important;
+  }
+  
+  /* CTA Final */
+  .how-it-works-section .mt-5 {
+    margin-top: 3rem !important;
+  }
+  
+  .how-it-works-section .btn {
+    padding: 1rem 2rem !important;
+    font-size: 1rem !important;
+  }
+  
+  /* Cacher les éléments décoratifs sur mobile */
+  .how-it-works-section .position-absolute[style*="filter: blur"] {
+    display: none !important;
+  }
+  
+  /* Désactiver certaines animations pour performance mobile */
+  .step-card:hover {
+    transform: none !important;
+  }
+}
+
+/* Très petits écrans */
+@media (max-width: 374px) {
+  .how-it-works-section h2 {
+    font-size: 1.8rem !important;
+  }
+  
+  .step-card {
+    padding: 1.75rem 1.25rem !important;
+  }
+  
+  .step-card h3 {
+    font-size: 1.15rem !important;
+  }
+  
+  .step-card p {
+    font-size: 0.95rem !important;
+  }
+  
+  .step-card .d-inline-flex {
+    width: 55px !important;
+    height: 55px !important;
+  }
+  
+  .step-card i {
+    font-size: 1.3rem !important;
+  }
+  
+  .step-card .badge {
+    padding: 0.4rem 0.8rem !important;
+    font-size: 0.75rem !important;
+  }
+}

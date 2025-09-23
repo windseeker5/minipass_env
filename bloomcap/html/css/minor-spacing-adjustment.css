@@ -1,0 +1,26 @@
+/* Minor Spacing Adjustment - Ajustement mineur ciblé */
+
+/* SEULE MODIFICATION : Réduire l'espace au-dessus du titre "Vos informations" */
+
+/* 1. Réduction du padding de la form-card elle-même */
+#formulaire .form-card {
+  padding-top: 10px !important; /* Réduit de 20px à 10px */
+}
+
+/* 2. Réduction du padding top du conteneur interne */
+#formulaire .form-card .p-4.p-md-6 {
+  padding-top: 0.75rem !important; /* Réduit significativement (12px) */
+}
+
+@media (min-width: 768px) {
+  #formulaire .form-card .p-4.p-md-6 {
+    padding-top: 1rem !important; /* 16px sur desktop au lieu de 40px */
+  }
+}
+
+/* 3. Si les trust badges sont présents, réduire leur marge bottom */
+#formulaire .form-card .d-flex.justify-content-center.gap-4.mb-5 {
+  margin-bottom: 1.5rem !important; /* Réduit de 30px à 24px */
+}
+
+/* C'est tout - aucune autre modification */

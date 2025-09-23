@@ -1,0 +1,715 @@
+/* ===================================================================
+   MOBILE OPTIMIZATION CSS - SOLUTION COMPLÈTE
+   Corrige tous les problèmes mobile identifiés
+   Style : moderne, professionnel, fluide, haut de gamme
+   =================================================================== */
+
+/* === VARIABLES CSS POUR COHÉRENCE === */
+:root {
+  --mobile-header-height: 70px;
+  --mobile-content-padding: 1rem;
+  --mobile-section-padding: 3rem 0;
+  --mobile-border-radius: 12px;
+  --mobile-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  --mobile-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* Système typographique responsive */
+  --mobile-h1-size: clamp(1.75rem, 4vw, 2.25rem);
+  --mobile-h2-size: clamp(1.5rem, 3.5vw, 2rem);
+  --mobile-h3-size: clamp(1.25rem, 3vw, 1.5rem);
+  --mobile-body-size: clamp(0.9rem, 2.5vw, 1rem);
+  --mobile-small-size: clamp(0.8rem, 2vw, 0.9rem);
+}
+
+/* === OPTIMISATIONS GLOBALES MOBILE === */
+@media (max-width: 768px) {
+  
+  /* Performance et fluidité */
+  * {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .site-wrapper {
+    min-height: 100vh;
+    min-height: 100dvh; /* Dynamic viewport height */
+  }
+  
+  /* Masquer les éléments décoratifs lourds */
+  .welcome-area > div[style*="filter: blur"],
+  [style*="filter: blur(100px)"],
+  [style*="filter: blur(80px)"] {
+    display: none !important;
+  }
+}
+
+/* === 1. SECTION HÉRO - OPTIMISATION COMPLÈTE === */
+@media (max-width: 768px) {
+  
+  /* Container héro optimisé */
+  .welcome-area {
+    min-height: 100vh !important;
+    min-height: 100dvh !important;
+    padding: var(--mobile-header-height) 0 2rem 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    position: relative !important;
+  }
+  
+  .welcome-area .container {
+    padding-left: var(--mobile-content-padding) !important;
+    padding-right: var(--mobile-content-padding) !important;
+  }
+  
+  /* Contenu héro centré et compact */
+  .welcome-content--l3 {
+    text-align: center !important;
+    max-width: 100% !important;
+  }
+  
+  /* Badge optimisé */
+  .welcome-content--l3 .d-inline-flex {
+    font-size: var(--mobile-small-size) !important;
+    padding: 0.5rem 1rem !important;
+    margin-bottom: 1.5rem !important;
+    border-radius: 24px !important;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+  }
+  
+  /* Titre héro responsive avec clamp */
+  .welcome-content--l3 h1 {
+    font-size: var(--mobile-h1-size) !important;
+    line-height: 1.2 !important;
+    margin-bottom: 1rem !important;
+    font-weight: 700 !important;
+    letter-spacing: -0.02em !important;
+  }
+  
+  /* Paragraphes optimisés */
+  .welcome-content--l3 p {
+    font-size: var(--mobile-body-size) !important;
+    line-height: 1.6 !important;
+    margin-bottom: 1rem !important;
+  }
+  
+  .welcome-content--l3 p[style*="font-size: 1.25rem"] {
+    font-size: clamp(1rem, 3vw, 1.125rem) !important;
+  }
+  
+  .welcome-content--l3 p[style*="font-style: italic"] {
+    font-size: var(--mobile-small-size) !important;
+    opacity: 0.8 !important;
+    margin-bottom: 2rem !important;
+  }
+  
+  /* Boutons héro - disposition verticale optimisée */
+  .welcome-area .d-flex.flex-wrap {
+    flex-direction: column !important;
+    gap: 1rem !important;
+    align-items: center !important;
+    width: 100% !important;
+    margin-top: 1.5rem !important;
+  }
+  
+  .welcome-area .btn,
+  .welcome-area a[class*="btn"] {
+    width: 100% !important;
+    max-width: 280px !important;
+    padding: 1rem 1.5rem !important;
+    font-size: var(--mobile-body-size) !important;
+    font-weight: 600 !important;
+    border-radius: var(--mobile-border-radius) !important;
+    transition: var(--mobile-transition) !important;
+    text-align: center !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.5rem !important;
+  }
+  
+  /* Effet tactile sur les boutons */
+  .welcome-area .btn:active,
+  .welcome-area a:active {
+    transform: scale(0.98) !important;
+    transition: transform 0.1s ease !important;
+  }
+  
+  /* Image héro - version mobile optimisée */
+  .welcome-area .col-lg-5 {
+    margin-top: 2rem !important;
+    animation: heroImageFade 0.8s ease-out 0.4s backwards !important;
+  }
+  
+  @keyframes heroImageFade {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .welcome-area .position-relative[style*="max-width"] {
+    max-width: 280px !important;
+    margin: 0 auto !important;
+  }
+  
+  /* Glassmorphism sur l'image */
+  .welcome-area .p-4.rounded-4 {
+    padding: 1rem !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border-radius: 16px !important;
+    box-shadow: var(--mobile-shadow) !important;
+  }
+  
+  /* Masquer les stats flottantes sur mobile */
+  .welcome-area .position-absolute[style*="background: white"] {
+    display: none !important;
+  }
+}
+
+/* === 2. NAVIGATION MOBILE - HEADER MODERNE === */
+@media (max-width: 768px) {
+  
+  /* Header fixe avec backdrop blur */
+  .site-header {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 1000 !important;
+    height: var(--mobile-header-height) !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(20px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06) !important;
+    transition: var(--mobile-transition) !important;
+  }
+  
+  /* Navbar optimisée */
+  .navbar {
+    padding: 0 var(--mobile-content-padding) !important;
+    height: var(--mobile-header-height) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+  }
+  
+  /* Logo centré avec style moderne */
+  .brand-logo {
+    position: absolute !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    z-index: 1001 !important;
+  }
+  
+  .brand-logo span {
+    font-size: clamp(1.125rem, 3vw, 1.25rem) !important;
+    font-weight: 800 !important;
+    background: linear-gradient(135deg, #1e40af, #3b82f6) !important;
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+  }
+  
+  /* Menu burger moderne */
+  .mobile-menu-trigger {
+    width: 44px !important;
+    height: 44px !important;
+    background: rgba(30, 64, 175, 0.08) !important;
+    border-radius: 12px !important;
+    border: none !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    transition: var(--mobile-transition) !important;
+    z-index: 1001 !important;
+  }
+  
+  .mobile-menu-trigger:hover {
+    background: rgba(30, 64, 175, 0.12) !important;
+  }
+  
+  .mobile-menu-trigger span {
+    width: 20px !important;
+    height: 2px !important;
+    background: #1e40af !important;
+    border-radius: 2px !important;
+    position: relative !important;
+    transition: var(--mobile-transition) !important;
+  }
+  
+  .mobile-menu-trigger span::before,
+  .mobile-menu-trigger span::after {
+    content: '' !important;
+    position: absolute !important;
+    width: 20px !important;
+    height: 2px !important;
+    background: #1e40af !important;
+    border-radius: 2px !important;
+    transition: var(--mobile-transition) !important;
+  }
+  
+  .mobile-menu-trigger span::before {
+    top: -6px !important;
+  }
+  
+  .mobile-menu-trigger span::after {
+    bottom: -6px !important;
+  }
+  
+  /* Animation burger actif */
+  .mobile-menu-trigger.is-active span {
+    background: transparent !important;
+  }
+  
+  .mobile-menu-trigger.is-active span::before {
+    transform: rotate(45deg) !important;
+    top: 0 !important;
+  }
+  
+  .mobile-menu-trigger.is-active span::after {
+    transform: rotate(-45deg) !important;
+    bottom: 0 !important;
+  }
+  
+  /* Bouton CTA header mobile */
+  .header-btn {
+    z-index: 1001 !important;
+  }
+  
+  .header-btn .btn {
+    display: flex !important;
+    padding: 0.625rem 1rem !important;
+    font-size: 0.875rem !important;
+    font-weight: 600 !important;
+    border-radius: 20px !important;
+    background: linear-gradient(135deg, #1e40af, #3b82f6) !important;
+    color: white !important;
+    border: none !important;
+    box-shadow: 0 2px 8px rgba(30, 64, 175, 0.2) !important;
+    transition: var(--mobile-transition) !important;
+  }
+  
+  .header-btn .btn:active {
+    transform: scale(0.95) !important;
+  }
+  
+  /* Menu mobile overlay moderne */
+  .menu-block {
+    position: fixed !important;
+    top: 0 !important;
+    right: -100% !important;
+    width: 85% !important;
+    max-width: 320px !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    background: #ffffff !important;
+    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.1) !important;
+    transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    z-index: 1002 !important;
+    overflow-y: auto !important;
+  }
+  
+  .menu-block.is-active {
+    right: 0 !important;
+  }
+  
+  /* Header du menu mobile */
+  .mobile-menu-head {
+    background: linear-gradient(135deg, #1e40af, #3b82f6) !important;
+    color: white !important;
+    padding: 1.5rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+  }
+  
+  .mobile-menu-close {
+    width: 36px !important;
+    height: 36px !important;
+    background: rgba(255, 255, 255, 0.15) !important;
+    border-radius: 8px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 1.25rem !important;
+    cursor: pointer !important;
+    transition: var(--mobile-transition) !important;
+  }
+  
+  .mobile-menu-close:hover {
+    background: rgba(255, 255, 255, 0.25) !important;
+  }
+  
+  /* Items du menu */
+  .site-menu-main {
+    padding: 1rem 0 !important;
+  }
+  
+  .site-menu-main li {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important;
+  }
+  
+  .site-menu-main a {
+    display: block !important;
+    padding: 1rem 1.5rem !important;
+    color: #1f2937 !important;
+    font-weight: 500 !important;
+    text-decoration: none !important;
+    transition: var(--mobile-transition) !important;
+  }
+  
+  .site-menu-main a:hover {
+    background: #f9fafb !important;
+    color: #1e40af !important;
+    padding-left: 2rem !important;
+  }
+  
+  /* Overlay sombre */
+  .menu-overlay {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    background: rgba(0, 0, 0, 0.5) !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transition: all 0.3s ease !important;
+    z-index: 1001 !important;
+  }
+  
+  .menu-overlay.is-active {
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+}
+
+/* === 3. ANIMATIONS OPTIMISÉES MOBILE === */
+@media (max-width: 768px) {
+  
+  /* Désactiver animations lourdes sur mobile */
+  [data-aos] {
+    animation-duration: 0.4s !important;
+    animation-timing-function: ease-out !important;
+  }
+  
+  /* Animations légères seulement */
+  @keyframes mobileFadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(15px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* Appliquer aux éléments principaux */
+  .card,
+  .widgets,
+  .single-feature,
+  .single-service {
+    animation: mobileFadeIn 0.5s ease-out backwards !important;
+  }
+  
+  /* Délais échelonnés pour effet cascade léger */
+  .card:nth-child(1), .widgets:nth-child(1) { animation-delay: 0.1s !important; }
+  .card:nth-child(2), .widgets:nth-child(2) { animation-delay: 0.2s !important; }
+  .card:nth-child(3), .widgets:nth-child(3) { animation-delay: 0.3s !important; }
+  
+  /* Désactiver hover complexes sur mobile */
+  .card:hover,
+  .widgets:hover,
+  .single-feature:hover {
+    transform: none !important;
+    box-shadow: var(--mobile-shadow) !important;
+  }
+  
+  /* Performance - désactiver animations CSS coûteuses */
+  *::before,
+  *::after {
+    animation: none !important;
+  }
+}
+
+/* === 4. SECTIONS RESPONSIVE === */
+@media (max-width: 768px) {
+  
+  /* Espacement harmonisé */
+  .py-16, .py-20, .section-padding {
+    padding: var(--mobile-section-padding) !important;
+  }
+  
+  .py-8 {
+    padding: 2rem 0 !important;
+  }
+  
+  .py-5 {
+    padding: 1.5rem 0 !important;
+  }
+  
+  /* Titres responsive avec clamp */
+  h1, .h1 {
+    font-size: var(--mobile-h1-size) !important;
+    line-height: 1.2 !important;
+    margin-bottom: 1rem !important;
+  }
+  
+  h2, .h2, .section-title__heading {
+    font-size: var(--mobile-h2-size) !important;
+    line-height: 1.3 !important;
+    margin-bottom: 1rem !important;
+  }
+  
+  h3, .h3, .widgets__heading {
+    font-size: var(--mobile-h3-size) !important;
+    line-height: 1.4 !important;
+    margin-bottom: 0.75rem !important;
+  }
+  
+  /* Texte corporel */
+  p, .widgets__text {
+    font-size: var(--mobile-body-size) !important;
+    line-height: 1.6 !important;
+    margin-bottom: 1rem !important;
+  }
+  
+  /* Images responsives */
+  img {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+  
+  /* Colonnes Bootstrap forcées sur mobile */
+  .row > [class*="col-"] {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-bottom: 2rem !important;
+  }
+  
+  /* Cards optimisées */
+  .card,
+  .widgets,
+  .single-feature,
+  .single-service {
+    margin-bottom: 1.5rem !important;
+    padding: 1.5rem !important;
+    border-radius: var(--mobile-border-radius) !important;
+    box-shadow: var(--mobile-shadow) !important;
+  }
+  
+  /* Icônes dans les cards */
+  .widgets div[style*="width:"] {
+    width: 60px !important;
+    height: 60px !important;
+    margin-bottom: 1rem !important;
+  }
+  
+  .widgets i {
+    font-size: 1.5rem !important;
+  }
+}
+
+/* === 5. FORMULAIRE DE CONTACT OPTIMISÉ === */
+@media (max-width: 768px) {
+  
+  #formulaire {
+    padding: var(--mobile-section-padding) !important;
+  }
+  
+  #formulaire .container {
+    padding-left: var(--mobile-content-padding) !important;
+    padding-right: var(--mobile-content-padding) !important;
+  }
+  
+  /* Titre formulaire responsive */
+  #formulaire h2 {
+    font-size: var(--mobile-h2-size) !important;
+    text-align: center !important;
+    margin-bottom: 1.5rem !important;
+  }
+  
+  /* Champs optimisés pour usage à une main */
+  .form-control,
+  .form-control-lg {
+    padding: 1rem !important;
+    font-size: var(--mobile-body-size) !important;
+    border-radius: var(--mobile-border-radius) !important;
+    border: 2px solid #e5e7eb !important;
+    transition: var(--mobile-transition) !important;
+    min-height: 56px !important; /* Taille recommandée pour touch */
+  }
+  
+  .form-control:focus,
+  .form-control-lg:focus {
+    border-color: #1e40af !important;
+    box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1) !important;
+  }
+  
+  /* Select personnalisé */
+  .form-select {
+    min-height: 56px !important;
+    background-size: 16px !important;
+  }
+  
+  /* Textarea responsive */
+  textarea.form-control {
+    min-height: 120px !important;
+    resize: vertical !important;
+  }
+  
+  /* Checkbox et labels */
+  .form-check {
+    margin: 1rem 0 !important;
+  }
+  
+  .form-check-input {
+    width: 20px !important;
+    height: 20px !important;
+    margin-top: 2px !important;
+  }
+  
+  .form-check-label {
+    font-size: var(--mobile-small-size) !important;
+    line-height: 1.5 !important;
+    padding-left: 0.5rem !important;
+  }
+  
+  /* Bouton submit optimisé */
+  #formulaire .btn {
+    width: 100% !important;
+    padding: 1rem 2rem !important;
+    font-size: var(--mobile-body-size) !important;
+    font-weight: 600 !important;
+    border-radius: var(--mobile-border-radius) !important;
+    margin-top: 1rem !important;
+    min-height: 56px !important;
+    transition: var(--mobile-transition) !important;
+  }
+  
+  #formulaire .btn:active {
+    transform: scale(0.98) !important;
+  }
+  
+  /* Container formulaire */
+  #formulaire .col-md-8 {
+    padding: 0 !important;
+  }
+}
+
+/* === RESPONSIVE SUPPLÉMENTAIRE === */
+
+/* Mobile petit (< 576px) */
+@media (max-width: 576px) {
+  :root {
+    --mobile-content-padding: 0.75rem;
+    --mobile-h1-size: clamp(1.5rem, 4vw, 1.875rem);
+    --mobile-h2-size: clamp(1.25rem, 3.5vw, 1.625rem);
+  }
+  
+  .welcome-area .btn {
+    max-width: 260px !important;
+    padding: 0.875rem 1.25rem !important;
+  }
+  
+  .mobile-menu-trigger {
+    width: 40px !important;
+    height: 40px !important;
+  }
+  
+  .header-btn .btn {
+    padding: 0.5rem 0.875rem !important;
+    font-size: 0.8rem !important;
+  }
+}
+
+/* Très petit mobile (< 375px) */
+@media (max-width: 374px) {
+  :root {
+    --mobile-content-padding: 0.5rem;
+    --mobile-h1-size: clamp(1.375rem, 4vw, 1.75rem);
+  }
+  
+  .brand-logo span {
+    font-size: 1rem !important;
+  }
+  
+  .welcome-area .btn {
+    max-width: 240px !important;
+    font-size: 0.875rem !important;
+  }
+  
+  .form-control,
+  .form-control-lg {
+    padding: 0.875rem !important;
+  }
+}
+
+/* === AMÉLIORATION DE L'ACCESSIBILITÉ === */
+@media (max-width: 768px) {
+  
+  /* Focus visible amélioré */
+  button:focus,
+  a:focus,
+  input:focus,
+  select:focus,
+  textarea:focus {
+    outline: 2px solid #1e40af !important;
+    outline-offset: 2px !important;
+  }
+  
+  /* Zones de touch confortables */
+  a, button, .btn, input, select {
+    min-height: 44px !important;
+    min-width: 44px !important;
+  }
+  
+  /* Contraste amélioré */
+  .text-muted {
+    color: #4b5563 !important;
+  }
+}
+
+/* === OPTIMISATION DES PERFORMANCES === */
+@media (max-width: 768px) {
+  
+  /* Accélération matérielle */
+  .card,
+  .widgets,
+  .btn,
+  .site-header {
+    transform: translateZ(0) !important;
+    -webkit-backface-visibility: hidden !important;
+    backface-visibility: hidden !important;
+  }
+  
+  /* Optimisation du scroll */
+  .site-wrapper {
+    -webkit-overflow-scrolling: touch !important;
+  }
+  
+  /* Réduction des reflow/repaint */
+  * {
+    box-sizing: border-box !important;
+  }
+}

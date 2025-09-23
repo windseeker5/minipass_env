@@ -1,0 +1,124 @@
+/* Mobile No Animations - Désactive les animations pour améliorer les performances */
+/* Only affects screens max-width: 768px */
+
+@media (max-width: 768px) {
+  /* ========================================
+     DÉSACTIVATION GLOBALE DES ANIMATIONS
+     ======================================== */
+  
+  /* Désactive toutes les animations d'icônes */
+  .widgets-services__single .d-flex[style*="background: linear-gradient"],
+  .widgets .d-flex[style*="background: linear-gradient"],
+  .service-area .d-flex[style*="background: linear-gradient"],
+  .d-flex[style*="#ef4444"],
+  .d-flex[style*="#10b981"],
+  .d-flex[style*="#3b82f6"],
+  .d-flex[style*="#1e40af"],
+  .d-flex[style*="#fbbf24"],
+  .d-flex[style*="#f59e0b"],
+  .d-flex[style*="#8b5cf6"],
+  .d-flex[style*="#7c3aed"] {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: scale(1) !important;
+    transition: none !important;
+  }
+
+  /* Désactive les animations sur les icônes FontAwesome */
+  .widgets-services__single .fas,
+  .widgets-services__single .fa,
+  .widgets .fas,
+  .widgets .fa,
+  .service-area .fas,
+  .service-area .fa,
+  .process-area .fas,
+  .feature-area .fas {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: scale(1) !important;
+    transition: none !important;
+  }
+
+  /* Désactive spécifiquement les animations des icônes problème */
+  .fa-clock,
+  .fa-times,
+  .fa-lock,
+  .fa-bomb {
+    animation: none !important;
+  }
+
+  /* Désactive les animations au survol */
+  .widgets-services__single:hover .d-flex[style*="background: linear-gradient"],
+  .widgets:hover .d-flex[style*="background: linear-gradient"],
+  .service-area:hover .d-flex[style*="background: linear-gradient"] {
+    transform: scale(1) !important;
+    animation-play-state: unset !important;
+  }
+
+  /* Désactive les animations des cartes */
+  .widgets-services__single,
+  .single-service,
+  .single-feature,
+  .process-step,
+  .card {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  /* Force l'affichage immédiat des éléments */
+  .animate-on-scroll,
+  .visible {
+    opacity: 1 !important;
+    animation: none !important;
+    transform: none !important;
+  }
+
+  /* Désactive les animations de la section hero */
+  .welcome-content > * {
+    opacity: 1 !important;
+    animation: none !important;
+  }
+
+  /* Désactive will-change pour améliorer les performances */
+  .animate-on-scroll,
+  .card,
+  .single-service,
+  .single-feature,
+  .widgets-services__single {
+    will-change: auto !important;
+  }
+
+  /* Garde uniquement les transitions essentielles très rapides */
+  .btn {
+    transition: background-color 0.2s ease !important;
+  }
+
+  /* Supprime l'effet ripple sur les boutons */
+  .btn::after {
+    display: none !important;
+  }
+}
+
+/* Force la désactivation même avec prefers-reduced-motion */
+@media (max-width: 768px) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 0 !important;
+  }
+  
+  /* Garde uniquement les transitions rapides pour l'interactivité */
+  .btn,
+  .form-control,
+  a {
+    transition-duration: 0.2s !important;
+  }
+  
+  /* Tout le reste n'a pas de transition */
+  :not(.btn):not(.form-control):not(a) {
+    transition: none !important;
+  }
+}

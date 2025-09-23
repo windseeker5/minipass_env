@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fix Menu Mobile Simple</title>
+<style>
+@media (max-width: 991px) {
+  /* Cache les conflits */
+  .menu-block-wrapper { display: none !important; }
+  
+  /* Hamburger simple */
+  #simple-hamburger {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    background: #1e40af;
+    border-radius: 5px;
+    cursor: pointer;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+  }
+  
+  #simple-hamburger span {
+    display: block;
+    width: 30px;
+    height: 3px;
+    background: white;
+    margin: 3px 0;
+  }
+  
+  /* Menu simple */
+  #simple-menu {
+    position: fixed;
+    top: 0;
+    right: -300px;
+    width: 300px;
+    height: 100vh;
+    background: white;
+    box-shadow: -2px 0 10px rgba(0,0,0,0.2);
+    transition: right 0.3s ease;
+    z-index: 9998;
+    overflow-y: auto;
+  }
+  
+  #simple-menu.open {
+    right: 0;
+  }
+  
+  #simple-menu-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  #simple-menu-close {
+    font-size: 30px;
+    cursor: pointer;
+    background: none;
+    border: none;
+  }
+  
+  #simple-menu-content {
+    padding: 20px;
+  }
+  
+  #simple-menu-content a {
+    display: block;
+    padding: 15px 10px;
+    color: #333;
+    text-decoration: none;
+    border-bottom: 1px solid #eee;
+    font-size: 16px;
+  }
+  
+  #simple-menu-content a:hover {
+    background: #f8f9fa;
+  }
+  
+  .submenu {
+    padding-left: 20px;
+    background: #f8f9fa;
+  }
+  
+  .submenu a {
+    font-size: 14px;
+    color: #666;
+  }
+  
+  /* Overlay */
+  #simple-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background: rgba(0,0,0,0.5);
+    display: none;
+    z-index: 9997;
+  }
+  
+  #simple-overlay.open {
+    display: block;
+  }
+  
+  /* Centre le logo */
+  .brand-logo {
+    text-align: center;
+    margin: 0 auto;
+  }
+}
+
+@media (min-width: 992px) {
+  #simple-hamburger,
+  #simple-menu,
+  #simple-overlay {
+    display: none !important;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- INJECTION DU MENU SIMPLE -->
+<div id="simple-hamburger">
+  <span></span>
+  <span></span>
+  <span></span>
+</div>
+
+<div id="simple-menu">
+  <div id="simple-menu-header">
+    <strong>MENU</strong>
+    <button id="simple-menu-close">&times;</button>
+  </div>
+  <div id="simple-menu-content">
+    <a href="#" class="has-submenu">Solutions de liquidité ▼</a>
+    <div class="submenu" style="display: none;">
+      <a href="/index.html">Sale & Leaseback</a>
+      <a href="/financement-rapide.html">Financement rapide</a>
+    </div>
+    <a href="/a-propos.html">À propos</a>
+  </div>
+</div>
+
+<div id="simple-overlay"></div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  if (window.innerWidth > 991) return;
+  
+  const hamburger = document.getElementById('simple-hamburger');
+  const menu = document.getElementById('simple-menu');
+  const overlay = document.getElementById('simple-overlay');
+  const closeBtn = document.getElementById('simple-menu-close');
+  
+  // Ouvrir/fermer le menu
+  function toggleMenu() {
+    const isOpen = menu.classList.contains('open');
+    if (isOpen) {
+      menu.classList.remove('open');
+      overlay.classList.remove('open');
+      document.body.style.overflow = '';
+    } else {
+      menu.classList.add('open');
+      overlay.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+  }
+  
+  hamburger.addEventListener('click', toggleMenu);
+  closeBtn.addEventListener('click', toggleMenu);
+  overlay.addEventListener('click', toggleMenu);
+  
+  // Gérer les sous-menus
+  document.querySelectorAll('.has-submenu').forEach(item => {
+    item.addEventListener('click', function(e) {
+      e.preventDefault();
+      const submenu = this.nextElementSibling;
+      if (submenu) {
+        submenu.style.display = submenu.style.display === 'none' ? 'block' : 'none';
+      }
+    });
+  });
+  
+  // Injecter dans la page principale
+  if (window.parent !== window) {
+    // On est dans une iframe, ne rien faire
+  } else {
+    // Copier les éléments dans le body
+    document.body.appendChild(hamburger);
+    document.body.appendChild(menu);
+    document.body.appendChild(overlay);
+  }
+});
+</script>
+
+</body>
+</html>

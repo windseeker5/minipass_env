@@ -56,7 +56,17 @@ document.querySelector(".menu-overlay").addEventListener("click", () => {
 
 function toggleMenu() {
     menu.classList.toggle("active");
+    menu.classList.toggle("is-active");
     document.querySelector(".menu-overlay").classList.toggle("active");
+    document.querySelector(".menu-overlay").classList.toggle("is-active");
+    menuTrigger.classList.toggle("is-active");
+    
+    // Toggle body scroll lock
+    if (menu.classList.contains("active")) {
+        document.body.classList.add("menu-open");
+    } else {
+        document.body.classList.remove("menu-open");
+    }
 }
 
 function showSubMenu(hasChildren) {

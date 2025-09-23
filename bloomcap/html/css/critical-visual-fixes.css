@@ -1,0 +1,234 @@
+/* Critical Visual Fixes - Corrections urgentes des problèmes visuels */
+
+/* 1. SUPPRESSION DE LA FLÈCHE PARASITE */
+#formulaire::before {
+  display: none !important; /* Supprime complètement la flèche */
+}
+
+/* Supprime aussi toute autre flèche potentielle */
+.welcome-area--l3 a.btn[href="#formulaire"]::after {
+  display: none !important;
+}
+
+/* 2. RÉDUCTION DRASTIQUE DES ESPACES */
+#formulaire {
+  padding: 0 0 40px 0 !important; /* Supprime complètement le padding top */
+  margin-top: -50px !important; /* Rapproche encore plus du contenu précédent */
+}
+
+/* Section header ultra-compacte */
+#formulaire .text-center.mb-5:first-child {
+  margin-bottom: 1rem !important; /* Réduit drastiquement */
+  padding-top: 2rem !important; /* Petit padding pour ne pas être collé */
+}
+
+/* Titre principal plus compact */
+#formulaire h1.display-4 {
+  margin-bottom: 0.5rem !important;
+  font-size: 2.5rem !important; /* Légèrement plus petit pour gagner de l'espace */
+  padding-top: 1rem !important;
+}
+
+/* Badge "Offre sous 48h" collé au titre */
+#formulaire .d-inline-flex.rounded-pill {
+  margin-bottom: 0.5rem !important;
+}
+
+/* Texte descriptif plus proche */
+#formulaire .lead {
+  margin-bottom: 1rem !important;
+  padding: 0.5rem 1rem !important;
+  font-size: 1.1rem !important;
+}
+
+/* 3. BARRE DE PROGRESSION ULTRA-COMPACTE */
+#formulaire .card.mb-5 {
+  margin-bottom: 1rem !important;
+  padding: 0.5rem !important;
+}
+
+/* Cache les textes des étapes pour gagner de l'espace */
+#formulaire .fw-semibold.text-center {
+  display: none !important;
+}
+
+/* Réduit la taille des numéros */
+#formulaire .rounded-circle {
+  width: 32px !important;
+  height: 32px !important;
+  font-size: 0.85rem !important;
+}
+
+/* 4. CARTE DU FORMULAIRE IMMÉDIATEMENT VISIBLE */
+#formulaire .form-card {
+  margin-top: 1rem !important; /* Très proche de la barre de progression */
+  margin-bottom: 2rem !important;
+  animation: none !important; /* Supprime l'animation pour plus de clarté */
+}
+
+/* Supprime l'animation de pulsation */
+@keyframes formPulse {
+  0%, 100% { transform: none !important; }
+}
+
+/* 5. CONTENEUR INTERNE COMPACT */
+#formulaire .p-4.p-md-6 {
+  padding: 1rem !important;
+}
+
+@media (min-width: 768px) {
+  #formulaire .p-4.p-md-6 {
+    padding: 1.5rem !important;
+  }
+}
+
+/* Trust badges plus compacts ou cachés sur mobile */
+#formulaire .d-flex.align-items-center.justify-content-center.gap-4.mb-5 {
+  margin-bottom: 1rem !important;
+  gap: 0.5rem !important;
+}
+
+@media (max-width: 768px) {
+  #formulaire .d-flex.align-items-center.justify-content-center.gap-4.mb-5 {
+    display: none !important; /* Cache complètement sur mobile pour gagner de l'espace */
+  }
+}
+
+/* 6. TITRE "VOS INFORMATIONS" PLUS PROCHE */
+.step-title {
+  margin-bottom: 1rem !important;
+  font-size: 1.5rem !important;
+  padding-bottom: 0.5rem !important;
+}
+
+/* Supprime la ligne décorative pour gagner de l'espace */
+.step-title::after {
+  display: none !important;
+}
+
+/* 7. CHAMPS DE FORMULAIRE COMPACTS */
+#formulaire .mb-4 {
+  margin-bottom: 0.75rem !important;
+}
+
+#formulaire .mb-5 {
+  margin-bottom: 1rem !important;
+}
+
+/* 8. OPTIMISATIONS MOBILE SPÉCIFIQUES */
+@media (max-width: 768px) {
+  #formulaire {
+    padding: 0 0 30px 0 !important;
+    margin-top: -30px !important;
+  }
+  
+  #formulaire h1.display-4 {
+    font-size: 1.75rem !important;
+    line-height: 1.2 !important;
+  }
+  
+  #formulaire .lead {
+    display: none !important; /* Cache le texte descriptif sur mobile */
+  }
+  
+  #formulaire .form-card {
+    margin: 0.5rem 10px !important;
+    border-radius: 12px !important;
+  }
+  
+  .step-title {
+    font-size: 1.25rem !important;
+  }
+  
+  /* Barre de progression minimale sur mobile */
+  #formulaire .card.mb-5 {
+    padding: 0.25rem !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+  
+  /* Seulement les cercles de progression visibles */
+  #formulaire .d-flex.justify-content-between {
+    justify-content: center !important;
+    gap: 1rem !important;
+  }
+}
+
+/* 9. HAUTEUR DE SECTION OPTIMISÉE */
+#formulaire {
+  min-height: auto !important; /* Pas de hauteur minimale forcée */
+}
+
+/* 10. TRANSITION VISUELLE FLUIDE */
+#formulaire {
+  position: relative;
+  z-index: 10;
+}
+
+/* Overlay de transition en haut de la section */
+#formulaire::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100px;
+  background: linear-gradient(to bottom, 
+    rgba(30, 64, 175, 0.1) 0%, 
+    transparent 100%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* 11. AJUSTEMENTS DESKTOP POUR VISIBILITÉ IMMÉDIATE */
+@media (min-width: 1024px) {
+  #formulaire {
+    padding-top: 0 !important;
+    margin-top: -80px !important; /* Remonte encore plus sur grands écrans */
+  }
+  
+  #formulaire .text-center.mb-5:first-child {
+    padding-top: 3rem !important;
+  }
+}
+
+/* 12. FOCUS SUR LE FORMULAIRE */
+#formulaire .form-card {
+  border: 3px solid rgba(255, 87, 34, 0.2) !important;
+  position: relative;
+}
+
+/* Indicateur visuel "Commencez ici" */
+#formulaire .form-card::before {
+  content: '👇 Commencez ici';
+  position: absolute;
+  top: -25px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #FF5722;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  box-shadow: 0 2px 10px rgba(255, 87, 34, 0.3);
+}
+
+@media (max-width: 768px) {
+  #formulaire .form-card::before {
+    font-size: 0.75rem;
+    padding: 3px 10px;
+    top: -20px;
+  }
+}
+
+/* 13. SUPPRESSION DES ANIMATIONS INUTILES */
+* {
+  animation-duration: 0.3s !important; /* Réduit toutes les animations */
+}
+
+#formulaire * {
+  animation: none !important; /* Supprime toutes les animations dans le formulaire */
+  transition-duration: 0.2s !important; /* Transitions plus rapides */
+}
