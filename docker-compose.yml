@@ -87,10 +87,12 @@ services:
       - VIRTUAL_PORT=8889
       - LETSENCRYPT_HOST=lhgi.minipass.me
       - LETSENCRYPT_EMAIL=kdresdell@gmail.com
+      - TZ=America/Toronto
     expose:
       - "8889"
     volumes:
       - ./app/instance:/app/instance
+      - /etc/localtime:/etc/localtime:ro
     networks:
       - proxy
 
