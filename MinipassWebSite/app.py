@@ -5,6 +5,7 @@ import stripe
 import os
 import json
 import secrets
+import re
 from subprocess import run
 from shutil import copytree
 
@@ -29,7 +30,15 @@ subscription_logger = setup_subscription_logger()
  
 load_dotenv()
 app = Flask(__name__)
-app.secret_key = os.getenv("SECRET_KEY", "fallback123")
+app.secret_key = os.getenv("SECRET_KEY")
+if not app.secret_key:
+    raise ValueError("SECRET_KEY environment variable is required!")
+
+app.config.update(
+    SESSION_COOKIE_SECURE=True,    # HTTPS only
+    SESSION_COOKIE_HTTPONLY=True,  # No JavaScript access
+    SESSION_COOKIE_SAMESITE='Lax', # CSRF protection
+)
 
 # ✅ Stripe setup
 stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
@@ -64,7 +73,8 @@ def check_subdomain():
     from utils.customer_helpers import init_customers_db, subdomain_taken
     init_customers_db()
 
-    if not name or not name.isalnum():
+    subdomain_pattern = re.compile(r'^[a-z0-9][a-z0-9-]{0,61}[a-z0-9]$')
+    if not name or not subdomain_pattern.match(name):
         return {"available": False, "error": "Invalid subdomain"}, 200
 
     if subdomain_taken(name):
@@ -137,6 +147,7 @@ def create_checkout_session():
     )
 
     return redirect(session_obj.url, code=303)
+    session.pop('checkout_info', None)  # Clear sensitive data from session
 
 
 
@@ -223,22 +234,14 @@ def stripe_webhook():
             else:
                 log_validation_check(subscription_logger, "Subdomain availability", True, f"Subdomain '{app_name}' is available")
 
-            # Step 2: Assign resources and create customer record
-            subscription_logger.info("🔢 Step 2: Assigning resources and creating customer record")
+            # Step 2: Assign resources (but don't create customer record yet)
+            subscription_logger.info("🔢 Step 2: Assigning resources for deployment")
             port = get_next_available_port()
             email_address = f"{app_name}_app@minipass.me"
             subscription_logger.info(f"   📦 Assigned port: {port}")
             subscription_logger.info(f"   📧 Generated email: {email_address}")
-            
-            # Insert customer with email info into database
-            insert_customer(
-                admin_email, app_name, app_name, plan_key, admin_password, port,
-                email_address=email_address, forwarding_email=forwarding_email, 
-                email_status='pending', organization_name=organization_name
-            )
-            log_validation_check(subscription_logger, "Customer record created", True, f"Customer {app_name} added to database")
 
-            # Step 3: Deploy container
+            # Step 3: Deploy container FIRST (before creating customer record)
             subscription_logger.info("🐳 Step 3: Deploying customer container")
             success = deploy_customer_container(app_name, admin_email, admin_password, plan_key, port, organization_name)
 
@@ -247,8 +250,17 @@ def stripe_webhook():
                 app_url = f"https://{app_name}.minipass.me"
                 subscription_logger.info(f"🌐 Application URL: {app_url}")
 
-                # Step 4: Setup customer email
-                subscription_logger.info("📧 Step 4: Setting up customer email and forwarding")
+                # Step 4: Create customer record AFTER successful deployment
+                subscription_logger.info("📝 Step 4: Creating customer record in database")
+                insert_customer(
+                    admin_email, app_name, app_name, plan_key, admin_password, port,
+                    email_address=email_address, forwarding_email=forwarding_email,
+                    email_status='pending', organization_name=organization_name
+                )
+                log_validation_check(subscription_logger, "Customer record created", True, f"Customer {app_name} added to database")
+
+                # Step 5: Setup customer email
+                subscription_logger.info("📧 Step 5: Setting up customer email and forwarding")
                 email_success, created_email, error_msg = setup_customer_email_complete(
                     app_name, admin_password, forwarding_email
                 )
@@ -263,8 +275,8 @@ def stripe_webhook():
                     log_validation_check(subscription_logger, "Email setup", False, f"Email setup failed: {error_msg}")
                     # Continue with deployment even if email setup fails
 
-                # Step 5: Send deployment notification
-                subscription_logger.info(f"📧 Step 5: Sending deployment notification to {admin_email}")
+                # Step 6: Send deployment notification
+                subscription_logger.info(f"📧 Step 6: Sending deployment notification to {admin_email}")
                 
                 # Include email credentials in the deployment email
                 email_info = {
@@ -275,8 +287,8 @@ def stripe_webhook():
                 send_user_deployment_email(admin_email, app_url, admin_password, email_info)
                 log_validation_check(subscription_logger, "Deployment notification sent", True, f"Email sent to {admin_email}")
 
-                # Step 6: Mark deployment as completed in database
-                subscription_logger.info("✅ Step 6: Updating deployment status in database")
+                # Step 7: Mark deployment as completed in database
+                subscription_logger.info("✅ Step 7: Updating deployment status in database")
                 update_customer_deployment_status(app_name, deployed=True)
                 log_validation_check(subscription_logger, "Database deployment status", True, f"Deployment status updated for {app_name}")
 
