@@ -1,4 +1,5 @@
 import sqlite3
+import bcrypt
 from datetime import datetime
 
 
@@ -95,7 +96,7 @@ def insert_customer(email, subdomain, app_name, plan, password, port, email_addr
             subdomain,
             app_name,
             plan,
-            password,  # ✅ plain-text for debugging
+            bcrypt.hashpw(password.encode(), bcrypt.gensalt()),  # Hashed password for security
             port,
             datetime.utcnow().isoformat(),
             email_address,
