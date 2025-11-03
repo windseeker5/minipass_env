@@ -81,6 +81,8 @@ services:
       context: ./app
     container_name: lhgi
     restart: always
+    env_file:
+      - .env
     environment:
       - FLASK_ENV=prod
       - VIRTUAL_HOST=lhgi.minipass.me
