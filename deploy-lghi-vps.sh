@@ -20,14 +20,10 @@ if [ -f "instance/minipass.db" ]; then
 fi
 
 echo "🔄 Pulling latest code while preserving local database..."
-# Stash local changes (database and .gitignore) before pulling
-#git stash push -u -m "Deploy stash: preserve local database and config" 2>/dev/null || true
-#git pull origin v1
-## Restore the local database and .gitignore
-#git stash pop 2>/dev/null || echo "No stash to restore (this is fine)"
-# This handles any staging/conflict issues you mentioned
-git fetch origin v1
-git reset --hard origin/v1
+# Force update to match main branch exactly
+# Database is safe because it's in .gitignore (not tracked by git)
+git fetch origin main
+git reset --hard origin/main
 cd ..
 
 echo "🧹 Aggressive Docker cache clearing to prevent cache issues..."
