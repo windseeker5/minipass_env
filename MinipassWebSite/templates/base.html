@@ -68,6 +68,11 @@
            Fonctionnalités
           </a>
          </li>
+         <li class="nav-item">
+          <a class="nav-link-item" href="/about">
+           À propos
+          </a>
+         </li>
         </ul>
        </nav>
       </div>
@@ -158,13 +163,13 @@
           </h4>
           <ul class="footer-widgets__list footer-widgets__list--l3">
            <li>
-            <a href="home-it-services.html#">
+            <a href="/">
              Accueil
             </a>
            </li>
            <li>
-            <a href="home-it-services.html#">
-             About
+            <a href="/about">
+             À propos
             </a>
            </li>
           </ul>
@@ -239,6 +244,22 @@
      </div>
     </div>
    </footer>
+
+  <!-- Vendor Scripts -->
+  <script src="{{ url_for('static', filename='plugins/jquery/jquery.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='plugins/jquery/jquery-migrate.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/bootstrap.bundle.js') }}"></script>
+  <script src="{{ url_for('static', filename='plugins/fancybox/jquery.fancybox.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='plugins/nice-select/jquery.nice-select.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='plugins/aos/aos.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='plugins/counter-up/jquery.counterup.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='plugins/counter-up/waypoints.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='plugins/slick/slick.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='plugins/skill-bar/skill.bars.jquery.js') }}"></script>
+  <script src="{{ url_for('static', filename='plugins/isotope/isotope.pkgd.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/menu.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/custom.js') }}"></script>
+
     {% block extra_scripts %}{% endblock %}
   </body>
 </html>
