@@ -26,7 +26,15 @@ def init_customers_db():
             forwarding_email TEXT,
             email_created TEXT,
             email_status TEXT DEFAULT 'pending',
-            organization_name TEXT
+            organization_name TEXT,
+            billing_frequency TEXT DEFAULT 'monthly',
+            subscription_start_date TEXT,
+            subscription_end_date TEXT,
+            stripe_price_id TEXT,
+            stripe_checkout_session_id TEXT,
+            payment_amount INTEGER,
+            currency TEXT DEFAULT 'cad',
+            subscription_status TEXT DEFAULT 'active'
         )
         """)
         
@@ -64,7 +72,34 @@ def get_next_available_port(base_port=9100):
 
 
 
-def insert_customer(email, subdomain, app_name, plan, password, port, email_address=None, forwarding_email=None, email_status='pending', organization_name=None):
+def insert_customer(email, subdomain, app_name, plan, password, port,
+                   email_address=None, forwarding_email=None, email_status='pending', organization_name=None,
+                   billing_frequency='monthly', subscription_start_date=None, subscription_end_date=None,
+                   stripe_price_id=None, stripe_checkout_session_id=None,
+                   payment_amount=None, currency='cad', subscription_status='active'):
+    """
+    Insert a new customer into the database.
+
+    Args:
+        email: Customer email
+        subdomain: Customer subdomain
+        app_name: App name
+        plan: Subscription plan (basic/pro/ultimate)
+        password: Admin password
+        port: Port number
+        email_address: Email address created for customer
+        forwarding_email: Email forwarding destination
+        email_status: Email setup status
+        organization_name: Organization name
+        billing_frequency: 'monthly' or 'annual'
+        subscription_start_date: Subscription start date (ISO format)
+        subscription_end_date: Subscription end date (ISO format)
+        stripe_price_id: Stripe Price ID used
+        stripe_checkout_session_id: Stripe Checkout Session ID
+        payment_amount: Payment amount in cents
+        currency: Currency code (default 'cad')
+        subscription_status: Subscription status (default 'active')
+    """
     with sqlite3.connect(CUSTOMERS_DB) as conn:
         cur = conn.cursor()
         cur.execute("""
@@ -83,14 +118,24 @@ def insert_customer(email, subdomain, app_name, plan, password, port, email_addr
             forwarding_email TEXT,
             email_created TEXT,
             email_status TEXT DEFAULT 'pending',
-            organization_name TEXT
+            organization_name TEXT,
+            billing_frequency TEXT DEFAULT 'monthly',
+            subscription_start_date TEXT,
+            subscription_end_date TEXT,
+            stripe_price_id TEXT,
+            stripe_checkout_session_id TEXT,
+            payment_amount INTEGER,
+            currency TEXT DEFAULT 'cad',
+            subscription_status TEXT DEFAULT 'active'
         )
         """)
 
         cur.execute("""
-        INSERT INTO customers (email, subdomain, app_name, plan, admin_password, port, created_at, deployed, 
-                             email_address, email_password, forwarding_email, email_status, organization_name)
-        VALUES (?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?)
+        INSERT INTO customers (email, subdomain, app_name, plan, admin_password, port, created_at, deployed,
+                             email_address, email_password, forwarding_email, email_status, organization_name,
+                             billing_frequency, subscription_start_date, subscription_end_date,
+                             stripe_price_id, stripe_checkout_session_id, payment_amount, currency, subscription_status)
+        VALUES (?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (
             email,
             subdomain,
@@ -103,7 +148,15 @@ def insert_customer(email, subdomain, app_name, plan, password, port, email_addr
             password,  # Use same password for email
             forwarding_email,
             email_status,
-            organization_name
+            organization_name,
+            billing_frequency,
+            subscription_start_date,
+            subscription_end_date,
+            stripe_price_id,
+            stripe_checkout_session_id,
+            payment_amount,
+            currency,
+            subscription_status
         ))
 
         conn.commit()
