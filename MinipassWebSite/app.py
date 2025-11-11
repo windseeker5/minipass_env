@@ -44,6 +44,28 @@ app.config.update(
 stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
 STRIPE_PUBLISHABLE_KEY = os.getenv("STRIPE_PUBLISHABLE_KEY")
 
+# ✅ Stripe Price ID Configuration for Multi-Tier Subscriptions
+STRIPE_PRICES = {
+    'basic_monthly': os.getenv('STRIPE_PRICE_BASIC_MONTHLY'),
+    'basic_annual': os.getenv('STRIPE_PRICE_BASIC_ANNUAL'),
+    'pro_monthly': os.getenv('STRIPE_PRICE_PRO_MONTHLY'),
+    'pro_annual': os.getenv('STRIPE_PRICE_PRO_ANNUAL'),
+    'ultimate_monthly': os.getenv('STRIPE_PRICE_ULTIMATE_MONTHLY'),
+    'ultimate_annual': os.getenv('STRIPE_PRICE_ULTIMATE_ANNUAL'),
+}
+
+# ✅ Plan to Tier mapping (for customer container TIER env var)
+PLAN_TO_TIER = {
+    'basic': 1,
+    'pro': 2,
+    'ultimate': 3
+}
+
+# ✅ Validate all Price IDs are configured
+missing_prices = [k for k, v in STRIPE_PRICES.items() if not v]
+if missing_prices:
+    logging.error(f"⚠️  Missing Stripe Price IDs in .env: {missing_prices}")
+
 # ✅ Flask-Mail setup
 init_mail(app)
 mail.init_app(app)
@@ -92,7 +114,8 @@ def check_subdomain():
 # ✅ Handle form submit
 @app.route("/start-checkout", methods=["POST"])
 def start_checkout():
-    plan = request.form.get("plan")
+    plan = request.form.get("plan", "basic").lower()
+    billing_frequency = request.form.get("billing_frequency", "monthly").lower()  # NEW
     app_name = request.form.get("app_name")
     organization_name = request.form.get("organization_name")
     admin_email = request.form.get("admin_email")
@@ -100,8 +123,15 @@ def start_checkout():
     forwarding_email = admin_email
     admin_password = secrets.token_urlsafe(12)
 
+    # Validate plan
+    if plan not in PLAN_TO_TIER:
+        logging.error(f"Invalid plan selected: {plan}")
+        return redirect(url_for("home") + "?error=invalid_plan")
+
     session["checkout_info"] = {
         "plan": plan,
+        "billing_frequency": billing_frequency,  # NEW
+        "tier": PLAN_TO_TIER[plan],  # NEW
         "app_name": app_name,
         "organization_name": organization_name,
         "admin_email": admin_email,
@@ -118,39 +148,48 @@ def start_checkout():
 @app.route("/create-checkout-session", methods=["GET", "POST"])
 def create_checkout_session():
     info = session.get("checkout_info", {})
-    plan_key = info.get("plan", "basic").lower()
+    plan = info.get("plan", "basic").lower()
+    billing_frequency = info.get("billing_frequency", "monthly").lower()
+    tier = info.get("tier", 1)
 
-    plan_map = {
-        "basic": {"price": 1000, "name": "MiniPass Basic"},
-        "pro": {"price": 2500, "name": "MiniPass Pro"},
-        "ultimate": {"price": 5000, "name": "MiniPass Ultimate"},
-    }
-    plan = plan_map.get(plan_key, plan_map["basic"])
+    # Build price key and get Stripe Price ID
+    price_key = f"{plan}_{billing_frequency}"
+    stripe_price_id = STRIPE_PRICES.get(price_key)
 
-    session_obj = stripe.checkout.Session.create(
-        payment_method_types=["card"],
-        line_items=[{
-            "price_data": {
-                "currency": "cad",
-                "product_data": {"name": plan["name"]},
-                "unit_amount": plan["price"],
-            },
-            "quantity": 1,
-        }],
-        mode="payment",
-        success_url=url_for("deployment_in_progress", _external=True),
-        cancel_url=url_for("home", _external=True) + "?cancelled=true",
-        metadata={
-            "app_name": info.get("app_name", ""),
-            "organization_name": info.get("organization_name", ""),
-            "admin_email": info.get("admin_email", ""),
-            "forwarding_email": info.get("forwarding_email", ""),
-            "admin_password": info.get("admin_password", "")
-        }
-    )
+    if not stripe_price_id:
+        logging.error(f"❌ Stripe Price ID not found for: {price_key}")
+        return redirect(url_for("home") + "?error=price_config_error")
 
-    return redirect(session_obj.url, code=303)
-    session.pop('checkout_info', None)  # Clear sensitive data from session
+    logging.info(f"💳 Creating checkout session: plan={plan}, frequency={billing_frequency}, price_id={stripe_price_id}")
+
+    try:
+        session_obj = stripe.checkout.Session.create(
+            payment_method_types=["card"],
+            line_items=[{
+                "price": stripe_price_id,  # ✅ Use Stripe Price ID
+                "quantity": 1,
+            }],
+            mode="payment",
+            success_url=url_for("deployment_in_progress", _external=True),
+            cancel_url=url_for("home", _external=True) + "?cancelled=true",
+            metadata={
+                "app_name": info.get("app_name", ""),
+                "organization_name": info.get("organization_name", ""),
+                "admin_email": info.get("admin_email", ""),
+                "forwarding_email": info.get("forwarding_email", ""),
+                "admin_password": info.get("admin_password", ""),
+                "plan": plan,  # ✅ CRITICAL FIX: Add plan!
+                "billing_frequency": billing_frequency,  # ✅ CRITICAL FIX: Add frequency!
+                "tier": str(tier)  # ✅ CRITICAL FIX: Add tier!
+            }
+        )
+
+        session.pop('checkout_info', None)  # Clear sensitive data from session
+        return redirect(session_obj.url, code=303)
+
+    except stripe.error.StripeError as e:
+        logging.error(f"❌ Stripe error creating checkout session: {e}")
+        return redirect(url_for("home") + "?error=checkout_failed")
 
 
 
@@ -219,10 +258,39 @@ def stripe_webhook():
         admin_password = metadata.get("admin_password")
         plan_key = metadata.get("plan", "basic").lower()
 
+        # ✅ NEW: Extract billing frequency and tier
+        billing_frequency = metadata.get("billing_frequency", "monthly").lower()
+        tier = int(metadata.get("tier", "1"))
+
+        # ✅ NEW: Calculate subscription dates
+        from datetime import datetime, timedelta
+        subscription_start_date = datetime.now().isoformat()
+        if billing_frequency == "monthly":
+            end_date = datetime.now() + timedelta(days=30)
+        else:  # annual
+            end_date = datetime.now() + timedelta(days=365)
+        subscription_end_date = end_date.isoformat()
+
+        # ✅ NEW: Extract payment information
+        payment_amount = session_data.get("amount_total")  # in cents
+        currency = session_data.get("currency", "cad")
+        stripe_checkout_session_id = session_data.get("id")
+
+        # Get stripe_price_id from line_items if available
+        stripe_price_id = None
+        try:
+            line_items_response = stripe.checkout.Session.list_line_items(stripe_checkout_session_id, limit=1)
+            if line_items_response.data:
+                stripe_price_id = line_items_response.data[0].price.id
+        except:
+            subscription_logger.warning("⚠️ Could not retrieve Stripe Price ID from line items")
+
         log_operation_start(subscription_logger, "Customer Subscription Processing",
                            app_name=app_name,
                            admin_email=admin_email,
                            plan=plan_key,
+                           billing_frequency=billing_frequency,
+                           tier=tier,
                            organization_name=organization_name,
                            forwarding_email=forwarding_email)
 
@@ -246,7 +314,9 @@ def stripe_webhook():
 
             # Step 3: Deploy container FIRST (before creating customer record)
             subscription_logger.info("🐳 Step 3: Deploying customer container")
-            success = deploy_customer_container(app_name, admin_email, admin_password, plan_key, port, organization_name)
+            subscription_logger.info(f"   🎯 Tier: {tier}, Plan: {plan_key}, Frequency: {billing_frequency}")
+            success = deploy_customer_container(app_name, admin_email, admin_password, plan_key, port,
+                                               organization_name, tier=tier, billing_frequency=billing_frequency)
 
             if success:
                 log_validation_check(subscription_logger, "Container deployment", True, f"Container deployed successfully for {app_name}")
@@ -258,8 +328,18 @@ def stripe_webhook():
                 insert_customer(
                     admin_email, app_name, app_name, plan_key, admin_password, port,
                     email_address=email_address, forwarding_email=forwarding_email,
-                    email_status='pending', organization_name=organization_name
+                    email_status='pending', organization_name=organization_name,
+                    billing_frequency=billing_frequency,
+                    subscription_start_date=subscription_start_date,
+                    subscription_end_date=subscription_end_date,
+                    stripe_price_id=stripe_price_id,
+                    stripe_checkout_session_id=stripe_checkout_session_id,
+                    payment_amount=payment_amount,
+                    currency=currency,
+                    subscription_status='active'
                 )
+                subscription_logger.info(f"   💰 Payment: {payment_amount/100 if payment_amount else 0} {currency.upper()}")
+                subscription_logger.info(f"   📅 Subscription: {subscription_start_date} → {subscription_end_date}")
                 log_validation_check(subscription_logger, "Customer record created", True, f"Customer {app_name} added to database")
 
                 # Step 5: Setup customer email

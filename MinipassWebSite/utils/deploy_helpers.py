@@ -160,15 +160,28 @@ def update_docker_compose_org_name(compose_content, organization_name):
 
 
 
-def deploy_customer_container(app_name, admin_email, admin_password, plan, port, organization_name=None):
+def deploy_customer_container(app_name, admin_email, admin_password, plan, port, organization_name=None, tier=1, billing_frequency='monthly'):
     import os, shutil, subprocess, textwrap
 
-    log_operation_start(logger, "Deploy Customer Container", 
-                       app_name=app_name, 
-                       admin_email=admin_email, 
-                       plan=plan, 
-                       port=port, 
+    # Map tier to activity limits for logging
+    tier_limits = {1: 1, 2: 15, 3: 100}
+    activity_limit = tier_limits.get(tier, 1)
+
+    log_operation_start(logger, "Deploy Customer Container",
+                       app_name=app_name,
+                       admin_email=admin_email,
+                       plan=plan,
+                       tier=tier,
+                       billing_frequency=billing_frequency,
+                       activity_limit=activity_limit,
+                       port=port,
                        organization_name=organization_name)
+
+    logger.info(f"📊 Tier Configuration:")
+    logger.info(f"   Plan: {plan}")
+    logger.info(f"   Tier: {tier}")
+    logger.info(f"   Activity Limit: {activity_limit}")
+    logger.info(f"   Billing: {billing_frequency}")
 
     base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 
@@ -244,12 +257,16 @@ def deploy_customer_container(app_name, admin_email, admin_password, plan, port,
 
             volumes:
               - ./app:/app
-              - ./app/instance:/app/instance      
+              - ./app/instance:/app/instance
             environment:
               - FLASK_ENV=dev
               - ADMIN_EMAIL={admin_email}
               - ADMIN_PASSWORD={admin_password}
               - ORG_NAME={organization_name or app_name}
+
+              # ✅ Tier Configuration (CRITICAL for activity limits!)
+              - TIER={tier}
+              - BILLING_FREQUENCY={billing_frequency}
 
               # ✅ NGINX reverse proxy support
               - VIRTUAL_HOST={app_name}.minipass.me
