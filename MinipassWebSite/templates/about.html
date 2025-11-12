@@ -1,75 +1,121 @@
 {% extends "base.html" %}
 
+{% block extra_head %}
+<!-- SignFlow animations CSS only -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/signflow-animations.css') }}">
+{% endblock %}
+
 {% block content %}
 
 <!-- Custom styles for About page -->
 <style>
-/* Team card styling */
-.team-card {
-    transition: all 0.3s ease;
-    border-radius: 16px;
-    padding: 32px;
-    height: 100%;
-    background: white;
+/* SignFlow Team Section Styles */
+.advs-box.niche-box-team {
+    display: block;
+    text-align: center;
+    padding: 0;
+    margin-bottom: 60px;
 }
 
-.team-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12) !important;
+.advs-box.niche-box-team .img-box {
+    display: block;
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
 }
 
-.team-card:hover .profile-img {
-    transform: scale(1.05);
+.advs-box.niche-box-team .img-box img {
+    width: 100%;
+    height: auto;
+    border-radius: 6px;
+    transition: transform 0.5s ease;
 }
 
-/* Profile image styling */
-.profile-img {
-    width: 180px;
-    height: 180px;
-    object-fit: cover;
-    margin: 0 auto 24px;
-    border-radius: 16px;
-    transition: transform 0.3s ease;
+.advs-box.niche-box-team[data-trigger="hover"]:hover .img-box img {
+    transform: scale(1.2);
 }
 
-/* Card color accents */
-.team-card.accent-teal {
-    background: linear-gradient(to bottom, rgba(9, 154, 151, 0.03) 0%, white 100%);
+.advs-box.niche-box-team .content-box {
+    display: block;
+    width: 100%;
+    padding: 15px 0;
+    background: #FFFFFF;
+    text-align: center;
 }
 
-.team-card.accent-coral {
-    background: linear-gradient(to bottom, rgba(255, 114, 114, 0.03) 0%, white 100%);
-}
-
-/* Role divider */
-.role-divider {
-    border-top: 1px solid #e2e8f0;
-    margin: 16px 0;
-}
-
-/* Team member name */
-.team-name {
-    font-size: 20px;
-    font-weight: 700;
-    margin-bottom: 8px;
-    color: #1a202c;
-}
-
-/* Team member role */
-.team-role {
-    font-size: 15px;
+.advs-box.niche-box-team .content-box h2 {
+    font-size: 17px;
     font-weight: 600;
-    line-height: 1.4;
-    margin-bottom: 0;
+    color: #0E1A35;
+    margin: 15px 0 0 0;
+    line-height: 18px;
 }
 
-/* Team member bio */
-.team-bio {
+.advs-box.niche-box-team .content-box h4 {
+    font-size: 14px;
+    font-weight: 300;
+    color: #099a97; /* Brand teal color */
+    margin: 5px 0 20px 0;
+    line-height: 35px;
+}
+
+.advs-box.niche-box-team .content-box hr.e {
+    margin: 20px auto;
+    width: 60px;
+    border: 0;
+    border-top: 1px solid #e2e8f0;
+}
+
+.advs-box.niche-box-team .content-box .social-group {
+    display: inline-block;
+    text-align: center;
+    padding: 0;
+    margin: 0 0 15px 0;
+}
+
+.advs-box.niche-box-team .content-box .social-group a {
+    display: inline-block;
+    width: 47px;
+    height: 47px;
+    padding: 0;
+    margin: 0 5px;
+    background: transparent;
+    color: #8492AF;
+    font-size: 17px;
+    line-height: 47px;
+    cursor: pointer;
+    border-radius: 0;
+    transition: color 0.3s ease;
+}
+
+.advs-box.niche-box-team .content-box .social-group a:hover {
+    color: #099a97; /* Brand teal on hover */
+}
+
+.advs-box.niche-box-team .content-box p {
     font-size: 15px;
-    font-weight: 400;
-    line-height: 1.6;
-    color: #64748b;
-    margin-bottom: 0;
+    color: #8492AF;
+    margin: 0 15px 0 15px;
+    line-height: 27px;
+}
+
+/* SignFlow team hover effect */
+.niche-box-team:hover .img-box img {
+    transform: translateY(25px) scale(1.2) !important;
+}
+
+.niche-box-team .content-box hr.e {
+    display: none;
+}
+
+.niche-box-team .content-box h2 {
+    margin-top: 15px !important;
+    margin-bottom: 0 !important;
+}
+
+.niche-box-team .content-box h4 {
+    font-size: 14px !important;
+    font-weight: 300 !important;
 }
 
 /* Hero image container */
@@ -115,7 +161,7 @@ html {
                     Notre Histoire
                 </h6>
                 <h1 class="display-4 fw-bold mb-4">
-                    Comment tout a commencé
+                    Tout a commencé
                 </h1>
 
                 <p class="mb-4" style="font-size: 16px; font-weight: 400; line-height: 30px; letter-spacing: normal;">
@@ -127,7 +173,7 @@ html {
                 </p>
 
                 <p class="mb-4" style="font-size: 16px; font-weight: 400; line-height: 30px; letter-spacing: normal;">
-                    Minipass, c'est la solution qu'on aurait voulu trouver ce dimanche matin-là. Simple. Complète. Moderne. Abordable.
+                    minipass, c'est la solution qu'on aurait voulu trouver ce dimanche matin-là. Simple. Complète. Moderne. Abordable.
                 </p>
 
                 <p class="mb-4" style="font-size: 16px; font-weight: 400; line-height: 30px; letter-spacing: normal;">
@@ -161,67 +207,80 @@ html {
         </div>
 
         <!-- Team Cards -->
-        <div class="row justify-content-center g-5">
-            <!-- Ken -->
-            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
-                <div class="card team-card accent-teal h-100 border-0 shadow-sm text-center">
-                    <div class="card-body p-0">
-                        <img src="{{ url_for('static', filename='image/team/ken.jpg') }}" alt="Ken" class="profile-img">
-                        <h5 class="team-name">Ken</h5>
-                        <p class="team-role" style="color: #099a97;">CEO & Geek Ingénieur</p>
-                        <div class="role-divider"></div>
-                        <p class="team-bio">
-                            Le créateur ingénieur de Minipass, spécialiste en intelligence artificielle et émotionnelle.
-                        </p>
+        <div class="row">
+                <div class="col-md-3">
+                    <div class="advs-box niche-box-team" data-anima="scale-up" data-trigger="hover">
+                        <a class="img-box">
+                            <img class="anima" src="{{ url_for('static', filename='image/team/placeholders/user-8.jpg') }}" alt="" />
+                        </a>
+                        <div class="content-box">
+                            <h2>Alan Martinez</h2>
+                            <h4>Marketing</h4>
+                            <hr class="e" />
+                            <div class="btn-group social-group">
+                                <a target="_blank" href="#"><i class="fa fa-facebook"></i></a>
+                                <a target="_blank" href="#"><i class="fa fa-twitter"></i></a>
+                                <a target="_blank" href="#"><i class="fa fa-instagram"></i></a>
+                            </div>
+                            <p>Lorem ipsum is text of the printing and industry manulo pertus.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="advs-box niche-box-team" data-anima="scale-up" data-trigger="hover">
+                        <a class="img-box">
+                            <img class="anima" src="{{ url_for('static', filename='image/team/placeholders/user-9.jpg') }}" alt="" />
+                        </a>
+                        <div class="content-box">
+                            <h2>Zarata Afratto</h2>
+                            <h4>Media relations</h4>
+                            <hr class="e" />
+                            <div class="btn-group social-group">
+                                <a target="_blank" href="#"><i class="fa fa-facebook"></i></a>
+                                <a target="_blank" href="#"><i class="fa fa-twitter"></i></a>
+                                <a target="_blank" href="#"><i class="fa fa-instagram"></i></a>
+                            </div>
+                            <p>Lorem ipsum is text of the printing and industry manulo pertus.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="advs-box niche-box-team" data-anima="scale-up" data-trigger="hover">
+                        <a class="img-box">
+                            <img class="anima" src="{{ url_for('static', filename='image/team/placeholders/user-4.jpg') }}" alt="" />
+                        </a>
+                        <div class="content-box">
+                            <h2>Sarah Partison</h2>
+                            <h4>Co-founder</h4>
+                            <hr class="e" />
+                            <div class="btn-group social-group">
+                                <a target="_blank" href="#"><i class="fa fa-facebook"></i></a>
+                                <a target="_blank" href="#"><i class="fa fa-twitter"></i></a>
+                                <a target="_blank" href="#"><i class="fa fa-instagram"></i></a>
+                            </div>
+                            <p>Lorem ipsum is text of the printing and industry manulo pertus.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="advs-box niche-box-team" data-anima="scale-up" data-trigger="hover">
+                        <a class="img-box">
+                            <img class="anima" src="{{ url_for('static', filename='image/team/placeholders/user-5.jpg') }}" alt="" />
+                        </a>
+                        <div class="content-box">
+                            <h2>Lee Chen Tol</h2>
+                            <h4>Marketing expert</h4>
+                            <hr class="e" />
+                            <div class="btn-group social-group">
+                                <a target="_blank" href="#"><i class="fa fa-facebook"></i></a>
+                                <a target="_blank" href="#"><i class="fa fa-twitter"></i></a>
+                                <a target="_blank" href="#"><i class="fa fa-instagram"></i></a>
+                            </div>
+                            <p>Lorem ipsum is text of the printing and industry manulo pertus.</p>
+                        </div>
                     </div>
                 </div>
             </div>
-
-            <!-- Marie-France -->
-            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="100" data-aos-duration="500" data-aos-once="true">
-                <div class="card team-card accent-coral h-100 border-0 shadow-sm text-center">
-                    <div class="card-body p-0">
-                        <img src="{{ url_for('static', filename='image/team/marie.jpg') }}" alt="Marie-France" class="profile-img">
-                        <h5 class="team-name">Marie-France</h5>
-                        <p class="team-role" style="color: #ff7272;">Directrice Générale & Finances</p>
-                        <div class="role-divider"></div>
-                        <p class="team-bio">
-                            Responsable des finances et des opérations, elle gère Minipass avec rigueur et passion.
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Philippe -->
-            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="200" data-aos-duration="500" data-aos-once="true">
-                <div class="card team-card accent-teal h-100 border-0 shadow-sm text-center">
-                    <div class="card-body p-0">
-                        <img src="{{ url_for('static', filename='image/team/phil.JPG') }}" alt="Philippe Dresdell" class="profile-img">
-                        <h5 class="team-name">Philippe Dresdell</h5>
-                        <p class="team-role" style="color: #099a97;">Marketing & Développement</p>
-                        <div class="role-divider"></div>
-                        <p class="team-bio">
-                            Étudiant en administration à l'Université Laval, entrepreneur dans l'âme.
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Elizabeth -->
-            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="300" data-aos-duration="500" data-aos-once="true">
-                <div class="card team-card accent-coral h-100 border-0 shadow-sm text-center">
-                    <div class="card-body p-0">
-                        <img src="{{ url_for('static', filename='image/team/eli.JPG') }}" alt="Elizabeth Dresdell" class="profile-img">
-                        <h5 class="team-name">Elizabeth Dresdell</h5>
-                        <p class="team-role" style="color: #ff7272;">Médias Sociaux & Développement</p>
-                        <div class="role-divider"></div>
-                        <p class="team-bio">
-                            Étudiante en administration à l'Université Laval, responsable médias sociaux et développement.
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 </section>
 
@@ -241,4 +300,9 @@ html {
     </div>
 </section>
 
+{% endblock %}
+
+{% block extra_scripts %}
+<!-- SignFlow animations JavaScript -->
+<script src="{{ url_for('static', filename='js/signflow-script.js') }}"></script>
 {% endblock %}
