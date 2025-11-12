@@ -9,113 +9,129 @@
 
 <!-- Custom styles for About page -->
 <style>
-/* SignFlow Team Section Styles */
-.advs-box.niche-box-team {
-    display: block;
-    text-align: center;
-    padding: 0;
-    margin-bottom: 60px;
+/* SignFlow Team Section - EXACT Live Site CSS */
+
+/* Container - exact dimensions from live site */
+.niche-box-team {
+    position: relative;
+    width: 225px;
+    height: 368px;
+    padding-bottom: 143px;
+    overflow: hidden;
+    margin-bottom: 30px;
 }
 
-.advs-box.niche-box-team .img-box {
+/* Remove default overlay */
+.niche-box-team .img-box:before {
+    display: none;
+}
+
+/* Image container - square dimensions */
+.niche-box-team .img-box {
     display: block;
-    border-radius: 6px;
+    background-color: transparent;
+    opacity: 1 !important;
+    width: 225px;
+    height: 225px;
     overflow: hidden;
+    border-radius: 6px;
     position: relative;
 }
 
-.advs-box.niche-box-team .img-box img {
-    width: 100%;
-    height: auto;
+/* Image - fixed square size, not full width */
+.niche-box-team .img-box img {
+    width: 225px;
+    height: 225px;
+    opacity: 1 !important;
+    transition: transform 0.3s ease;
     border-radius: 6px;
-    transition: transform 0.5s ease;
+    position: relative;
+    z-index: 1;
 }
 
-.advs-box.niche-box-team[data-trigger="hover"]:hover .img-box img {
-    transform: scale(1.2);
-}
-
-.advs-box.niche-box-team .content-box {
-    display: block;
-    width: 100%;
+/* Content box - positioned absolutely after image */
+.niche-box-team .content-box {
+    text-align: center;
     padding: 15px 0;
-    background: #FFFFFF;
-    text-align: center;
+    border-top: 1px solid #E6E6E6;
+    height: 143px;
+    overflow: hidden;
+    background-color: #FFF;
+    position: absolute;
+    top: 225px;
+    transition: margin-top 0.3s ease;
+    margin-top: 0;
+    z-index: 9;
+    right: 0;
+    left: 0;
+    width: 225px;
 }
 
-.advs-box.niche-box-team .content-box h2 {
-    font-size: 17px;
-    font-weight: 600;
-    color: #0E1A35;
-    margin: 15px 0 0 0;
-    line-height: 18px;
+/* HOVER: Slide content UP over bottom of image */
+.niche-box-team:hover .content-box {
+    height: auto;
+    margin-top: -96px;
+    transition: margin-top 0.3s ease;
+    margin-bottom: 0;
 }
 
-.advs-box.niche-box-team .content-box h4 {
-    font-size: 14px;
-    font-weight: 300;
-    color: #099a97; /* Brand teal color */
-    margin: 5px 0 20px 0;
-    line-height: 35px;
-}
-
-.advs-box.niche-box-team .content-box hr.e {
-    margin: 20px auto;
-    width: 60px;
-    border: 0;
-    border-top: 1px solid #e2e8f0;
-}
-
-.advs-box.niche-box-team .content-box .social-group {
-    display: inline-block;
-    text-align: center;
-    padding: 0;
-    margin: 0 0 15px 0;
-}
-
-.advs-box.niche-box-team .content-box .social-group a {
-    display: inline-block;
-    width: 47px;
-    height: 47px;
-    padding: 0;
-    margin: 0 5px;
-    background: transparent;
-    color: #8492AF;
-    font-size: 17px;
-    line-height: 47px;
-    cursor: pointer;
-    border-radius: 0;
-    transition: color 0.3s ease;
-}
-
-.advs-box.niche-box-team .content-box .social-group a:hover {
-    color: #099a97; /* Brand teal on hover */
-}
-
-.advs-box.niche-box-team .content-box p {
-    font-size: 15px;
-    color: #8492AF;
-    margin: 0 15px 0 15px;
-    line-height: 27px;
-}
-
-/* SignFlow team hover effect */
+/* Image zoom and pan down on hover */
 .niche-box-team:hover .img-box img {
     transform: translateY(25px) scale(1.2) !important;
+}
+
+/* Content styling - exact from live site */
+.niche-box-team .content-box h2 {
+    font-size: 17px;
+    line-height: 18px;
+    margin-top: 15px;
+    margin-bottom: 0;
+    font-weight: 600;
+    color: #0E1A35;
+}
+
+.niche-box-team .content-box h4 {
+    font-size: 14px;
+    color: #A0A0A0;
+    margin: 5px 0;
+    font-weight: 300;
 }
 
 .niche-box-team .content-box hr.e {
     display: none;
 }
 
-.niche-box-team .content-box h2 {
-    margin-top: 15px !important;
-    margin-bottom: 0 !important;
+.niche-box-team .content-box p {
+    margin: 15px;
+    max-height: 54px;
+    font-size: 14px;
+    color: #8492AF;
+    line-height: 27px;
 }
 
-.niche-box-team .content-box h4 {
-    font-size: 14px !important;
-    font-weight: 300 !important;
+.niche-box-team .content-box .social-group {
+    display: inline-block;
+    text-align: center;
+    padding: 0;
+    margin: 0;
+}
+
+.niche-box-team .content-box .social-group a {
+    display: inline-block;
+    width: 47px;
+    height: auto;
+    padding: 15px;
+    margin: 0;
+    background: transparent;
+    color: #8492AF;
+    font-size: 17px;
+    cursor: pointer;
+    border-radius: 0;
+    transition: color 0.3s ease;
+}
+
+.niche-box-team .content-box .social-group a:hover {
+    color: #099a97;
 }
 
 /* Hero image container */
