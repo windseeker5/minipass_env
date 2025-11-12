@@ -143,10 +143,8 @@ $(document).ready(function() {
             speed: 900,
             slidesToShow: 4,
             slidesToScroll: 2,
-            arrows: true,
-            appendArrows: ".testimonial-btn",
-            prevArrow: "<button><i class='fas fa-arrow-left'></i></button>",
-            nextArrow: "<button><i class='fas fa-arrow-right'></i></button>",
+            arrows: false,
+            accessibility: false,
             responsive: [{
                     breakpoint: 1200,
                     settings: {
