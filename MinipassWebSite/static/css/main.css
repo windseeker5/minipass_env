@@ -2731,29 +2731,59 @@ div#loading {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #fff;
+  background-color: transparent;
 }
 
 div#loading img {
   z-index: 9999;
-  width: 25%;
+  width: 17.5%;
 }
 
 @media (min-width: 576px) {
   div#loading img {
-    width: 17%;
+    width: 12%;
   }
 }
 
 @media (min-width: 768px) {
   div#loading img {
-    width: 15%;
+    width: 10.5%;
   }
 }
 
 @media (min-width: 992px) {
   div#loading img {
-    width: 7%;
+    width: 5%;
+  }
+}
+
+/* Minipass Preloader Animation - Sequential Bar Reveal */
+.minipass-preloader {
+  animation: minipassBarsReveal 1s ease-out forwards;
+  animation-delay: 0.1s;
+  opacity: 0;
+}
+
+@keyframes minipassBarsReveal {
+  0% {
+    opacity: 1;
+    clip-path: inset(100% 0 0 0);
+  }
+  20% {
+    clip-path: inset(80% 0 0 0);
+  }
+  40% {
+    clip-path: inset(60% 0 0 0);
+  }
+  60% {
+    clip-path: inset(40% 0 0 0);
+  }
+  80% {
+    clip-path: inset(20% 0 0 0);
+  }
+  100% {
+    opacity: 1;
+    clip-path: inset(0 0 0 0);
   }
 }
 
