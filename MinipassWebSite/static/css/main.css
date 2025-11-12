@@ -6251,6 +6251,10 @@ ________________________________ */
   padding-bottom: 17px;
 }
 
+.footer-insta-gallery img {
+  border-radius: 8px;
+}
+
 .footer-social-share--rounded {
   display: inline-flex;
   list-style: none;
