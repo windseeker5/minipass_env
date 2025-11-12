@@ -4202,6 +4202,14 @@ body[data-theme="dark"] .reveal-header .nav-link-item,
   margin-bottom: 25px;
 }
 
+.card--table-single.border--niagara {
+  border: 1px solid #099a97;
+}
+
+.card--table-single.border--bittersweet {
+  border: 1px solid #ff7272;
+}
+
 .card--table-single__list {
   margin-bottom: 38px;
   padding-left: 30px;
