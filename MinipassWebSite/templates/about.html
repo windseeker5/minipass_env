@@ -2,101 +2,145 @@
 
 {% block content %}
 
-<!-- Hero Section -->
-<section class="py-5" style="background-color: #f8f9fc; margin-top: 80px;">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-8 text-center">
-                <h6 class="text-uppercase mb-3" style="color: #ff7272; font-weight: 600; letter-spacing: 2px;">Notre Histoire</h6>
-                <h1 class="display-4 fw-bold mb-4">L'Histoire de Minipass</h1>
-                <p class="lead" style="font-size: 1.25rem; color: #6c757d;">Comment un petit doute sur la caisse a créé votre solution de gestion</p>
-            </div>
-        </div>
-    </div>
-</section>
+<!-- Custom styles for About page -->
+<style>
+/* Team card styling */
+.team-card {
+    transition: all 0.3s ease;
+    border-radius: 16px;
+    padding: 32px;
+    height: 100%;
+    background: white;
+}
 
-<!-- Dimanche matin Section -->
-<section class="py-5 bg-white">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-8 text-center">
-                <h2 class="mb-4 fw-bold">Dimanche matin, 9h.</h2>
-                <p class="fs-5 mb-3" style="line-height: 1.8;">
-                    Ken compte ses billets de remplaçants au hockey. 47...non, 52... non, .. attends, où est passé le 20$?
-                </p>
-                <p class="fs-5 mb-3" style="line-height: 1.8;">
-                    <em>"Marie, as-tu remboursé le 20$ pris dans la petite caisse ?"</em>
-                </p>
-                <p class="fs-5 mb-3" style="line-height: 1.8;">
-                    Ça balançait pas. Encore.
-                </p>
-                <p class="fs-5" style="line-height: 1.8;">
-                    Entre les passes de saison, les billets de remplaçants, le cash qui se promène, les paiements Interac du beau-frère, pis le 10$ qu'il devait remettre au gardien... c'était rendu n'importe quoi.
-                </p>
-            </div>
-        </div>
-    </div>
-</section>
+.team-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12) !important;
+}
 
-<!-- La quête Section -->
-<section class="py-5" style="background-color: #f8f9fc;">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-8 text-center">
-                <h2 class="mb-4 fw-bold" style="color: #099a97;">La quête de la solution miracle</h2>
-                <p class="fs-5 mb-3" style="line-height: 1.8;">
-                    Ken s'est dit: <strong>"Ça doit ben exister, une app simple pour gérer ça!"</strong>
-                </p>
-                <p class="fs-5 mb-3" style="line-height: 1.8;">
-                    Spoiler alert: Non.
-                </p>
-                <p class="fs-5" style="line-height: 1.8;">
-                    Soit c'était trop compliqué (fallait un doctorat en informatique), soit ça coûtait une fortune (plus cher que la petite caisse elle-même), soit c'était laid comme un but refusé en prolongation.
-                </p>
-            </div>
-        </div>
-    </div>
-</section>
+.team-card:hover .profile-img {
+    transform: scale(1.05);
+}
 
-<!-- Alors Ken s'y est attaqué Section -->
-<section class="py-5 bg-white">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-8 text-center">
-                <h2 class="mb-4 fw-bold" style="color: #ff7272;">Alors Ken s'y est attaqué</h2>
-                <p class="fs-5 mb-3" style="line-height: 1.8;">
-                    Parce que quand tu cherches quelque chose qui n'existe pas, tu as deux choix:
-                </p>
-                <p class="fs-5 mb-3" style="line-height: 1.8;">
-                    📊 Continuer à te battre avec Excel et la petite caisse<br/>
-                    💡 Construire la solution que tout le monde cherche
-                </p>
-                <p class="fs-5 mb-3" style="line-height: 1.8;">
-                    <strong>On a choisi l'option 2.</strong>
-                </p>
-                <p class="fs-5" style="line-height: 1.8;">
-                    Minipass est née d'un vrai problème vécu par de vraies personnes. Pas dans un bureau de start-up à San Francisco, mais dans le sous-sol de la maison familiale à Rimouski, entre un café et une game de hockey.
-                </p>
-            </div>
-        </div>
-    </div>
-</section>
+/* Profile image styling */
+.profile-img {
+    width: 180px;
+    height: 180px;
+    object-fit: cover;
+    margin: 0 auto 24px;
+    border-radius: 16px;
+    transition: transform 0.3s ease;
+}
 
-<!-- Aujourd'hui Section -->
-<section class="py-5" style="background-color: #f8f9fc;">
+/* Card color accents */
+.team-card.accent-teal {
+    background: linear-gradient(to bottom, rgba(9, 154, 151, 0.03) 0%, white 100%);
+}
+
+.team-card.accent-coral {
+    background: linear-gradient(to bottom, rgba(255, 114, 114, 0.03) 0%, white 100%);
+}
+
+/* Role divider */
+.role-divider {
+    border-top: 1px solid #e2e8f0;
+    margin: 16px 0;
+}
+
+/* Team member name */
+.team-name {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: #1a202c;
+}
+
+/* Team member role */
+.team-role {
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.4;
+    margin-bottom: 0;
+}
+
+/* Team member bio */
+.team-bio {
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 1.6;
+    color: #64748b;
+    margin-bottom: 0;
+}
+
+/* Hero image container */
+.hero-image-container {
+    position: relative;
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+.hero-image-container img {
+    width: 100%;
+    height: auto;
+}
+
+/* Smooth scroll behavior */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Section spacing */
+.section-spacing {
+    padding: 80px 0;
+}
+
+/* Button hover effect */
+.btn-cta {
+    transition: all 0.3s ease;
+}
+
+.btn-cta:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 20px rgba(9, 154, 151, 0.4) !important;
+}
+</style>
+
+<!-- History Section -->
+<section class="section-spacing" style="background-color: #f8f9fc; margin-top: 80px;">
     <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-8 text-center">
-                <h2 class="mb-4 fw-bold">Aujourd'hui</h2>
-                <p class="fs-5 mb-3" style="line-height: 1.8;">
+        <div class="row align-items-center">
+            <!-- Left Column: Story Text -->
+            <div class="col-lg-6 order-2 order-lg-1" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
+                <h6 class="text-uppercase mb-3" style="color: #ff7272; font-weight: 600; letter-spacing: 2px;">
+                    Notre Histoire
+                </h6>
+                <h1 class="display-4 fw-bold mb-4">
+                    Comment tout a commencé
+                </h1>
+
+                <p class="mb-4" style="font-size: 16px; font-weight: 400; line-height: 30px; letter-spacing: normal;">
+                    Dimanche matin. Ken compte ses billets de remplaçants au hockey. 47... 52... attends, où est le 20$? <em>"Marie, as-tu remboursé la petite caisse?"</em> Ça balançait pas. Encore. Entre les passes de saison, les billets, le cash, les paiements Interac... c'était rendu n'importe quoi.
+                </p>
+
+                <p class="mb-4" style="font-size: 16px; font-weight: 400; line-height: 30px; letter-spacing: normal;">
+                    Ken s'est dit: <strong>"Ça doit ben exister, une app simple pour gérer ça!"</strong> Spoiler: Non. Soit trop compliqué, soit trop cher, soit laid. Quand tu cherches quelque chose qui n'existe pas, tu as deux choix: continuer à te battre avec Excel, ou construire la solution. <strong>On a choisi l'option 2.</strong>
+                </p>
+
+                <p class="mb-4" style="font-size: 16px; font-weight: 400; line-height: 30px; letter-spacing: normal;">
                     Minipass, c'est la solution qu'on aurait voulu trouver ce dimanche matin-là. Simple. Complète. Moderne. Abordable.
                 </p>
-                <p class="fs-5 mb-3" style="line-height: 1.8;">
-                    Et ta petite caisse balance enfin. ✅
+
+                <p class="mb-4" style="font-size: 16px; font-weight: 400; line-height: 30px; letter-spacing: normal;">
+                    La famille, deux jeunes aux études avec la fibre entrepreneuriale. Une belle occasion d'en faire un projet familial formateur, une vraie expérience de la conception à la commercialisation.
                 </p>
-                <p class="fs-5" style="line-height: 1.8;">
-                    La famille. Deux jeunes aux études, fibre entrepreneur. Quelle belle occasion d'en faire un projet familial, formateur, une vraie de vraie expérience de la conception, à la commercialisation, la gestion des clients, des finances, des médias sociaux. On se lance …
-                </p>
+            </div>
+
+            <!-- Right Column: Hero Image -->
+            <div class="col-lg-6 order-1 order-lg-2 mb-5 mb-lg-0" data-aos="fade-up" data-aos-delay="300" data-aos-duration="500" data-aos-once="true">
+                <div class="hero-image-container">
+                    <!-- Placeholder for hero image - User will replace this -->
+                    <img src="{{ url_for('static', filename='image/history-hero.png') }}" alt="L'histoire de Minipass" class="img-fluid">
+                </div>
             </div>
         </div>
     </div>
@@ -107,86 +151,72 @@
     <div class="container">
         <!-- Section Title -->
         <div class="row justify-content-center mb-5">
-            <div class="col-lg-8 text-center">
-                <h6 class="text-uppercase mb-3" style="color: #ff7272; font-weight: 600; letter-spacing: 2px;">L'équipe</h6>
-                <h2 class="fw-bold">Rencontrez l'équipe</h2>
-                <p class="text-muted mt-3">Une aventure familiale où chacun apporte sa passion</p>
+            <div class="col-lg-8 text-center" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
+                <h6 class="text-uppercase mb-3" style="color: #ff7272; font-weight: 600; letter-spacing: 2px;">
+                    L'équipe
+                </h6>
+                <h2 class="fw-bold mb-3">Rencontrez l'équipe</h2>
+                <p class="text-muted fs-5">Une aventure familiale où chacun apporte sa passion</p>
             </div>
         </div>
 
         <!-- Team Cards -->
-        <div class="row justify-content-center g-4">
+        <div class="row justify-content-center g-5">
             <!-- Ken -->
-            <div class="col-lg-3 col-md-6">
-                <div class="card h-100 border-0 shadow-sm text-center">
-                    <div class="card-body p-4">
-                        <div class="mb-4">
-                            <img src="https://ui-avatars.com/api/?name=Ken&size=150&background=099a97&color=fff&font-size=0.4&bold=true" alt="Ken" class="rounded-circle" style="width: 100px; height: 100px;">
-                        </div>
-                        <h5 class="fw-bold mb-2">Ken</h5>
-                        <p class="fw-semibold mb-3" style="color: #099a97;">Le CEO & Geek Ingénieur</p>
-                        <p class="text-muted mb-3" style="font-size: 0.95rem;">
-                            Le geek ingénieur de la famille, créateur concepteur Intelligence artificielle et émotionnelle de Minipass.
-                        </p>
-                        <p class="text-muted mb-0" style="font-size: 0.85rem;">
-                            <strong>Objectif de vie:</strong><br/>Foiler des vagues le plus souvent possible 🏄‍♂️
+            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
+                <div class="card team-card accent-teal h-100 border-0 shadow-sm text-center">
+                    <div class="card-body p-0">
+                        <img src="{{ url_for('static', filename='image/team/ken.jpg') }}" alt="Ken" class="profile-img">
+                        <h5 class="team-name">Ken</h5>
+                        <p class="team-role" style="color: #099a97;">CEO & Geek Ingénieur</p>
+                        <div class="role-divider"></div>
+                        <p class="team-bio">
+                            Le créateur ingénieur de Minipass, spécialiste en intelligence artificielle et émotionnelle.
                         </p>
                     </div>
                 </div>
             </div>
 
             <!-- Marie-France -->
-            <div class="col-lg-3 col-md-6">
-                <div class="card h-100 border-0 shadow-sm text-center">
-                    <div class="card-body p-4">
-                        <div class="mb-4">
-                            <img src="https://ui-avatars.com/api/?name=Marie-France&size=150&background=ff7272&color=fff&font-size=0.3&bold=true" alt="Marie-France" class="rounded-circle" style="width: 100px; height: 100px;">
-                        </div>
-                        <h5 class="fw-bold mb-2">Marie-France</h5>
-                        <p class="fw-semibold mb-3" style="color: #ff7272;">Directrice Générale & Finances</p>
-                        <p class="text-muted mb-3" style="font-size: 0.95rem;">
-                            Notre directrice générale et responsable des finances. En a déjà plein les bottes avec son vrai boulot, ses très nombreux loisirs, sa vie sociale et familiale!
-                        </p>
-                        <p class="text-muted mb-0" style="font-size: 0.85rem;">
-                            <strong>Objectif de vie:</strong><br/>Plus de temps pour explorer la nature avec son fidèle chien Marley et voyager 🐕
+            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="100" data-aos-duration="500" data-aos-once="true">
+                <div class="card team-card accent-coral h-100 border-0 shadow-sm text-center">
+                    <div class="card-body p-0">
+                        <img src="{{ url_for('static', filename='image/team/marie.jpg') }}" alt="Marie-France" class="profile-img">
+                        <h5 class="team-name">Marie-France</h5>
+                        <p class="team-role" style="color: #ff7272;">Directrice Générale & Finances</p>
+                        <div class="role-divider"></div>
+                        <p class="team-bio">
+                            Responsable des finances et des opérations, elle gère Minipass avec rigueur et passion.
                         </p>
                     </div>
                 </div>
             </div>
 
             <!-- Philippe -->
-            <div class="col-lg-3 col-md-6">
-                <div class="card h-100 border-0 shadow-sm text-center">
-                    <div class="card-body p-4">
-                        <div class="mb-4">
-                            <img src="https://ui-avatars.com/api/?name=Philippe&size=150&background=099a97&color=fff&font-size=0.4&bold=true" alt="Philippe" class="rounded-circle" style="width: 100px; height: 100px;">
-                        </div>
-                        <h5 class="fw-bold mb-2">Philippe Dresdell</h5>
-                        <p class="fw-semibold mb-3" style="color: #099a97;">Marketing & Développement</p>
-                        <p class="text-muted mb-3" style="font-size: 0.95rem;">
-                            Étudiant en administration des affaires de l'Université Laval. Entrepreneur dans l'âme. Amateur snowboarder, boxer, jogger.
-                        </p>
-                        <p class="text-muted mb-0" style="font-size: 0.85rem;">
-                            <strong>Objectif de vie:</strong><br/>Aller vite et faire de l'argent 💨💰
+            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="200" data-aos-duration="500" data-aos-once="true">
+                <div class="card team-card accent-teal h-100 border-0 shadow-sm text-center">
+                    <div class="card-body p-0">
+                        <img src="{{ url_for('static', filename='image/team/phil.JPG') }}" alt="Philippe Dresdell" class="profile-img">
+                        <h5 class="team-name">Philippe Dresdell</h5>
+                        <p class="team-role" style="color: #099a97;">Marketing & Développement</p>
+                        <div class="role-divider"></div>
+                        <p class="team-bio">
+                            Étudiant en administration à l'Université Laval, entrepreneur dans l'âme.
                         </p>
                     </div>
                 </div>
             </div>
 
             <!-- Elizabeth -->
-            <div class="col-lg-3 col-md-6">
-                <div class="card h-100 border-0 shadow-sm text-center">
-                    <div class="card-body p-4">
-                        <div class="mb-4">
-                            <img src="https://ui-avatars.com/api/?name=Elizabeth&size=150&background=ff7272&color=fff&font-size=0.35&bold=true" alt="Elizabeth" class="rounded-circle" style="width: 100px; height: 100px;">
-                        </div>
-                        <h5 class="fw-bold mb-2">Elizabeth Dresdell</h5>
-                        <p class="fw-semibold mb-3" style="color: #ff7272;">Médias Sociaux & Développement</p>
-                        <p class="text-muted mb-3" style="font-size: 0.95rem;">
-                            Étudiant en administration des affaires de l'Université Laval. Fait des vrilles. Responsable médias sociaux et développement des affaires.
-                        </p>
-                        <p class="text-muted mb-0" style="font-size: 0.85rem;">
-                            <strong>Objectif de vie:</strong><br/>Toujours en définition! 🤔✨
+            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="300" data-aos-duration="500" data-aos-once="true">
+                <div class="card team-card accent-coral h-100 border-0 shadow-sm text-center">
+                    <div class="card-body p-0">
+                        <img src="{{ url_for('static', filename='image/team/eli.JPG') }}" alt="Elizabeth Dresdell" class="profile-img">
+                        <h5 class="team-name">Elizabeth Dresdell</h5>
+                        <p class="team-role" style="color: #ff7272;">Médias Sociaux & Développement</p>
+                        <div class="role-divider"></div>
+                        <p class="team-bio">
+                            Étudiante en administration à l'Université Laval, responsable médias sociaux et développement.
                         </p>
                     </div>
                 </div>
@@ -199,11 +229,11 @@
 <section class="py-5" style="background-color: #f8f9fc;">
     <div class="container">
         <div class="row justify-content-center">
-            <div class="col-lg-6 text-center">
-                <p class="fs-5 mb-4" style="line-height: 1.8;">
+            <div class="col-lg-8 text-center" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
+                <p class="fs-4 mb-4" style="line-height: 1.8; color: #2d3748;">
                     Envie de simplifier la gestion de vos activités comme on l'a fait?
                 </p>
-                <a href="/#pricing" class="btn btn-lg px-5 py-3" style="background-color: #099a97; color: white; border-radius: 50px; font-weight: 600; box-shadow: 0 4px 15px rgba(9, 154, 151, 0.3);">
+                <a href="/#pricing" class="btn btn-cta btn-lg px-5 py-3" style="background-color: #099a97; color: white; border-radius: 50px; font-weight: 600; box-shadow: 0 4px 15px rgba(9, 154, 151, 0.3);">
                     Découvrez nos forfaits
                 </a>
             </div>
