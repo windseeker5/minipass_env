@@ -1,0 +1,208 @@
+{% extends "base.html" %}
+
+{% block extra_head %}
+<style>
+  .policy-section {
+    padding: 80px 0 120px;
+    min-height: calc(100vh - 200px);
+  }
+
+  .policy-container {
+    max-width: 900px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 16px;
+    padding: 60px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+  }
+
+  .policy-header {
+    text-align: center;
+    margin-bottom: 50px;
+    padding-bottom: 30px;
+    border-bottom: 2px solid #f0f0f0;
+  }
+
+  .policy-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 15px;
+  }
+
+  .policy-subtitle {
+    font-size: 1.1rem;
+    color: #666;
+  }
+
+  .policy-content h2 {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin: 40px 0 20px 0;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e0e0e0;
+  }
+
+  .policy-content h2:first-child {
+    margin-top: 0;
+  }
+
+  .policy-content p {
+    font-size: 1.05rem;
+    line-height: 1.8;
+    color: #444;
+    margin-bottom: 20px;
+  }
+
+  .policy-content strong {
+    color: #2c3e50;
+    font-weight: 600;
+  }
+
+  .policy-highlight {
+    background: #f8f9fa;
+    border-left: 4px solid #5454d4;
+    padding: 20px 25px;
+    margin: 30px 0;
+    border-radius: 4px;
+  }
+
+  .policy-highlight p {
+    margin-bottom: 0;
+  }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #5454d4;
+    text-decoration: none;
+    font-weight: 500;
+    margin-bottom: 30px;
+    transition: gap 0.2s ease;
+  }
+
+  .back-link:hover {
+    color: #3a3ab8;
+    gap: 12px;
+  }
+
+  .contact-section {
+    margin-top: 50px;
+    padding-top: 30px;
+    border-top: 2px solid #f0f0f0;
+    text-align: center;
+  }
+
+  .contact-email {
+    color: #5454d4;
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .contact-email:hover {
+    text-decoration: underline;
+  }
+
+  @media (max-width: 768px) {
+    .policy-container {
+      padding: 30px 20px;
+    }
+
+    .policy-title {
+      font-size: 2rem;
+    }
+
+    .policy-content h2 {
+      font-size: 1.5rem;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="policy-section">
+  <div class="container">
+    <div class="policy-container">
+      <a href="/" class="back-link">
+        <i class="fas fa-arrow-left"></i> Retour à l'accueil
+      </a>
+
+      <div class="policy-header">
+        <h1 class="policy-title">Politiques d'Abonnement</h1>
+        <p class="policy-subtitle">Conditions générales de renouvellement et d'annulation</p>
+      </div>
+
+      <div class="policy-content">
+        <h2>Abonnements et Renouvellement Automatique</h2>
+
+        <p>
+          <strong>Renouvellement:</strong> Tous les abonnements se renouvellent automatiquement à la date d'échéance.
+          Votre abonnement sera reconduit automatiquement pour une période équivalente à celle initialement souscrite
+          (mensuelle ou annuelle), sauf annulation de votre part avant la date de renouvellement.
+        </p>
+
+        <div class="policy-highlight">
+          <p>
+            <i class="fas fa-info-circle" style="color: #5454d4; margin-right: 8px;"></i>
+            <strong>Important:</strong> Vous serez facturé automatiquement selon la même fréquence que votre
+            abonnement initial (mensuel ou annuel) jusqu'à annulation.
+          </p>
+        </div>
+
+        <h2>Politique de Remboursement</h2>
+
+        <p>
+          <strong>Aucun remboursement:</strong> Les paiements d'abonnement sont finaux et non remboursables.
+          En souscrivant à un abonnement minipass, vous reconnaissez que tous les paiements sont définitifs.
+          Le client est entièrement responsable d'annuler son abonnement avant la date de renouvellement
+          s'il ne souhaite pas continuer le service.
+        </p>
+
+        <p>
+          Aucune exception ne sera accordée pour les remboursements, y compris en cas de non-utilisation
+          du service ou d'oubli d'annulation avant le renouvellement.
+        </p>
+
+        <h2>Processus d'Annulation</h2>
+
+        <p>
+          <strong>Annulation:</strong> Pour annuler votre abonnement, veuillez contacter notre équipe
+          de support à l'adresse <a href="mailto:support@minipass.me" class="contact-email">support@minipass.me</a>.
+        </p>
+
+        <p>
+          L'annulation prend effet à la fin de la période payée en cours. Vous continuerez à avoir accès
+          à votre application minipass jusqu'à la date d'expiration de votre période d'abonnement actuelle.
+          Aucun remboursement prorata ne sera effectué pour la période restante.
+        </p>
+
+        <div class="policy-highlight">
+          <p>
+            <i class="fas fa-calendar-check" style="color: #5454d4; margin-right: 8px;"></i>
+            <strong>Rappel:</strong> Pensez à annuler votre abonnement suffisamment à l'avance si vous
+            ne souhaitez pas qu'il se renouvelle automatiquement.
+          </p>
+        </div>
+
+        <h2>Acceptation des Conditions</h2>
+
+        <p>
+          En procédant au paiement d'un abonnement minipass, le client confirme avoir lu, compris et
+          accepté l'intégralité de ces politiques sans réserve. Le paiement constitue une acceptation
+          explicite de ces termes et conditions.
+        </p>
+
+        <div class="contact-section">
+          <p><strong>Des questions?</strong></p>
+          <p>
+            Notre équipe est disponible pour répondre à vos questions:<br>
+            <a href="mailto:support@minipass.me" class="contact-email">support@minipass.me</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

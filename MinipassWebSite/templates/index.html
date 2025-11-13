@@ -790,8 +790,8 @@
 <style>
   /* Stronger blur and darker modal background */
   .modal-backdrop.show {
-    backdrop-filter: blur(10px); /* Increase blur */
-    background-color: rgba(0, 0, 0, 0.6); /* Darker overlay */
+    backdrop-filter: blur(10px);
+    background-color: rgba(0, 0, 0, 0.6);
   }
 
   /* Smooth fade-in animation for modal */
@@ -806,12 +806,13 @@
     opacity: 1;
   }
 
-  /* Optional: refine modal appearance */
+  /* Modal appearance */
   .modal-content {
-    border-radius: 12px;
-    padding: 24px;
-    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.25);
+    border-radius: 16px;
+    padding: 0;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
     background-color: #fff;
+    max-width: 600px;
   }
 
   .modal-header {
@@ -821,32 +822,193 @@
 
   .modal-header .btn-close {
     position: absolute;
-    top: 16px;
-    right: 16px;
+    top: 20px;
+    right: 20px;
     font-size: 1.5rem;
     opacity: 0.8;
+    z-index: 10;
   }
 
+  /* Price Header Section */
+  .modal-price-header {
+    background: linear-gradient(135deg, #5454d4 0%, #3a3ab8 100%);
+    color: white;
+    padding: 40px 30px 30px;
+    border-radius: 16px 16px 0 0;
+    text-align: center;
+  }
+
+  .modal-plan-name {
+    font-size: 1.2rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+    opacity: 0.95;
+  }
+
+  .modal-price-display {
+    font-size: 3rem;
+    font-weight: 700;
+    margin: 15px 0;
+  }
+
+  .modal-price-display .currency {
+    font-size: 1.5rem;
+    vertical-align: super;
+    margin-right: 5px;
+  }
+
+  .modal-price-display .period {
+    font-size: 1.2rem;
+    font-weight: 400;
+    opacity: 0.9;
+  }
+
+  .modal-billing-info {
+    font-size: 0.95rem;
+    opacity: 0.9;
+    margin-top: 10px;
+  }
+
+  .modal-savings-badge {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.25);
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-top: 12px;
+  }
+
+  .modal-renewal-date {
+    background: rgba(255, 255, 255, 0.15);
+    padding: 12px 20px;
+    border-radius: 8px;
+    margin-top: 20px;
+    font-size: 0.9rem;
+  }
+
+  .modal-renewal-date i {
+    margin-right: 8px;
+  }
+
+  /* Modal Body */
   .modal-body {
-    padding-top: 0;
+    padding: 35px 35px 20px;
   }
 
-  .modal-body img.illustration {
-    max-height: 170px;
-    margin: 0 auto 24px auto;
-    display: block;
+  .modal-body h5 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 25px;
+    color: #2c3e50;
   }
 
+  /* Form Fields with Icons */
+  .form-field-group {
+    margin-bottom: 25px;
+  }
+
+  .form-label-with-icon {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 8px;
+  }
+
+  .form-label-with-icon i {
+    color: #5454d4;
+    font-size: 1.1rem;
+  }
+
+  .form-control {
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+  }
+
+  .form-control:focus {
+    border-color: #5454d4;
+    box-shadow: 0 0 0 3px rgba(84, 84, 212, 0.1);
+  }
+
+  .field-description {
+    margin-top: 6px;
+    font-size: 0.875rem;
+    color: #666;
+    line-height: 1.5;
+  }
+
+  .field-description i {
+    margin-right: 5px;
+    color: #5454d4;
+  }
+
+  /* Policy Section */
+  .modal-policy-section {
+    background: #f8f9fa;
+    padding: 16px 20px;
+    border-radius: 8px;
+    margin: 25px 0 0;
+    font-size: 0.875rem;
+    text-align: center;
+    color: #555;
+  }
+
+  .modal-policy-section a {
+    color: #5454d4;
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  .modal-policy-section a:hover {
+    text-decoration: underline;
+  }
+
+  /* Modal Footer */
   .modal-footer {
     border-top: none;
-    padding: 0;
-    margin-top: 24px;
+    padding: 0 35px 35px;
+    margin-top: 10px;
   }
 
   .modal-footer .btn {
     width: 100%;
     font-weight: 600;
-    font-size: 1rem;
+    font-size: 1.1rem;
+    padding: 14px;
+    border-radius: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.2s ease;
+  }
+
+  .modal-footer .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(84, 84, 212, 0.4);
+  }
+
+  @media (max-width: 576px) {
+    .modal-price-header {
+      padding: 30px 20px 20px;
+    }
+
+    .modal-price-display {
+      font-size: 2.5rem;
+    }
+
+    .modal-body {
+      padding: 25px 20px 15px;
+    }
+
+    .modal-footer {
+      padding: 0 20px 25px;
+    }
   }
 </style>
 
@@ -854,46 +1016,89 @@
 <!-- Modal HTML -->
 <div class="modal fade" id="signupModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
-    <form action="/start-checkout" method="POST" class="modal-content p-4 rounded-4 shadow">
-      <div class="modal-header border-0 p-0">
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="position: absolute; top: 16px; right: 16px;"></button>
-      </div>
+    <form action="/start-checkout" method="POST" class="modal-content">
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 
-      <div class="modal-body text-center p-0 mt-2">
-        <img src="{{ url_for('static', filename='image/welcome-icon.png') }}" alt="Welcome" style="max-height: 130px;" class="mb-4" />
+      <!-- Price Header Section -->
+      <div class="modal-price-header">
+        <div class="modal-plan-name" id="modal-plan-display">Forfait Basic</div>
 
-        <h4 class="fw-bold mb-4">Choose your name !</h4>
-
-        <input id="modal-plan" name="plan" type="hidden" />
-
-        <div class="mb-3 text-start">
-          <label class="form-label fw-semibold">App Name (subdomain)</label>
-          <input class="form-control" id="app_name" name="app_name" required type="text" />
-          <small class="form-text text-muted" id="subdomain-feedback">
-            This will become your app URL: <strong>yourname.minipass.me</strong>
-          </small>
+        <div class="modal-price-display">
+          <span class="currency">$</span>
+          <span id="modal-price-amount">10</span>
+          <span class="period">/ mois</span>
         </div>
 
-        <div class="mb-3 text-start">
-          <label class="form-label fw-semibold">Organization Name</label>
-          <input class="form-control" name="organization_name" required type="text" placeholder="Your Organization" />
-          <small class="form-text text-muted">
-            This will be set as your organization name in the app.
-          </small>
+        <div class="modal-billing-info" id="modal-billing-text">Facturation annuelle</div>
+
+        <div class="modal-savings-badge" id="modal-savings-badge" style="display: none;">
+          💰 Économisez 50%
         </div>
 
-        <div class="mb-3 text-start">
-          <label class="form-label fw-semibold">Admin Email</label>
-          <input class="form-control" name="admin_email" required type="email" />
-          <small class="form-text text-muted">
-            We'll send login credentials and create yourapp_app@minipass.me email that forwards to this address.
-          </small>
+        <div class="modal-renewal-date">
+          <i class="fas fa-calendar-alt"></i>
+          Prochain renouvellement: <strong id="modal-renewal-date">--</strong>
         </div>
       </div>
 
-      <div class="modal-footer border-0 p-0 mt-3">
-        <button type="submit" class="btn btn-primary w-100 fw-semibold" id="submit-btn">
-          Proceed to Checkout
+      <!-- Hidden Form Fields -->
+      <input id="modal-plan" name="plan" type="hidden" />
+      <input id="modal-billing-frequency" name="billing_frequency" type="hidden" />
+
+      <!-- Form Body -->
+      <div class="modal-body">
+        <h5>Complétez votre inscription</h5>
+
+        <!-- App Name Field -->
+        <div class="form-field-group">
+          <label class="form-label-with-icon">
+            <i class="fas fa-globe"></i>
+            <span>Nom de l'application</span>
+          </label>
+          <input class="form-control" id="app_name" name="app_name" required type="text" placeholder="monentreprise" />
+          <div class="field-description" id="subdomain-feedback">
+            <i class="fas fa-info-circle"></i>
+            Deviendra votre sous-domaine: <strong>votrenom.minipass.me</strong>
+          </div>
+        </div>
+
+        <!-- Organization Name Field -->
+        <div class="form-field-group">
+          <label class="form-label-with-icon">
+            <i class="fas fa-building"></i>
+            <span>Nom de l'organisation</span>
+          </label>
+          <input class="form-control" name="organization_name" required type="text" placeholder="Mon Entreprise Inc." />
+          <div class="field-description">
+            <i class="fas fa-info-circle"></i>
+            Ce nom apparaîtra dans votre application et sur les passes numériques de vos participants
+          </div>
+        </div>
+
+        <!-- Admin Email Field -->
+        <div class="form-field-group">
+          <label class="form-label-with-icon">
+            <i class="fas fa-envelope"></i>
+            <span>Email administrateur</span>
+          </label>
+          <input class="form-control" name="admin_email" required type="email" placeholder="admin@monentreprise.com" />
+          <div class="field-description">
+            <i class="fas fa-info-circle"></i>
+            Recevra vos identifiants de connexion. Nous créerons également une adresse email de transfert (<strong>votreapp_app@minipass.me</strong>) qui redirigera vers cette adresse
+          </div>
+        </div>
+
+        <!-- Policy Section -->
+        <div class="modal-policy-section">
+          <i class="fas fa-file-contract"></i>
+          En procédant, vous acceptez nos <a href="/politiques" target="_blank">politiques d'abonnement</a>
+        </div>
+      </div>
+
+      <!-- Footer with Submit Button -->
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-primary" id="submit-btn">
+          Procéder au paiement
         </button>
       </div>
     </form>
@@ -911,8 +1116,57 @@
 
 
   <script>
+   // Pricing configuration mapping
+   const PRICING_CONFIG = {
+     basic: { annual: 10, monthly: 20, name: 'Forfait Basic' },
+     pro: { annual: 25, monthly: 50, name: 'Forfait Pro' },
+     ultimate: { annual: 60, monthly: 120, name: 'Forfait Ultimate' }
+   };
+
    function openSignupModal(plan) {
+    // Set plan value
     document.getElementById('modal-plan').value = plan;
+
+    // Detect billing frequency from the pricing toggle
+    const priceToggle = document.getElementById('flexSwitchCheckDefault');
+    const isAnnual = priceToggle && priceToggle.checked;
+    const billingFrequency = isAnnual ? 'annual' : 'monthly';
+
+    // Set billing frequency hidden field
+    document.getElementById('modal-billing-frequency').value = billingFrequency;
+
+    // Get pricing info
+    const planConfig = PRICING_CONFIG[plan] || PRICING_CONFIG.basic;
+    const price = isAnnual ? planConfig.annual : planConfig.monthly;
+
+    // Update modal display
+    document.getElementById('modal-plan-display').textContent = planConfig.name;
+    document.getElementById('modal-price-amount').textContent = price;
+    document.getElementById('modal-billing-text').textContent = isAnnual ? 'Facturation annuelle' : 'Facturation mensuelle';
+
+    // Show/hide savings badge
+    const savingsBadge = document.getElementById('modal-savings-badge');
+    if (isAnnual) {
+      savingsBadge.style.display = 'inline-block';
+    } else {
+      savingsBadge.style.display = 'none';
+    }
+
+    // Calculate renewal date
+    const today = new Date();
+    const renewalDate = new Date(today);
+    if (isAnnual) {
+      renewalDate.setFullYear(today.getFullYear() + 1);
+    } else {
+      renewalDate.setMonth(today.getMonth() + 1);
+    }
+
+    // Format date in French
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    const formattedDate = renewalDate.toLocaleDateString('fr-CA', options);
+    document.getElementById('modal-renewal-date').textContent = formattedDate;
+
+    // Open modal
     const modal = new bootstrap.Modal(document.getElementById('signupModal'));
     modal.show();
   }
@@ -926,9 +1180,8 @@
       const subdomain = input.value.trim().toLowerCase();
 
       if (subdomain.length < 3 || !/^[a-z0-9]+$/.test(subdomain)) {
-        feedback.textContent = "Subdomain must be at least 3 lowercase letters/numbers.";
-        feedback.classList.add("text-danger");
-        feedback.classList.remove("text-success");
+        feedback.innerHTML = '<i class="fas fa-info-circle"></i> Le sous-domaine doit contenir au moins 3 caractères (lettres/chiffres minuscules).';
+        feedback.style.color = '#dc3545';
         submit.disabled = true;
         return;
       }
@@ -941,20 +1194,18 @@
       .then(res => res.json())
       .then(data => {
         if (data.available) {
-          feedback.textContent = "✅ Subdomain is available";
-          feedback.classList.remove("text-danger");
-          feedback.classList.add("text-success");
+          feedback.innerHTML = `<i class="fas fa-check-circle"></i> ✅ <strong>${subdomain}.minipass.me</strong> est disponible`;
+          feedback.style.color = '#28a745';
           submit.disabled = false;
         } else {
-          feedback.textContent = `❌ ${data.error || "Subdomain is taken"}`;
-          feedback.classList.add("text-danger");
-          feedback.classList.remove("text-success");
+          feedback.innerHTML = `<i class="fas fa-times-circle"></i> ❌ ${data.error || "Ce sous-domaine est déjà pris"}`;
+          feedback.style.color = '#dc3545';
           submit.disabled = true;
         }
       })
       .catch(() => {
-        feedback.textContent = "⚠️ Error checking subdomain";
-        feedback.classList.add("text-danger");
+        feedback.innerHTML = '<i class="fas fa-exclamation-triangle"></i> ⚠️ Erreur lors de la vérification du sous-domaine';
+        feedback.style.color = '#dc3545';
         submit.disabled = true;
       });
     });
