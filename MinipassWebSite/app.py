@@ -90,6 +90,11 @@ def about():
     return render_template("about.html")
 
 
+@app.route("/politiques")
+def politiques():
+    return render_template("politiques.html")
+
+
 @app.route("/check-subdomain", methods=["POST"])
 def check_subdomain():
     data = request.get_json()
