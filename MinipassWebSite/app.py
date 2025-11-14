@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session, abort
+from flask import Flask, render_template, request, redirect, url_for, session, abort, jsonify
 from dotenv import load_dotenv
 from datetime import datetime, timezone
 import stripe
@@ -8,6 +8,7 @@ import secrets
 import re
 from subprocess import run
 from shutil import copytree
+import threading
 
 from utils.deploy_helpers import insert_admin_user
 from utils.email_helpers import init_mail, send_user_deployment_email, send_support_error_email
@@ -175,7 +176,7 @@ def create_checkout_session():
                 "quantity": 1,
             }],
             mode="subscription",  # ✅ CHANGED: Use subscription mode for auto-renewal
-            success_url=url_for("deployment_in_progress", _external=True),
+            success_url=url_for("deployment_in_progress", _external=True) + "?session_id={CHECKOUT_SESSION_ID}",
             cancel_url=url_for("home", _external=True) + "?cancelled=true",
             metadata={
                 "app_name": info.get("app_name", ""),
@@ -213,9 +214,143 @@ def create_checkout_session():
 # ✅ Deployment progress page
 @app.route("/deployment-in-progress")
 def deployment_in_progress():
-    return render_template("deployment_progress.html")
+    session_id = request.args.get('session_id', '')
+    return render_template("deployment_progress.html", session_id=session_id)
 
 
+# ✅ API endpoint for deployment logs
+@app.route("/api/deployment-logs/<session_id>")
+def get_deployment_logs(session_id):
+    """
+    Returns deployment logs for a specific Stripe checkout session.
+    Filters logs by app_name to show only relevant deployment steps.
+    """
+    try:
+        from utils.customer_helpers import get_customer_by_stripe_session_id
+        import os
+
+        # Get customer from database
+        customer = get_customer_by_stripe_session_id(session_id)
+
+        if not customer:
+            return jsonify({
+                "status": "not_started",
+                "logs": ["⏳ Waiting for payment confirmation..."],
+                "app_name": None,
+                "email": None
+            })
+
+        app_name = customer.get('app_name', '')
+        email = customer.get('email', '')
+        deployed = customer.get('deployed', 0)
+
+        # Read log file
+        log_file = "subscribed_app.log"
+        logs = []
+
+        if os.path.exists(log_file):
+            with open(log_file, 'r') as f:
+                all_lines = f.readlines()
+
+            # Filter logs containing the app_name or session_id
+            # Get last 100 lines to avoid reading entire file
+            recent_lines = all_lines[-100:] if len(all_lines) > 100 else all_lines
+
+            for line in recent_lines:
+                # Filter by app_name
+                if app_name and app_name in line:
+                    logs.append(line.strip())
+
+        # If no logs yet but customer exists, deployment is starting
+        if not logs:
+            logs = [f"🚀 Initializing deployment for {app_name}..."]
+            status = "starting"
+        elif deployed == 1:
+            status = "completed"
+        else:
+            status = "in_progress"
+
+        return jsonify({
+            "status": status,
+            "logs": logs,
+            "app_name": app_name,
+            "email": email
+        })
+
+    except Exception as e:
+        logging.error(f"Error in get_deployment_logs: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            "status": "error",
+            "logs": [f"❌ Server error: {str(e)}"],
+            "app_name": None,
+            "email": None
+        }), 500
+
+
+
+def process_deployment_async(app_name, admin_email, admin_password, plan_key, port, organization_name,
+                              tier, billing_frequency, subscription_start_date, subscription_end_date,
+                              stripe_price_id, stripe_checkout_session_id, stripe_customer_id,
+                              stripe_subscription_id, payment_amount, currency, email_address, forwarding_email):
+    """
+    Background worker function to handle deployment asynchronously.
+    This runs in a separate thread so the webhook can return immediately.
+    """
+    from utils.customer_helpers import update_customer_deployment_status
+    from utils.deploy_helpers import deploy_customer_container
+    from utils.email_helpers import send_user_deployment_email, send_support_error_email
+    from utils.mail_integration import setup_customer_email_complete
+
+    # Wrap in Flask app context for email sending
+    with app.app_context():
+        try:
+            subscription_logger.info(f"[{app_name}] 🚀 Background deployment started")
+
+            # Step 1: Deploy container
+            subscription_logger.info(f"[{app_name}] 🐳 Deploying customer container")
+            success = deploy_customer_container(app_name, admin_email, admin_password, plan_key, port,
+                                               organization_name, tier=tier, billing_frequency=billing_frequency,
+                                               email_address=email_address)
+
+            if not success:
+                subscription_logger.error(f"[{app_name}] ❌ Container deployment failed")
+                send_support_error_email(app_name, admin_email, "Container deployment failed")
+                return
+
+            log_validation_check(subscription_logger, f"[{app_name}] Container deployment", True, "Container deployed successfully")
+            app_url = f"https://{app_name}.minipass.me"
+
+            # Step 2: Setup customer email
+            subscription_logger.info(f"[{app_name}] 📧 Setting up customer email")
+            from utils.deploy_helpers import is_production_environment
+            if is_production_environment():
+                setup_customer_email_complete(app_name, admin_password, forwarding_email)
+            else:
+                subscription_logger.info(f"[{app_name}] ⚠️ LOCAL MODE: Skipping email creation")
+
+            # Step 3: Send deployment email
+            subscription_logger.info(f"[{app_name}] 📬 Sending deployment confirmation email")
+            email_info = {
+                'email_address': email_address,
+                'email_password': admin_password
+            }
+            send_user_deployment_email(admin_email, app_url, admin_password, email_info)
+
+            # Step 4: Mark deployment complete
+            subscription_logger.info(f"[{app_name}] ✅ Marking deployment as complete")
+            update_customer_deployment_status(app_name, deployed=True)
+
+            subscription_logger.info(f"[{app_name}] 🎉 Deployment completed successfully!")
+            log_operation_end(subscription_logger, f"Background Deployment [{app_name}]", success=True)
+
+        except Exception as e:
+            subscription_logger.error(f"[{app_name}] ❌ Background deployment failed: {e}")
+            import traceback
+            traceback.print_exc()
+            send_support_error_email(app_name, admin_email, str(e))
+            log_operation_end(subscription_logger, f"Background Deployment [{app_name}]", success=False, error_msg=str(e))
 
 
 # ✅ Webhook listener
@@ -324,175 +459,55 @@ def stripe_webhook():
             else:
                 log_validation_check(subscription_logger, "Subdomain availability", True, f"Subdomain '{app_name}' is available")
 
-            # Step 2: Assign resources (but don't create customer record yet)
+            # Step 2: Assign resources
             subscription_logger.info("🔢 Step 2: Assigning resources for deployment")
             port = get_next_available_port()
             email_address = f"{app_name}_app@minipass.me"
             subscription_logger.info(f"   📦 Assigned port: {port}")
             subscription_logger.info(f"   📧 Generated email: {email_address}")
 
-            # Step 3: Deploy container FIRST (before creating customer record)
-            subscription_logger.info("🐳 Step 3: Deploying customer container")
-            subscription_logger.info(f"   🎯 Tier: {tier}, Plan: {plan_key}, Frequency: {billing_frequency}")
-            success = deploy_customer_container(app_name, admin_email, admin_password, plan_key, port,
-                                               organization_name, tier=tier, billing_frequency=billing_frequency)
+            # Step 3: Create customer record IMMEDIATELY (so progress page can track it)
+            subscription_logger.info(f"📝 Step 3: Creating customer record for tracking")
+            insert_customer(
+                admin_email, app_name, app_name, plan_key, admin_password, port,
+                email_address=email_address, forwarding_email=forwarding_email,
+                email_status='pending', organization_name=organization_name,
+                billing_frequency=billing_frequency,
+                subscription_start_date=subscription_start_date,
+                subscription_end_date=subscription_end_date,
+                stripe_price_id=stripe_price_id,
+                stripe_checkout_session_id=stripe_checkout_session_id,
+                stripe_customer_id=stripe_customer_id,
+                stripe_subscription_id=stripe_subscription_id,
+                payment_amount=payment_amount,
+                currency=currency,
+                subscription_status='active'
+            )
+            subscription_logger.info(f"✅ Customer record created - deployment can now be tracked")
 
-            if success:
-                log_validation_check(subscription_logger, "Container deployment", True, f"Container deployed successfully for {app_name}")
-                app_url = f"https://{app_name}.minipass.me"
-                subscription_logger.info(f"🌐 Application URL: {app_url}")
+            # Step 4: Launch background deployment thread
+            subscription_logger.info(f"🚀 Step 4: Launching background deployment for {app_name}")
+            deployment_thread = threading.Thread(
+                target=process_deployment_async,
+                args=(app_name, admin_email, admin_password, plan_key, port, organization_name,
+                      tier, billing_frequency, subscription_start_date, subscription_end_date,
+                      stripe_price_id, stripe_checkout_session_id, stripe_customer_id,
+                      stripe_subscription_id, payment_amount, currency, email_address, forwarding_email),
+                daemon=True
+            )
+            deployment_thread.start()
+            subscription_logger.info(f"✅ Background deployment thread started for {app_name}")
+            log_operation_end(subscription_logger, "Customer Subscription Processing (Webhook)", success=True)
 
-                # Step 4: Create customer record AFTER successful deployment
-                subscription_logger.info("📝 Step 4: Creating customer record in database")
-                insert_customer(
-                    admin_email, app_name, app_name, plan_key, admin_password, port,
-                    email_address=email_address, forwarding_email=forwarding_email,
-                    email_status='pending', organization_name=organization_name,
-                    billing_frequency=billing_frequency,
-                    subscription_start_date=subscription_start_date,
-                    subscription_end_date=subscription_end_date,
-                    stripe_price_id=stripe_price_id,
-                    stripe_checkout_session_id=stripe_checkout_session_id,
-                    stripe_customer_id=stripe_customer_id,
-                    stripe_subscription_id=stripe_subscription_id,
-                    payment_amount=payment_amount,
-                    currency=currency,
-                    subscription_status='active'
-                )
-                subscription_logger.info(f"   💰 Payment: {payment_amount/100 if payment_amount else 0} {currency.upper()}")
-                subscription_logger.info(f"   📅 Subscription: {subscription_start_date} → {subscription_end_date}")
-                log_validation_check(subscription_logger, "Customer record created", True, f"Customer {app_name} added to database")
-
-                # Step 5: Setup customer email (skip in local mode)
-                subscription_logger.info("📧 Step 5: Setting up customer email and forwarding")
-
-                is_production = is_production_environment()
-                if is_production:
-                    # PRODUCTION: Create real email account on docker-mailserver
-                    email_success, created_email, error_msg = setup_customer_email_complete(
-                        app_name, admin_password, forwarding_email
-                    )
-
-                    if email_success:
-                        subscription_logger.info(f"✅ Email setup completed: {created_email} -> {forwarding_email}")
-                        update_customer_email_status(app_name, created_email, 'success')
-                        log_validation_check(subscription_logger, "Email setup", True, f"Email {created_email} created and forwarded to {forwarding_email}")
-                    else:
-                        subscription_logger.warning(f"⚠️ Email setup failed for {created_email}: {error_msg}")
-                        update_customer_email_status(app_name, created_email, 'failed')
-                        log_validation_check(subscription_logger, "Email setup", False, f"Email setup failed: {error_msg}")
-                        # Continue with deployment even if email setup fails
-                else:
-                    # LOCAL: Skip email creation, just log what would be created
-                    created_email = f"{app_name}_app@minipass.me"
-                    email_success = True  # Simulate success for local testing
-                    subscription_logger.warning(f"⚠️ LOCAL MODE: Skipping email account creation")
-                    subscription_logger.info(f"   📧 Would create: {created_email}")
-                    subscription_logger.info(f"   📧 Would forward to: {forwarding_email}")
-                    update_customer_email_status(app_name, created_email, 'skipped_local')
-                    log_validation_check(subscription_logger, "Email setup", True, "Skipped in local mode (docker-mailserver not available)")
-
-                # Step 6: Send deployment notification (save to file in local mode)
-                subscription_logger.info(f"📧 Step 6: Sending deployment notification to {admin_email}")
-
-                # Include email credentials in the deployment info
-                email_info = {
-                    'email_address': created_email,
-                    'email_password': admin_password,
-                    'forwarding_setup': email_success and forwarding_email
-                }
-
-                if is_production:
-                    # PRODUCTION: Send real email notification
-                    send_user_deployment_email(admin_email, app_url, admin_password, email_info)
-                    log_validation_check(subscription_logger, "Deployment notification sent", True, f"Email sent to {admin_email}")
-                else:
-                    # LOCAL: Save deployment info to file instead of sending email
-                    deployment_info_path = os.path.join(deploy_dir, "DEPLOYMENT_INFO.txt")
-                    deployment_info = f"""
-===========================================
-MINIPASS DEPLOYMENT INFO (LOCAL TEST)
-===========================================
-
-App Name: {app_name}
-App URL: {app_url}
-
-ADMIN CREDENTIALS:
-  Email: {admin_email}
-  Password: {admin_password}
-
-EMAIL ACCOUNT (NOT CREATED IN LOCAL MODE):
-  Email: {created_email}
-  Password: {admin_password}
-  Forwards to: {forwarding_email or 'N/A'}
-
-SUBSCRIPTION DETAILS:
-  Plan: {plan_key}
-  Tier: {tier}
-  Billing: {billing_frequency}
-  Dates: {subscription_start_date} to {subscription_end_date}
-
-PAYMENT:
-  Amount: {payment_amount/100 if payment_amount else 0} {currency.upper()}
-  Stripe Customer: {stripe_customer_id}
-  Stripe Subscription: {stripe_subscription_id}
-
-===========================================
-"""
-                    with open(deployment_info_path, 'w') as f:
-                        f.write(deployment_info)
-
-                    subscription_logger.warning(f"⚠️ LOCAL MODE: Skipping deployment email")
-                    subscription_logger.info(f"   📄 Deployment info saved to: {deployment_info_path}")
-                    subscription_logger.info(f"   🌐 Access app at: {app_url}")
-                    subscription_logger.info(f"   👤 Admin login: {admin_email} / {admin_password}")
-                    log_validation_check(subscription_logger, "Deployment notification", True, "Info saved to file (local mode)")
-
-                # Step 7: Mark deployment as completed in database
-                subscription_logger.info("✅ Step 7: Updating deployment status in database")
-                update_customer_deployment_status(app_name, deployed=True)
-                log_validation_check(subscription_logger, "Database deployment status", True, f"Deployment status updated for {app_name}")
-
-                # Step 8: Write subscription info to customer app
-                subscription_logger.info("📝 Step 8: Writing subscription info to customer app")
-                import json
-                subscription_info = {
-                    'stripe_customer_id': stripe_customer_id,
-                    'stripe_subscription_id': stripe_subscription_id,
-                    'plan': plan_key,
-                    'billing_frequency': billing_frequency,
-                    'subscription_start_date': subscription_start_date,
-                    'subscription_end_date': subscription_end_date,
-                    'stripe_price_id': stripe_price_id,
-                    'tier': tier
-                }
-
-                # Write to customer app's instance directory
-                subscription_file_path = f"/home/kdresdell/minipass_customers/{app_name}/app/instance/subscription.json"
-                try:
-                    os.makedirs(os.path.dirname(subscription_file_path), exist_ok=True)
-                    with open(subscription_file_path, 'w') as f:
-                        json.dump(subscription_info, f, indent=2)
-                    subscription_logger.info(f"✅ Subscription info written to {subscription_file_path}")
-                    log_validation_check(subscription_logger, "Subscription info file created", True, f"File: {subscription_file_path}")
-                except Exception as e:
-                    subscription_logger.warning(f"⚠️ Failed to write subscription info: {e}")
-                    log_validation_check(subscription_logger, "Subscription info file created", False, str(e))
-
-                log_operation_end(subscription_logger, "Customer Subscription Processing", success=True)
-
-            else:
-                log_validation_check(subscription_logger, "Container deployment", False, "Container deployment failed")
-                raise RuntimeError("Container failed to deploy")
+            # Return 200 OK immediately - deployment continues in background
+            return "OK - Deployment in progress", 200
 
         except Exception as e:
-            error_msg = f"Deployment error: {str(e)}"
+            error_msg = f"Webhook processing error: {str(e)}"
             subscription_logger.error(f"❌ {error_msg}")
-            log_operation_end(subscription_logger, "Customer Subscription Processing", success=False, error_msg=error_msg)
-
-            error_output = getattr(e, 'output', '') or getattr(e, 'stderr', '') or str(e)
-            send_support_error_email(admin_email, app_name, error_output)
-            return "Deployment failed", 500
+            log_operation_end(subscription_logger, "Customer Subscription Processing (Webhook)", success=False, error_msg=error_msg)
+            send_support_error_email(app_name, admin_email, error_msg)
+            return "Webhook processing failed", 500
 
     elif event["type"] == "invoice.payment_succeeded":
         # Handle successful subscription renewal

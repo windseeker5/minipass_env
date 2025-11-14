@@ -1,41 +1,271 @@
 {% extends "base.html" %}
 
 {% block content %}
-<meta http-equiv="refresh" content="10;url=/" />
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
 
-<div class="container py-7 text-center">
-  <!-- Terminal-style black card with margin from header -->
-  <div class="mx-auto mb-5" style="
-      max-width: 560px;
-      background: #000;
-      color: #00ff99;
-      font-family: monospace;
-      padding: 20px;
-      border-radius: 14px;
-      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
-      text-align: left;
-      font-size: 12px;
-      line-height: 1.3;
-      margin-top: 140px;
-    ">
-    Building your app...<br>
-    Installing dependencies...<br>
-    Configuring your subdomain...<br>
-    Setting up database...<br>
-    Finalizing container...<br>
-    ✅ All done!
-  </div>
+            <!-- Header Section -->
+            <div class="text-center mb-4" style="margin-top: 100px;">
+                <h1 class="fw-bold mb-3" style="font-size: 2.5rem;">
+                    🚀 Déploiement en cours...
+                </h1>
+                <p class="text-muted" style="font-size: 1.1rem;">
+                    Votre application MiniPass est en cours de création
+                </p>
+            </div>
 
-  <br><br>
+            <!-- Enhanced Terminal Card -->
+            <div class="card shadow-lg mb-4" style="
+                background: #000;
+                border: none;
+                border-radius: 12px;
+                overflow: hidden;
+            ">
+                <!-- Terminal Header (macOS style) -->
+                <div style="
+                    background: #2d2d2d;
+                    padding: 10px 15px;
+                    display: flex;
+                    align-items: center;
+                    border-bottom: 1px solid #1a1a1a;
+                ">
+                    <div style="display: flex; gap: 8px;">
+                        <div style="width: 12px; height: 12px; border-radius: 50%; background: #ff5f56;"></div>
+                        <div style="width: 12px; height: 12px; border-radius: 50%; background: #ffbd2e;"></div>
+                        <div style="width: 12px; height: 12px; border-radius: 50%; background: #27c93f;"></div>
+                    </div>
+                    <div style="
+                        flex: 1;
+                        text-align: center;
+                        color: #8b8b8b;
+                        font-family: monospace;
+                        font-size: 13px;
+                    ">
+                        MiniPass Deployment Console
+                    </div>
+                </div>
 
-  <!-- H1 and description below the black terminal -->
-  <h1 class="fw-bold" style="font-size: 2.5rem;">🚀 We’re getting things ready...</h1>
-  <br>
-  <p class="text-muted mt-2" style="font-size: 16px;">
-    We’re currently building your MiniPass application and you’ll receive an email with your login info and documentation when it’s ready.
-  </p>
+                <!-- Terminal Body -->
+                <div id="terminal" style="
+                    font-family: 'Courier New', Courier, monospace;
+                    padding: 25px;
+                    min-height: 400px;
+                    max-height: 500px;
+                    overflow-y: auto;
+                    color: #00ff99;
+                    font-size: 14px;
+                    line-height: 1.6;
+                    background: #000;
+                ">
+                    <div class="log-line">⏳ Connexion au serveur de déploiement...</div>
+                    <div class="log-line">🔐 Vérification de la session de paiement...</div>
+                </div>
+            </div>
+
+            <!-- Info Message -->
+            <div id="info-message" class="alert alert-info text-center" style="display: none;">
+                <h5 class="mb-3">📧 Vérifiez votre boîte de réception</h5>
+                <p class="mb-2">
+                    Le déploiement complet prend environ <strong>10 minutes</strong>.
+                </p>
+                <p class="mb-0">
+                    Vous recevrez un email à <strong id="customer-email"></strong> avec:
+                </p>
+                <ul class="list-unstyled mt-2">
+                    <li>✅ Lien vers votre application</li>
+                    <li>✅ Identifiants de connexion</li>
+                    <li>✅ Documentation de configuration</li>
+                </ul>
+                <p class="text-muted mt-3 mb-0">
+                    <small>Redirection vers la page d'accueil dans <span id="countdown">20</span> secondes...</small>
+                </p>
+            </div>
+
+        </div>
+    </div>
 </div>
 
+<script>
+// Configuration
+const SESSION_ID = "{{ session_id }}";
+const POLL_INTERVAL = 3000;  // 3 seconds
+const MAX_DURATION = 120000; // 2 minutes
+const REDIRECT_DELAY = 20000; // 20 seconds
 
+let pollingTimer = null;
+let startTime = Date.now();
+let redirectTimer = null;
+let terminalCleared = false;  // Track if we've cleared initial messages
+
+// Terminal auto-scroll
+function scrollTerminalToBottom() {
+    const terminal = document.getElementById('terminal');
+    terminal.scrollTop = terminal.scrollHeight;
+}
+
+// Add log line to terminal
+function addLogLine(text) {
+    const terminal = document.getElementById('terminal');
+    const line = document.createElement('div');
+    line.className = 'log-line';
+    line.textContent = text;
+
+    // Color coding
+    if (text.includes('✅')) {
+        line.style.color = '#27c93f';
+    } else if (text.includes('❌')) {
+        line.style.color = '#ff5f56';
+    } else if (text.includes('⚠️')) {
+        line.style.color = '#ffbd2e';
+    }
+
+    terminal.appendChild(line);
+    scrollTerminalToBottom();
+}
+
+// Clear initial loading messages
+function clearTerminal() {
+    const terminal = document.getElementById('terminal');
+    terminal.innerHTML = '';
+}
+
+// Show completion message
+function showCompletionMessage(email) {
+    // Stop polling
+    if (pollingTimer) {
+        clearInterval(pollingTimer);
+    }
+
+    // Hide terminal, show message
+    document.getElementById('info-message').style.display = 'block';
+    document.getElementById('customer-email').textContent = email || 'votre adresse';
+
+    // Start countdown
+    let countdown = 20;
+    const countdownEl = document.getElementById('countdown');
+
+    const countdownTimer = setInterval(() => {
+        countdown--;
+        countdownEl.textContent = countdown;
+
+        if (countdown <= 0) {
+            clearInterval(countdownTimer);
+            window.location.href = '/';
+        }
+    }, 1000);
+}
+
+// Fetch deployment logs
+async function fetchLogs() {
+    try {
+        const response = await fetch(`/api/deployment-logs/${SESSION_ID}`);
+        const data = await response.json();
+
+        // Clear initial messages ONLY ONCE on first real data
+        if (data.status !== 'not_started' && !terminalCleared) {
+            clearTerminal();
+            terminalCleared = true;
+        }
+
+        // Display logs (only if terminal was cleared, otherwise logs pile up)
+        if (terminalCleared && data.logs && data.logs.length > 0) {
+            data.logs.forEach(log => {
+                addLogLine(log);
+            });
+        }
+
+        // Check if deployment completed or time exceeded
+        const elapsed = Date.now() - startTime;
+
+        if (data.status === 'completed') {
+            // Stop polling immediately
+            if (pollingTimer) {
+                clearInterval(pollingTimer);
+            }
+
+            addLogLine('');
+            addLogLine('🎉 Déploiement terminé avec succès!');
+            addLogLine('📧 Vérifiez votre email pour les détails de connexion.');
+            setTimeout(() => showCompletionMessage(data.email), 2000);
+        } else if (elapsed >= MAX_DURATION) {
+            // Stop polling after timeout
+            if (pollingTimer) {
+                clearInterval(pollingTimer);
+            }
+
+            addLogLine('');
+            addLogLine('⏰ Déploiement en cours...');
+            addLogLine('📧 Vous recevrez un email dès que tout sera prêt.');
+            setTimeout(() => showCompletionMessage(data.email), 2000);
+        }
+
+    } catch (error) {
+        console.error('Error fetching logs:', error);
+        addLogLine('⚠️ Erreur de connexion au serveur. Réessai...');
+    }
+}
+
+// Start polling
+function startPolling() {
+    // Initial fetch
+    fetchLogs();
+
+    // Poll every 3 seconds
+    pollingTimer = setInterval(() => {
+        const elapsed = Date.now() - startTime;
+
+        // Stop polling after 2 minutes
+        if (elapsed >= MAX_DURATION) {
+            clearInterval(pollingTimer);
+            return;
+        }
+
+        fetchLogs();
+    }, POLL_INTERVAL);
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', () => {
+    if (SESSION_ID) {
+        startPolling();
+    } else {
+        addLogLine('❌ Erreur: Session invalide');
+        addLogLine('Redirection vers la page d\'accueil...');
+        setTimeout(() => window.location.href = '/', 5000);
+    }
+});
+</script>
+
+<style>
+.log-line {
+    margin-bottom: 4px;
+    opacity: 0;
+    animation: fadeIn 0.3s forwards;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateX(-10px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+/* Custom scrollbar for terminal */
+#terminal::-webkit-scrollbar {
+    width: 8px;
+}
+
+#terminal::-webkit-scrollbar-track {
+    background: #1a1a1a;
+}
+
+#terminal::-webkit-scrollbar-thumb {
+    background: #4a4a4a;
+    border-radius: 4px;
+}
+
+#terminal::-webkit-scrollbar-thumb:hover {
+    background: #666;
+}
+</style>
 
 {% endblock %}
