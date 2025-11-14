@@ -171,10 +171,10 @@ def create_checkout_session():
         session_obj = stripe.checkout.Session.create(
             payment_method_types=["card"],
             line_items=[{
-                "price": stripe_price_id,  # ✅ Use Stripe Price ID
+                "price": stripe_price_id,  # ✅ Use Stripe Price ID (now recurring)
                 "quantity": 1,
             }],
-            mode="payment",
+            mode="subscription",  # ✅ CHANGED: Use subscription mode for auto-renewal
             success_url=url_for("deployment_in_progress", _external=True),
             cancel_url=url_for("home", _external=True) + "?cancelled=true",
             metadata={
@@ -186,6 +186,14 @@ def create_checkout_session():
                 "plan": plan,  # ✅ CRITICAL FIX: Add plan!
                 "billing_frequency": billing_frequency,  # ✅ CRITICAL FIX: Add frequency!
                 "tier": str(tier)  # ✅ CRITICAL FIX: Add tier!
+            },
+            subscription_data={
+                "metadata": {
+                    "app_name": info.get("app_name", ""),
+                    "plan": plan,
+                    "billing_frequency": billing_frequency,
+                    "tier": str(tier)
+                }
             }
         )
 
@@ -281,6 +289,12 @@ def stripe_webhook():
         currency = session_data.get("currency", "cad")
         stripe_checkout_session_id = session_data.get("id")
 
+        # ✅ NEW: Extract Stripe Customer and Subscription IDs
+        stripe_customer_id = session_data.get("customer")
+        stripe_subscription_id = session_data.get("subscription")
+        subscription_logger.info(f"💳 Stripe Customer ID: {stripe_customer_id}")
+        subscription_logger.info(f"🔄 Stripe Subscription ID: {stripe_subscription_id}")
+
         # Get stripe_price_id from line_items if available
         stripe_price_id = None
         try:
@@ -339,6 +353,8 @@ def stripe_webhook():
                     subscription_end_date=subscription_end_date,
                     stripe_price_id=stripe_price_id,
                     stripe_checkout_session_id=stripe_checkout_session_id,
+                    stripe_customer_id=stripe_customer_id,
+                    stripe_subscription_id=stripe_subscription_id,
                     payment_amount=payment_amount,
                     currency=currency,
                     subscription_status='active'
@@ -380,6 +396,32 @@ def stripe_webhook():
                 update_customer_deployment_status(app_name, deployed=True)
                 log_validation_check(subscription_logger, "Database deployment status", True, f"Deployment status updated for {app_name}")
 
+                # Step 8: Write subscription info to customer app
+                subscription_logger.info("📝 Step 8: Writing subscription info to customer app")
+                import json
+                subscription_info = {
+                    'stripe_customer_id': stripe_customer_id,
+                    'stripe_subscription_id': stripe_subscription_id,
+                    'plan': plan_key,
+                    'billing_frequency': billing_frequency,
+                    'subscription_start_date': subscription_start_date,
+                    'subscription_end_date': subscription_end_date,
+                    'stripe_price_id': stripe_price_id,
+                    'tier': tier
+                }
+
+                # Write to customer app's instance directory
+                subscription_file_path = f"/home/kdresdell/minipass_customers/{app_name}/app/instance/subscription.json"
+                try:
+                    os.makedirs(os.path.dirname(subscription_file_path), exist_ok=True)
+                    with open(subscription_file_path, 'w') as f:
+                        json.dump(subscription_info, f, indent=2)
+                    subscription_logger.info(f"✅ Subscription info written to {subscription_file_path}")
+                    log_validation_check(subscription_logger, "Subscription info file created", True, f"File: {subscription_file_path}")
+                except Exception as e:
+                    subscription_logger.warning(f"⚠️ Failed to write subscription info: {e}")
+                    log_validation_check(subscription_logger, "Subscription info file created", False, str(e))
+
                 log_operation_end(subscription_logger, "Customer Subscription Processing", success=True)
 
             else:
@@ -395,10 +437,118 @@ def stripe_webhook():
             send_support_error_email(admin_email, app_name, error_output)
             return "Deployment failed", 500
 
+    elif event["type"] == "invoice.payment_succeeded":
+        # Handle successful subscription renewal
+        from datetime import datetime, timedelta
+        from utils.customer_helpers import get_customer_by_stripe_subscription_id, update_customer_stripe_ids
+
+        invoice = event["data"]["object"]
+        stripe_subscription_id = invoice.get("subscription")
+
+        if not stripe_subscription_id:
+            subscription_logger.warning("⚠️ No subscription ID in invoice.payment_succeeded event")
+            return "OK", 200
+
+        subscription_logger.info(f"💰 Successful renewal payment for subscription: {stripe_subscription_id}")
+
+        # Look up customer by subscription ID
+        customer = get_customer_by_stripe_subscription_id(stripe_subscription_id)
+        if customer:
+            subdomain = customer['subdomain']
+            billing_frequency = customer['billing_frequency']
+
+            # Update subscription end date
+            from utils.customer_helpers import subdomain_taken
+            import sqlite3
+            CUSTOMERS_DB = "customers.db"
+            with sqlite3.connect(CUSTOMERS_DB) as conn:
+                cur = conn.cursor()
+
+                # Calculate new end date
+                if billing_frequency == "monthly":
+                    new_end_date = (datetime.now() + timedelta(days=30)).isoformat()
+                else:  # annual
+                    new_end_date = (datetime.now() + timedelta(days=365)).isoformat()
+
+                cur.execute("""
+                    UPDATE customers
+                    SET subscription_end_date = ?,
+                        subscription_status = 'active'
+                    WHERE subdomain = ?
+                """, (new_end_date, subdomain))
+                conn.commit()
+
+            subscription_logger.info(f"✅ Subscription renewed for {subdomain} until {new_end_date}")
+        else:
+            subscription_logger.warning(f"⚠️ Customer not found for subscription ID: {stripe_subscription_id}")
+
+    elif event["type"] == "invoice.payment_failed":
+        # Handle failed subscription renewal
+        from utils.customer_helpers import get_customer_by_stripe_subscription_id
+
+        invoice = event["data"]["object"]
+        stripe_subscription_id = invoice.get("subscription")
+
+        if not stripe_subscription_id:
+            subscription_logger.warning("⚠️ No subscription ID in invoice.payment_failed event")
+            return "OK", 200
+
+        subscription_logger.warning(f"⚠️ Failed renewal payment for subscription: {stripe_subscription_id}")
+
+        # Look up customer and update status
+        customer = get_customer_by_stripe_subscription_id(stripe_subscription_id)
+        if customer:
+            subdomain = customer['subdomain']
+            import sqlite3
+            CUSTOMERS_DB = "customers.db"
+            with sqlite3.connect(CUSTOMERS_DB) as conn:
+                cur = conn.cursor()
+                cur.execute("""
+                    UPDATE customers
+                    SET subscription_status = 'past_due'
+                    WHERE subdomain = ?
+                """, (subdomain,))
+                conn.commit()
+
+            subscription_logger.warning(f"⚠️ Subscription marked as past_due for {subdomain}")
+            # TODO: Send payment failed notification email to customer
+        else:
+            subscription_logger.warning(f"⚠️ Customer not found for subscription ID: {stripe_subscription_id}")
+
+    elif event["type"] == "customer.subscription.deleted":
+        # Handle subscription cancellation
+        from utils.customer_helpers import get_customer_by_stripe_subscription_id
+
+        subscription_obj = event["data"]["object"]
+        stripe_subscription_id = subscription_obj.get("id")
+
+        subscription_logger.info(f"🚫 Subscription cancelled: {stripe_subscription_id}")
+
+        # Look up customer and update status
+        customer = get_customer_by_stripe_subscription_id(stripe_subscription_id)
+        if customer:
+            subdomain = customer['subdomain']
+            import sqlite3
+            CUSTOMERS_DB = "customers.db"
+            with sqlite3.connect(CUSTOMERS_DB) as conn:
+                cur = conn.cursor()
+                cur.execute("""
+                    UPDATE customers
+                    SET subscription_status = 'cancelled'
+                    WHERE subdomain = ?
+                """, (subdomain,))
+                conn.commit()
+
+            subscription_logger.info(f"✅ Subscription marked as cancelled for {subdomain}")
+            # Note: Container will remain deployed until subscription_end_date
+            # TODO: Add scheduled job to stop container after end date
+        else:
+            subscription_logger.warning(f"⚠️ Customer not found for subscription ID: {stripe_subscription_id}")
+
     return "OK", 200
 
 
 
 # ✅ Run server
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    app.run(host='0.0.0.0', debug=True, port=5000)

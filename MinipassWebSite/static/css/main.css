@@ -7596,7 +7596,7 @@ ________________________________ */
   height: 26px;
   border-radius: 15px;
   border: none;
-  background-color: #fff !important;
+  background-color: #d3d3d3 !important;
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='rgba%280, 0, 0, 0.25%29'/%3e%3c/svg%3e");
 }
 
@@ -7604,7 +7604,7 @@ ________________________________ */
   border: none;
   outline: none;
   box-shadow: none;
-  background-color: #fff !important;
+  background-color: #d3d3d3 !important;
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='rgba%280, 0, 0, 0.25%29'/%3e%3c/svg%3e");
 }
 
@@ -14801,7 +14801,7 @@ ________________________________ */
 }
 
 .table-section--l8 .pricing-btn .btn-toggle {
-  background-color: #fff !important;
+  background-color: #d3d3d3 !important;
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='rgba%280, 0, 0, 0.25%29'/%3e%3c/svg%3e");
 }
 
@@ -14809,7 +14809,7 @@ ________________________________ */
   border: none;
   outline: none;
   box-shadow: none;
-  background-color: #fff !important;
+  background-color: #d3d3d3 !important;
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='rgba%280, 0, 0, 0.25%29'/%3e%3c/svg%3e");
 }
 
