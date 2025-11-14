@@ -1,140 +1,214 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Politiques d'Abonnement - MiniPass</title>
 
-{% block extra_head %}
-<style>
-  .policy-section {
-    padding: 80px 0 120px;
-    min-height: calc(100vh - 200px);
-  }
+  <!-- Favicons -->
+  <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='image/fav-icon/icon-16x16.png') }}">
+  <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='image/fav-icon/icon-32x32.png') }}">
+  <link rel="icon" type="image/png" sizes="48x48" href="{{ url_for('static', filename='image/fav-icon/icon-48x48.png') }}">
 
-  .policy-container {
-    max-width: 900px;
-    margin: 0 auto;
-    background: white;
-    border-radius: 16px;
-    padding: 60px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
-  }
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-  .policy-header {
-    text-align: center;
-    margin-bottom: 50px;
-    padding-bottom: 30px;
-    border-bottom: 2px solid #f0f0f0;
-  }
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-  .policy-title {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: #1a1a1a;
-    margin-bottom: 15px;
-  }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: #f5f5f5;
+      color: #333;
+      line-height: 1.6;
+      padding: 40px 20px;
+    }
 
-  .policy-subtitle {
-    font-size: 1.1rem;
-    color: #666;
-  }
+    /* Content */
+    .policy-content-wrapper {
+      max-width: 900px;
+      margin: 0 auto;
+    }
 
-  .policy-content h2 {
-    font-size: 1.75rem;
-    font-weight: 600;
-    color: #2c3e50;
-    margin: 40px 0 20px 0;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #e0e0e0;
-  }
-
-  .policy-content h2:first-child {
-    margin-top: 0;
-  }
-
-  .policy-content p {
-    font-size: 1.05rem;
-    line-height: 1.8;
-    color: #444;
-    margin-bottom: 20px;
-  }
-
-  .policy-content strong {
-    color: #2c3e50;
-    font-weight: 600;
-  }
-
-  .policy-highlight {
-    background: #f8f9fa;
-    border-left: 4px solid #5454d4;
-    padding: 20px 25px;
-    margin: 30px 0;
-    border-radius: 4px;
-  }
-
-  .policy-highlight p {
-    margin-bottom: 0;
-  }
-
-  .back-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    color: #5454d4;
-    text-decoration: none;
-    font-weight: 500;
-    margin-bottom: 30px;
-    transition: gap 0.2s ease;
-  }
-
-  .back-link:hover {
-    color: #3a3ab8;
-    gap: 12px;
-  }
-
-  .contact-section {
-    margin-top: 50px;
-    padding-top: 30px;
-    border-top: 2px solid #f0f0f0;
-    text-align: center;
-  }
-
-  .contact-email {
-    color: #5454d4;
-    font-weight: 600;
-    text-decoration: none;
-  }
-
-  .contact-email:hover {
-    text-decoration: underline;
-  }
-
-  @media (max-width: 768px) {
     .policy-container {
-      padding: 30px 20px;
+      background: white;
+      border-radius: 16px;
+      padding: 60px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    /* Logo and Close Button Row */
+    .policy-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 40px;
+    }
+
+    .logo-container img {
+      height: 22px;
+      width: auto;
+    }
+
+    .close-button {
+      background: none;
+      border: none;
+      font-size: 24px;
+      color: #666;
+      cursor: pointer;
+      padding: 8px;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: all 0.2s ease;
+    }
+
+    .close-button:hover {
+      background: #f0f0f0;
+      color: #333;
+    }
+
+    .policy-title-section {
+      text-align: center;
+      margin-bottom: 50px;
+      padding-bottom: 30px;
+      border-bottom: 2px solid #f0f0f0;
     }
 
     .policy-title {
-      font-size: 2rem;
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-bottom: 15px;
     }
 
-    .policy-content h2 {
-      font-size: 1.5rem;
+    .policy-subtitle {
+      font-size: 1.1rem;
+      color: #666;
     }
-  }
-</style>
-{% endblock %}
 
-{% block content %}
-<div class="policy-section">
-  <div class="container">
+    .policy-text h2 {
+      font-size: 1.75rem;
+      font-weight: 600;
+      color: #2c3e50;
+      margin: 40px 0 20px 0;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .policy-text h2:first-child {
+      margin-top: 0;
+    }
+
+    .policy-text p {
+      font-size: 1.05rem;
+      line-height: 1.8;
+      color: #444;
+      margin-bottom: 20px;
+    }
+
+    .policy-text strong {
+      color: #2c3e50;
+      font-weight: 600;
+    }
+
+    .policy-text a {
+      color: #099a97;
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .policy-text a:hover {
+      text-decoration: underline;
+    }
+
+    .policy-highlight {
+      background: #f0fffe;
+      border-left: 4px solid #099a97;
+      padding: 20px 25px;
+      margin: 30px 0;
+      border-radius: 4px;
+    }
+
+    .policy-highlight p {
+      margin-bottom: 0;
+    }
+
+    .policy-highlight i {
+      color: #099a97;
+      margin-right: 8px;
+    }
+
+    .contact-section {
+      margin-top: 50px;
+      padding-top: 30px;
+      border-top: 2px solid #f0f0f0;
+      text-align: center;
+    }
+
+    .contact-section p {
+      margin-bottom: 10px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      body {
+        padding: 20px 10px;
+      }
+
+      .policy-container {
+        padding: 30px 20px;
+      }
+
+      .logo-container img {
+        height: 18px;
+      }
+
+      .close-button {
+        font-size: 20px;
+        width: 36px;
+        height: 36px;
+      }
+
+      .policy-title {
+        font-size: 2rem;
+      }
+
+      .policy-text h2 {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Policy Content -->
+  <div class="policy-content-wrapper">
     <div class="policy-container">
-      <a href="/" class="back-link">
-        <i class="fas fa-arrow-left"></i> Retour à l'accueil
-      </a>
+      <!-- Logo and Close Button Row (FIRST ROW inside card) -->
+      <div class="policy-header-row">
+        <div class="logo-container">
+          <img src="{{ url_for('static', filename='image/mp-logo-regular.png') }}" alt="MiniPass Logo">
+        </div>
+        <button class="close-button" onclick="closeWindow()" title="Fermer">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
 
-      <div class="policy-header">
+      <!-- Title Section (SECOND ROW) -->
+      <div class="policy-title-section">
         <h1 class="policy-title">Politiques d'Abonnement</h1>
         <p class="policy-subtitle">Conditions générales de renouvellement et d'annulation</p>
       </div>
 
-      <div class="policy-content">
+      <div class="policy-text">
         <h2>Abonnements et Renouvellement Automatique</h2>
 
         <p>
@@ -145,7 +219,7 @@
 
         <div class="policy-highlight">
           <p>
-            <i class="fas fa-info-circle" style="color: #5454d4; margin-right: 8px;"></i>
+            <i class="fas fa-info-circle"></i>
             <strong>Important:</strong> Vous serez facturé automatiquement selon la même fréquence que votre
             abonnement initial (mensuel ou annuel) jusqu'à annulation.
           </p>
@@ -169,7 +243,7 @@
 
         <p>
           <strong>Annulation:</strong> Pour annuler votre abonnement, veuillez contacter notre équipe
-          de support à l'adresse <a href="mailto:support@minipass.me" class="contact-email">support@minipass.me</a>.
+          de support à l'adresse <a href="mailto:support@minipass.me">support@minipass.me</a>.
         </p>
 
         <p>
@@ -180,7 +254,7 @@
 
         <div class="policy-highlight">
           <p>
-            <i class="fas fa-calendar-check" style="color: #5454d4; margin-right: 8px;"></i>
+            <i class="fas fa-calendar-check"></i>
             <strong>Rappel:</strong> Pensez à annuler votre abonnement suffisamment à l'avance si vous
             ne souhaitez pas qu'il se renouvelle automatiquement.
           </p>
@@ -198,11 +272,26 @@
           <p><strong>Des questions?</strong></p>
           <p>
             Notre équipe est disponible pour répondre à vos questions:<br>
-            <a href="mailto:support@minipass.me" class="contact-email">support@minipass.me</a>
+            <a href="mailto:support@minipass.me">support@minipass.me</a>
           </p>
         </div>
       </div>
     </div>
   </div>
-</div>
-{% endblock %}
+
+  <script>
+    function closeWindow() {
+      // Try to close the window
+      window.close();
+
+      // If window.close() doesn't work (e.g., window wasn't opened by JavaScript),
+      // navigate back as fallback
+      setTimeout(function() {
+        if (!window.closed) {
+          window.history.back();
+        }
+      }, 100);
+    }
+  </script>
+</body>
+</html>
