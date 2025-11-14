@@ -134,7 +134,8 @@ Your customer app needs Stripe API access to cancel subscriptions.
 **File:** `/app/.env` or passed via Docker environment
 
 ```bash
-STRIPE_SECRET_KEY=...
+# Replace YOUR_STRIPE_SECRET_KEY with your actual Stripe secret key
+STRIPE_SECRET_KEY=YOUR_STRIPE_SECRET_KEY
 ```
 
 **Update Docker Deployment:**
