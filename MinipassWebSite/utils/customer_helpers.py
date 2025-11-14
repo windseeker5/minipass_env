@@ -32,6 +32,8 @@ def init_customers_db():
             subscription_end_date TEXT,
             stripe_price_id TEXT,
             stripe_checkout_session_id TEXT,
+            stripe_customer_id TEXT,
+            stripe_subscription_id TEXT,
             payment_amount INTEGER,
             currency TEXT DEFAULT 'cad',
             subscription_status TEXT DEFAULT 'active'
@@ -76,6 +78,7 @@ def insert_customer(email, subdomain, app_name, plan, password, port,
                    email_address=None, forwarding_email=None, email_status='pending', organization_name=None,
                    billing_frequency='monthly', subscription_start_date=None, subscription_end_date=None,
                    stripe_price_id=None, stripe_checkout_session_id=None,
+                   stripe_customer_id=None, stripe_subscription_id=None,
                    payment_amount=None, currency='cad', subscription_status='active'):
     """
     Insert a new customer into the database.
@@ -96,6 +99,8 @@ def insert_customer(email, subdomain, app_name, plan, password, port,
         subscription_end_date: Subscription end date (ISO format)
         stripe_price_id: Stripe Price ID used
         stripe_checkout_session_id: Stripe Checkout Session ID
+        stripe_customer_id: Stripe Customer ID (cus_xxx)
+        stripe_subscription_id: Stripe Subscription ID (sub_xxx)
         payment_amount: Payment amount in cents
         currency: Currency code (default 'cad')
         subscription_status: Subscription status (default 'active')
@@ -124,6 +129,8 @@ def insert_customer(email, subdomain, app_name, plan, password, port,
             subscription_end_date TEXT,
             stripe_price_id TEXT,
             stripe_checkout_session_id TEXT,
+            stripe_customer_id TEXT,
+            stripe_subscription_id TEXT,
             payment_amount INTEGER,
             currency TEXT DEFAULT 'cad',
             subscription_status TEXT DEFAULT 'active'
@@ -134,8 +141,9 @@ def insert_customer(email, subdomain, app_name, plan, password, port,
         INSERT INTO customers (email, subdomain, app_name, plan, admin_password, port, created_at, deployed,
                              email_address, email_password, forwarding_email, email_status, organization_name,
                              billing_frequency, subscription_start_date, subscription_end_date,
-                             stripe_price_id, stripe_checkout_session_id, payment_amount, currency, subscription_status)
-        VALUES (?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                             stripe_price_id, stripe_checkout_session_id, stripe_customer_id, stripe_subscription_id,
+                             payment_amount, currency, subscription_status)
+        VALUES (?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (
             email,
             subdomain,
@@ -154,6 +162,8 @@ def insert_customer(email, subdomain, app_name, plan, password, port,
             subscription_end_date,
             stripe_price_id,
             stripe_checkout_session_id,
+            stripe_customer_id,
+            stripe_subscription_id,
             payment_amount,
             currency,
             subscription_status
@@ -264,7 +274,7 @@ def is_event_processed(event_id):
 def mark_event_processed(event_id, event_type):
     """
     Mark a Stripe event as processed to prevent duplicate handling.
-    
+
     Args:
         event_id (str): Stripe event ID
         event_type (str): Type of Stripe event
@@ -276,3 +286,52 @@ def mark_event_processed(event_id, event_type):
         VALUES (?, ?, ?)
         """, (event_id, event_type, datetime.utcnow().isoformat()))
         conn.commit()
+
+
+def update_customer_stripe_ids(subdomain, stripe_customer_id=None, stripe_subscription_id=None):
+    """
+    Update Stripe Customer and Subscription IDs for a customer.
+
+    Args:
+        subdomain (str): Customer's subdomain
+        stripe_customer_id (str, optional): Stripe Customer ID (cus_xxx)
+        stripe_subscription_id (str, optional): Stripe Subscription ID (sub_xxx)
+    """
+    with sqlite3.connect(CUSTOMERS_DB) as conn:
+        cur = conn.cursor()
+
+        # Build dynamic update query based on which IDs are provided
+        updates = []
+        params = []
+
+        if stripe_customer_id is not None:
+            updates.append("stripe_customer_id = ?")
+            params.append(stripe_customer_id)
+
+        if stripe_subscription_id is not None:
+            updates.append("stripe_subscription_id = ?")
+            params.append(stripe_subscription_id)
+
+        if updates:
+            params.append(subdomain)
+            query = f"UPDATE customers SET {', '.join(updates)} WHERE subdomain = ?"
+            cur.execute(query, tuple(params))
+            conn.commit()
+
+
+def get_customer_by_stripe_subscription_id(stripe_subscription_id):
+    """
+    Retrieve customer information by Stripe Subscription ID.
+
+    Args:
+        stripe_subscription_id (str): Stripe Subscription ID
+
+    Returns:
+        dict: Customer information or None if not found
+    """
+    with sqlite3.connect(CUSTOMERS_DB) as conn:
+        conn.row_factory = sqlite3.Row
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM customers WHERE stripe_subscription_id = ?", (stripe_subscription_id,))
+        row = cur.fetchone()
+        return dict(row) if row else None
