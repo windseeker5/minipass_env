@@ -97,6 +97,7 @@ let pollingTimer = null;
 let startTime = Date.now();
 let redirectTimer = null;
 let terminalCleared = false;  // Track if we've cleared initial messages
+let lastLogCount = 0;  // Track how many logs we've displayed
 
 // Terminal auto-scroll
 function scrollTerminalToBottom() {
@@ -168,11 +169,14 @@ async function fetchLogs() {
             terminalCleared = true;
         }
 
-        // Display logs (only if terminal was cleared, otherwise logs pile up)
-        if (terminalCleared && data.logs && data.logs.length > 0) {
-            data.logs.forEach(log => {
+        // Display only NEW logs (not already displayed)
+        if (terminalCleared && data.logs && data.logs.length > lastLogCount) {
+            // Add only the new logs since last poll
+            const newLogs = data.logs.slice(lastLogCount);
+            newLogs.forEach(log => {
                 addLogLine(log);
             });
+            lastLogCount = data.logs.length;
         }
 
         // Check if deployment completed or time exceeded
