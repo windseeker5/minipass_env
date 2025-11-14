@@ -228,7 +228,7 @@ def stripe_webhook():
         get_next_available_port, insert_customer, update_customer_email_status,
         update_customer_deployment_status, is_event_processed, mark_event_processed
     )
-    from utils.deploy_helpers import insert_admin_user, deploy_customer_container
+    from utils.deploy_helpers import insert_admin_user, deploy_customer_container, is_production_environment
     from utils.email_helpers import send_user_deployment_email, send_support_error_email
     from utils.mail_integration import setup_customer_email_complete
 
@@ -363,33 +363,90 @@ def stripe_webhook():
                 subscription_logger.info(f"   📅 Subscription: {subscription_start_date} → {subscription_end_date}")
                 log_validation_check(subscription_logger, "Customer record created", True, f"Customer {app_name} added to database")
 
-                # Step 5: Setup customer email
+                # Step 5: Setup customer email (skip in local mode)
                 subscription_logger.info("📧 Step 5: Setting up customer email and forwarding")
-                email_success, created_email, error_msg = setup_customer_email_complete(
-                    app_name, admin_password, forwarding_email
-                )
-                
-                if email_success:
-                    subscription_logger.info(f"✅ Email setup completed: {created_email} -> {forwarding_email}")
-                    update_customer_email_status(app_name, created_email, 'success')
-                    log_validation_check(subscription_logger, "Email setup", True, f"Email {created_email} created and forwarded to {forwarding_email}")
-                else:
-                    subscription_logger.warning(f"⚠️ Email setup failed for {created_email}: {error_msg}")
-                    update_customer_email_status(app_name, created_email, 'failed')
-                    log_validation_check(subscription_logger, "Email setup", False, f"Email setup failed: {error_msg}")
-                    # Continue with deployment even if email setup fails
 
-                # Step 6: Send deployment notification
+                is_production = is_production_environment()
+                if is_production:
+                    # PRODUCTION: Create real email account on docker-mailserver
+                    email_success, created_email, error_msg = setup_customer_email_complete(
+                        app_name, admin_password, forwarding_email
+                    )
+
+                    if email_success:
+                        subscription_logger.info(f"✅ Email setup completed: {created_email} -> {forwarding_email}")
+                        update_customer_email_status(app_name, created_email, 'success')
+                        log_validation_check(subscription_logger, "Email setup", True, f"Email {created_email} created and forwarded to {forwarding_email}")
+                    else:
+                        subscription_logger.warning(f"⚠️ Email setup failed for {created_email}: {error_msg}")
+                        update_customer_email_status(app_name, created_email, 'failed')
+                        log_validation_check(subscription_logger, "Email setup", False, f"Email setup failed: {error_msg}")
+                        # Continue with deployment even if email setup fails
+                else:
+                    # LOCAL: Skip email creation, just log what would be created
+                    created_email = f"{app_name}_app@minipass.me"
+                    email_success = True  # Simulate success for local testing
+                    subscription_logger.warning(f"⚠️ LOCAL MODE: Skipping email account creation")
+                    subscription_logger.info(f"   📧 Would create: {created_email}")
+                    subscription_logger.info(f"   📧 Would forward to: {forwarding_email}")
+                    update_customer_email_status(app_name, created_email, 'skipped_local')
+                    log_validation_check(subscription_logger, "Email setup", True, "Skipped in local mode (docker-mailserver not available)")
+
+                # Step 6: Send deployment notification (save to file in local mode)
                 subscription_logger.info(f"📧 Step 6: Sending deployment notification to {admin_email}")
-                
-                # Include email credentials in the deployment email
+
+                # Include email credentials in the deployment info
                 email_info = {
                     'email_address': created_email,
                     'email_password': admin_password,
                     'forwarding_setup': email_success and forwarding_email
                 }
-                send_user_deployment_email(admin_email, app_url, admin_password, email_info)
-                log_validation_check(subscription_logger, "Deployment notification sent", True, f"Email sent to {admin_email}")
+
+                if is_production:
+                    # PRODUCTION: Send real email notification
+                    send_user_deployment_email(admin_email, app_url, admin_password, email_info)
+                    log_validation_check(subscription_logger, "Deployment notification sent", True, f"Email sent to {admin_email}")
+                else:
+                    # LOCAL: Save deployment info to file instead of sending email
+                    deployment_info_path = os.path.join(deploy_dir, "DEPLOYMENT_INFO.txt")
+                    deployment_info = f"""
+===========================================
+MINIPASS DEPLOYMENT INFO (LOCAL TEST)
+===========================================
+
+App Name: {app_name}
+App URL: {app_url}
+
+ADMIN CREDENTIALS:
+  Email: {admin_email}
+  Password: {admin_password}
+
+EMAIL ACCOUNT (NOT CREATED IN LOCAL MODE):
+  Email: {created_email}
+  Password: {admin_password}
+  Forwards to: {forwarding_email or 'N/A'}
+
+SUBSCRIPTION DETAILS:
+  Plan: {plan_key}
+  Tier: {tier}
+  Billing: {billing_frequency}
+  Dates: {subscription_start_date} to {subscription_end_date}
+
+PAYMENT:
+  Amount: {payment_amount/100 if payment_amount else 0} {currency.upper()}
+  Stripe Customer: {stripe_customer_id}
+  Stripe Subscription: {stripe_subscription_id}
+
+===========================================
+"""
+                    with open(deployment_info_path, 'w') as f:
+                        f.write(deployment_info)
+
+                    subscription_logger.warning(f"⚠️ LOCAL MODE: Skipping deployment email")
+                    subscription_logger.info(f"   📄 Deployment info saved to: {deployment_info_path}")
+                    subscription_logger.info(f"   🌐 Access app at: {app_url}")
+                    subscription_logger.info(f"   👤 Admin login: {admin_email} / {admin_password}")
+                    log_validation_check(subscription_logger, "Deployment notification", True, "Info saved to file (local mode)")
 
                 # Step 7: Mark deployment as completed in database
                 subscription_logger.info("✅ Step 7: Updating deployment status in database")
