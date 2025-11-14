@@ -94,77 +94,194 @@ def insert_admin_user(db_path, email, password):
         raise
 
 
-def set_organization_name(db_path, organization_name):
+def set_organization_setting(db_path, organization_name):
     """
-    Sets the organization name in the app's database.
-    
+    Sets the organization name in the Settings table (where the app actually reads from).
+
+    The deployed app reads organization name using: get_setting('ORG_NAME', 'default')
+    So we must write to the Settings table with key='ORG_NAME'.
+
     Args:
         db_path (str): Path to the app's database
         organization_name (str): Organization name to set
     """
     if not organization_name or not organization_name.strip():
-        logger.info("⚠️ No organization name provided, skipping organization setup")
+        logger.info("⚠️ No organization name provided, skipping Settings table setup")
         return
-    
-    log_operation_start(logger, "Set Organization Name", db_path=db_path, organization_name=organization_name)
-    
+
+    log_operation_start(logger, "Set Organization Setting (ORG_NAME)", db_path=db_path, organization_name=organization_name)
+
     try:
-        logger.info(f"🏢 Setting organization name: {organization_name} in {db_path}")
-        log_file_operation(logger, "Connecting to database for organization setup", db_path)
-        
+        logger.info(f"🏢 Setting ORG_NAME in Settings table: {organization_name} in {db_path}")
+        log_file_operation(logger, "Connecting to database for Settings update", db_path)
+
         conn = sqlite3.connect(db_path)
         cur = conn.cursor()
-        
-        # Create organization table if it doesn't exist
-        logger.info("📋 Creating/verifying Organization table structure")
+
+        # Verify Settings table exists
+        logger.info("📋 Verifying Setting table structure")
         cur.execute("""
-        CREATE TABLE IF NOT EXISTS Organization (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
+        SELECT name FROM sqlite_master
+        WHERE type='table' AND name='setting'
         """)
-        log_validation_check(logger, "Organization table structure", True, "Table created/verified successfully")
-        
-        # Remove existing organization if present
-        logger.info("🧹 Removing existing organization entries")
-        cur.execute("DELETE FROM Organization")
-        deleted_count = cur.rowcount
-        logger.info(f"   🗑️ Removed {deleted_count} existing organization entries")
-        
-        # Insert new organization
-        logger.info(f"➕ Inserting organization: {organization_name.strip()}")
-        cur.execute("""
-        INSERT INTO Organization (name)
-        VALUES (?)
-        """, (organization_name.strip(),))
-        
-        if cur.rowcount == 1:
-            log_validation_check(logger, f"Organization {organization_name} inserted", True, "1 row inserted successfully")
+
+        if not cur.fetchone():
+            logger.warning("⚠️ Setting table does not exist - it will be created by migrations")
+            conn.close()
+            log_operation_end(logger, "Set Organization Setting", success=True)
+            return
+
+        log_validation_check(logger, "Setting table exists", True, "Table found in database")
+
+        # Check if ORG_NAME setting exists
+        cur.execute("SELECT id, value FROM setting WHERE key = 'ORG_NAME'")
+        existing = cur.fetchone()
+
+        if existing:
+            # Update existing setting
+            logger.info(f"♻️  Updating ORG_NAME setting: {organization_name.strip()}")
+            cur.execute("""
+            UPDATE setting
+            SET value = ?
+            WHERE key = 'ORG_NAME'
+            """, (organization_name.strip(),))
+
+            if cur.rowcount == 1:
+                log_validation_check(logger, "ORG_NAME setting updated", True, "1 row updated successfully")
+            else:
+                log_validation_check(logger, "ORG_NAME setting updated", False, f"Expected 1 row, got {cur.rowcount}")
         else:
-            log_validation_check(logger, f"Organization {organization_name} inserted", False, f"Expected 1 row, got {cur.rowcount}")
-        
+            # Insert new setting
+            logger.info(f"➕ Inserting ORG_NAME setting: {organization_name.strip()}")
+            cur.execute("""
+            INSERT INTO setting (key, value)
+            VALUES ('ORG_NAME', ?)
+            """, (organization_name.strip(),))
+
+            if cur.rowcount == 1:
+                log_validation_check(logger, "ORG_NAME setting inserted", True, "1 row inserted successfully")
+            else:
+                log_validation_check(logger, "ORG_NAME setting inserted", False, f"Expected 1 row, got {cur.rowcount}")
+
         conn.commit()
         conn.close()
-        
-        log_operation_end(logger, "Set Organization Name", success=True)
-        
+
+        logger.info("✅ ORG_NAME successfully saved to Settings table")
+        log_operation_end(logger, "Set Organization Setting", success=True)
+
     except Exception as e:
-        error_msg = f"Failed to set organization name: {str(e)}"
+        error_msg = f"Failed to set organization setting: {str(e)}"
         logger.error(f"❌ {error_msg}")
-        log_operation_end(logger, "Set Organization Name", success=False, error_msg=error_msg)
+        log_operation_end(logger, "Set Organization Setting", success=False, error_msg=error_msg)
         raise
     
     
+def set_email_settings_to_database(db_path, email_address, email_password, organization_name):
+    """
+    Sets email configuration in the Setting table (where the app actually reads from).
+
+    The deployed app reads email settings from the Setting table with these keys:
+    - MAIL_DEFAULT_SENDER
+    - MAIL_SENDER_NAME
+    - MAIL_SERVER
+    - MAIL_PORT
+    - MAIL_USE_TLS
+    - MAIL_USERNAME
+    - MAIL_PASSWORD
+
+    Args:
+        db_path (str): Path to the app's database
+        email_address (str): Full email address (e.g., 'kdc_app@minipass.me')
+        email_password (str): Email password
+        organization_name (str): Organization name (e.g., 'KDC Corporation')
+    """
+    log_operation_start(logger, "Set Email Settings to Database",
+                       db_path=db_path,
+                       email_address=email_address,
+                       organization_name=organization_name)
+
+    try:
+        logger.info(f"📧 Writing email configuration to Setting table")
+        logger.info(f"   📧 Email: {email_address}")
+        logger.info(f"   👤 Sender Name: {organization_name}")
+        logger.info(f"   🌐 Mail Server: mail.minipass.me")
+        logger.info(f"   🔌 Port: 587 (TLS)")
+
+        log_file_operation(logger, "Connecting to database for Setting table updates", db_path)
+
+        conn = sqlite3.connect(db_path)
+        cur = conn.cursor()
+
+        # Verify Setting table exists
+        logger.info("📋 Verifying Setting table structure")
+        cur.execute("""
+        SELECT name FROM sqlite_master
+        WHERE type='table' AND name='setting'
+        """)
+
+        if not cur.fetchone():
+            logger.warning("⚠️ Setting table does not exist - it will be created by migrations")
+            conn.close()
+            log_operation_end(logger, "Set Email Settings", success=True)
+            return
+
+        log_validation_check(logger, "Setting table exists", True, "Table found in database")
+
+        # Email settings to write
+        email_settings = {
+            'MAIL_DEFAULT_SENDER': email_address,          # e.g., kdc_app@minipass.me
+            'MAIL_SENDER_NAME': organization_name,         # e.g., KDC Corporation
+            'MAIL_SERVER': 'mail.minipass.me',             # Hardcoded mail server
+            'MAIL_PORT': '587',                            # Hardcoded port
+            'MAIL_USE_TLS': 'True',                        # Hardcoded TLS enabled
+            'MAIL_USERNAME': email_address,                # Same as sender email
+            'MAIL_PASSWORD': email_password                # Generated password
+        }
+
+        # Insert or update each setting
+        for key, value in email_settings.items():
+            # Check if setting exists
+            cur.execute("SELECT id FROM setting WHERE key = ?", (key,))
+            existing = cur.fetchone()
+
+            if existing:
+                # Update existing setting
+                logger.info(f"   ♻️  Updating {key} = {value if key != 'MAIL_PASSWORD' else '********'}")
+                cur.execute("""
+                UPDATE setting
+                SET value = ?
+                WHERE key = ?
+                """, (value, key))
+            else:
+                # Insert new setting
+                logger.info(f"   ➕ Inserting {key} = {value if key != 'MAIL_PASSWORD' else '********'}")
+                cur.execute("""
+                INSERT INTO setting (key, value)
+                VALUES (?, ?)
+                """, (key, value))
+
+        conn.commit()
+        conn.close()
+
+        logger.info("✅ Email settings successfully saved to Setting table")
+        log_validation_check(logger, "Email settings written", True, f"{len(email_settings)} settings written successfully")
+        log_operation_end(logger, "Set Email Settings to Database", success=True)
+
+    except Exception as e:
+        error_msg = f"Failed to set email settings: {str(e)}"
+        logger.error(f"❌ {error_msg}")
+        log_operation_end(logger, "Set Email Settings to Database", success=False, error_msg=error_msg)
+        raise
+
+
 def update_docker_compose_org_name(compose_content, organization_name):
     """
     Updates the docker-compose content to include the organization name.
-    
+
     Args:
         compose_content (str): The docker-compose content
         organization_name (str): Organization name
-        
+
     Returns:
         str: Updated docker-compose content
     """
@@ -184,14 +301,14 @@ def update_docker_compose_org_name(compose_content, organization_name):
 
 
 
-def deploy_customer_container(app_name, admin_email, admin_password, plan, port, organization_name=None, tier=1, billing_frequency='monthly'):
+def deploy_customer_container(app_name, admin_email, admin_password, plan, port, organization_name=None, tier=1, billing_frequency='monthly', email_address=None):
     import os, shutil, subprocess, textwrap
 
     # Map tier to activity limits for logging
     tier_limits = {1: 1, 2: 15, 3: 100}
     activity_limit = tier_limits.get(tier, 1)
 
-    log_operation_start(logger, "Deploy Customer Container",
+    log_operation_start(logger, f"Deploy Customer Container [{app_name}]",
                        app_name=app_name,
                        admin_email=admin_email,
                        plan=plan,
@@ -199,12 +316,13 @@ def deploy_customer_container(app_name, admin_email, admin_password, plan, port,
                        billing_frequency=billing_frequency,
                        activity_limit=activity_limit,
                        port=port,
-                       organization_name=organization_name)
+                       organization_name=organization_name,
+                       email_address=email_address)
 
     # Detect environment (production VPS vs local dev)
     is_production = is_production_environment()
     env_label = "PRODUCTION (VPS)" if is_production else "LOCAL (Development)"
-    logger.info(f"🌍 Environment: {env_label}")
+    logger.info(f"[{app_name}] 🌍 Environment: {env_label}")
 
     logger.info(f"📊 Tier Configuration:")
     logger.info(f"   Plan: {plan}")
@@ -247,8 +365,8 @@ def deploy_customer_container(app_name, admin_email, admin_password, plan, port,
 
         # Step 2: Clone app repository from GitHub
         git_repo_url = "git@github.com:windseeker5/dpm.git"
-        logger.info(f"📦 Step 1: Cloning app repository for plan '{plan}' → {target_dir}")
-        log_file_operation(logger, f"Cloning app repository for plan {plan}", f"{git_repo_url} → {target_dir}")
+        logger.info(f"[{app_name}] 📦 Step 1: Cloning app repository for plan '{plan}' → {target_dir}")
+        log_file_operation(logger, f"[{app_name}] Cloning app repository for plan {plan}", f"{git_repo_url} → {target_dir}")
 
         # Execute git clone
         git_clone_cmd = ["git", "clone", git_repo_url, target_dir]
@@ -278,7 +396,7 @@ def deploy_customer_container(app_name, admin_email, admin_password, plan, port,
             return False
 
         # Step 3: Generate .env file with tier-specific configuration
-        logger.info(f"⚙️  Step 2a: Creating .env file with tier {tier} configuration")
+        logger.info(f"[{app_name}] ⚙️  Step 2a: Creating .env file with tier {tier} configuration")
         env_path = os.path.join(target_dir, ".env")
 
         # Get API keys from parent environment (from main .env in base_dir)
@@ -327,7 +445,7 @@ def deploy_customer_container(app_name, admin_email, admin_password, plan, port,
         log_validation_check(logger, ".env file created", os.path.exists(env_path), f"File written: {env_path}")
 
         # Step 4: Install dependencies (required for migrations)
-        logger.info(f"📦 Step 2b: Installing application dependencies")
+        logger.info(f"[{app_name}] 📦 Step 2b: Installing application dependencies")
         requirements_path = os.path.join(target_dir, "requirements.txt")
 
         if os.path.exists(requirements_path):
@@ -356,16 +474,16 @@ def deploy_customer_container(app_name, admin_email, admin_password, plan, port,
             logger.warning(f"⚠️ requirements.txt not found at {requirements_path}")
 
         # Step 5: Initialize database schema
-        logger.info(f"🗄️  Step 2c: Initializing database schema")
+        logger.info(f"[{app_name}] 🗄️  Step 2c: Initializing database schema")
 
         # Create instance directory
         instance_dir = os.path.join(target_dir, "instance")
         os.makedirs(instance_dir, exist_ok=True)
-        log_file_operation(logger, "Creating instance directory", instance_dir)
+        log_file_operation(logger, f"[{app_name}] Creating instance directory", instance_dir)
 
         # Run Flask database migrations to create schema
         db_path = os.path.join(instance_dir, "minipass.db")
-        logger.info(f"   Running flask db upgrade to create database schema")
+        logger.info(f"[{app_name}]    Running flask db upgrade to create database schema")
 
         migrate_cmd = ["flask", "db", "upgrade"]
         log_subprocess_call(logger, migrate_cmd, "Running database migrations")
@@ -399,11 +517,21 @@ def deploy_customer_container(app_name, admin_email, admin_password, plan, port,
             return False
 
         # Step 6: Configure admin user and organization
-        logger.info(f"🔐 Step 2d: Configuring admin user and organization")
-        
+        logger.info(f"[{app_name}] 🔐 Step 2d: Configuring admin user and organization")
+
         insert_admin_user(db_path, admin_email, admin_password)
-        set_organization_name(db_path, organization_name)
-        
+
+        # ✅ Write organization name to Settings table (where app reads from)
+        set_organization_setting(db_path, organization_name)
+
+        # Step 6b: Configure email settings in Setting table (ALWAYS set, even in local mode)
+        logger.info(f"[{app_name}] 📧 Step 2e: Configuring email settings in Setting table")
+        if email_address:
+            set_email_settings_to_database(db_path, email_address, admin_password, organization_name or app_name)
+            logger.info(f"[{app_name}] ✅ Email configuration saved to Setting table")
+        else:
+            logger.warning(f"[{app_name}] ⚠️ No email address provided, skipping email configuration")
+
         # Verify database was created
         if os.path.exists(db_path):
             log_validation_check(logger, "Database setup completed", True, f"Database file exists: {db_path}")
@@ -412,11 +540,11 @@ def deploy_customer_container(app_name, admin_email, admin_password, plan, port,
 
         # Step 7: Generate docker-compose.yml (production vs local)
         compose_path = os.path.join(deploy_dir, "docker-compose.yml")
-        logger.info(f"🐳 Step 3: Writing docker-compose.yml to {compose_path}")
+        logger.info(f"[{app_name}] 🐳 Step 3: Writing docker-compose.yml to {compose_path}")
 
         if is_production:
             # PRODUCTION: Use nginx reverse proxy with external network
-            logger.info("   📝 Generating PRODUCTION docker-compose.yml (nginx reverse proxy)")
+            logger.info(f"[{app_name}]    📝 Generating PRODUCTION docker-compose.yml (nginx reverse proxy)")
             compose_content = textwrap.dedent(f"""\
             version: '3.8'
 
@@ -456,8 +584,8 @@ def deploy_customer_container(app_name, admin_email, admin_password, plan, port,
             """)
         else:
             # LOCAL: Direct port mapping, no external network
-            logger.info("   📝 Generating LOCAL docker-compose.yml (direct port mapping)")
-            logger.info(f"   🌐 App will be accessible at: http://localhost:{port}")
+            logger.info(f"[{app_name}]    📝 Generating LOCAL docker-compose.yml (direct port mapping)")
+            logger.info(f"[{app_name}]    🌐 App will be accessible at: http://localhost:{port}")
             compose_content = textwrap.dedent(f"""\
             version: '3.8'
 
@@ -497,9 +625,9 @@ def deploy_customer_container(app_name, admin_email, admin_password, plan, port,
             log_validation_check(logger, "Docker compose file created", False, "Compose file not found after write")
 
         # Step 8: Deploy the container
-        logger.info(f"🚀 Step 4: Deploying container in {deploy_dir}")
+        logger.info(f"[{app_name}] 🚀 Step 4: Deploying container in {deploy_dir}")
         command = ["docker-compose", "up", "-d"]
-        log_subprocess_call(logger, command, f"Deploying container for {app_name}")
+        log_subprocess_call(logger, command, f"[{app_name}] Deploying container")
 
         result = subprocess.run(
             command,
@@ -508,21 +636,21 @@ def deploy_customer_container(app_name, admin_email, admin_password, plan, port,
             text=True,
             check=True
         )
-        log_subprocess_result(logger, result, f"Container deployment completed for {app_name}")
+        log_subprocess_result(logger, result, f"[{app_name}] ✅ Container deployment completed")
 
         # Step 9: Verify container is running
         verify_command = ["docker", "ps", "--filter", f"name=minipass_{app_name}", "--format", "table {{.Names}}\t{{.Status}}"]
-        log_subprocess_call(logger, verify_command, f"Verifying container status for {app_name}")
-        
-        verify_result = subprocess.run(verify_command, capture_output=True, text=True)
-        log_subprocess_result(logger, verify_result, f"Container status check completed for {app_name}")
-        
-        if verify_result.returncode == 0 and f"minipass_{app_name}" in verify_result.stdout:
-            log_validation_check(logger, f"Container minipass_{app_name} is running", True, "Container found in docker ps output")
-        else:
-            log_validation_check(logger, f"Container minipass_{app_name} is running", False, "Container not found in docker ps output")
+        log_subprocess_call(logger, verify_command, f"[{app_name}] Verifying container status")
 
-        log_operation_end(logger, "Deploy Customer Container", success=True)
+        verify_result = subprocess.run(verify_command, capture_output=True, text=True)
+        log_subprocess_result(logger, verify_result, f"[{app_name}] Container status check completed")
+
+        if verify_result.returncode == 0 and f"minipass_{app_name}" in verify_result.stdout:
+            log_validation_check(logger, f"[{app_name}] Container minipass_{app_name} is running", True, "Container found in docker ps output")
+        else:
+            log_validation_check(logger, f"[{app_name}] Container minipass_{app_name} is running", False, "Container not found in docker ps output")
+
+        log_operation_end(logger, f"Deploy Customer Container [{app_name}]", success=True)
         return True
         
     except subprocess.CalledProcessError as e:

@@ -335,3 +335,21 @@ def get_customer_by_stripe_subscription_id(stripe_subscription_id):
         cur.execute("SELECT * FROM customers WHERE stripe_subscription_id = ?", (stripe_subscription_id,))
         row = cur.fetchone()
         return dict(row) if row else None
+
+
+def get_customer_by_stripe_session_id(stripe_checkout_session_id):
+    """
+    Retrieve customer information by Stripe Checkout Session ID.
+
+    Args:
+        stripe_checkout_session_id (str): Stripe Checkout Session ID
+
+    Returns:
+        dict: Customer information or None if not found
+    """
+    with sqlite3.connect(CUSTOMERS_DB) as conn:
+        conn.row_factory = sqlite3.Row
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM customers WHERE stripe_checkout_session_id = ?", (stripe_checkout_session_id,))
+        row = cur.fetchone()
+        return dict(row) if row else None
