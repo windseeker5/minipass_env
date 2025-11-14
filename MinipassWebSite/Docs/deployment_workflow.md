@@ -50,28 +50,62 @@ target_dir = "/home/kdresdell/Documents/DEV/minipass_env/deployed/{app_name}/app
 deploy_dir = "/home/kdresdell/Documents/DEV/minipass_env/deployed/{app_name}"
 ```
 
-### Sub-Step 3.2: Copy App Template (`deploy_helpers.py:219-230`)
+### Sub-Step 3.2: Clone App from GitHub (`deploy_helpers.py:218-248`)
 ```python
-shutil.copytree(source_dir, target_dir)
+git_repo_url = "git@github.com:windseeker5/dpm.git"
+git_clone_cmd = ["git", "clone", git_repo_url, target_dir]
+subprocess.run(git_clone_cmd, capture_output=True, text=True, check=True)
 ```
 
-**⚠️ CURRENT BEHAVIOR:** Uses `shutil.copytree()` to copy the entire `/app` folder
-**✅ THIS IS WHAT YOU WANT TO CHANGE TO GIT CLONE**
+**✅ UPDATED BEHAVIOR:** Uses `git clone` to pull the latest code from GitHub repository
+**Changed from:** `shutil.copytree()` which copied a static local template
 
-### Sub-Step 3.3: Setup Database (`deploy_helpers.py:233-243`)
+### Sub-Step 3.3: Generate .env File (`deploy_helpers.py:250-297`)
+```python
+env_path = os.path.join(target_dir, ".env")
+env_content = f"""
+MINIPASS_TIER={tier}
+BILLING_FREQUENCY={billing_frequency}
+GOOGLE_MAPS_API_KEY={parent_env_vars.get('GOOGLE_MAPS_API_KEY', '')}
+# ... other API keys
+"""
+with open(env_path, "w") as f:
+    f.write(env_content)
+```
+
+**✅ NEW STEP:** Generates deployment-specific `.env` file with tier configuration and API keys
+- Reads API keys from parent environment (`/home/kdresdell/Documents/DEV/minipass_env/.env`)
+- Sets tier-specific variables (MINIPASS_TIER, BILLING_FREQUENCY)
+- Configures chatbot and API settings
+
+### Sub-Step 3.4: Initialize Database Schema (`deploy_helpers.py:299-340`)
+```python
+instance_dir = os.path.join(target_dir, "instance")
+os.makedirs(instance_dir, exist_ok=True)
+
+migrate_cmd = ["flask", "db", "upgrade"]
+subprocess.run(migrate_cmd, cwd=target_dir, env={"FLASK_APP": "app.py"}, check=True)
+```
+
+**✅ NEW STEP:** Runs Flask migrations to create complete database schema
+- Creates `instance/` directory
+- Executes all migration scripts to build full database structure
+- **Changed from:** Database was copied with pre-populated data from template
+
+### Sub-Step 3.5: Configure Admin & Organization (`deploy_helpers.py:342-352`)
 ```python
 db_path = "deployed/{app_name}/app/instance/minipass.db"
-insert_admin_user(db_path, admin_email, admin_password)  # Create Admin table & user
-set_organization_name(db_path, organization_name)  # Create Organization table
+insert_admin_user(db_path, admin_email, admin_password)
+set_organization_name(db_path, organization_name)
 ```
 
 **Database operations (`deploy_helpers.py:16-133`):**
-- Creates `Admin` table with columns: `id`, `email`, `password_hash` (BLOB)
-- Inserts admin user with bcrypt hashed password
-- Creates `Organization` table with columns: `id`, `name`, `created_at`, `updated_at`
-- Inserts organization name
+- Inserts admin user into existing `Admin` table (created by migrations)
+- Uses bcrypt hashed password stored as BLOB
+- Inserts organization name into existing `Organization` table (created by migrations)
+- **Changed from:** Previously created tables manually; now assumes schema exists from migrations
 
-### Sub-Step 3.4: Generate docker-compose.yml (`deploy_helpers.py:246-295`)
+### Sub-Step 3.6: Generate docker-compose.yml (`deploy_helpers.py:354-405`)
 
 **File created:** `deployed/{app_name}/docker-compose.yml`
 
@@ -95,7 +129,7 @@ services:
       - TIER={tier}
       - BILLING_FREQUENCY={billing_frequency}
       - VIRTUAL_HOST={app_name}.minipass.me
-      - VIRTUAL_PORT=5000
+      - VIRTUAL_PORT=8889
       - LETSENCRYPT_HOST={app_name}.minipass.me
       - LETSENCRYPT_EMAIL=kdresdell@gmail.com
 
@@ -109,12 +143,12 @@ networks:
       name: minipass_env_proxy
 ```
 
-**⚠️ IMPORTANT NOTES:**
-- `VIRTUAL_PORT=5000` - but Dockerfile exposes port **8889**
-- `build: context: ./app` - builds from the copied app folder
-- Volumes mount `./app` (the copied directory)
+**✅ UPDATED CONFIGURATION:**
+- `VIRTUAL_PORT=8889` - now matches Dockerfile EXPOSE port **8889**
+- `build: context: ./app` - builds from the git-cloned app folder
+- Volumes mount `./app` (the cloned directory)
 
-### Sub-Step 3.5: Build & Deploy Container (`deploy_helpers.py:298-309`)
+### Sub-Step 3.7: Build & Deploy Container (`deploy_helpers.py:406-418`)
 ```bash
 cd deployed/{app_name}
 docker-compose up -d
@@ -136,7 +170,7 @@ docker-compose up -d
 5. Connects to `minipass_env_proxy` network (nginx reverse proxy)
 6. Starts container
 
-### Sub-Step 3.6: Verify Container Running (`deploy_helpers.py:312-321`)
+### Sub-Step 3.8: Verify Container Running (`deploy_helpers.py:420-430`)
 ```bash
 docker ps --filter name=minipass_{app_name}
 ```
@@ -241,23 +275,31 @@ For customer with subdomain `example`:
 
 ---
 
-## 🎯 KEY TAKEAWAYS FOR YOUR GIT MIGRATION
+## 🎯 UPDATED DEPLOYMENT PROCESS (Git-Based)
 
-**What currently happens:**
-1. `shutil.copytree()` copies **entire `/app` folder** → `deployed/{app_name}/app`
-2. `docker-compose build` builds from `./app/dockerfile` (in copied directory)
-3. Volumes mount `./app` and `./app/instance`
+**✅ What now happens (as of latest update):**
+1. `git clone git@github.com:windseeker5/dpm.git` pulls latest code → `deployed/{app_name}/app`
+2. `.env` file is auto-generated with tier-specific configuration and API keys
+3. `flask db upgrade` creates complete database schema from migrations
+4. Admin user and organization are configured in the database
+5. `docker-compose build` builds from `./app/dockerfile` (in cloned directory)
+6. Volumes mount `./app` and `./app/instance`
+7. VIRTUAL_PORT correctly set to 8889 (matches dockerfile EXPOSE)
 
-**What you need to change:**
-1. Replace `shutil.copytree()` with `git clone git@github.com:windseeker5/dpm.git`
-2. Ensure dockerfile and docker-compose.yml in your git repo match your VPS changes
-3. Update volume mounts and environment variables as needed
-
-**Files you mentioned changing on VPS:**
-- `docker-compose.yml` - environment variables & volume mounts
-- `dockerfile` - need to see your VPS version to compare
+**✅ Key improvements implemented:**
+1. ✅ Replaced `shutil.copytree()` with `git clone` from GitHub
+2. ✅ Added automatic .env file generation with tier configuration
+3. ✅ Added database initialization via Flask migrations (`flask db upgrade`)
+4. ✅ Fixed VIRTUAL_PORT mismatch (5000 → 8889)
+5. ✅ Comprehensive logging for all deployment steps
 
 **Git Repository for Customer App:**
 - URL: `git@github.com:windseeker5/dpm.git`
-- Strategy: Always pull fresh (clone on each deployment)
-- Database handling: Git clone, then create database
+- Strategy: Clone fresh on each deployment (always uses latest code)
+- Database handling: Clone repo → run migrations → configure admin/org
+
+**Benefits of Git-Based Deployment:**
+- Always deploys latest code from repository
+- Easier updates for existing customers (git pull vs re-copying)
+- Proper migration handling ensures schema consistency across all deployments
+- Clean separation between template repo and deployed instances

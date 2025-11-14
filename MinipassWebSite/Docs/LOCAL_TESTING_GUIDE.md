@@ -1,465 +1,625 @@
-# Local Testing Guide for MiniPass Stripe Integration
+# 🧪 LOCAL TESTING GUIDE
+## Testing Git-Based Deployment Workflow on Your Development Machine
 
-## Overview
-This guide will help you test the multi-tier subscription system on your local development machine (Arch Linux) using Stripe test mode.
-
----
-
-## Prerequisites
-
-You're currently in **Stripe Test Mode** (the keys in your `.env` start with `pk_test_` and `sk_test_`). This is perfect for testing - you won't be charged real money!
+This guide shows you how to test the complete Stripe → Deployment workflow on your local machine **without** needing the VPS infrastructure (nginx proxy, docker-mailserver, SSL, etc.).
 
 ---
 
-## Step 1: Install Stripe CLI (Arch Linux)
+## 🎯 What Gets Tested Locally
 
-The Stripe CLI lets you forward webhook events from Stripe to your local Flask app (even though you're behind a firewall).
+### ✅ Fully Tested (90% of deployment)
+- ✅ Stripe webhook integration
+- ✅ Git clone from GitHub repository
+- ✅ .env file generation with tier configuration
+- ✅ Python dependencies installation
+- ✅ Database migration (clean single migration)
+- ✅ Admin user creation
+- ✅ Organization setup
+- ✅ Docker image build
+- ✅ Docker container deployment
+- ✅ Container accessibility via localhost
+- ✅ App functionality (login, features)
 
-### Installation Options:
+### ⚠️ Skipped in Local Mode
+- ⚠️ Email account creation (logged but not executed)
+- ⚠️ Deployment email notification (saved to file instead)
+- ⚠️ SSL/Let's Encrypt certificates
+- ⚠️ nginx reverse proxy integration
 
-**Option A: Using AUR (Recommended)**
+**Why this is safe:** The email creation code hasn't changed - it's already working on your VPS. We're only testing the NEW git-based deployment code.
+
+---
+
+## 📋 Prerequisites
+
+### 1. Stripe CLI Installed
 ```bash
-# Install using yay or paru
+# Check if installed
+stripe --version
+
+# If not installed on Arch Linux:
 yay -S stripe-cli
 # or
 paru -S stripe-cli
 ```
 
-**Option B: Manual Download**
-```bash
-# Download the latest release
-cd ~/Downloads
-wget https://github.com/stripe/stripe-cli/releases/download/v1.19.5/stripe_1.19.5_linux_x86_64.tar.gz
-
-# Extract
-tar -xvf stripe_1.19.5_linux_x86_64.tar.gz
-
-# Move to /usr/local/bin
-sudo mv stripe /usr/local/bin/
-
-# Verify installation
-stripe --version
-```
-
----
-
-## Step 2: Authenticate Stripe CLI
-
-```bash
-# Login to Stripe (will open browser)
-stripe login
-
-# This will:
-# 1. Open your browser
-# 2. Ask you to allow access
-# 3. Give you a pairing code
-# 4. Authenticate the CLI with your Stripe account
-```
-
-**You should see:**
-```
-Your pairing code is: word-word-word
-Press Enter to open the browser or visit https://dashboard.stripe.com/stripecli/confirm_auth?t=...
-
-> Done! The Stripe CLI is configured for your account
-```
-
----
-
-## Step 3: Verify Your Stripe Configuration
-
-Check that your `.env` file has the correct test keys:
-
+### 2. MinipassWebSite Running
 ```bash
 cd /home/kdresdell/Documents/DEV/minipass_env/MinipassWebSite
-cat .env | grep STRIPE
-```
-
-**You should see (with your actual test keys):**
-```
-STRIPE_PUBLISHABLE_KEY=pk_test_...
-STRIPE_SECRET_KEY=sk_test_...
-STRIPE_WEBHOOK_SECRET=whsec_...
-STRIPE_PRICE_BASIC_MONTHLY=price_...
-STRIPE_PRICE_BASIC_ANNUAL=price_...
-STRIPE_PRICE_PRO_MONTHLY=price_...
-STRIPE_PRICE_PRO_ANNUAL=price_...
-STRIPE_PRICE_ULTIMATE_MONTHLY=price_...
-STRIPE_PRICE_ULTIMATE_ANNUAL=price_...
-```
-
-✅ **All set!** These test keys are safe to use locally.
-
----
-
-## Step 4: Start Your Local Flask App
-
-Open **Terminal 1**:
-
-```bash
-cd /home/kdresdell/Documents/DEV/minipass_env/MinipassWebSite
-
-# Activate virtual environment (if you have one)
-source venv/bin/activate  # or wherever your venv is
-
-# Start Flask
+source venv/bin/activate
 python app.py
+# Should be running on http://localhost:5000
 ```
 
-**You should see:**
+### 3. Docker Running
+```bash
+docker --version
+docker info  # Verify Docker daemon is running
 ```
- * Running on http://127.0.0.1:5000
- * Debug mode: on
-```
-
-✅ **Keep this terminal open** - your Flask app is running!
 
 ---
 
-## Step 5: Forward Webhooks to Your Local App
+## 🚀 Local Testing Workflow
 
-Open **Terminal 2** (new terminal window):
+### Step 1: Start Stripe CLI (Terminal 1)
+
+```bash
+# Forward Stripe webhooks to your local server
+stripe listen --forward-to localhost:5000/webhook
+
+# You should see:
+# > Ready! Your webhook signing secret is whsec_xxx (^C to quit)
+#
+# IMPORTANT: Copy the webhook secret (starts with whsec_)
+```
+
+**Note:** Keep this terminal open - it needs to stay running!
+
+### Step 2: Update Stripe Webhook Secret (if needed)
+
+If the webhook secret changed, update your `.env` file:
+
+```bash
+# Edit .env file
+nano /home/kdresdell/Documents/DEV/minipass_env/MinipassWebSite/.env
+
+# Update this line:
+STRIPE_WEBHOOK_SECRET=whsec_YOUR_NEW_SECRET_HERE
+
+# Save and exit (Ctrl+X, Y, Enter)
+```
+
+### Step 3: Start MinipassWebSite (Terminal 2)
 
 ```bash
 cd /home/kdresdell/Documents/DEV/minipass_env/MinipassWebSite
+source venv/bin/activate
+python app.py
 
-# Forward Stripe webhooks to your local Flask app
-stripe listen --forward-to localhost:5000/webhook
+# You should see:
+# * Running on http://127.0.0.1:5000
+# 🌍 Environment: LOCAL (Development)  # ← This confirms local mode!
 ```
 
-**You should see:**
-```
-> Ready! You are using Stripe API Version [2024-XX-XX]. Your webhook signing secret is whsec_... (^C to quit)
-```
+### Step 4: Trigger Test Payment
 
-**IMPORTANT:** Copy the webhook signing secret that starts with `whsec_...`
-
-### Update Your .env with the New Webhook Secret
-
-The Stripe CLI generates a NEW webhook secret for local testing. Update your `.env`:
-
-```bash
-# Open .env in your editor
-nano .env  # or vim, or your favorite editor
-
-# Find the line:
-STRIPE_WEBHOOK_SECRET=whsec_QxzSBbRpFeUKkgANCMos5majO0pcT9DL
-
-# Replace with the NEW secret from Terminal 2:
-STRIPE_WEBHOOK_SECRET=whsec_[NEW_SECRET_FROM_STRIPE_LISTEN]
-
-# Save and exit
-```
-
-**RESTART your Flask app** in Terminal 1 (Ctrl+C, then `python app.py` again) to load the new webhook secret.
-
-✅ **Keep Terminal 2 open** - it's forwarding webhooks to your local app!
-
----
-
-## Step 6: Test a Payment Flow
-
-### What You'll Test:
-Let's test **Basic Monthly** ($20 CAD)
-
-### Steps:
-
-1. **Open your browser:** http://localhost:5000
-
-2. **Click on "1 Activité"** (Basic plan)
-
-3. **Make sure toggle is on "Mensuel"** (Monthly)
-
-4. **Fill out the form:**
-   - App Name: `testbasic` (or any unique name)
+#### Option A: Via Web Interface (Recommended)
+1. Open browser to http://localhost:5000
+2. Click on a subscription plan (1 Activité / 15 Activités / 100 Activités)
+3. Choose billing frequency (Mensuel / Annuel)
+4. Fill out the form:
+   - App Name: `testapp` (or any unique name)
    - Organization Name: `Test Organization`
-   - Admin Email: `your-email@example.com`
+   - Admin Email: `test@example.com`
+   - Forwarding Email: `your-real-email@example.com`
+5. Click "S'inscrire" (Sign up)
+6. Use Stripe test card: **4242 4242 4242 4242**
+   - Expiry: Any future date (e.g., 12/25)
+   - CVC: Any 3 digits (e.g., 123)
+   - ZIP: Any 5 digits (e.g., 12345)
+7. Complete the checkout
 
-5. **Click "S'inscrire"** (Sign up)
-
-6. **You'll be redirected to Stripe Checkout**
-
-7. **Use Stripe test card:**
-   - Card number: `4242 4242 4242 4242`
-   - Expiry: Any future date (e.g., `12/34`)
-   - CVC: Any 3 digits (e.g., `123`)
-   - ZIP: Any 5 digits (e.g., `12345`)
-
-8. **Click "Pay"**
-
----
-
-## Step 7: Watch the Logs
-
-### In Terminal 1 (Flask App):
-You should see:
-```
-💳 Creating checkout session: plan=basic, frequency=monthly, price_id=price_...
-```
-
-### In Terminal 2 (Stripe CLI):
-You should see:
-```
-[200] POST http://localhost:5000/webhook [evt_1...]
-```
-
-### Check Subscription Log:
+#### Option B: Via Stripe CLI (Quick Test)
 ```bash
-tail -f subscribed_app.log
+# In Terminal 3
+stripe trigger checkout.session.completed
 ```
 
-You should see the full deployment process:
-- Webhook received
-- Metadata extracted (plan, tier, billing_frequency)
-- Container deployment
-- Database record created
-- Email setup
+### Step 5: Watch the Deployment
 
----
+In Terminal 2 (MinipassWebSite), you'll see:
 
-## Step 8: Verify the Deployment
+```
+📩 Stripe webhook received
+🌍 Environment: LOCAL (Development)  ← Confirms local mode detection!
+🚀 Starting operation: Deploy Customer Container
+📦 Step 1: Cloning app repository from GitHub
+   💻 Command: git clone git@github.com:windseeker5/dpm.git
+✅ Repository clone completed
+⚙️ Step 2a: Creating .env file with tier 1 configuration
+✅ .env file created
+📦 Step 2b: Installing application dependencies
+✅ Dependencies installation completed (59 packages)
+🗄️ Step 2c: Initializing database schema
+   Running flask db upgrade to create database schema
+✅ Database schema created (22 tables)
+🔐 Step 2d: Configuring admin user and organization
+✅ Admin user created: test@example.com
+✅ Organization set: Test Organization
+🐳 Step 3: Writing docker-compose.yml
+   📝 Generating LOCAL docker-compose.yml (direct port mapping)
+   🌐 App will be accessible at: http://localhost:9100
+✅ Docker compose file created
+🚀 Step 4: Deploying container
+   💻 Command: docker-compose up -d
+✅ Container deployment completed
 
-### Check Database:
+⚠️ LOCAL MODE: Skipping email account creation
+   📧 Would create: testapp_app@minipass.me
+   📧 Would forward to: your-real-email@example.com
+
+⚠️ LOCAL MODE: Skipping deployment email
+   📄 Deployment info saved to: deployed/testapp/DEPLOYMENT_INFO.txt
+   🌐 Access app at: http://localhost:9100
+   👤 Admin login: test@example.com / [password]
+
+✅ Deployment completed successfully!
+```
+
+### Step 6: Verify the Deployment
+
+#### A. Check Container is Running
 ```bash
-sqlite3 customers.db
+docker ps | grep minipass
 
-SELECT subdomain, plan, billing_frequency, tier, payment_amount/100 as amount_dollars
-FROM customers;
-
-.quit
+# You should see:
+# minipass_testapp   ...   Up X minutes   0.0.0.0:9100->8889/tcp
 ```
 
-**Expected output:**
-```
-testbasic|basic|monthly|1|20.0
-```
-
-### Check Deployed Container:
+#### B. Check Deployment Info File
 ```bash
-ls -la deployed/testbasic/
+cat /home/kdresdell/Documents/DEV/minipass_env/deployed/testapp/DEPLOYMENT_INFO.txt
+
+# You'll see:
+# ===========================================
+# MINIPASS DEPLOYMENT INFO (LOCAL TEST)
+# ===========================================
+#
+# App Name: testapp
+# App URL: http://localhost:9100
+#
+# ADMIN CREDENTIALS:
+#   Email: test@example.com
+#   Password: [password]
+#
+# EMAIL ACCOUNT (NOT CREATED IN LOCAL MODE):
+#   Email: testapp_app@minipass.me
+#   ...
+```
+
+#### C. Check Database Structure
+```bash
+sqlite3 /home/kdresdell/Documents/DEV/minipass_env/deployed/testapp/app/instance/minipass.db ".tables"
+
+# You should see all 22 tables:
+# Organization       chat_message       organizations      setting
+# activity           chat_usage         passport           signup
+# admin              ebank_payment      passport_type      survey
+# admin_action_log   email_log          query_log          survey_response
+# alembic_version    expense            redemption         survey_template
+# chat_conversation  income             reminder_log       user
+```
+
+#### D. Verify Admin User
+```bash
+sqlite3 /home/kdresdell/Documents/DEV/minipass_env/deployed/testapp/app/instance/minipass.db \
+  "SELECT id, email FROM admin;"
 
 # Should show:
-# - docker-compose.yml
-# - app/ (directory)
+# 1|test@example.com
 ```
 
-### Inspect docker-compose.yml:
+#### E. Verify Organization
 ```bash
-cat deployed/testbasic/docker-compose.yml | grep TIER
+sqlite3 /home/kdresdell/Documents/DEV/minipass_env/deployed/testapp/app/instance/minipass.db \
+  "SELECT id, name FROM Organization;"
+
+# Should show:
+# 1|Test Organization
 ```
 
-**Expected output:**
+### Step 7: Access the Deployed App
+
+1. **Open browser** to the URL shown in the logs (e.g., http://localhost:9100)
+2. You should see the **Minipass login page**
+3. **Login** with the admin credentials from DEPLOYMENT_INFO.txt
+4. **Test app functionality:**
+   - ✅ Dashboard loads
+   - ✅ Create an activity
+   - ✅ Add a user
+   - ✅ Generate a passport
+   - ✅ Check reports
+   - ✅ Test settings
+
+---
+
+## 🔍 Verification Checklist
+
+After deployment completes, verify each item:
+
+### Deployment Process
+- [ ] Container is running: `docker ps | grep minipass_testapp`
+- [ ] No errors in Terminal 2 (Flask logs)
+- [ ] Logs show "LOCAL (Development)" environment
+- [ ] DEPLOYMENT_INFO.txt file created in deployed/testapp/
+
+### Database
+- [ ] Database file exists: `deployed/testapp/app/instance/minipass.db`
+- [ ] All 22 tables created (use `.tables` in sqlite3)
+- [ ] Admin user exists with correct email
+- [ ] Organization name is set correctly
+- [ ] alembic_version shows correct migration ID
+
+### Docker Container
+- [ ] Container built successfully
+- [ ] Container is running (not exited)
+- [ ] Port mapping is correct (e.g., 9100:8889)
+- [ ] Container logs show no errors: `docker logs minipass_testapp`
+
+### Application
+- [ ] App is accessible at http://localhost:PORT
+- [ ] Login page loads correctly
+- [ ] Admin login works
+- [ ] Dashboard displays
+- [ ] Can create an activity
+- [ ] Can add a user
+- [ ] Settings page accessible
+
+### Logs and Files
+- [ ] subscribed_app.log has no critical errors
+- [ ] .env file created in deployed/testapp/app/
+- [ ] docker-compose.yml uses local configuration (no proxy network)
+- [ ] Git repository cloned (has .git folder)
+
+---
+
+## 🛠️ Troubleshooting
+
+### Issue: Port Already in Use
 ```
-              - TIER=1
-              - BILLING_FREQUENCY=monthly
+Error: port is already allocated
 ```
 
-✅ **SUCCESS!** The TIER is set correctly!
-
-### Check if Container is Running:
+**Solution:**
 ```bash
-docker ps --filter name=minipass_testbasic
+# Find what's using the port
+sudo lsof -i :9100
+
+# Stop the container using that port
+docker stop minipass_previous-app
+
+# Or remove it completely
+docker rm -f minipass_previous-app
+
+# Or let the system assign next available port automatically
 ```
 
-**You should see:**
+### Issue: Git Clone Fails
 ```
-CONTAINER ID   IMAGE     ...   NAMES
-abc123def456   ...       ...   minipass_testbasic
+ERROR: Repository not found or access denied
 ```
 
----
-
-## Step 9: Test All 6 Payment Flows
-
-Now repeat Step 6 for all combinations:
-
-| Test # | Plan | Toggle | Amount | Expected Tier |
-|--------|------|--------|--------|---------------|
-| 1 | 1 Activité | Mensuel | $20 | TIER=1 |
-| 2 | 1 Activité | Annuel | $120 | TIER=1 |
-| 3 | 15 Activités | Mensuel | $50 | TIER=2 |
-| 4 | 15 Activités | Annuel | $300 | TIER=2 |
-| 5 | 100 Activités | Mensuel | $120 | TIER=3 |
-| 6 | 100 Activités | Annuel | $720 | TIER=3 |
-
-**Use unique app names for each test:**
-- `test1monthly`, `test1annual`
-- `test2monthly`, `test2annual`
-- `test3monthly`, `test3annual`
-
----
-
-## Troubleshooting
-
-### Problem: Webhook not received
-
-**Check Terminal 2** - is `stripe listen` still running?
-
+**Solution:**
 ```bash
-# Restart webhook forwarding
-stripe listen --forward-to localhost:5000/webhook
+# Test SSH access to GitHub
+ssh -T git@github.com
+
+# You should see:
+# Hi windseeker5! You've successfully authenticated
+
+# If authentication fails, check your SSH keys:
+ssh-add -l
+
+# Add your key if needed:
+ssh-add ~/.ssh/id_rsa
 ```
 
-**Copy the NEW webhook secret** and update `.env`, then restart Flask.
-
----
-
-### Problem: "Subdomain already taken"
-
-```bash
-# Delete the test customer from database
-sqlite3 customers.db
-
-DELETE FROM customers WHERE subdomain = 'testbasic';
-
-.quit
+### Issue: Database Migration Fails
+```
+ERROR: No such table: income
 ```
 
-Or use a different app name.
-
----
-
-### Problem: Flask app crashes
-
-**Check the error** in Terminal 1.
-
-**Common issues:**
-- Missing environment variable → Check `.env` has all Stripe Price IDs
-- Database locked → Close any open SQLite connections
-- Port already in use → Kill the process using port 5000
-
+**Solution:**
 ```bash
-# Kill process on port 5000
-sudo lsof -t -i:5000 | xargs kill -9
+# This means the old problematic migration was cloned
+# Make sure your Git repo has the clean migration
 
-# Restart Flask
-python app.py
-```
+# Check migration file in cloned repo:
+ls deployed/testapp/app/migrations/versions/
 
----
+# Should only have:
+# f4c10e5088aa_initial_schema_clean_migration_from_.py
 
-### Problem: Can't see Stripe CLI logs
-
-Make sure you're in **Test Mode** in Stripe Dashboard:
-1. Go to https://dashboard.stripe.com
-2. Check top-left corner - should say "Test mode"
-3. If it says "Live mode", toggle to Test mode
-
----
-
-## Quick Reference: Testing Checklist
-
-Before each test:
-- [ ] Terminal 1: Flask app running (http://localhost:5000)
-- [ ] Terminal 2: `stripe listen` running
-- [ ] Terminal 3: `tail -f subscribed_app.log` (optional, for logs)
-- [ ] `.env` has the webhook secret from stripe listen
-- [ ] Stripe Dashboard in Test mode
-
-For each payment flow:
-- [ ] Correct plan selected
-- [ ] Correct billing frequency (toggle)
-- [ ] Unique app name
-- [ ] Test card: 4242 4242 4242 4242
-- [ ] Payment completes
-- [ ] Webhook received (check Terminal 2)
-- [ ] Database record created with correct tier
-- [ ] Container deployed with TIER env var
-
----
-
-## After Testing Locally: Deploy to VPS
-
-Once all 6 payment flows work locally, you're ready to deploy to your VPS!
-
-### On Your VPS:
-
-1. **Pull the latest code:**
-```bash
-cd /path/to/MinipassWebSite
+# If you see old migrations, your Git repo needs to be updated
+cd /home/kdresdell/Documents/DEV/minipass_env/app
 git pull origin main
 ```
 
-2. **Restart Flask app:**
-```bash
-# If using systemd
-sudo systemctl restart minipass
-
-# If running manually
-pkill -f "python app.py"
-python app.py
+### Issue: Docker Build Fails
+```
+ERROR: Cannot locate specified Dockerfile
 ```
 
-3. **Configure Stripe webhook endpoint:**
-   - Go to https://dashboard.stripe.com/webhooks
-   - Add endpoint: `https://minipass.me/webhook`
-   - Select event: `checkout.session.completed`
-   - Copy the webhook signing secret
-   - Update `.env` on VPS with the production webhook secret
-
-4. **Test with real Stripe test mode:**
-   - Use the same test card on your live VPS
-   - Verify webhooks are received
-   - Check logs on VPS
-
----
-
-## Important Notes
-
-### Test Mode vs Live Mode
-
-**Test Mode (current):**
-- Keys start with `pk_test_` and `sk_test_`
-- Use test card 4242 4242 4242 4242
-- No real charges
-- Perfect for development
-
-**Live Mode (production):**
-- Keys start with `pk_live_` and `sk_live_`
-- Real credit cards
-- Real charges
-- Only use when ready for customers!
-
-### Your VPS is Currently in Test Mode
-
-Based on your `.env`, your VPS is also using test keys. This is **good** for testing! When you're ready to accept real customers:
-
-1. Create Live Products/Prices in Stripe Dashboard (Live mode)
-2. Get Live API keys
-3. Update `.env` on VPS with live keys
-4. Configure live webhook endpoint
-5. Test thoroughly before announcing to customers!
-
----
-
-## Summary
-
-**Quick Start (TL;DR):**
-
+**Solution:**
 ```bash
-# Terminal 1: Flask
+# Check dockerfile exists in cloned repo
+ls deployed/testapp/app/dockerfile
+
+# Check Docker is running
+docker info
+
+# Check Docker disk space
+docker system df
+
+# Clean up if needed
+docker system prune -a
+```
+
+### Issue: Container Exits Immediately
+```
+Container exited with code 1
+```
+
+**Solution:**
+```bash
+# Check container logs
+docker logs minipass_testapp
+
+# Common issues:
+# - Missing dependencies (should be installed in Step 2b)
+# - Database connection errors
+# - Port already in use inside container
+
+# Restart container with logs visible
+cd deployed/testapp
+docker-compose up
+# (without -d flag to see output)
+```
+
+### Issue: Can't Access App in Browser
+```
+This site can't be reached
+```
+
+**Solution:**
+```bash
+# Verify container is running
+docker ps | grep minipass_testapp
+
+# Check port mapping
+docker port minipass_testapp
+
+# Should show:
+# 8889/tcp -> 0.0.0.0:9100
+
+# Try accessing with explicit localhost
+http://127.0.0.1:9100
+
+# Check if firewall is blocking
+sudo ufw status
+```
+
+---
+
+## 🧹 Cleanup After Testing
+
+### Remove Single Test Deployment
+```bash
+# Stop and remove container
+cd /home/kdresdell/Documents/DEV/minipass_env/deployed/testapp
+docker-compose down
+
+# Remove deployment directory
+cd ..
+rm -rf testapp
+
+# Remove from customers database
+sqlite3 /home/kdresdell/Documents/DEV/minipass_env/MinipassWebSite/customers.db
+DELETE FROM customers WHERE subdomain = 'testapp';
+.quit
+```
+
+### Remove All Test Deployments
+```bash
+# Stop all minipass containers
+docker ps -a | grep minipass | awk '{print $1}' | xargs docker rm -f
+
+# Remove all test deployment directories
+rm -rf /home/kdresdell/Documents/DEV/minipass_env/deployed/test*
+
+# Clean customers database
+sqlite3 /home/kdresdell/Documents/DEV/minipass_env/MinipassWebSite/customers.db
+DELETE FROM customers WHERE subdomain LIKE 'test%';
+.quit
+```
+
+---
+
+## 📊 Environment Detection
+
+The system automatically detects whether it's running on:
+
+### PRODUCTION (VPS)
+- Has `minipass_env_proxy` Docker network
+- Uses nginx reverse proxy
+- Creates real email accounts
+- Sends deployment emails
+- Uses SSL/Let's Encrypt
+
+### LOCAL (Development)
+- No `minipass_env_proxy` network
+- Direct port mapping
+- Skips email creation (logged only)
+- Saves deployment info to file
+- No SSL needed (HTTP)
+
+You can verify detection:
+```bash
+# Check if production network exists
+docker network ls | grep minipass_env_proxy
+
+# VPS: Will show the network
+# Local: Won't show anything (triggers local mode)
+```
+
+---
+
+## 🎯 Configuration Differences
+
+| Feature | Production (VPS) | Local (Dev) |
+|---------|------------------|-------------|
+| **App URL** | https://app-name.minipass.me | http://localhost:PORT |
+| **Docker Network** | minipass_env_proxy (nginx) | Default bridge |
+| **Port Access** | Via nginx reverse proxy | Direct mapping (9100:8889) |
+| **Email Creation** | Real account on docker-mailserver | Skipped (logged only) |
+| **Deployment Email** | Sent via Flask-Mail | Saved to DEPLOYMENT_INFO.txt |
+| **SSL** | Let's Encrypt automatic | Not needed (HTTP) |
+| **Environment Vars** | VIRTUAL_HOST, LETSENCRYPT_* | None (direct access) |
+| **Detection** | Auto (has proxy network) | Auto (no proxy network) |
+
+---
+
+## ✅ Testing All Plan Tiers
+
+Test all subscription tiers to ensure they work correctly:
+
+| Test # | Plan | Frequency | Expected Port | Expected Tier | Amount (CAD) |
+|--------|------|-----------|---------------|---------------|--------------|
+| 1 | 1 Activité | Mensuel | 9100 | TIER=1 | $20 |
+| 2 | 1 Activité | Annuel | 9101 | TIER=1 | $120 |
+| 3 | 15 Activités | Mensuel | 9102 | TIER=2 | $50 |
+| 4 | 15 Activités | Annuel | 9103 | TIER=2 | $300 |
+| 5 | 100 Activités | Mensuel | 9104 | TIER=3 | $120 |
+| 6 | 100 Activités | Annuel | 9105 | TIER=3 | $720 |
+
+**Use unique app names for each test:**
+- `test-basic-monthly`, `test-basic-annual`
+- `test-pro-monthly`, `test-pro-annual`
+- `test-ultimate-monthly`, `test-ultimate-annual`
+
+---
+
+## 📝 Success Criteria
+
+Your local test is **successful** if:
+
+1. ✅ Stripe webhook triggers deployment
+2. ✅ Git clone completes without errors
+3. ✅ Dependencies install successfully (59 packages)
+4. ✅ Database is created with all 22 tables
+5. ✅ Admin user can login
+6. ✅ Organization name is set correctly
+7. ✅ App is accessible at localhost:PORT
+8. ✅ App functionality works (create activities, users, passports)
+9. ✅ Logs show "LOCAL (Development)" mode
+10. ✅ DEPLOYMENT_INFO.txt contains correct details
+11. ✅ No critical errors in subscribed_app.log
+
+**If all these pass, you're ready to test on VPS!**
+
+---
+
+## 🚀 Moving to Production Testing
+
+After successful local testing:
+
+### Step 1: Push Changes to GitHub
+```bash
 cd /home/kdresdell/Documents/DEV/minipass_env/MinipassWebSite
-python app.py
+git add -A
+git commit -m "Add local testing support with environment detection"
+git push origin main
+```
 
-# Terminal 2: Stripe CLI
-stripe listen --forward-to localhost:5000/webhook
-# Copy the whsec_... secret, update .env, restart Flask
+### Step 2: Pull Changes on VPS
+```bash
+# SSH into VPS
+ssh user@your-vps.com
 
-# Browser
-# Visit http://localhost:5000
-# Use card: 4242 4242 4242 4242
-# Test all 6 payment flows!
+# Pull latest code
+cd /path/to/MinipassWebSite
+git pull origin main
+
+# Restart Flask app
+sudo systemctl restart minipass  # if using systemd
+# or
+pkill -f "python app.py" && python app.py &  # if running manually
+```
+
+### Step 3: Test with ONE Real Customer
+1. Use test customer email (not real customer)
+2. Use Stripe test mode
+3. Verify complete workflow:
+   - ✅ Git clone works on VPS
+   - ✅ Dependencies install
+   - ✅ Database migration succeeds
+   - ✅ Email account is created
+   - ✅ Deployment email is sent
+   - ✅ SSL certificate works
+   - ✅ App accessible via https://subdomain.minipass.me
+
+### Step 4: Production Ready!
+If VPS test succeeds:
+- ✅ System is production-ready
+- ✅ Can accept real customers
+- ✅ Switch to Stripe live mode when ready
+
+---
+
+## 📚 Additional Resources
+
+- **Deployment Workflow:** See `Docs/deployment_workflow.md`
+- **Stripe Setup:** See `Docs/STRIPE_IMPLEMENTATION_PLAN.md`
+- **Docker Logs:** `docker logs minipass_[app_name]`
+- **Application Logs:** `tail -f subscribed_app.log`
+- **Stripe Dashboard:** https://dashboard.stripe.com (Test mode)
+
+---
+
+## 🆘 Need Help?
+
+### Check Logs
+```bash
+# Deployment logs
+tail -100 subscribed_app.log
+
+# Container logs
+docker logs minipass_testapp
+
+# Flask app logs (in Terminal 2)
+# Watch in real-time as deployment happens
+```
+
+### Common Commands
+```bash
+# List all deployments
+ls -la deployed/
+
+# Check database
+sqlite3 customers.db "SELECT subdomain, plan, tier, deployed FROM customers;"
+
+# Check running containers
+docker ps | grep minipass
+
+# Stop a container
+docker stop minipass_testapp
+
+# Remove a container
+docker rm -f minipass_testapp
 ```
 
 ---
 
-## Need Help?
+**Happy Testing! 🧪**
 
-If something doesn't work:
-1. Check Terminal 1 for Flask errors
-2. Check Terminal 2 for webhook delivery
-3. Check `subscribed_app.log` for deployment details
-4. Verify `.env` has all required values
-5. Make sure Stripe Dashboard is in Test mode
-
-Happy testing! 🚀
+Remember: Local testing is fast, safe, and lets you iterate quickly. Test thoroughly here before deploying to VPS!
