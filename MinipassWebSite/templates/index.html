@@ -822,7 +822,21 @@
     color: white;
     padding: 2rem 2.5rem;
     border-radius: 16px 16px 0 0;
-    text-align: left;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 2rem;
+  }
+
+  .modal-price-left {
+    flex: 0 0 auto;
+  }
+
+  .modal-benefits-right {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: flex-end;
   }
 
   .modal-plan-name {
@@ -884,8 +898,28 @@
   .modal-body h5 {
     font-size: 1.3rem;
     font-weight: 600;
-    margin-bottom: 1.75rem;
+    margin-bottom: 1.25rem;
     color: #2c3e50;
+  }
+
+  /* Benefits in Header */
+  .modal-benefits-right .benefit-item {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    color: white;
+  }
+
+  .modal-benefits-right .benefit-item i {
+    font-size: 1.1rem;
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  .modal-benefits-right .benefit-item span {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.95);
+    white-space: nowrap;
   }
 
   /* Form Fields with Icons */
@@ -1019,18 +1053,35 @@
 
       <!-- Price Header Section -->
       <div class="modal-price-header">
-        <div class="modal-plan-name" id="modal-plan-display">Forfait Basic</div>
+        <div class="modal-price-left">
+          <div class="modal-plan-name" id="modal-plan-display">Forfait Basic</div>
 
-        <div class="modal-price-display">
-          <span class="currency">$</span>
-          <span id="modal-price-amount">10</span>
-          <span class="period">/ mois</span>
+          <div class="modal-price-display">
+            <span class="currency">$</span>
+            <span id="modal-price-amount">10</span>
+            <span class="period">/ mois</span>
+          </div>
+
+          <div class="modal-billing-info" id="modal-billing-text">Facturation annuelle</div>
+
+          <div class="modal-savings-badge" id="modal-savings-badge" style="display: none;">
+            Économisez 50%
+          </div>
         </div>
 
-        <div class="modal-billing-info" id="modal-billing-text">Facturation annuelle</div>
-
-        <div class="modal-savings-badge" id="modal-savings-badge" style="display: none;">
-          Économisez 50%
+        <div class="modal-benefits-right">
+          <div class="benefit-item">
+            <i class="fas fa-clock"></i>
+            <span>Reprenez le contrôle</span>
+          </div>
+          <div class="benefit-item">
+            <i class="fas fa-chart-line"></i>
+            <span>Ne perdez plus d'argent</span>
+          </div>
+          <div class="benefit-item">
+            <i class="fas fa-rocket"></i>
+            <span>Déploiement rapide</span>
+          </div>
         </div>
       </div>
 
