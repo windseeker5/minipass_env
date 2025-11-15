@@ -351,7 +351,9 @@ def process_deployment_async(app_name, admin_email, admin_password, plan_key, po
             subscription_logger.info(f"[{app_name}] 📬 Sending deployment confirmation email")
             email_info = {
                 'email_address': email_address,
-                'email_password': admin_password
+                'email_password': admin_password,
+                'forwarding_setup': True,
+                'forwarding_email': forwarding_email
             }
             send_user_deployment_email(admin_email, app_url, admin_password, email_info)
 

@@ -2,13 +2,15 @@
 
 from flask import render_template
 from flask_mail import Message, Mail
+from email.mime.image import MIMEImage
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 import os
+import smtplib
 
- 
+
 #from app import mail
 from utils.mail import mail
-
-mail = Mail()
 
 def init_mail(app):
     app.config['MAIL_SERVER'] = os.getenv("MAIL_SERVER", "smtp.gmail.com")
@@ -23,8 +25,8 @@ def init_mail(app):
 
 
 def send_user_deployment_email(to, url, password, email_info=None):
-    subject = "🎉 Your minipass app is live!"  # ✅ Lowercase "minipass"
-    
+    subject = "🎉 Votre application minipass est prête!"  # ✅ French translation
+
     # ✅ Render with admin email and email info included
     html = render_template(
         "emails/deployment_ready.html",
@@ -41,27 +43,40 @@ def send_user_deployment_email(to, url, password, email_info=None):
         if email_info.get('forwarding_setup'):
             body_text += "\nForwarding: Enabled"
 
-    msg = Message(
-        subject,
-        recipients=[to],
-        html=html,
-        body=body_text
-    )
+    # Build multipart MIME message with images (NO filenames to prevent attachments)
+    multipart = MIMEMultipart('related')
+    multipart['Subject'] = subject
+    multipart['From'] = os.getenv("MAIL_DEFAULT_SENDER", "info@minipass.me")
+    multipart['To'] = to
 
-    # ✅ Attach welcome-icon.png as inline image (fixed header format)
-    icon_path = os.path.join("static", "image", "welcome-icon.png")
-    with open(icon_path, "rb") as f:
-        msg.attach(
-            filename="welcome-icon.png",
-            content_type="image/png",
-            data=f.read(),
-            disposition="inline",
-            headers={"Content-ID": "<welcome-icon.png>"}  # ✅ THIS LINE FIXED
-        )
+    # Attach HTML content
+    multipart.attach(MIMEText(html, 'html'))
 
-    mail.send(msg)
+    # Load and attach images as inline (WITHOUT filename parameter)
+    images = {
+        'welcom4': 'static/image/welcom4.jpg',
+        'thumb-youtube': 'static/image/thumb-youtube.jpg'
+    }
 
+    for cid, image_path in images.items():
+        with open(image_path, 'rb') as f:
+            image_data = f.read()
+            part = MIMEImage(image_data)
+            part.add_header('Content-ID', f'<{cid}>')
+            part.add_header('Content-Disposition', 'inline')
+            # NO filename header - this prevents Gmail from showing attachment
+            multipart.attach(part)
 
+    # Send using smtplib with Flask-Mail's SMTP config
+    smtp_server = os.getenv("MAIL_SERVER", "smtp.gmail.com")
+    smtp_port = int(os.getenv("MAIL_PORT", 587))
+    smtp_user = os.getenv("MAIL_USERNAME")
+    smtp_pass = os.getenv("MAIL_PASSWORD")
+
+    with smtplib.SMTP(smtp_server, smtp_port) as server:
+        server.starttls()
+        server.login(smtp_user, smtp_pass)
+        server.send_message(multipart)
 
 
 
