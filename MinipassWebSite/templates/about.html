@@ -164,68 +164,123 @@ html {
     transform: scale(1.05);
     box-shadow: 0 8px 20px rgba(9, 154, 151, 0.4) !important;
 }
+
+/* Arrow connector styling */
+.arrow-connector svg {
+    display: block;
+    margin: 0 auto;
+}
+
+/* Mobile: hide arrows on small screens for cleaner look */
+@media (max-width: 768px) {
+    .arrow-connector {
+        display: none;
+    }
+
+    /* Add spacing between sections on mobile */
+    .section-spacing {
+        padding: 60px 0 !important;
+    }
+}
+
+/* Image styling */
+.hero-image-container img {
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hero-image-container img:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
 </style>
 
-<!-- History Section -->
-<section class="section-spacing" style="background-color: #f8f9fc; margin-top: 80px;">
+<!-- Hero Title Section -->
+<section style="background-color: rgba(21, 205, 168, 0.2); margin-top: 80px; padding: 60px 0 20px 0;">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-10 text-start" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
+                <h6 class="text-uppercase mb-3" style="color: #ff7272; font-weight: 600; letter-spacing: 2px;">
+                    À PROPOS DE NOUS
+                </h6>
+                <h1 class="display-4 fw-bold mb-0" style="color: #0E1A35;">
+                    La petite histoire de minipass
+                </h1>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Section 1: Le 20$ qui a tout déclenché -->
+<section class="section-spacing" style="background-color: rgba(21, 205, 168, 0.2); padding: 40px 0 80px 0;">
     <div class="container">
         <div class="row align-items-center">
-            <!-- Left Column: Story Text -->
+            <!-- Text Column - LEFT -->
             <div class="col-lg-6 order-2 order-lg-1" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
-                <h6 class="text-uppercase mb-3" style="color: #ff7272; font-weight: 600; letter-spacing: 2px;">
-                    L'HISTOIRE DE MINIPASS
-                </h6>
-                <h1 class="display-4 fw-bold mb-4">
-                    Comment un 20$ manquant a créé votre solution de gestion
-                </h1>
-
-                <!-- Dimanche matin -->
-                <h4 class="fw-bold mb-2" style="font-size: 18px; color: #0E1A35;">Dimanche matin</h4>
-                <p class="mb-3" style="font-size: 16px; font-weight: 400; line-height: 30px; letter-spacing: normal;">
-                    Ken compte ses billets de remplaçants au hockey. Attends, où est passé le 20$? <em>"Marie, as-tu remboursé la petite caisse?"</em> Ça balançait pas. Encore. Entre les passes de saison, les billets, le cash, les paiements Interac... c'était rendu n'importe quoi.
+                <h2 class="fw-bold mb-4" style="color: #ff7272; font-size: 28px;">
+                    Le 20$ qui a tout déclenché
+                </h2>
+                <p style="font-size: 16px; font-weight: 400; line-height: 1.7; color: #2d3748;">
+                    Un dimanche matin, en comptant ses billets de remplaçants au hockey, Ken réalise qu'il manque vingt dollars et que la petite caisse ne balance toujours pas. Entre les passes de saison, les paiements en cash et par Interac, la gestion financière était devenue chaotique. Convaincu qu'une application simple devait exister pour régler ce problème, il découvre rapidement que les options disponibles sont soit trop complexes, soit trop coûteuses, soit mal conçues... ou les trois à la fois!
                 </p>
-
-                <!-- La quête -->
-                <h4 class="fw-bold mb-2" style="font-size: 18px; color: #0E1A35;">La quête</h4>
-                <p class="mb-3" style="font-size: 16px; font-weight: 400; line-height: 30px; letter-spacing: normal;">
-                    Ken s'est dit: <em>"Ça doit ben exister, une app simple pour gérer ça!"</em> <strong>Spoiler:</strong> Non. Soit trop compliqué, soit trop cher, soit laid.
-                </p>
-
-                <!-- Alors on s'y est attaqué -->
-                <h4 class="fw-bold mb-2" style="font-size: 18px; color: #0E1A35;">Alors on s'y est attaqué</h4>
-                <p class="mb-2" style="font-size: 16px; font-weight: 400; line-height: 30px; letter-spacing: normal;">
-                    Quand tu cherches quelque chose qui n'existe pas, tu as deux choix:
-                </p>
-                <ul class="mb-2" style="font-size: 16px; font-weight: 400; line-height: 30px; letter-spacing: normal;">
-                    <li>Continuer à te battre avec Excel</li>
-                    <li>Construire la solution</li>
-                </ul>
-                <p class="mb-3" style="font-size: 16px; font-weight: 400; line-height: 30px; letter-spacing: normal;">
-                    <strong>On a choisi l'option 2.</strong>
-                </p>
-
-                <!-- Minipass aujourd'hui -->
-                <h4 class="fw-bold mb-2" style="font-size: 18px; color: #0E1A35;">Minipass aujourd'hui</h4>
-                <p class="mb-3" style="font-size: 16px; font-weight: 400; line-height: 30px; letter-spacing: normal;">
-                    Simple. Complète. Moderne. Abordable. Et ta petite caisse balance enfin. ✅
-                </p>
-
-                <!-- Un projet familial formateur -->
-                <h4 class="fw-bold mb-2" style="font-size: 18px; color: #0E1A35;">Un projet familial formateur</h4>
-                <p class="mb-2" style="font-size: 16px; font-weight: 400; line-height: 30px; letter-spacing: normal;">
-                    Mais au-delà de la solution, on voulait quelque chose de plus précieux: <strong>montrer à nos jeunes entrepreneurs en herbe comment ça marche pour vrai.</strong> De la conception au code. Du marketing aux ventes. De la gestion des clients aux finances. Des médias sociaux au service après-vente.
-                </p>
-                <p class="mb-2" style="font-size: 16px; font-weight: 400; line-height: 30px; letter-spacing: normal;">
-                    Pas dans un livre. Pas dans un cours. Dans le vrai monde, avec de vrais clients, de vraies factures, de vrais défis. <strong>C'est ça, notre vraie mission familiale.</strong>
+                <p style="font-size: 16px; font-weight: 400; line-height: 1.7; color: #2d3748;">
+                    Le geek techno se réveille alors en lui. Une ébauche prend forme. Intéressant. Pourquoi ne pas voir plus grand?
                 </p>
             </div>
 
-            <!-- Right Column: Hero Image -->
+            <!-- Image Column - RIGHT -->
             <div class="col-lg-6 order-1 order-lg-2 mb-5 mb-lg-0" data-aos="fade-up" data-aos-delay="300" data-aos-duration="500" data-aos-once="true">
-                <div class="hero-image-container">
-                    <!-- Placeholder for hero image - User will replace this -->
-                    <img src="{{ url_for('static', filename='image/history-hero.png') }}" alt="L'histoire de Minipass" class="img-fluid">
-                </div>
+                <img src="{{ url_for('static', filename='image/history-hero.png') }}" alt="Le 20$ qui a tout déclenché" class="img-fluid">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Section 2: Un projet familial formateur -->
+<section class="section-spacing" style="background-color: #ffffff; padding: 80px 0;">
+    <div class="container">
+        <div class="row align-items-center">
+            <!-- Image Column - LEFT -->
+            <div class="col-lg-5 order-1 order-lg-1 mb-5 mb-lg-0 text-center" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
+                <img src="{{ url_for('static', filename='image/tree.png') }}" alt="Un projet familial formateur" class="img-fluid" style="width: 25%;">
+            </div>
+
+            <!-- Text Column - RIGHT -->
+            <div class="col-lg-7 order-2 order-lg-2" data-aos="fade-up" data-aos-delay="300" data-aos-duration="500" data-aos-once="true">
+                <h2 class="fw-bold mb-4" style="color: #ff7272; font-size: 28px;">
+                    Un projet familial formateur
+                </h2>
+                <p style="font-size: 16px; font-weight: 400; line-height: 1.7; color: #2d3748;">
+                    Au-delà du produit, une opportunité encore plus précieuse s'est présentée: montrer à nos jeunes futurs entrepreneurs comment ça marche pour vrai, un démarrage d'entreprise. Tous les processus, de la conception au code, du marketing aux ventes, de la gestion des clients aux finances, des médias sociaux au service après-vente.
+                </p>
+                <p style="font-size: 16px; font-weight: 400; line-height: 1.7; color: #2d3748;">
+                    Pas dans un livre. Pas dans un cours théorique. Dans le vrai monde, avec de vrais clients, de vraies factures, de vrais défis. <strong>C'est ça, notre vraie mission familiale.</strong>
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Section 3: La persévérance qui encourage la persévérance -->
+<section class="section-spacing" style="background-color: #f2f5fb; padding: 80px 0;">
+    <div class="container">
+        <div class="row align-items-center">
+            <!-- Text Column - LEFT -->
+            <div class="col-lg-7 order-2 order-lg-1" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
+                <h2 class="fw-bold mb-4" style="color: #ff7272; font-size: 28px;">
+                    La persévérance qui encourage la persévérance
+                </h2>
+                <p style="font-size: 16px; font-weight: 400; line-height: 1.7; color: #2d3748;">
+                    Cette valeur nous tient à cœur. C'est pourquoi minipass s'engage à remettre annuellement 2% de son chiffre d'affaires à la Fondation de la ligue de hockey Gagnon Image qui reconnaît la persévérance et l'engagement des jeunes athlètes faisant face à l'adversité avec courage.
+                </p>
+            </div>
+
+            <!-- Image Column - RIGHT -->
+            <div class="col-lg-5 order-1 order-lg-2 mb-5 mb-lg-0 text-center d-flex align-items-center justify-content-center" data-aos="fade-up" data-aos-delay="300" data-aos-duration="500" data-aos-once="true">
+                <a href="https://www.facebook.com/p/Fondation-de-la-ligue-de-hockey-Gagnon-Image-61554658763800/" target="_blank" rel="noopener noreferrer">
+                    <img src="{{ url_for('static', filename='image/flhgi.png') }}" alt="La persévérance qui encourage la persévérance" class="img-fluid" style="width: 37%;">
+                </a>
             </div>
         </div>
     </div>
