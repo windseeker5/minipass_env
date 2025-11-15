@@ -1,115 +1,178 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8" />
-  <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      background: #f9fafb;
-      padding: 40px;
-    }
-    .card {
-      max-width: 600px;
-      margin: auto;
-      background: #ffffff;
-      border-radius: 10px;
-      padding: 30px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-      text-align: center;
-    }
-    .logo {
-      width: 240px;  /* ✅ 2x size */
-      margin-bottom: 20px;
-    }
-    h1 {
-      color: #333;
-      font-size: 1.8em;
-      margin-bottom: 10px;
-    }
-    .url-box {
-      background: #eef1f4;
-      padding: 15px;
-      border-radius: 5px;
-      margin: 20px 0;
-      font-family: monospace;
-      line-height: 1.6;
-    }
-    .url-box a {
-      font-size: 1.5em;  /* ✅ Bigger URL */
-      text-decoration: none;
-      color: #0d6efd;
-    }
-    .highlight {
-      font-weight: bold;
-      color: #0d6efd;
-    }
-    .video {
-      margin-top: 30px;
-    }
-    .video img {
-      width: 100%;
-      max-width: 500px;
-      border-radius: 8px;
-    }
-    .section-title {
-      margin-top: 40px;
-      margin-bottom: 10px;
-      font-weight: bold;
-      font-size: 1.2em;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #333;
-    }
-    .section-title::before {
-      content: "🎬";
-      margin-right: 8px;
-    }
-    p.footer {
-      margin-top: 40px;
-      font-size: 0.9em;
-      color: #888;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Votre application est prête!</title>
+    <style>
+        /* Mobile responsiveness for card text */
+        @media only screen and (max-width: 600px) {
+            .card-label {
+                font-size: 12px !important;
+            }
+            .card-value {
+                font-size: 12px !important;
+            }
+        }
+    </style>
 </head>
-<body>
-  <div class="card">
-    <!-- ✅ Larger welcome icon -->
-    <img class="logo" src="cid:welcome-icon.png" alt="Welcome" />
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f5f5f5;">
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f5f5f5;">
+        <tr>
+            <td style="padding: 40px 20px;">
+                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
 
-    <h1>🚀 Your minipass app is ready!</h1>
-    <p>Welcome aboard! Your personalized minipass app is now live and ready to use.</p>
+                    <!-- Hero Image -->
+                    <tr>
+                        <td style="padding: 0; text-align: center;">
+                            <img src="cid:welcom4" alt="Bienvenue" style="width: 50%; height: auto; display: inline-block; border: 0;">
+                        </td>
+                    </tr>
 
-    <!-- ✅ Combined grey box with larger URL and no label -->
-    <div class="url-box">
-      <a href="{{ url }}">{{ url }}</a><br>
-      Admin user: <span class="highlight">{{ user_email }}</span><br>
-      Admin password: <span class="highlight">{{ password }}</span>
-      {% if email_info %}
-      <br><br>
-      📧 <strong>Email Account Created:</strong><br>
-      Email: <span class="highlight">{{ email_info.email_address }}</span><br>
-      Password: <span class="highlight">{{ email_info.email_password }}</span>
-        {% if email_info.forwarding_setup %}
-      <br>✅ Forwarding enabled to your provided email
-        {% endif %}
-      {% endif %}
-    </div>
+                    <!-- Main Content -->
+                    <tr>
+                        <td style="padding: 40px 30px;">
 
-    <p>👉 To log in, open your app link above and sign in using your admin email address and the password provided.</p>
+                            <!-- Greeting -->
+                            <h1 style="margin: 0 0 20px; font-size: 28px; font-weight: 600; color: #1a1a1a; line-height: 1.3;">
+                                Félicitations!
+                            </h1>
 
-    <h1>🎬 Getting Started Guide</h1>
+                            <p style="margin: 0 0 20px; font-size: 16px; line-height: 1.6; color: #4a4a4a;">
+                                Votre application <strong>minipass</strong> est maintenant déployée et prête à être utilisée!
+                            </p>
 
-    <div class="video">
-      <p>Watch this short video to explore the basics:</p>
-      <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank">
-        <img src="https://img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg" alt="Video Thumbnail" />
-      </a>
-    </div>
+                            <!-- App URL Button -->
+                            <div style="margin: 30px 0;">
+                                <a href="{{ url }}" style="display: inline-block; padding: 14px 32px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);">
+                                    Accéder à votre application
+                                </a>
+                            </div>
 
-    <p class="footer">Questions? Reply to this email or visit our Help Center.</p>
-  </div>
+                            <p style="margin: 20px 0; font-size: 14px; line-height: 1.5; color: #6b6b6b;">
+                                Lien direct: <a href="{{ url }}" style="color: #667eea; text-decoration: none; word-break: break-all;">{{ url }}</a>
+                            </p>
 
-  
+                            <!-- Credentials Card -->
+                            <div style="margin: 30px 0; background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%); border-radius: 8px; border-left: 4px solid #667eea; overflow: hidden;">
+                                <div style="padding: 24px;">
+                                    <h2 style="margin: 0 0 20px; font-size: 18px; font-weight: 600; color: #1a1a1a;">
+                                        Vos identifiants d'administrateur
+                                    </h2>
+
+                                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                                        <tr>
+                                            <td class="card-label" style="padding: 4px 0; font-size: 14px; color: #6b6b6b; width: 40%; vertical-align: top;">
+                                                <strong>Courriel</strong>
+                                            </td>
+                                            <td class="card-value" style="padding: 4px 0; font-size: 14px; color: #1a1a1a; font-family: 'Courier New', monospace; word-break: break-all;">
+                                                {{ user_email }}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="card-label" style="padding: 4px 0; font-size: 14px; color: #6b6b6b; width: 40%; vertical-align: top;">
+                                                <strong>Mot de passe</strong>
+                                            </td>
+                                            <td class="card-value" style="padding: 4px 0; font-size: 14px; color: #1a1a1a; font-family: 'Courier New', monospace; word-break: break-all;">
+                                                {{ password }}
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+
+                            {% if email_info %}
+                            <!-- Email Account Card -->
+                            <div style="margin: 30px 0; background: linear-gradient(135deg, #f0fff4 0%, #c6f6d5 100%); border-radius: 8px; border-left: 4px solid #48bb78; overflow: hidden;">
+                                <div style="padding: 24px;">
+                                    <h2 style="margin: 0 0 20px; font-size: 18px; font-weight: 600; color: #1a1a1a;">
+                                        Votre compte courriel
+                                    </h2>
+
+                                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                                        <tr>
+                                            <td class="card-label" style="padding: 4px 0; font-size: 14px; color: #6b6b6b; width: 40%; vertical-align: top;">
+                                                <strong>Adresse</strong>
+                                            </td>
+                                            <td class="card-value" style="padding: 4px 0; font-size: 14px; color: #1a1a1a; font-family: 'Courier New', monospace; word-break: break-all;">
+                                                {{ email_info.email_address }}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="card-label" style="padding: 4px 0; font-size: 14px; color: #6b6b6b; width: 40%; vertical-align: top;">
+                                                <strong>Mot de passe</strong>
+                                            </td>
+                                            <td class="card-value" style="padding: 4px 0; font-size: 14px; color: #1a1a1a; font-family: 'Courier New', monospace; word-break: break-all;">
+                                                {{ email_info.email_password }}
+                                            </td>
+                                        </tr>
+                                        {% if email_info.forwarding_setup and email_info.forwarding_email %}
+                                        <tr>
+                                            <td class="card-label" style="padding: 4px 0; font-size: 14px; color: #6b6b6b; width: 40%; vertical-align: top;">
+                                                <strong>Transféré vers</strong>
+                                            </td>
+                                            <td class="card-value" style="padding: 4px 0; font-size: 14px; color: #1a1a1a; font-family: 'Courier New', monospace; word-break: break-all;">
+                                                {{ email_info.forwarding_email }}
+                                            </td>
+                                        </tr>
+                                        {% endif %}
+                                    </table>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            <!-- Getting Started Section -->
+                            <div style="margin: 40px 0 30px;">
+                                <h2 style="margin: 0 0 20px; font-size: 22px; font-weight: 600; color: #1a1a1a;">
+                                    Premiers pas
+                                </h2>
+
+                                <p style="margin: 0 0 20px; font-size: 16px; line-height: 1.6; color: #4a4a4a;">
+                                    Regardez notre vidéo de démarrage pour découvrir toutes les fonctionnalités de votre nouvelle application:
+                                </p>
+
+                                <!-- YouTube Thumbnail with rounded corners -->
+                                <div style="margin: 20px 0; text-align: center;">
+                                    <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" style="display: inline-block; text-decoration: none;">
+                                        <img src="cid:thumb-youtube" alt="Tutoriel de démarrage" style="max-width: 400px; width: 100%; height: auto; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border: 0; display: block;">
+                                    </a>
+                                </div>
+                            </div>
+
+                            <!-- Support Section -->
+                            <div style="margin: 30px 0; padding: 20px; background-color: #f8f9fa; border-radius: 6px;">
+                                <p style="margin: 0 0 10px; font-size: 14px; line-height: 1.6; color: #4a4a4a;">
+                                    <strong>Besoin d'aide?</strong>
+                                </p>
+                                <p style="margin: 0; font-size: 14px; line-height: 1.6; color: #6b6b6b;">
+                                    Notre équipe de support est à votre disposition pour toute question ou assistance.
+                                </p>
+                            </div>
+
+                            <!-- Closing -->
+                            <p style="margin: 30px 0 0; font-size: 16px; line-height: 1.6; color: #4a4a4a;">
+                                Bonne création!<br>
+                                <strong style="color: #667eea;">L'équipe minipass</strong>
+                            </p>
+
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td style="padding: 30px; background-color: #f8f9fa; text-align: center; border-top: 1px solid #e0e0e0;">
+                            <p style="margin: 0 0 10px; font-size: 12px; color: #9b9b9b;">
+                                © 2025 minipass. Tous droits réservés.
+                            </p>
+                            <p style="margin: 0; font-size: 12px; color: #9b9b9b;">
+                                Vous recevez cet email car vous avez créé une application minipass.
+                            </p>
+                        </td>
+                    </tr>
+
+                </table>
+            </td>
+        </tr>
+    </table>
 </body>
 </html>
