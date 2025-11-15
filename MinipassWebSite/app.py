@@ -214,8 +214,25 @@ def create_checkout_session():
 # ✅ Deployment progress page
 @app.route("/deployment-in-progress")
 def deployment_in_progress():
+    from utils.customer_helpers import get_customer_by_stripe_session_id
+
     session_id = request.args.get('session_id', '')
-    return render_template("deployment_progress.html", session_id=session_id)
+
+    # Fetch customer to get subdomain
+    customer = get_customer_by_stripe_session_id(session_id)
+    subdomain = customer.get('subdomain', 'votre application') if customer else 'votre application'
+
+    return render_template("deployment_progress.html", session_id=session_id, subdomain=subdomain)
+
+
+# ✅ TEST PAGE - Deployment progress with mock data
+@app.route("/test-deployment-progress")
+def test_deployment_progress():
+    """
+    Test page for deployment progress UI without requiring real deployment.
+    Uses mock log data and allows quick iteration on styling/animations.
+    """
+    return render_template("deployment_progress_test.html")
 
 
 # ✅ API endpoint for deployment logs
