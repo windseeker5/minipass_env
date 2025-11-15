@@ -55,7 +55,12 @@ def send_user_deployment_email(to, url, password, email_info=None):
     # Load and attach images as inline (WITHOUT filename parameter)
     images = {
         'welcom4': 'static/image/welcom4.jpg',
-        'thumb-youtube': 'static/image/thumb-youtube.jpg'
+        'thumb-youtube': 'static/image/thumb-youtube.jpg',
+        'discord-icon': 'static/image/discord-icon.png',
+        'facebook-icon': 'static/image/facebook-icon.png',
+        'instagram-icon': 'static/image/instagram-icon.png',
+        'youtube-icon': 'static/image/youtube-icon.png',
+        'linkedin-icon': 'static/image/linkedin-icon.png'
     }
 
     for cid, image_path in images.items():
