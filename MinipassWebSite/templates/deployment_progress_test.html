@@ -6,6 +6,14 @@
         <div class="row justify-content-center">
             <div class="col-lg-10">
 
+                <!-- Test Controls -->
+                <div class="text-center mb-3">
+                    <button id="restart-btn" class="btn btn-primary btn-sm" onclick="restartAnimation()">
+                        🔄 Recommencer l'animation
+                    </button>
+                    <span class="badge bg-warning text-dark ms-2">MODE TEST</span>
+                </div>
+
                 <!-- Header Section -->
                 <div class="text-center mb-4">
                     <h2 class="section-title__heading mb-3">
@@ -13,7 +21,7 @@
                     </h2>
                     <p class="welcome-content--l8__descriptions">
                         <span style="font-size: 22px;">
-                            Votre application <strong>{{ subdomain }}.minipass.me</strong> est en cours de création
+                            Votre application <strong>test.minipass.me</strong> est en cours de création
                         </span>
                     </p>
                 </div>
@@ -46,7 +54,7 @@
                         font-family: monospace;
                         font-size: 13px;
                     ">
-                        MiniPass Deployment Console
+                        MiniPass Deployment Console - TEST MODE
                     </div>
                 </div>
 
@@ -62,8 +70,6 @@
                     line-height: 1.6;
                     background: #000;
                 ">
-                    <div class="log-line">[INFO] Connecting to deployment server...</div>
-                    <div class="log-line">[INFO] Verifying payment session...</div>
                 </div>
             </div>
 
@@ -104,7 +110,7 @@
 
                 <div style="background: #f8f9fc; padding: 1.5rem; border-radius: 12px; border-left: 4px solid #099a97;">
                     <p class="mb-2" style="color: #2c3e50; font-weight: 600; font-size: 0.95rem;">
-                        Vous recevrez un email à <strong id="customer-email" style="color: #099a97;"></strong> avec:
+                        Vous recevrez un email à <strong id="customer-email" style="color: #099a97;">test@example.com</strong> avec:
                     </p>
                     <ul class="mb-0" style="color: #5a6c7d; font-size: 0.95rem; line-height: 1.8; padding-left: 1.5rem;">
                         <li>Lien vers votre application</li>
@@ -135,20 +141,33 @@
 
 <script>
 // Configuration
-const SESSION_ID = "{{ session_id }}";
-const POLL_INTERVAL = 3000;  // 3 seconds
-const MAX_DURATION = 120000; // 2 minutes
-const REDIRECT_DELAY = 10000; // 10 seconds (reduced from 20)
 const LOG_DISPLAY_DELAY = 200; // 200ms between each log line (faster, more realistic)
 
-let pollingTimer = null;
-let startTime = Date.now();
-let redirectTimer = null;
-let terminalCleared = false;  // Track if we've cleared initial messages
-let lastLogCount = 0;  // Track how many logs we've displayed
-let logQueue = [];  // Queue for progressive log display
-let isDisplayingLogs = false;  // Flag to prevent concurrent display
-let deploymentCompleted = false;  // Flag to track if deployment finished
+let logQueue = [];
+let isDisplayingLogs = false;
+let deploymentCompleted = false;
+
+// Mock deployment logs - these will be displayed one by one
+const MOCK_LOGS = [
+    '[INFO] Connecting to deployment server...',
+    '[INFO] Verifying payment session...',
+    '[OK] Session validated successfully',
+    '[INFO] Preparing environment...',
+    '[INFO] Creating application directory...',
+    '[INFO] Copying source files...',
+    '[INFO] Configuring database...',
+    '[INFO] Generating security keys...',
+    '[INFO] Configuring subdomain test.minipass.me...',
+    '[INFO] Creating email account...',
+    '[INFO] Configuring SSL/TLS certificates...',
+    '[INFO] Building Docker image...',
+    '[INFO] Installing Python dependencies...',
+    '[INFO] Optimizing resources...',
+    '[INFO] Deploying container on port 8001...',
+    '[OK] Container started successfully',
+    '[SUCCESS] Deployment completed successfully',
+    '[INFO] Check your email for connection details'
+];
 
 // Terminal auto-scroll
 function scrollTerminalToBottom() {
@@ -178,39 +197,39 @@ function addLogLine(text) {
     scrollTerminalToBottom();
 }
 
-// Clear initial loading messages
+// Clear terminal
 function clearTerminal() {
     const terminal = document.getElementById('terminal');
     terminal.innerHTML = '';
 }
 
-// Progressive log display - TRULY one by one from queue
+// Progressive log display - TRULY one by one
 async function displayLogsProgressively() {
+    console.log('displayLogsProgressively called, queue length:', logQueue.length, 'isDisplaying:', isDisplayingLogs);
+
     if (isDisplayingLogs || logQueue.length === 0) {
+        console.log('Exiting early - already displaying or empty queue');
         return;
     }
 
     isDisplayingLogs = true;
+    console.log('Starting log display...');
 
-    // Process logs ONE AT A TIME with delay between each
-    while (logQueue.length > 0) {
-        const logText = logQueue.shift();
+    // Display logs ONE AT A TIME with delay between each
+    for (let i = 0; i < logQueue.length; i++) {
+        const logText = logQueue[i];
         addLogLine(logText);
 
-        // Check if this is the final deployment message
-        if (logText.includes('Deploying container') ||
-            logText.includes('déploiement du conteneur') ||
-            logText.includes('Container started') ||
-            logText.includes('Conteneur démarré')) {
-            // Trigger completion after 2 seconds
-            deploymentCompleted = true;
+        // Check if this is the deployment trigger
+        if (logText.includes('Deploying container')) {
+            // Wait 2 seconds then trigger completion modal
             await new Promise(resolve => setTimeout(resolve, 2000));
-            const email = document.getElementById('customer-email').textContent || 'votre adresse';
-            showCompletionModal(email);
+            deploymentCompleted = true;
+            showCompletionModal('test@example.com');
             break;
         }
 
-        // IMPORTANT: Wait before displaying next log
+        // Wait before displaying next log (IMPORTANT!)
         await new Promise(resolve => setTimeout(resolve, LOG_DISPLAY_DELAY));
     }
 
@@ -219,123 +238,41 @@ async function displayLogsProgressively() {
 
 // Show completion modal
 function showCompletionModal(email) {
-    // Stop polling
-    if (pollingTimer) {
-        clearInterval(pollingTimer);
-    }
-
     // Set customer email in modal
-    document.getElementById('customer-email').textContent = email || 'votre adresse';
+    document.getElementById('customer-email').textContent = email || 'test@example.com';
 
     // Show Bootstrap modal
     const modal = new bootstrap.Modal(document.getElementById('deploymentCompleteModal'));
     modal.show();
 }
 
-// Fetch deployment logs
-async function fetchLogs() {
-    try {
-        const response = await fetch(`/api/deployment-logs/${SESSION_ID}`);
-        const data = await response.json();
+// Restart animation
+function restartAnimation() {
+    // Reset state
+    deploymentCompleted = false;
+    isDisplayingLogs = false;
+    logQueue = [...MOCK_LOGS]; // Copy mock logs
 
-        // Don't process if deployment already completed
-        if (deploymentCompleted) {
-            return;
-        }
+    // Clear UI
+    clearTerminal();
 
-        // Clear initial messages ONLY ONCE on first real data
-        if (data.status !== 'not_started' && !terminalCleared) {
-            clearTerminal();
-            terminalCleared = true;
-        }
-
-        // Add NEW logs to queue (not already displayed)
-        if (terminalCleared && data.logs && data.logs.length > lastLogCount) {
-            // Add only the new logs to the queue
-            const newLogs = data.logs.slice(lastLogCount);
-            newLogs.forEach(log => {
-                logQueue.push(log);
-            });
-            lastLogCount = data.logs.length;
-
-            // Start progressive display
-            displayLogsProgressively();
-        }
-
-        // Store email for later use
-        if (data.email) {
-            document.getElementById('customer-email').textContent = data.email;
-        }
-
-        // Check if deployment completed or time exceeded
-        const elapsed = Date.now() - startTime;
-
-        if (data.status === 'completed' && !deploymentCompleted) {
-            // Stop polling immediately
-            if (pollingTimer) {
-                clearInterval(pollingTimer);
-            }
-
-            // Add completion messages to queue
-            logQueue.push('');
-            logQueue.push('🎉 Déploiement terminé avec succès!');
-            logQueue.push('📧 Vérifiez votre email pour les détails de connexion.');
-            deploymentCompleted = true;
-
-            // Display remaining logs then show completion modal after 2 seconds
-            await displayLogsProgressively();
-            setTimeout(() => showCompletionModal(data.email), 2000);
-        } else if (elapsed >= MAX_DURATION && !deploymentCompleted) {
-            // Stop polling after timeout
-            if (pollingTimer) {
-                clearInterval(pollingTimer);
-            }
-
-            // Add timeout messages to queue
-            logQueue.push('');
-            logQueue.push('⏰ Déploiement en cours...');
-            logQueue.push('📧 Vous recevrez un email dès que tout sera prêt.');
-            deploymentCompleted = true;
-
-            // Display remaining logs then show completion modal after 2 seconds
-            await displayLogsProgressively();
-            setTimeout(() => showCompletionModal(data.email), 2000);
-        }
-
-    } catch (error) {
-        console.error('Error fetching logs:', error);
-        addLogLine('⚠️ Erreur de connexion au serveur. Réessai...');
+    // Close modal if open
+    const modalElement = document.getElementById('deploymentCompleteModal');
+    const modalInstance = bootstrap.Modal.getInstance(modalElement);
+    if (modalInstance) {
+        modalInstance.hide();
     }
-}
 
-// Start polling
-function startPolling() {
-    // Initial fetch
-    fetchLogs();
-
-    // Poll every 3 seconds
-    pollingTimer = setInterval(() => {
-        const elapsed = Date.now() - startTime;
-
-        // Stop polling after 2 minutes
-        if (elapsed >= MAX_DURATION) {
-            clearInterval(pollingTimer);
-            return;
-        }
-
-        fetchLogs();
-    }, POLL_INTERVAL);
+    // Start animation
+    displayLogsProgressively();
 }
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', () => {
-    if (SESSION_ID) {
-        startPolling();
-    } else {
-        addLogLine('❌ Erreur: Session invalide');
-        addLogLine('Redirection vers la page d\'accueil...');
-        setTimeout(() => window.location.href = '/', 5000);
-    }
+    console.log('Page loaded, starting animation...');
+    console.log('Mock logs count:', MOCK_LOGS.length);
+    // Auto-start the animation
+    restartAnimation();
 });
 </script>
 
