@@ -6,6 +6,7 @@ from .logging_config import (
     setup_subscription_logger, log_subprocess_call, log_subprocess_result,
     log_operation_start, log_operation_end, log_file_operation, log_validation_check
 )
+from .survey_templates import insert_all_default_templates
 
 # Initialize subscription logger
 logger = setup_subscription_logger()
@@ -531,6 +532,15 @@ def deploy_customer_container(app_name, admin_email, admin_password, plan, port,
             logger.info(f"[{app_name}] ✅ Email configuration saved to Setting table")
         else:
             logger.warning(f"[{app_name}] ⚠️ No email address provided, skipping email configuration")
+
+        # Step 6c: Insert default survey templates
+        logger.info(f"[{app_name}] 📋 Step 2f: Inserting default survey templates")
+        try:
+            templates_inserted = insert_all_default_templates(db_path)
+            logger.info(f"[{app_name}] ✅ Successfully inserted {templates_inserted} survey template(s)")
+        except Exception as e:
+            logger.error(f"[{app_name}] ❌ Failed to insert survey templates: {str(e)}")
+            # Non-critical error - continue with deployment
 
         # Verify database was created
         if os.path.exists(db_path):
