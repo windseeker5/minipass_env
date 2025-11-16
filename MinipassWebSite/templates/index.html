@@ -628,7 +628,7 @@
              One year with us
             </p>
            </div>
-          </div>
+          </div>Saisissez le nom de votre organisation
           <div class="card-icon">
            <i class="fa fa-quote-left">
            </i>
@@ -1065,7 +1065,7 @@
 
         <div class="modal-benefits-right">
           <div class="modal-tagline">
-            Recuperer votre temps et<br>maximisez vos revenus !
+            Récuperer votre temps et<br>maximisez vos revenus !
           </div>
         </div>
       </div>
@@ -1082,11 +1082,11 @@
         <div class="form-field-group">
           <label class="form-label-with-icon">
             <i class="fas fa-globe"></i>
-            <span>Nom de l'application</span>
+            <span>Saisissez le nom souhaité pour votre application</span>
           </label>
-          <input class="form-control" id="app_name" name="app_name" required type="text" placeholder="monprojet ex: fxyz" />
+          <input class="form-control" id="app_name" name="app_name" required type="text" placeholder="monprojet" />
           <div class="field-description" id="subdomain-feedback">
-            Votre sous-domaine: <strong>votre-nom.minipass.me</strong>
+            Votre nom souhaité: <strong>votre-nom.minipass.me</strong>
           </div>
         </div>
 
@@ -1094,11 +1094,11 @@
         <div class="form-field-group">
           <label class="form-label-with-icon">
             <i class="fas fa-building"></i>
-            <span>Nom de l'organisation</span>
+            <span>Saisissez le nom de votre organisation</span>
           </label>
           <input class="form-control" name="organization_name" required type="text" placeholder="Mon Entreprise ex:Fondation XYZ" />
           <div class="field-description">
-            Apparaîtra dans votre application et les communications à vos participants
+            Cette information apparaîtra dans votre application et les communications à vos participants
           </div>
         </div>
 
@@ -1106,17 +1106,17 @@
         <div class="form-field-group">
           <label class="form-label-with-icon">
             <i class="fas fa-envelope"></i>
-            <span>Email administrateur</span>
+            <span>Saisissez l’adresse courriel à utiliser pour administrer votre minipass.</span>
           </label>
           <input class="form-control" name="admin_email" required type="email" placeholder="admin@monentreprise.com" />
           <div class="field-description">
-            Reçoit vos identifiants de connexion et sert d'identifiant à votre application.
+            Cette adresse courriel est importante. Elle sera votre identifiant administrateur de votre minipass.
           </div>
         </div>
 
         <!-- Policy Section -->
         <div class="modal-policy-section">
-          Consultez notre <a href="/politiques" target="_blank">politiques d'abonnement</a>
+          Consultez notre <a href="/politiques" target="_blank">politique d'abonnement</a>
         </div>
       </div>
 
@@ -1199,7 +1199,7 @@
       const subdomain = input.value.trim().toLowerCase();
 
       if (subdomain.length < 3 || !/^[a-z0-9]+$/.test(subdomain)) {
-        feedback.innerHTML = '<i class="fas fa-info-circle"></i> Le sous-domaine doit contenir au moins 3 caractères (lettres/chiffres minuscules).';
+        feedback.innerHTML = '<i class="fas fa-info-circle"></i>Doit contenir au moins 3 caractères (lettre, chiffres, minuscule) et aucun espace ou caractères spéciaux';
         feedback.style.color = '#dc3545';
         submit.disabled = true;
         return;
