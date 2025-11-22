@@ -297,6 +297,81 @@ def update_docker_compose_org_name(compose_content, organization_name):
     return compose_content
 
 
+def run_upgrade_production_database(app_name, target_dir, db_path):
+    """
+    Runs the upgrade_production_database.py script to ensure all schema updates
+    and fixes are applied to the newly created database.
+
+    This script is idempotent - it checks before applying each task, so it's safe
+    to run on databases that already have migrations applied via 'flask db upgrade'.
+
+    Args:
+        app_name (str): Customer app name for logging
+        target_dir (str): Path to the deployed app directory
+        db_path (str): Path to the database file
+
+    Returns:
+        bool: True if successful, False otherwise
+    """
+    log_operation_start(logger, f"Run Database Upgrade Script [{app_name}]",
+                       target_dir=target_dir,
+                       db_path=db_path)
+
+    upgrade_script_path = os.path.join(target_dir, "migrations", "upgrade_production_database.py")
+
+    # Check if upgrade script exists
+    if not os.path.exists(upgrade_script_path):
+        logger.warning(f"[{app_name}] ⚠️ Upgrade script not found at {upgrade_script_path}")
+        logger.warning(f"[{app_name}]    Skipping upgrade script - database will use flask migrations only")
+        log_operation_end(logger, "Run Database Upgrade Script", success=True)
+        return True
+
+    log_validation_check(logger, "Upgrade script exists", True, f"Found: {upgrade_script_path}")
+
+    try:
+        logger.info(f"[{app_name}] 🔧 Running upgrade_production_database.py to apply all schema fixes")
+        logger.info(f"[{app_name}]    This ensures FK constraints, backfills, and edge cases are covered")
+
+        # Run the upgrade script
+        upgrade_cmd = ["python", "upgrade_production_database.py"]
+        log_subprocess_call(logger, upgrade_cmd, f"[{app_name}] Running database upgrade script")
+
+        upgrade_result = subprocess.run(
+            upgrade_cmd,
+            cwd=os.path.join(target_dir, "migrations"),
+            capture_output=True,
+            text=True,
+            check=True,
+            env={**os.environ, "DATABASE_PATH": db_path}
+        )
+
+        log_subprocess_result(logger, upgrade_result, f"[{app_name}] Database upgrade script completed")
+
+        # Log the output for visibility
+        if upgrade_result.stdout:
+            logger.info(f"[{app_name}] 📋 Upgrade script output:")
+            for line in upgrade_result.stdout.split('\n'):
+                if line.strip():
+                    logger.info(f"[{app_name}]    {line}")
+
+        log_validation_check(logger, "Database upgrade script completed", True, "All tasks applied successfully")
+        log_operation_end(logger, f"Run Database Upgrade Script [{app_name}]", success=True)
+        return True
+
+    except subprocess.CalledProcessError as e:
+        error_msg = f"Database upgrade script failed: {e.stderr if e.stderr else str(e)}"
+        logger.error(f"[{app_name}] ❌ {error_msg}")
+        if e.stdout:
+            logger.error(f"[{app_name}] 📤 Stdout: {e.stdout}")
+        log_validation_check(logger, "Database upgrade script completed", False, error_msg)
+        log_operation_end(logger, "Run Database Upgrade Script", success=False, error_msg=error_msg)
+        return False
+
+    except Exception as e:
+        error_msg = f"Unexpected error running upgrade script: {str(e)}"
+        logger.error(f"[{app_name}] ❌ {error_msg}")
+        log_operation_end(logger, "Run Database Upgrade Script", success=False, error_msg=error_msg)
+        return False
 
 
 
@@ -516,6 +591,14 @@ def deploy_customer_container(app_name, admin_email, admin_password, plan, port,
             log_validation_check(logger, "Database file created", False, "Database file not found after migrations")
             log_operation_end(logger, "Deploy Customer Container", success=False, error_msg="Database file not created")
             return False
+
+        # Step 5b: Run upgrade_production_database.py to apply all schema fixes
+        logger.info(f"[{app_name}] 🔧 Step 2c-2: Running upgrade script to ensure complete schema")
+        upgrade_success = run_upgrade_production_database(app_name, target_dir, db_path)
+
+        if not upgrade_success:
+            logger.warning(f"[{app_name}] ⚠️ Upgrade script had issues, but continuing with deployment")
+            # Don't fail deployment - the script is supplementary to flask migrations
 
         # Step 6: Configure admin user and organization
         logger.info(f"[{app_name}] 🔐 Step 2d: Configuring admin user and organization")
