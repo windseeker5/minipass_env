@@ -2,6 +2,7 @@ import sqlite3
 import bcrypt
 import os
 import subprocess
+import secrets
 from .logging_config import (
     setup_subscription_logger, log_subprocess_call, log_subprocess_result,
     log_operation_start, log_operation_end, log_file_operation, log_validation_check
@@ -486,9 +487,15 @@ def deploy_customer_container(app_name, admin_email, admin_password, plan, port,
                         key, value = line.split('=', 1)
                         parent_env_vars[key.strip()] = value.strip()
 
+        # Generate a secure random SECRET_KEY for Flask sessions and CSRF protection
+        secret_key = secrets.token_hex(32)  # 64-character hexadecimal string
+
         env_content = textwrap.dedent(f"""\
         # Auto-generated deployment configuration for {app_name}
         # Generated on deployment
+
+        # Flask Security Configuration
+        SECRET_KEY={secret_key}
 
         # Tier Configuration
         MINIPASS_TIER={tier}
