@@ -39,6 +39,7 @@ services:
   mail-cert-request:
     image: nginx:alpine
     container_name: mail-cert-request
+    restart: always
     environment:
       - VIRTUAL_HOST=mail.minipass.me
       - LETSENCRYPT_HOST=mail.minipass.me
@@ -101,28 +102,11 @@ services:
 
 
 
-  flask-controller-nginx:
-    image: nginx:alpine
-    container_name: flask-controller-nginx
-    volumes:
-      - ./nginx/controller-proxy.conf:/etc/nginx/conf.d/default.conf:ro
-    environment:
-      - VIRTUAL_HOST=minipass.me,www.minipass.me
-      - VIRTUAL_PORT=5000
-      - LETSENCRYPT_HOST=minipass.me,www.minipass.me
-      - LETSENCRYPT_EMAIL=kdresdell@gmail.com
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    networks:
-      - proxy
-
-
-
-
   # This needed to forward and fake my Website app as a container
   flask-controller-proxy:
     image: nginx:alpine
     container_name: flask-controller-proxy
+    restart: always
     volumes:
       - ./nginx/controller-proxy.conf:/etc/nginx/conf.d/default.conf:ro
     environment:
