@@ -1,4 +1,4 @@
 [submodule "app"]
 	path = app
 	url = git@github.com:windseeker5/dpm.git
-	branch = release-v1.0
+	branch = main

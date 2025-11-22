@@ -444,8 +444,8 @@ def deploy_customer_container(app_name, admin_email, admin_password, plan, port,
         logger.info(f"[{app_name}] 📦 Step 1: Cloning app repository for plan '{plan}' → {target_dir}")
         log_file_operation(logger, f"[{app_name}] Cloning app repository for plan {plan}", f"{git_repo_url} → {target_dir}")
 
-        # Execute git clone
-        git_clone_cmd = ["git", "clone", git_repo_url, target_dir]
+        # Execute git clone (explicitly use main branch)
+        git_clone_cmd = ["git", "clone", "-b", "main", git_repo_url, target_dir]
         log_subprocess_call(logger, git_clone_cmd, "Cloning app repository from GitHub")
 
         try:
