@@ -38,8 +38,20 @@ opendkim/
 # html/
 deployed/
 
+# Ken 
+.claude
+docs/
+CLAUDE.md 
+Marketing/
+.playwright-mcp
+
+# database
+customers.db
+
+
+
 # Docker Compose override (local-only config)
-docker-compose.override.yml
+# docker-compose.override.yml
 
 # my app
 
