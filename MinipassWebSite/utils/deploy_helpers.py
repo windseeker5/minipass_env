@@ -672,8 +672,8 @@ def deploy_customer_container(app_name, admin_email, admin_password, plan, port,
 
             networks:
               proxy:
-                external:
-                  name: minipass_env_proxy
+                name: minipass_env_proxy
+                external: true
             """)
         else:
             # LOCAL: Direct port mapping, no external network
