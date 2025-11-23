@@ -687,6 +687,9 @@ def deploy_customer_container(app_name, admin_email, admin_password, plan, port,
                 build:
                   context: ./app
 
+                env_file:
+                  - ./app/.env
+
                 volumes:
                   - ./app:/app
                   - ./app/instance:/app/instance
@@ -727,6 +730,9 @@ def deploy_customer_container(app_name, admin_email, admin_password, plan, port,
                 container_name: minipass_{app_name}
                 build:
                   context: ./app
+
+                env_file:
+                  - ./app/.env
 
                 ports:
                   - "{port}:8889"
