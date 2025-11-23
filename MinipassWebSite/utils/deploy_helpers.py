@@ -490,12 +490,45 @@ def deploy_customer_container(app_name, admin_email, admin_password, plan, port,
         # Generate a secure random SECRET_KEY for Flask sessions and CSRF protection
         secret_key = secrets.token_hex(32)  # 64-character hexadecimal string
 
+        # Query customer database for Stripe subscription information
+        stripe_data = {}
+        try:
+            customer_db_path = os.path.join(base_dir, "MinipassWebSite", "customers.db")
+            if os.path.exists(customer_db_path):
+                conn = sqlite3.connect(customer_db_path)
+                cur = conn.cursor()
+                cur.execute("""
+                    SELECT stripe_customer_id, stripe_subscription_id, payment_amount, subscription_end_date
+                    FROM customers
+                    WHERE subdomain = ? OR app_name = ?
+                """, (app_name, app_name))
+                result = cur.fetchone()
+                conn.close()
+
+                if result:
+                    stripe_data = {
+                        'customer_id': result[0] or '',
+                        'subscription_id': result[1] or '',
+                        'payment_amount': result[2] or '',
+                        'renewal_date': result[3] or ''
+                    }
+                    logger.info(f"[{app_name}] 💳 Loaded Stripe data: customer={stripe_data['customer_id'][:20]}..., subscription={stripe_data['subscription_id'][:20]}...")
+        except Exception as e:
+            logger.warning(f"[{app_name}] ⚠️ Could not load Stripe data from customer DB: {e}")
+
         env_content = textwrap.dedent(f"""\
         # Auto-generated deployment configuration for {app_name}
         # Generated on deployment
 
         # Flask Security Configuration
         SECRET_KEY={secret_key}
+
+        # Stripe Configuration (for subscription management in app)
+        STRIPE_SECRET_KEY={parent_env_vars.get('STRIPE_SECRET_KEY', '')}
+        STRIPE_CUSTOMER_ID={stripe_data.get('customer_id', '')}
+        STRIPE_SUBSCRIPTION_ID={stripe_data.get('subscription_id', '')}
+        PAYMENT_AMOUNT={stripe_data.get('payment_amount', '')}
+        SUBSCRIPTION_RENEWAL_DATE={stripe_data.get('renewal_date', '')}
 
         # Tier Configuration
         MINIPASS_TIER={tier}
