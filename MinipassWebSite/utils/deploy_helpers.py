@@ -646,7 +646,10 @@ def deploy_customer_container(app_name, admin_email, admin_password, plan, port,
         insert_admin_user(db_path, admin_email, admin_password)
 
         # ✅ Write organization name to Settings table (where app reads from)
-        set_organization_setting(db_path, organization_name)
+        # Ensure we have a valid organization name (use app_name as fallback)
+        final_org_name = organization_name if organization_name and organization_name.strip() else app_name
+        logger.info(f"[{app_name}] 🏢 Setting organization name: {final_org_name}")
+        set_organization_setting(db_path, final_org_name)
 
         # Step 6b: Configure email settings in Setting table (ALWAYS set, even in local mode)
         logger.info(f"[{app_name}] 📧 Step 2e: Configuring email settings in Setting table")
