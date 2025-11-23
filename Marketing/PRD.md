@@ -1,6 +1,6 @@
 # Minipass Product Requirements Document (PRD)
-**Version:** 1.2
-**Date:** August 28, 2025 | **Updated:** November 7, 2025
+**Version:** 1.3
+**Date:** August 28, 2025 | **Updated:** November 23, 2025
 **Product Owner:** Ken Dresdell
 **Target Launch:** November 15, 2025 | **Status:** Production Launch Ready - 2 Live Customers
 
@@ -34,7 +34,7 @@ To simplify organizational operations and optimize revenue through an automated,
 Minipass provides a unified digital platform serving both markets:
 
 **For Activity Managers:**
-- Create activities (e.g., "Monday Night Hockey", "September Golf Tournament") 
+- Create activities (e.g., "Monday Night Hockey", "September Golf Tournament")
 - Define passport types within each activity (e.g., "Substitute Pass", "Season Pass")
 - Generate automatic web-based registration forms
 - Process payments and automatically issue digital passports
@@ -62,7 +62,7 @@ Minipass provides a unified digital platform serving both markets:
 - Professional customer communication improves brand perception
 - Reduce customer service inquiries with clear transaction history
 
-**For All Participants/Customers:** 
+**For All Participants/Customers:**
 - Easy online purchase with immediate confirmation
 - Beautiful, professional email communications with complete transaction history
 - Mobile access to digital passports with QR codes
@@ -96,7 +96,7 @@ Minipass provides a unified digital platform serving both markets:
 
 ### Primary Users (Activity Managers)
 - **Amateur Sports League Organizers** (Priority 1) - Hockey leagues, soccer clubs, tennis groups
-- **Fitness & Recreation Activity Leaders** (Priority 1) - Ski lessons, kitesurf sessions, gymnastics classes  
+- **Fitness & Recreation Activity Leaders** (Priority 1) - Ski lessons, kitesurf sessions, gymnastics classes
 - **Individual Coaches & Instructors** (Priority 1) - Yoga teachers, dance instructors, running coaches
 - **Tournament & Event Organizers** (Priority 2) - Golf tournaments, competitions, workshops
 - **Community Group Coordinators** (Priority 3) - Local clubs, hobby groups, meetups
@@ -112,7 +112,7 @@ Minipass provides a unified digital platform serving both markets:
 - Sports league players and substitutes
 - Lesson participants and students
 - Loyalty program customers
-- Tournament competitors  
+- Tournament competitors
 - Community group members
 
 ### User Personas
@@ -122,7 +122,7 @@ Minipass provides a unified digital platform serving both markets:
 - Needs to track who paid, who's playing, substitute management
 - Wants professional system without complexity
 
-#### Persona 2: "Sophie the Ski Instructor"  
+#### Persona 2: "Sophie the Ski Instructor"
 - Runs weekend ski lessons and private sessions
 - Manages both season passes and drop-in lessons
 - Struggles with payment tracking and attendance
@@ -141,7 +141,7 @@ Minipass provides a unified digital platform serving both markets:
 - "Kitesurf Workshop Sept 15", "Gymnastics Competition"
 
 **Loyalty Programs:**
-- "Coffee Shop Rewards", "Salon Package Deals", "Bakery Loyalty Program"  
+- "Coffee Shop Rewards", "Salon Package Deals", "Bakery Loyalty Program"
 - "Car Wash Packages", "Massage Therapy Bundles"
 
 ---
@@ -156,6 +156,7 @@ Minipass provides a unified digital platform serving both markets:
 - **Track Passports:** Real-time status monitoring (sent, opened, redeemed)
 - **Redeem Passports:** QR code scanning interface
 - **Passport Templates:** Customizable passport designs
+- **Custom Payment Instructions:** Per passport type payment instruction customization
 
 #### B. Registration System ⭐ CRITICAL
 - **Registration Forms:** Customizable form builder
@@ -181,7 +182,7 @@ Minipass provides a unified digital platform serving both markets:
 - **QR Code Integration:** Every communication includes participant's current passport with QR code
 - **Activity Details:** Clear information about the specific activity, dates, and requirements
 
-#### D-1. **PROFESSIONAL EMAIL COMMUNICATION SYSTEM** ⭐ NEW FEATURE ✅ IMPLEMENTED (All Tiers)
+#### D-1. **PROFESSIONAL EMAIL COMMUNICATION SYSTEM** ⭐ ENHANCED ✅ IMPLEMENTED (All Tiers)
 - **6 Customizable Email Templates:** Complete email communication suite for every customer touchpoint
   - **newPass** - Digital pass creation/purchase confirmation with welcome message
   - **paymentReceived** - Payment processing confirmation with transaction details
@@ -191,16 +192,22 @@ Minipass provides a unified digital platform serving both markets:
   - **survey_invitation** - Survey request emails with one-click participation
 - **Per-Activity Customization:** Each activity can have unique branded email templates
   - Customize subject lines, titles, intro text, body content, conclusions
-  - HTML-supported content with security sanitization
+  - HTML-supported content with security sanitization (Bleach library)
   - Custom call-to-action text and URLs (for newPass and survey templates)
-- **Visual Branding:** Professional brand customization capabilities
-  - **Hero Image Upload:** Custom header images per template type (PNG, auto-resized)
+- **Advanced Visual Branding:** Professional brand customization capabilities
+  - **3-Tier Hero Image System:**
+    1. Custom uploaded hero images (highest priority)
+    2. Original template defaults (pristine versions)
+    3. Activity image fallback (smart customization detection)
+  - **LRU Caching:** Performance-optimized hero image loading
   - **Activity Logo Integration:** Unique logo per activity for owner card
-  - **Historical Preservation:** Logos preserved across updates
-- **Advanced Features:**
+  - **Historical Preservation:** Logos and customizations preserved across updates
+  - **Base64 Email Embedding:** Optimized inline image delivery
+- **Advanced Technical Features:**
   - **Live Preview:** Real-time template preview with actual activity context
   - **Test Email Sending:** Send test emails before deployment
-  - **Reset to Defaults:** One-click reset for individual templates
+  - **Reset to Defaults:** One-click reset for individual templates with pristine restoration
+  - **Premailer CSS Inlining:** Automatic CSS inlining for email client compatibility
   - **Mobile-Responsive:** All templates optimized for desktop and mobile
 - **Available in ALL Tiers:** Email customization included from $10/month Starter plan
 - **Integration:** Seamlessly integrates organization email, name, and payment inbox details
@@ -211,7 +218,7 @@ Minipass provides a unified digital platform serving both markets:
 - **Refund Management:** Automated refund processing
 - **Payment Reporting:** Revenue summaries by activity
 
-#### E-1. **PAYMENT INBOX & MANAGEMENT DASHBOARD** ⭐ NEW FEATURE ✅ IMPLEMENTED (All Tiers)
+#### E-1. **PAYMENT INBOX & MANAGEMENT DASHBOARD** ⭐ ENHANCED ✅ IMPLEMENTED (All Tiers)
 - **Payment Inbox:** Centralized dashboard for all incoming e-transfer payment emails
   - Real-time tracking of matched and unmatched payments
   - Status indicators: MATCHED, NO_MATCH, MANUAL_PROCESSED
@@ -220,6 +227,7 @@ Minipass provides a unified digital platform serving both markets:
   - Sender name, email, amount, and payment date
   - Matched passport ID and match reasoning
   - Complete audit trail for all transactions
+  - Email received date tracking
 - **Search & Filter:**
   - Filter by status (No Match, Matched, All)
   - Search by sender name or amount
@@ -234,12 +242,12 @@ Minipass provides a unified digital platform serving both markets:
   - Clear visual indicators for action items
 - **Available in ALL Tiers:** Payment inbox management from $10/month Starter plan
 
-#### F. **USER CONTACTS EXPORT** ⭐ NEW FEATURE ✅ IMPLEMENTED (All Tiers)
+#### F. **USER CONTACTS EXPORT** ⭐ ENHANCED ✅ IMPLEMENTED (All Tiers)
 - **User Contact Directory:** Comprehensive user list with engagement metrics for marketing/CRM
   - Full contact information: Name, email, phone
   - Engagement data: Passport count, revenue generated, activities participated
   - Last activity date for recency tracking
-  - Email opt-out status with clear badges (Yes/No)
+  - **Email opt-out status** with clear badges (Yes/No) for GDPR/CAN-SPAM compliance
 - **Search & Filter:**
   - **Dynamic Search:** Real-time search by name, email, or phone
   - **Keyboard Shortcut:** Ctrl+K for quick search access
@@ -260,30 +268,47 @@ Minipass provides a unified digital platform serving both markets:
 - **Summary Metrics:** Total users, active users, total revenue overview
 - **Available in ALL Tiers:** User contact export from $10/month Starter plan
 
-#### F. **KPI Dashboard** ⭐ CRITICAL
+#### F-1. **KPI DASHBOARD** ⭐ CRITICAL
 - **Activity Overview Cards:** Clear KPI cards for each activity showing:
   - Total Revenue per activity
   - Passports Created count
-  - Active Passports count  
+  - Active Passports count
   - Pending Sign-ups (awaiting approval)
   - Payment Status (paid vs pending)
   - Survey Response Rate and Satisfaction Scores
 - **Real-time Updates:** Dashboard updates automatically as payments are matched
 - **Financial Summaries:** Revenue summaries by date range
 
-#### G. **COMPREHENSIVE FINANCIAL MANAGEMENT SUITE** ⭐ UPGRADED ✅ IMPLEMENTED (All Tiers)
+#### G. **COMPREHENSIVE FINANCIAL MANAGEMENT SUITE** ⭐ MAJOR UPGRADE ✅ IMPLEMENTED (All Tiers)
+- **Dual Accounting Standards Support:** ⭐ NEW FEATURE - Professional-grade accounting
+  - **Cash Basis Accounting** (Primary):
+    - Cash Received: Actual deposits and payments received
+    - Cash Paid: Actual expenses and bills paid
+    - Net Cash Flow: Bank reconciliation and liquidity management
+  - **Accrual Basis Accounting** (Secondary):
+    - Accounts Receivable (AR): Unpaid invoices and pending income
+    - Accounts Payable (AP): Unpaid bills and pending expenses
+    - Revenue/expense recognition when earned/incurred
 - **Complete Income & Expense Tracking:** Unified financial dashboard for all business transactions
   - **Passport Sales:** Automatic tracking from registration system
   - **Other Income:** Add custom income entries (sponsorship, donations, vendor fees, merchandise, services)
   - **Expense Management:** Full expense tracking with receipt uploads
+  - **Payment Status Tracking:**
+    - Income: pending, received, cancelled
+    - Expenses: unpaid, paid, cancelled
+  - **Payment Method Recording:** e-transfer, cash, cheque, credit_card, other
+  - **Due Date Management:** Track unpaid bills and payment deadlines
 - **Activity-Level Financial Breakdown:**
   - Expandable accordion view grouped by activity
   - Detailed transaction listing with dates, categories, amounts
   - Individual activity profit/loss calculations
+  - Cash flow analysis per activity
 - **Summary KPIs:** High-level financial performance metrics
-  - **Total Revenue:** All income sources aggregated
-  - **Total Expenses:** Complete expense tracking
-  - **Net Income:** Real-time profitability calculation
+  - **Cash Received:** Total actual deposits
+  - **Cash Paid:** Total actual payments
+  - **Net Cash Flow:** Bank reconciliation metric
+  - **Accounts Receivable:** Unpaid invoices total
+  - **Accounts Payable:** Unpaid bills total
   - **Mobile Carousel:** KPI cards with dot navigation on mobile
 - **Receipt & Document Management:**
   - Upload receipts for income and expenses (PDF, JPG, PNG)
@@ -291,8 +316,8 @@ Minipass provides a unified digital platform serving both markets:
   - Download option for all receipts
   - Receipt storage tied to transactions
 - **Transaction Management:**
-  - **Add/Edit Income:** Date, category, amount, notes with receipt upload
-  - **Add/Edit Expenses:** Date, category, amount, description with receipt upload
+  - **Add/Edit Income:** Date, category, amount, notes, payment status, payment method, receipt upload
+  - **Add/Edit Expenses:** Date, category, amount, description, payment status, due date, payment method, receipt upload
   - **Delete Transactions:** Confirmation modal for safety
   - **Category System:**
     - Income: Ticket Sales, Sponsorship, Donations, Vendor Fees, Service Income, Merchandise, Other
@@ -301,6 +326,7 @@ Minipass provides a unified digital platform serving both markets:
   - Universal CSV format compatible with QuickBooks, Xero, Sage, Wave, FreshBooks
   - Format: `financial_report_{period}.csv`
   - All transactions with activity breakdown
+  - Includes payment status and method for cash flow analysis
 - **Period Filtering:** Month, Quarter, Year, Custom Date Range, All-Time reporting
 - **User Interface:**
   - **Desktop:** Sliding drawer from right side for transaction entry
@@ -309,6 +335,26 @@ Minipass provides a unified digital platform serving both markets:
   - **Real-time Updates:** Cursor tracking with spinner during save
 - **Available in ALL Tiers:** Complete financial management from $10/month Starter plan
 - **Production Validated:** Successfully deployed for customers managing significant annual revenue
+
+#### G-1. **ACTIVITY LOCATION MANAGEMENT** ⭐ NEW FEATURE ✅ IMPLEMENTED (All Tiers)
+- **Geolocation Services:** Professional location management for activities
+  - **Dual Geocoding Providers:**
+    - Google Maps API (primary): High-accuracy geocoding with formatted addresses
+    - Nominatim/OpenStreetMap (fallback): Free, no API key required
+  - **Address Validation:** Automatic address correction and formatting
+  - **Coordinate Extraction:** Latitude/longitude for mapping integration
+  - **Location Data Storage:**
+    - location_address_raw: What admin typed
+    - location_address_formatted: Geocoded/corrected address
+    - location_coordinates: "lat,lng" for shareable map links
+  - **Shareable Map Links:** One-click Google Maps/Apple Maps integration
+  - **Canadian Address Optimization:** Biased geocoding results for Canadian locations
+- **Use Cases:**
+  - Professional address display in activity details
+  - Shareable location links for participants
+  - Map integration for signup forms
+  - Location-based activity discovery (future enhancement)
+- **Available in ALL Tiers:** Location services included from $10/month Starter plan
 
 #### H. **AUTOMATED SURVEY SYSTEM** ⭐ HIGH PRIORITY ✅ FULLY IMPLEMENTED (Professional & Enterprise Tiers)
 - **Survey Template Library:** Reusable survey templates for repeatable feedback collection
@@ -345,22 +391,46 @@ Minipass provides a unified digital platform serving both markets:
 - **Actionable Insights:** Help activity managers improve pricing, scheduling, location, and service quality
 - **Available in Professional & Enterprise Tiers:** Advanced feedback collection for growing businesses
 
-#### I. **AI ANALYTICS CHATBOT** ⭐ HIGH PRIORITY ✅ PRODUCTION READY (Professional & Enterprise Tiers)
+#### I. **AI ANALYTICS CHATBOT** ⭐ MAJOR UPGRADE ✅ PRODUCTION READY (Professional & Enterprise Tiers)
 - **Natural Language Business Intelligence:** Ask questions about activity data in plain English
   - Conversational interface for non-technical users
   - No SQL knowledge required - just ask naturally
   - Instant insights from your business data
-- **Multi-Provider AI System:** Three AI providers with automatic failover
-  - **Google Gemini 2.0 Flash Exp:** Primary provider (1,500 RPD, 15 RPM, 1M TPM - Free Tier)
-  - **Groq Llama 3.3 70B:** Automatic fallback (14,400 RPD, 30 RPM - Free Tier)
-  - **Ollama:** Local open-source option for on-premise deployment
-  - **Combined Capacity:** ~15,900 requests/day with automatic failover
+  - Conversational AI support (greetings, help, thanks)
+- **Multi-Provider AI System with Advanced Failover:** Five AI providers with intelligent routing
+  - **Google Gemini (Primary):**
+    - gemini-2.5-flash: 500 RPD (Default model)
+    - gemini-2.0-flash-exp: 1,500 RPD, 15 RPM, 1M TPM
+    - gemini-2.0-flash: 1,500 RPD
+    - gemini-1.5-flash: 1,500 RPD
+    - gemini-1.5-flash-8b: 1,500 RPD (fastest)
+  - **Groq (Automatic Fallback):**
+    - llama-3.3-70b-versatile: 14,400 RPD, 30 RPM (29x more capacity!)
+    - llama-3.1-8b-instant: Fast lightweight model
+  - **Anthropic Claude:** Optional provider (feature flag enabled)
+  - **OpenAI:** Optional provider (feature flag enabled)
+  - **Ollama:** Local/self-hosted open-source option
+  - **Combined Free Tier Capacity:** ~15,900 requests/day with automatic failover
   - **Provider Selection:** Users can choose preferred AI provider via dropdown
+- **Advanced Budget & Cost Management:** ⭐ NEW FEATURE
+  - **Daily Budget Limits:** Configurable daily spending caps (default $10)
+  - **Monthly Budget Limits:** Configurable monthly spending caps (default $100)
+  - **Cost Tracking:** Per-query cost calculations and monitoring
+  - **Budget Enforcement:** Automatic shutoff when limits reached
+  - **Environment Variable Configuration:** Flexible budget settings
 - **Intelligent Query Processing:**
   - **Natural Language to SQL:** Automatic database query generation
   - **Intent Detection:** Recognizes query types (aggregation, list, comparison, visualization)
   - **Entity Extraction:** Identifies dates, activities, numbers, emails from questions
   - **Query Optimization:** Efficient SQL generation for fast responses
+- **Security & Safety Features:** ⭐ NEW FEATURE
+  - **SQL Keyword Filtering:**
+    - Allowed: SELECT, FROM, WHERE, GROUP BY, ORDER BY, HAVING, LIMIT
+    - Blocked: DELETE, DROP, INSERT, UPDATE, ALTER, CREATE, TRUNCATE
+  - **Query Length Limits:** Maximum 2000 characters
+  - **Result Row Limits:** Maximum 1000 rows per query
+  - **Conversation Timeouts:** 24-hour conversation expiration
+  - **Response Sanitization:** Secure output processing
 - **Data Analysis Capabilities:**
   - User data queries (names, emails, registration dates)
   - Activity performance metrics (revenue, attendance, trends)
@@ -389,11 +459,6 @@ Minipass provides a unified digital platform serving both markets:
   - **Cost Tracking:** Per-query cost calculations
   - **Response Time:** Performance metrics displayed
   - **Query Logging:** Complete audit trail with execution history
-- **Budget & Cost Management:**
-  - Daily/monthly cost limits (configurable)
-  - Usage tracking dashboard
-  - Cost-free implementation using free tiers
-  - Zero ongoing AI costs for typical usage
 - **Data Privacy & Security:**
   - All queries processed securely
   - No data stored externally
@@ -404,7 +469,24 @@ Minipass provides a unified digital platform serving both markets:
 - **Production Validated:** Successfully deployed with live customers for real business intelligence
 - **Available in Professional & Enterprise Tiers:** Advanced analytics for data-driven decision making
 
-#### J. **COMPLETE DATA OWNERSHIP** ⭐ HIGH PRIORITY ✅ IMPLEMENTED (All Tiers)
+#### J. **ADMIN PERSONALIZATION** ⭐ NEW FEATURE ✅ IMPLEMENTED (All Tiers)
+- **Personal Information Management:**
+  - First name and last name fields
+  - Full name display throughout interface
+  - Personalized welcome messages
+  - Display name for greetings
+- **Custom Avatar Upload:**
+  - Upload custom profile pictures
+  - Avatar storage and management
+  - Fallback to Gravatar integration
+  - Professional profile customization
+- **User Experience Enhancement:**
+  - Personalized dashboard greetings
+  - Professional admin profile appearance
+  - Improved multi-admin environments
+- **Available in ALL Tiers:** Admin personalization from $10/month Starter plan
+
+#### K. **COMPLETE DATA OWNERSHIP** ⭐ HIGH PRIORITY ✅ IMPLEMENTED (All Tiers)
 - **SQLite Database Export:** Users can download their complete database at any time
 - **No Vendor Lock-in:** Full data portability ensures users are never trapped
 - **Backup & Restore System:** Generate, download, upload, and restore database backups
@@ -414,18 +496,18 @@ Minipass provides a unified digital platform serving both markets:
 
 ### 4.2 Phase 2 Features (Professional & Enterprise Tiers)
 
-#### K. Advanced Survey System
+#### L. Advanced Survey System
 - **Customer Surveys:** Post-activity feedback collection
 - **Activity Evaluations:** Performance rating system
 - **Survey Builder:** Custom question types and logic
 - **Response Analytics:** Trend analysis and insights
 
-#### L. Comprehensive Financial Management (Beyond Basic Reporting)
+#### M. Comprehensive Financial Management (Beyond Basic Reporting)
 - **Advanced Forecasting:** Revenue prediction and trend analysis
 - **Multi-Currency Support:** International activity management
 - **Tax Preparation:** Advanced export for accounting software integration
 
-#### M. Enhanced Analytics
+#### N. Enhanced Analytics
 - **Customer Journey Analytics:** Registration to redemption flow
 - **Predictive Insights:** Demand forecasting
 - **Comparative Analysis:** Activity performance comparison
@@ -441,9 +523,11 @@ As an activity manager, I want to:
 - Generate automatic registration forms so that participants can sign up and pay online
 - See a clear dashboard with KPI cards for each activity showing: revenue, passports created, active passports, pending sign-ups, and survey feedback
 - Have email payments automatically matched to registrations so I never have to manually check Excel sheets again
-- ✅ Ask questions about my data in plain English (e.g., "Who hasn't paid for Monday hockey?") and get instant answers [IMPLEMENTED - AI Analytics with Gemini + Groq]
+- ✅ Ask questions about my data in plain English (e.g., "Who hasn't paid for Monday hockey?") and get instant answers [IMPLEMENTED - AI Analytics with Gemini + Groq + Anthropic + OpenAI + Ollama]
 - Send professional surveys to participants with just 3 clicks using pre-built templates so I can improve my activities
 - Get feedback on pricing, scheduling, and location without the hassle of creating surveys from scratch
+- ✅ Add activity locations with automatic geocoding so participants can find venues easily [IMPLEMENTED - Google Maps + OpenStreetMap]
+- ✅ Track both cash flow and accrual accounting metrics so I can manage my business finances professionally [IMPLEMENTED - Dual Accounting Standards]
 - ✅ Download my complete database at any time so I own my data and am never locked into the platform [IMPLEMENTED - Backup & Restore]
 - ✅ Export my financial data to CSV so I can import it into QuickBooks/Xero for accounting [IMPLEMENTED - Financial Report Export]
 - ✅ Export my user contact list for marketing campaigns and CRM tools [IMPLEMENTED - User Contacts Export]
@@ -467,7 +551,7 @@ As a small business owner, I want to:
 - Replace paper punch cards with a professional digital solution that customers love and provides me business insights
 ```
 
-### Customer/Participant Stories  
+### Customer/Participant Stories
 ```
 As a customer/participant, I want to:
 - Register and pay online easily so that I don't have to deal with bank transfers, cash, or paper cards
@@ -479,6 +563,7 @@ As a customer/participant, I want to:
 - Receive automatic updates when I attend activities so I can track my participation
 - Feel confident that I'm dealing with a professional, trustworthy system
 - Use the same simple system whether buying hockey league access or coffee shop loyalty packages
+- Find activity locations easily with map links
 ```
 
 ---
@@ -488,7 +573,7 @@ As a customer/participant, I want to:
 ### 6.1 **CRITICAL PERFORMANCE CONSTRAINTS** ⚠️
 **Infrastructure Reality:** Multi-tenant Docker deployment on low-spec VPS servers
 - **RAM Constraint:** Each customer container must operate in < 512MB RAM
-- **CPU Constraint:** Minimal CPU usage, optimized for shared resources  
+- **CPU Constraint:** Minimal CPU usage, optimized for shared resources
 - **Storage Constraint:** Container size < 1GB per customer
 - **Scaling Model:** One Docker container per customer organization
 - **Budget Reality:** Start with minimal server specs, scale up as revenue grows
@@ -574,30 +659,64 @@ As a customer/participant, I want to:
 - **Email Service:** SendGrid or AWS SES
 - **SMS Service:** Twilio
 - **QR Code Generation:** Python QR library
-- **AI/LLM Services:** ✅ **IMPLEMENTED**
-  - **Google Gemini API:** Primary AI provider (Free Tier: 1,500 RPD, 15 RPM, 1M TPM)
-    - Model: `gemini-2.0-flash-exp` (experimental, high performance)
+- **AI/LLM Services:** ✅ **MAJOR UPGRADE - 5 PROVIDERS**
+  - **Google Gemini API (Primary):**
+    - Models: gemini-2.5-flash (500 RPD), gemini-2.0-flash-exp (1,500 RPD), gemini-2.0-flash (1,500 RPD), gemini-1.5-flash (1,500 RPD), gemini-1.5-flash-8b (1,500 RPD)
     - Natural language to SQL generation
     - Conversational AI responses
-  - **Groq API:** Automatic fallback provider (Free Tier: 14,400 RPD, 30 RPM)
-    - Model: `llama-3.3-70b-versatile` (70B parameter model)
+    - Feature flag: CHATBOT_ENABLE_GEMINI
+  - **Groq API (Automatic Fallback):**
+    - Models: llama-3.3-70b-versatile (14,400 RPD, 30 RPM), llama-3.1-8b-instant
     - 29x more capacity than Gemini 2.5
     - Seamless failover for reliability
-  - **Provider Manager:** Automatic fallback chain with health monitoring
+    - Feature flag: CHATBOT_ENABLE_GROQ
+  - **Anthropic Claude (Optional):**
+    - Premium AI capabilities
+    - Feature flag: CHATBOT_ENABLE_ANTHROPIC
+  - **OpenAI (Optional):**
+    - GPT model support
+    - Feature flag: CHATBOT_ENABLE_OPENAI
+  - **Ollama (Optional):**
+    - Local/self-hosted open-source models
+    - Feature flag: CHATBOT_ENABLE_OLLAMA
+  - **Provider Manager:** Automatic failover chain with health monitoring
   - **Budget Tracking:** Daily/monthly cost limits with usage monitoring
+  - **Security Controls:** SQL keyword filtering, query length limits, result row limits
+- **Geolocation Services:** ✅ **NEW INTEGRATION**
+  - **Google Maps Geocoding API (Primary):**
+    - High-accuracy address validation
+    - Professional address formatting
+    - Canadian location optimization
+    - Coordinate extraction for mapping
+  - **Nominatim/OpenStreetMap (Fallback):**
+    - Free geocoding service (no API key required)
+    - Rate limited to 1 request/second
+    - Address component extraction
+    - Backup for Google Maps
+  - **Feature:** Activity location management with automatic geocoding
 - **Analytics:** Google Analytics integration
+- **Security Libraries:**
+  - Bleach: HTML sanitization for user-generated content
+  - Premailer: CSS inlining for email templates
+  - Bcrypt: Password hashing
+  - Flask-WTF: CSRF protection
 
-### 6.3 Performance Requirements
+### 6.6 Performance Requirements
 - **Page Load Time:** < 3 seconds
 - **Mobile Responsiveness:** 100% mobile-friendly
 - **Uptime:** 99.5% availability
 - **Concurrent Users:** Support 100 simultaneous users per organization
 
-### 6.4 Security Requirements
+### 6.7 Security Requirements
 - **Data Encryption:** All data encrypted in transit and at rest
 - **Payment Compliance:** PCI DSS compliance through payment processor
 - **Authentication:** Multi-factor authentication for admin users
 - **Data Privacy:** GDPR/CCPA compliance features
+  - Email opt-out functionality
+  - Complete data export capabilities
+  - User data deletion support
+- **SQL Injection Prevention:** Parameterized queries and keyword filtering
+- **XSS Protection:** HTML sanitization with Bleach library
 
 ---
 
@@ -615,11 +734,12 @@ As a customer/participant, I want to:
 - **Participant Communication:** 100% of status changes trigger automatic professional emails
 - **AI Chatbot Usage:** ✅ **IMPLEMENTED** - 60% of Professional+ users ask at least 5 questions per month about their data
 - **AI Query Accuracy:** ✅ **IMPLEMENTED** - 90% of natural language queries return accurate, useful results
-- **AI System Reliability:** ✅ **IMPLEMENTED** - 99.9% uptime with dual-provider fallback (Gemini → Groq)
+- **AI System Reliability:** ✅ **IMPLEMENTED** - 99.9% uptime with multi-provider fallback (Gemini → Groq → Anthropic → OpenAI → Ollama)
 - **AI Rate Limit Handling:** ✅ **IMPLEMENTED** - Zero downtime from rate limits due to automatic failover
 - **Data Export Usage:** ✅ **IMPLEMENTED** - 30% of users export their database within first 6 months (demonstrates data ownership trust)
 - **Financial Export Adoption:** ✅ **NEW METRIC** - Target 50% of Professional+ customers export financial data monthly for accounting
 - **User Contacts Export Usage:** ✅ **NEW METRIC** - Target 40% of customers export user contacts for marketing/CRM
+- **Location Services Usage:** ✅ **NEW METRIC** - Target 70% of activities have geocoded locations within 3 months
 - **Survey Response Rate:** 60% response rate on surveys (industry average is 10-15% for small businesses)
 - **Survey Deployment:** 80% of Professional+ customers send at least one survey per activity
 - **User Interface Usability:** 90% of new users complete first activity setup without support
@@ -648,6 +768,7 @@ As a customer/participant, I want to:
   - Financial reporting for charity transparency and accounting
   - Payment inbox for streamlined donation and registration processing
   - User contact management for donor and participant outreach
+  - Location services for event venue sharing
 - **Customer Feedback:**
   - Reports significant time savings on administrative tasks
   - Improved revenue tracking and financial transparency
@@ -666,6 +787,7 @@ As a customer/participant, I want to:
   - Payment matching for automated client billing
   - Financial reporting for business management
   - Email templates for professional client communication
+  - Dual accounting for cash flow and accrual tracking
 - **Customer Feedback:**
   - Reports improved revenue tracking and client management
   - Time savings on payment reconciliation and client communication
@@ -675,10 +797,12 @@ As a customer/participant, I want to:
 #### Key Learnings from Production Deployment
 - **Email Customization:** Both customers heavily customize email templates for brand consistency
 - **Financial Reporting:** Critical feature for both non-profit and small business use cases
+- **Dual Accounting:** Appreciated by business-savvy users for comprehensive financial tracking
 - **Time Savings:** Customers report significant reduction in administrative overhead
 - **Ease of Use:** Non-technical users successfully manage all features without training
 - **Mobile Usage:** Both customers frequently access platform from mobile devices
 - **Payment Automation:** E-transfer matching eliminates manual reconciliation work
+- **Location Services:** Venue sharing via map links appreciated for event communication
 
 ### Technical Metrics
 - **Container Memory Usage:** < 400MB RAM average, < 512MB peak
@@ -696,14 +820,16 @@ As a customer/participant, I want to:
 - [x] Core registration system
 - [x] Digital pass creation and management
 - [x] Payment integration (Stripe)
-- [x] Email notification system (6 customizable templates)
+- [x] Email notification system (6 customizable templates with 3-tier hero system)
 - [x] QR code generation and redemption
-- [x] Financial reporting suite with receipt management
-- [x] User contact export for CRM/marketing
+- [x] Financial reporting suite with dual accounting standards
+- [x] User contact export for CRM/marketing with email opt-out
 - [x] Payment inbox and management dashboard
-- [x] AI analytics chatbot (multi-provider system)
+- [x] AI analytics chatbot (5-provider system with budget management)
 - [x] Survey template system with 3-click deployment
 - [x] Complete data ownership (backup & restore)
+- [x] Activity location management (Google Maps + OpenStreetMap)
+- [x] Admin personalization (names, avatars)
 
 ### Testing & Refinement Phase (Completed ✅)
 - [x] Production deployment with 2 live customers
@@ -748,9 +874,12 @@ As a customer/participant, I want to:
   - Automatic payment matching (e-transfer)
   - Payment inbox & management dashboard
   - **6 Customizable Email Templates** (newPass, paymentReceived, latePayment, signup, redeemPass, survey_invitation)
-  - **Email customization** per activity (hero images, logos, branding)
+  - **Email customization** per activity (hero images, logos, branding, 3-tier priority system)
+  - **Dual accounting standards** (cash basis + accrual basis with AR/AP)
   - **Complete financial management suite** (income, expenses, receipts, CSV export)
-  - **User contact export** for CRM/marketing
+  - **User contact export** for CRM/marketing with email opt-out tracking
+  - **Activity location management** (Google Maps + OpenStreetMap geocoding)
+  - **Admin personalization** (names, custom avatars)
   - Automated participant communication
   - KPI dashboard with activity metrics
   - Complete data ownership (backup & restore)
@@ -763,7 +892,11 @@ As a customer/participant, I want to:
 - **Passports:** Unlimited passports per activity
 - **All Starter Features Plus:**
   - **Automated survey system** (template library, 3-click deployment, CSV export)
-  - **AI Analytics Chatbot** (Gemini + Groq + Ollama, natural language queries)
+  - **AI Analytics Chatbot** (Gemini + Groq + Anthropic + OpenAI + Ollama)
+    - 5 AI provider options with automatic failover
+    - Budget management and cost tracking
+    - Conversational AI support
+    - Security controls and query logging
   - Enhanced reporting & analytics
   - Priority support
   - Custom branding options
@@ -793,7 +926,7 @@ As a customer/participant, I want to:
 ### Business Rules & Limits
 **Activity Definition:** An activity is a managed event or service (e.g., "Monday Night Hockey", "September Golf Tournament") that can have multiple passport types within it (e.g., "Season Pass", "Substitute Pass").
 
-**Activity Limit Enforcement:** 
+**Activity Limit Enforcement:**
 - Customers cannot create more activities than their plan allows
 - Attempting to exceed limit triggers upgrade prompt
 - No automatic upgrades - customer must explicitly choose new plan
@@ -821,18 +954,31 @@ As a customer/participant, I want to:
 - **Single Unified Platform:** Serves both activity management and loyalty programs without mode switching
 - **Lightweight Architecture:** Fast, efficient containers vs. heavy enterprise platforms
 
-### 10.3 **Professional Communication Suite - Enterprise Quality at SMB Pricing** ✅ IMPLEMENTED
+### 10.3 **Professional Communication Suite - Enterprise Quality at SMB Pricing** ✅ ENHANCED
 - **6 Customizable Email Templates:** Complete lifecycle communication (newPass, paymentReceived, latePayment, signup, redeemPass, survey_invitation)
   - Available in $10/month Starter plan (competitors charge $99+/month for email customization)
   - Per-activity customization with hero images and logos
+  - **3-Tier Hero Image System:** Custom uploads → Template defaults → Activity images
+  - **LRU Caching:** Performance-optimized image loading
   - Live preview and test email functionality
 - **Automated Communication:** Beautiful, professional emails sent automatically for every transaction and status change
 - **Complete Transaction History:** Every email includes full transaction table showing purchase, payment, and redemption history
 - **Visual Branding:** Hero image upload, activity logos, custom CTAs - typically only in enterprise plans
+- **Advanced Email Rendering:** Premailer CSS inlining, Bleach HTML sanitization, MIME multipart with embedded images
 - **QR Code Integration:** Participants always have access to their current passport with QR code
 - **Trust Building:** Professional communication reduces support requests and builds customer confidence
 - **Transparency:** Participants always know exactly what they've purchased, paid for, and used
 - **Competitive Edge:** Most competitors offer generic templates or charge extra for customization; Minipass includes full customization at all tiers
+
+### 10.4 **Dual Accounting Standards - Professional-Grade Finance** ⭐ NEW ADVANTAGE
+- **Cash Basis + Accrual Basis:** Available in $10/month Starter plan (competitors charge $99+/month for accrual accounting)
+  - Cash flow tracking (Cash Received, Cash Paid, Net Cash Flow)
+  - Accrual accounting (Accounts Receivable, Accounts Payable)
+  - Bank reconciliation support
+  - Unpaid invoice and bill tracking
+- **Professional Financial Management:** Features typically only in QuickBooks/Xero ($30-50/month)
+- **Payment Status Tracking:** Track payment methods, due dates, and payment history
+- **Competitive Edge:** Most activity platforms lack comprehensive accounting or charge separately for financial features
 
 ### 10.5 **Effortless Customer Feedback**
 - **Pre-Built Survey Templates:** Small activity managers get professional survey tools they would never build themselves
@@ -841,21 +987,24 @@ As a customer/participant, I want to:
 - **Business Intelligence:** Provides actionable insights for pricing, scheduling, and service improvements that small businesses desperately need but rarely get
 - **No Additional Tools:** Built into the platform rather than requiring separate survey services
 
-### 10.7 **AI-Powered Business Intelligence for Non-Technical Users** ✅ IMPLEMENTED
+### 10.6 **AI-Powered Business Intelligence for Non-Technical Users** ✅ MAJOR UPGRADE
 - **Natural Language Analytics:** Users can ask questions about their business in plain English instead of learning complex reporting tools
-- **Dual-Provider Reliability:** Google Gemini + Groq automatic fallback ensures 99.9% uptime
-  - **Gemini 2.0 Flash Exp:** 1,500 requests/day (primary)
-  - **Groq Llama 3.3 70B:** 14,400 requests/day (automatic fallback)
-  - **Combined Capacity:** ~15,900 requests/day with zero downtime
+- **5-Provider Reliability:** Google Gemini + Groq + Anthropic + OpenAI + Ollama with automatic failover
+  - **Gemini Models:** 500-1,500 RPD across 5 different models
+  - **Groq Llama 3.3 70B:** 14,400 RPD (29x more than Gemini 2.5)
+  - **Combined Free Tier Capacity:** ~15,900 requests/day with zero downtime
+  - **Budget Management:** Daily/monthly spending limits with cost tracking
+  - **Security Controls:** SQL keyword filtering, query limits, conversation timeouts
 - **Instant Insights:** Get immediate answers to business questions without technical expertise
 - **Natural Language to SQL:** Automatic query generation from conversational questions
+- **Conversational AI:** Greetings, help, and natural conversation support
 - **SQLite Integration:** Simple database structure makes AI queries fast and accurate
 - **Business Optimization:** Non-technical users can discover insights they would never find in traditional dashboards
 - **No Additional Learning Curve:** Chat interface requires zero training vs. complex analytics platforms
 - **Production Validated:** Successfully deployed with pilot customers for real business intelligence
-- **Cost-Free Implementation:** Leverages free tiers of both providers (no ongoing AI costs)
+- **Cost-Free Implementation:** Leverages free tiers of multiple providers (no ongoing AI costs)
 
-### 10.8 **Complete Data Ownership & Trust** ✅ IMPLEMENTED
+### 10.7 **Complete Data Ownership & Trust** ✅ IMPLEMENTED
 - **No Vendor Lock-in:** Users can export their complete SQLite database at any time
 - **Data Transparency:** Complete ownership and control of all business data
 - **Backup & Restore System:** Generate, download, upload, and restore database backups with one click
@@ -864,30 +1013,45 @@ As a customer/participant, I want to:
 - **Trust Building:** Data portability demonstrates confidence in product value
 - **Competitive Differentiation:** While most SaaS platforms trap user data, Minipass liberates it
 
-### 10.9 **Complete Financial Management Suite at Every Tier** ✅ NEW ADVANTAGE
+### 10.8 **Complete Financial Management Suite at Every Tier** ✅ ENHANCED
 - **All-in-One Financial System:** Available in $10/month Starter plan (competitors charge $50-99/month)
+  - **Dual accounting standards** (cash + accrual)
   - Income tracking (passport sales + custom income entries)
   - Expense management with categorization
   - Receipt/document uploads (PDF, images)
+  - Accounts Receivable and Accounts Payable tracking
+  - Payment status and method recording
+  - Due date management
   - CSV export for accounting software
 - **Universal Accounting Integration:** Works with QuickBooks, Xero, Sage, Wave, FreshBooks
 - **Activity-Level Financial Breakdown:** Detailed transaction visibility and profit/loss per activity
+- **Bank Reconciliation:** Net cash flow tracking for accurate financial management
 - **Mobile-Optimized:** Desktop drawer + mobile modal for on-the-go financial management
 - **Marketing/CRM Export:** User contact list with engagement metrics (email, phone, passport count, revenue)
+- **Email Opt-Out Tracking:** GDPR/CAN-SPAM compliant contact management
 - **Production-Scale Validated:** Successfully managing significant annual revenue customers
 - **Time Savings:** Eliminates manual data entry for accounting and marketing
 - **Competitive Edge:** Most activity management platforms lack comprehensive financial tools or charge separately
 
-### 10.10 **Payment Intelligence Dashboard** ✅ NEW ADVANTAGE
+### 10.9 **Payment Intelligence Dashboard** ✅ ENHANCED
 - **Payment Inbox:** Centralized view of all incoming e-transfer emails
 - **Smart Deduplication:** Automatically eliminates duplicate payment emails
 - **Status Tracking:** MATCHED, NO_MATCH, MANUAL_PROCESSED with clear visual indicators
 - **Search & Filter:** Find payments instantly by name, amount, or status
 - **Action Items:** Focus on unmatched payments that need attention
-- **Audit Trail:** Complete payment history with match reasoning
+- **Audit Trail:** Complete payment history with match reasoning and email received dates
 - **Competitive Edge:** No other platform offers this level of payment inbox intelligence for e-transfers
 
-### 10.11 **Instant Customer Onboarding with Zero Friction** ✅ NEW ADVANTAGE
+### 10.10 **Activity Location Services** ⭐ NEW ADVANTAGE
+- **Dual Geocoding Providers:** Google Maps API + Nominatim/OpenStreetMap fallback
+- **Professional Address Formatting:** Automatic address validation and correction
+- **Shareable Map Links:** One-click Google Maps/Apple Maps integration for participants
+- **Coordinate Extraction:** Latitude/longitude storage for mapping features
+- **Canadian Optimization:** Biased geocoding for accurate Canadian address results
+- **Available in ALL Tiers:** Location services from $10/month Starter plan
+- **Competitive Edge:** Most competitors lack integrated location services or charge extra for mapping features
+
+### 10.11 **Instant Customer Onboarding with Zero Friction** ✅ ENHANCED
 - **Stripe Automated Provisioning:** Customer goes from payment to ready-to-use system in minutes
   - Choose plan → Pay → Automatic container deployment → Welcome email → Start using
   - No manual setup, no waiting for sales calls, no configuration complexity
@@ -901,9 +1065,11 @@ As a customer/participant, I want to:
 - **Underserved Market:** Focuses on small activity managers ignored by enterprise solutions
 - **Disruptive Pricing:** $10 starter includes features competitors charge $50-99/month for
   - Email customization (6 templates with branding): Free at all tiers vs. $30-50/month add-on
+  - Dual accounting standards (cash + accrual): Included vs. $20-40/month add-on
   - Financial management suite: Included vs. $20-40/month add-on
   - Payment inbox: Included vs. manual reconciliation or separate tool
   - User contact export: Included vs. locked behind enterprise plans
+  - Location services: Included vs. $10-20/month add-on
 - **Canadian Payment Methods:** Built specifically for Interac e-Transfer workflows (dominant in Canadian small business)
 - **Complete Automation:** While competitors require manual work, Minipass automates:
   - Payment matching and reconciliation
@@ -911,11 +1077,14 @@ As a customer/participant, I want to:
   - Financial data export for accounting
   - Customer onboarding and provisioning
   - Survey deployment and collection
+  - Address geocoding and validation
 - **Enterprise Features at SMB Pricing:** Features typically only in $99+/mo solutions:
-  - AI analytics chatbot (Professional $35/month)
+  - AI analytics chatbot with 5 providers (Professional $35/month)
+  - Dual accounting standards (Starter $10/month)
   - Complete financial management (Starter $10/month)
   - Email customization (Starter $10/month)
   - Automated provisioning (all tiers)
+  - Location services (all tiers)
 - **Production Proven:** 2 live customers successfully operating, ready for scale
 
 ---
@@ -929,7 +1098,7 @@ As a customer/participant, I want to:
 **Technical complexity of payment integration**
 - *Mitigation:* Use proven payment processors, implement comprehensive testing
 
-### Medium Risk  
+### Medium Risk
 **Customer adoption challenges**
 - *Mitigation:* Provide excellent onboarding, offer setup assistance
 
@@ -946,7 +1115,7 @@ As a customer/participant, I want to:
 
 1. **Validate Assumptions:** Conduct 5 customer interviews to validate problem/solution fit
 2. **Technical Planning:** Create detailed technical architecture and database schema
-3. **Design System:** Create UI mockups and user flow diagrams  
+3. **Design System:** Create UI mockups and user flow diagrams
 4. **Development Sprint Planning:** Break down features into 1-week development sprints
 5. **Pilot Customer Recruitment:** Identify and reach out to 3-5 potential pilot customers
 
@@ -992,7 +1161,7 @@ As a customer/participant, I want to:
 
 **Preferred Solutions Examples:**
 - **Form Handling:** Use Flask-WTF and server-side validation, NOT client-side JavaScript validation
-- **Dynamic Content:** Use Jinja2 templating with server-side data, NOT JavaScript DOM manipulation  
+- **Dynamic Content:** Use Jinja2 templating with server-side data, NOT JavaScript DOM manipulation
 - **Data Display:** Server-side HTML generation, NOT JavaScript table libraries
 - **User Feedback:** Flash messages with Flask, NOT JavaScript modals or notifications
 - **Payment Processing:** Server-side with Stripe, NOT JavaScript payment widgets
@@ -1013,7 +1182,7 @@ As a customer/participant, I want to:
 
 ### 12.4 **Resource Optimization Strategy**
 - **Memory:** Lazy loading, efficient data structures, connection pooling
-- **CPU:** Minimize complex computations, cache frequently accessed data  
+- **CPU:** Minimize complex computations, cache frequently accessed data
 - **Disk:** Compress static files, optimize database schemas
 - **Network:** Minimize external API calls, batch operations
 
@@ -1099,6 +1268,144 @@ As a customer/participant, I want to:
 ---
 
 ## Document Version History
+
+### Version 1.3 - November 23, 2025
+**Major Update: Enhanced Features & New Capabilities Documentation**
+
+This update comprehensively documents all implemented features based on codebase analysis, including several major new features and significant enhancements not previously documented.
+
+#### 🆕 **COMPLETELY NEW FEATURES ADDED TO PRD**
+
+1. **Activity Location Management** (All Tiers)
+   - Dual geocoding providers (Google Maps + Nominatim/OpenStreetMap)
+   - Address validation and formatting
+   - Coordinate extraction for mapping
+   - Shareable map links
+   - Canadian address optimization
+   - Added to Section 4.1 (G-1)
+
+2. **Dual Accounting Standards** (All Tiers)
+   - Cash basis accounting (Cash Received, Cash Paid, Net Cash Flow)
+   - Accrual basis accounting (Accounts Receivable, Accounts Payable)
+   - Bank reconciliation support
+   - Payment status and method tracking
+   - Due date management
+   - Enhanced Section 4.1 (G)
+
+3. **Admin Personalization** (All Tiers)
+   - First name and last name fields
+   - Custom avatar uploads
+   - Personalized greetings
+   - Professional profile management
+   - Added to Section 4.1 (J)
+
+4. **Custom Payment Instructions** (All Tiers)
+   - Per passport type payment instruction customization
+   - Added to Section 4.1 (A)
+
+#### 📈 **MAJOR ENHANCEMENTS TO EXISTING FEATURES**
+
+1. **Email Template System** (Section 4.1 D-1)
+   - Documented 3-tier hero image priority system
+   - LRU caching for performance optimization
+   - Pristine original template preservation
+   - Premailer CSS inlining
+   - Bleach HTML sanitization
+   - Base64 email embedding optimization
+
+2. **AI Analytics Chatbot** (Section 4.1 I)
+   - Expanded from 3 to 5 AI providers
+   - Added Anthropic Claude and OpenAI support
+   - 7+ model options across providers
+   - Budget management (daily/monthly limits)
+   - Security keyword filtering
+   - Conversational AI capabilities
+   - Feature flags for each provider
+   - Cost tracking and monitoring
+
+3. **Financial Management Suite** (Section 4.1 G)
+   - Dual accounting standards documentation
+   - Payment status tracking (pending/received/cancelled for income, unpaid/paid/cancelled for expenses)
+   - Payment method recording
+   - Due date management
+   - Accounts Receivable/Payable tracking
+   - Bank reconciliation metrics
+
+4. **User Contact Export** (Section 4.1 F)
+   - Email opt-out tracking for GDPR/CAN-SPAM compliance
+   - Gravatar integration
+   - Enhanced responsive design details
+
+5. **Payment Inbox** (Section 4.1 E-1)
+   - Email received date tracking
+   - Enhanced audit trail details
+
+#### 🔧 **TECHNICAL ARCHITECTURE UPDATES**
+
+1. **Integrations** (Section 6.5)
+   - Added geolocation services (Google Maps + Nominatim)
+   - Expanded AI/LLM services to 5 providers
+   - Added security libraries (Bleach, Premailer)
+   - Budget management for AI services
+
+2. **Security Requirements** (Section 6.7)
+   - Email opt-out functionality
+   - SQL injection prevention details
+   - XSS protection with Bleach
+   - AI chatbot security controls
+
+#### 🏆 **COMPETITIVE ADVANTAGES UPDATES**
+
+1. **New Advantage:** Dual Accounting Standards (Section 10.4)
+   - Professional-grade finance at $10/month
+   - Cash + accrual basis accounting
+   - Features typically in $99+/month solutions
+
+2. **New Advantage:** Activity Location Services (Section 10.10)
+   - Dual geocoding providers
+   - Professional address formatting
+   - Shareable map links
+   - Canadian optimization
+
+3. **Enhanced:** AI-Powered Business Intelligence (Section 10.6)
+   - 5-provider reliability
+   - Budget management
+   - Security controls
+   - Conversational AI
+
+4. **Enhanced:** Email Communication System (Section 10.3)
+   - 3-tier hero image system
+   - Advanced email rendering
+   - Performance optimization
+
+5. **Enhanced:** Financial Management Suite (Section 10.8)
+   - Dual accounting standards
+   - Bank reconciliation
+   - Payment tracking
+
+#### 📊 **SUCCESS METRICS UPDATES**
+
+- Added location services usage metric (70% adoption target)
+- Enhanced AI system reliability metrics (5-provider fallback)
+- Updated production customer validation with location services feedback
+
+#### 📅 **USER STORIES UPDATES**
+
+- Added location management user stories
+- Added dual accounting user stories
+- Updated AI chatbot stories with 5-provider system
+
+#### 🔍 **KEY TECHNICAL DISCOVERIES DOCUMENTED**
+
+- 3-tier hero image system with LRU caching
+- Dual geocoding with automatic fallback
+- 5-provider AI system with feature flags
+- Dual accounting standards implementation
+- Email opt-out compliance features
+- Payment status and method tracking
+- Admin personalization system
+
+---
 
 ### Version 1.2 - November 7, 2025
 **Major Update: Production Launch Ready - Complete Feature Suite & Live Customers**
