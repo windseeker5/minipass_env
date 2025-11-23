@@ -521,7 +521,7 @@ def deploy_customer_container(app_name, admin_email, admin_password, plan, port,
         # Generated on deployment
 
         # Flask Security Configuration
-        SECRET_KEY={secret_key}
+        FLASK_SECRET_KEY={secret_key}
 
         # Stripe Configuration (for subscription management in app)
         STRIPE_SECRET_KEY={parent_env_vars.get('STRIPE_SECRET_KEY', '')}
