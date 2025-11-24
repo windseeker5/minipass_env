@@ -276,6 +276,110 @@ def set_email_settings_to_database(db_path, email_address, email_password, organ
         raise
 
 
+def set_stripe_subscription_settings_to_database(
+    db_path,
+    stripe_customer_id,
+    stripe_subscription_id,
+    payment_amount,
+    subscription_renewal_date,
+    tier,
+    billing_frequency
+):
+    """
+    Sets Stripe subscription configuration in the Setting table.
+    Mirrors the pattern from set_email_settings_to_database().
+
+    Args:
+        db_path (str): Path to the app's database
+        stripe_customer_id (str): Stripe customer ID (e.g., 'cus_xxx')
+        stripe_subscription_id (str): Stripe subscription ID (e.g., 'sub_xxx')
+        payment_amount (str): Payment amount in cents (e.g., '7200')
+        subscription_renewal_date (str): ISO datetime string
+        tier (int): Tier number (1, 2, or 3)
+        billing_frequency (str): 'monthly' or 'annual'
+    """
+    log_operation_start(logger, "Set Stripe Subscription Settings to Database",
+                       db_path=db_path,
+                       stripe_customer_id=stripe_customer_id,
+                       stripe_subscription_id=stripe_subscription_id,
+                       tier=tier,
+                       billing_frequency=billing_frequency)
+
+    try:
+        logger.info(f"💳 Writing Stripe subscription configuration to Setting table")
+        logger.info(f"   👤 Customer ID: {stripe_customer_id}")
+        logger.info(f"   🔖 Subscription ID: {stripe_subscription_id}")
+        logger.info(f"   💰 Payment Amount: {payment_amount} cents")
+        logger.info(f"   📅 Renewal Date: {subscription_renewal_date}")
+        logger.info(f"   🎯 Tier: {tier}")
+        logger.info(f"   🔄 Billing Frequency: {billing_frequency}")
+
+        log_file_operation(logger, "Connecting to database for Setting table updates", db_path)
+
+        conn = sqlite3.connect(db_path)
+        cur = conn.cursor()
+
+        # Verify Setting table exists
+        logger.info("📋 Verifying Setting table structure")
+        cur.execute("""
+        SELECT name FROM sqlite_master
+        WHERE type='table' AND name='setting'
+        """)
+
+        if not cur.fetchone():
+            logger.warning("⚠️ Setting table does not exist - it will be created by migrations")
+            conn.close()
+            log_operation_end(logger, "Set Stripe Subscription Settings", success=True)
+            return
+
+        log_validation_check(logger, "Setting table exists", True, "Table found in database")
+
+        # Stripe subscription settings to write
+        stripe_settings = {
+            'STRIPE_CUSTOMER_ID': stripe_customer_id,
+            'STRIPE_SUBSCRIPTION_ID': stripe_subscription_id,
+            'PAYMENT_AMOUNT': payment_amount,
+            'SUBSCRIPTION_RENEWAL_DATE': subscription_renewal_date,
+            'MINIPASS_TIER': str(tier),
+            'BILLING_FREQUENCY': billing_frequency
+        }
+
+        # Insert or update each setting
+        for key, value in stripe_settings.items():
+            # Check if setting exists
+            cur.execute("SELECT id FROM setting WHERE key = ?", (key,))
+            existing = cur.fetchone()
+
+            if existing:
+                # Update existing setting
+                logger.info(f"   ♻️  Updating {key} = {value}")
+                cur.execute("""
+                UPDATE setting
+                SET value = ?
+                WHERE key = ?
+                """, (value, key))
+            else:
+                # Insert new setting
+                logger.info(f"   ➕ Inserting {key} = {value}")
+                cur.execute("""
+                INSERT INTO setting (key, value)
+                VALUES (?, ?)
+                """, (key, value))
+
+        conn.commit()
+        conn.close()
+
+        logger.info("✅ Stripe subscription settings successfully saved to Setting table")
+        log_validation_check(logger, "Stripe settings written", True, f"{len(stripe_settings)} settings written successfully")
+        log_operation_end(logger, "Set Stripe Subscription Settings to Database", success=True)
+
+    except Exception as e:
+        error_msg = f"Failed to set Stripe subscription settings: {str(e)}"
+        logger.error(f"❌ {error_msg}")
+        log_operation_end(logger, "Set Stripe Subscription Settings to Database", success=False, error_msg=error_msg)
+        raise
+
+
 def update_docker_compose_org_name(compose_content, organization_name):
     """
     Updates the docker-compose content to include the organization name.
@@ -523,16 +627,8 @@ def deploy_customer_container(app_name, admin_email, admin_password, plan, port,
         # Flask Security Configuration
         FLASK_SECRET_KEY={secret_key}
 
-        # Stripe Configuration (for subscription management in app)
+        # Stripe Configuration (API key only - customer-specific data is in database)
         STRIPE_SECRET_KEY={parent_env_vars.get('STRIPE_SECRET_KEY', '')}
-        STRIPE_CUSTOMER_ID={stripe_data.get('customer_id', '')}
-        STRIPE_SUBSCRIPTION_ID={stripe_data.get('subscription_id', '')}
-        PAYMENT_AMOUNT={stripe_data.get('payment_amount', '')}
-        SUBSCRIPTION_RENEWAL_DATE={stripe_data.get('renewal_date', '')}
-
-        # Tier Configuration
-        MINIPASS_TIER={tier}
-        BILLING_FREQUENCY={billing_frequency}
 
         # Google Maps API Configuration
         GOOGLE_MAPS_API_KEY={parent_env_vars.get('GOOGLE_MAPS_API_KEY', '')}
@@ -668,6 +764,19 @@ def deploy_customer_container(app_name, admin_email, admin_password, plan, port,
             logger.error(f"[{app_name}] ❌ Failed to insert survey templates: {str(e)}")
             # Non-critical error - continue with deployment
 
+        # Step 6d: Configure Stripe subscription settings in Setting table
+        logger.info(f"[{app_name}] 💳 Step 2g: Configuring Stripe subscription settings")
+        set_stripe_subscription_settings_to_database(
+            db_path,
+            stripe_data.get('customer_id', ''),
+            stripe_data.get('subscription_id', ''),
+            stripe_data.get('payment_amount', ''),
+            stripe_data.get('renewal_date', ''),
+            tier,
+            billing_frequency
+        )
+        logger.info(f"[{app_name}] ✅ Stripe settings saved to Setting table")
+
         # Verify database was created
         if os.path.exists(db_path):
             log_validation_check(logger, "Database setup completed", True, f"Database file exists: {db_path}")
@@ -699,13 +808,6 @@ def deploy_customer_container(app_name, admin_email, admin_password, plan, port,
                   - ./app/static/uploads:/app/static/uploads
                 environment:
                   - FLASK_ENV=dev
-                  - ADMIN_EMAIL={admin_email}
-                  - ADMIN_PASSWORD={admin_password}
-                  - ORG_NAME={organization_name or app_name}
-
-                  # ✅ Tier Configuration (CRITICAL for activity limits!)
-                  - TIER={tier}
-                  - BILLING_FREQUENCY={billing_frequency}
 
                   # ✅ NGINX reverse proxy support
                   - VIRTUAL_HOST={app_name}.minipass.me
@@ -747,13 +849,6 @@ def deploy_customer_container(app_name, admin_email, admin_password, plan, port,
                   - ./app/static/uploads:/app/static/uploads
                 environment:
                   - FLASK_ENV=dev
-                  - ADMIN_EMAIL={admin_email}
-                  - ADMIN_PASSWORD={admin_password}
-                  - ORG_NAME={organization_name or app_name}
-
-                  # ✅ Tier Configuration (CRITICAL for activity limits!)
-                  - TIER={tier}
-                  - BILLING_FREQUENCY={billing_frequency}
 
                 restart: unless-stopped
             """)
