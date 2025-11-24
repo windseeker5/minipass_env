@@ -95,6 +95,7 @@ services:
       - "8889"
     volumes:
       - ./app/instance:/app/instance
+      - ./app/static/uploads:/app/static/uploads
       - /etc/localtime:/etc/localtime:ro
     networks:
       - proxy

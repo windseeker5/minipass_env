@@ -696,6 +696,7 @@ def deploy_customer_container(app_name, admin_email, admin_password, plan, port,
                 volumes:
                   - ./app:/app
                   - ./app/instance:/app/instance
+                  - ./app/static/uploads:/app/static/uploads
                 environment:
                   - FLASK_ENV=dev
                   - ADMIN_EMAIL={admin_email}
@@ -743,6 +744,7 @@ def deploy_customer_container(app_name, admin_email, admin_password, plan, port,
                 volumes:
                   - ./app:/app
                   - ./app/instance:/app/instance
+                  - ./app/static/uploads:/app/static/uploads
                 environment:
                   - FLASK_ENV=dev
                   - ADMIN_EMAIL={admin_email}
