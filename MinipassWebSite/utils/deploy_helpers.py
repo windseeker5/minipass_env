@@ -237,7 +237,8 @@ def set_email_settings_to_database(db_path, email_address, email_password, organ
             'MAIL_PORT': '587',                            # Hardcoded port
             'MAIL_USE_TLS': 'True',                        # Hardcoded TLS enabled
             'MAIL_USERNAME': email_address,                # Same as sender email
-            'MAIL_PASSWORD': email_password                # Generated password
+            'MAIL_PASSWORD': email_password,               # Generated password
+            'ENABLE_EMAIL_PAYMENT_BOT': 'True'             # Enable automatic payment processing
         }
 
         # Insert or update each setting
