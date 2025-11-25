@@ -656,12 +656,12 @@ def deploy_customer_container(app_name, admin_email, admin_password, plan, port,
 
         log_validation_check(logger, ".env file created", os.path.exists(env_path), f"File written: {env_path}")
 
-        # Step 4: Install dependencies (required for migrations)
-        logger.info(f"[{app_name}] 📦 Step 2b: Installing application dependencies")
+        # Step 4: Install dependencies for Flask migrations
+        logger.info(f"[{app_name}] 📦 Step 2b: Installing dependencies for migrations")
         requirements_path = os.path.join(target_dir, "requirements.txt")
 
         if os.path.exists(requirements_path):
-            pip_install_cmd = ["pip", "install", "-r", requirements_path]
+            pip_install_cmd = ["pip", "install", "-r", requirements_path, "--break-system-packages"]
             log_subprocess_call(logger, pip_install_cmd, "Installing Python dependencies")
 
             try:
@@ -684,6 +684,7 @@ def deploy_customer_container(app_name, admin_email, admin_password, plan, port,
                 return False
         else:
             logger.warning(f"⚠️ requirements.txt not found at {requirements_path}")
+            log_validation_check(logger, "Dependencies installed", False, "requirements.txt missing")
 
         # Step 5: Initialize database schema
         logger.info(f"[{app_name}] 🗄️  Step 2c: Initializing database schema")
@@ -693,10 +694,16 @@ def deploy_customer_container(app_name, admin_email, admin_password, plan, port,
         os.makedirs(instance_dir, exist_ok=True)
         log_file_operation(logger, f"[{app_name}] Creating instance directory", instance_dir)
 
-        # Run Flask database migrations to create schema
-        db_path = os.path.join(instance_dir, "minipass.db")
-        logger.info(f"[{app_name}]    Running flask db upgrade to create database schema")
+        # Create static uploads directory for avatars with proper permissions
+        avatars_dir = os.path.join(target_dir, "static", "uploads", "avatars")
+        os.makedirs(avatars_dir, exist_ok=True)
+        os.chmod(avatars_dir, 0o777)  # Set write permissions for Flask app
+        log_file_operation(logger, f"[{app_name}] Creating avatars directory with write permissions", avatars_dir)
 
+        db_path = os.path.join(instance_dir, "minipass.db")
+
+        # Run Flask database migrations
+        logger.info(f"[{app_name}]    Running flask db upgrade to create database schema")
         migrate_cmd = ["flask", "db", "upgrade"]
         log_subprocess_call(logger, migrate_cmd, "Running database migrations")
 
@@ -728,26 +735,23 @@ def deploy_customer_container(app_name, admin_email, admin_password, plan, port,
             log_operation_end(logger, "Deploy Customer Container", success=False, error_msg="Database file not created")
             return False
 
-        # Step 5b: Run upgrade_production_database.py to apply all schema fixes
-        logger.info(f"[{app_name}] 🔧 Step 2c-2: Running upgrade script to ensure complete schema")
+        # Run upgrade script to add Stripe settings and other features
+        logger.info(f"[{app_name}] 🔧 Step 2c-2: Running upgrade script to add all features")
         upgrade_success = run_upgrade_production_database(app_name, target_dir, db_path)
 
         if not upgrade_success:
             logger.warning(f"[{app_name}] ⚠️ Upgrade script had issues, but continuing with deployment")
-            # Don't fail deployment - the script is supplementary to flask migrations
 
-        # Step 6: Configure admin user and organization
+        # Configure admin user and organization
         logger.info(f"[{app_name}] 🔐 Step 2d: Configuring admin user and organization")
-
         insert_admin_user(db_path, admin_email, admin_password)
 
-        # ✅ Write organization name to Settings table (where app reads from)
-        # Ensure we have a valid organization name (use app_name as fallback)
+        # Configure organization settings
         final_org_name = organization_name if organization_name and organization_name.strip() else app_name
         logger.info(f"[{app_name}] 🏢 Setting organization name: {final_org_name}")
         set_organization_setting(db_path, final_org_name)
 
-        # Step 6b: Configure email settings in Setting table (ALWAYS set, even in local mode)
+        # Configure email settings
         logger.info(f"[{app_name}] 📧 Step 2e: Configuring email settings in Setting table")
         if email_address:
             set_email_settings_to_database(db_path, email_address, admin_password, organization_name or app_name)
@@ -755,16 +759,15 @@ def deploy_customer_container(app_name, admin_email, admin_password, plan, port,
         else:
             logger.warning(f"[{app_name}] ⚠️ No email address provided, skipping email configuration")
 
-        # Step 6c: Insert default survey templates
+        # Insert default survey templates
         logger.info(f"[{app_name}] 📋 Step 2f: Inserting default survey templates")
         try:
             templates_inserted = insert_all_default_templates(db_path)
             logger.info(f"[{app_name}] ✅ Successfully inserted {templates_inserted} survey template(s)")
         except Exception as e:
             logger.error(f"[{app_name}] ❌ Failed to insert survey templates: {str(e)}")
-            # Non-critical error - continue with deployment
 
-        # Step 6d: Configure Stripe subscription settings in Setting table
+        # Configure Stripe subscription settings
         logger.info(f"[{app_name}] 💳 Step 2g: Configuring Stripe subscription settings")
         set_stripe_subscription_settings_to_database(
             db_path,
@@ -777,11 +780,8 @@ def deploy_customer_container(app_name, admin_email, admin_password, plan, port,
         )
         logger.info(f"[{app_name}] ✅ Stripe settings saved to Setting table")
 
-        # Verify database was created
-        if os.path.exists(db_path):
-            log_validation_check(logger, "Database setup completed", True, f"Database file exists: {db_path}")
-        else:
-            log_validation_check(logger, "Database setup completed", False, "Database file not found after setup")
+        # Database will be created by Flask app on startup
+        log_validation_check(logger, "Database preparation completed", True, f"Flask app will create database at: {db_path}")
 
         # Step 7: Generate docker-compose.yml (production vs local)
         compose_path = os.path.join(deploy_dir, "docker-compose.yml")

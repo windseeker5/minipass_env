@@ -4,7 +4,7 @@ Quick deployment test script to verify Stripe subscription data is written to .e
 Usage: python test_deployment.py
 """
 import sys
-sys.path.insert(0, '/home/kdresdell/Documents/DEV/minipass_env/MinipassWebSite')
+sys.path.insert(0, '/home/kdresdell/minipass_env/MinipassWebSite')
 
 from utils.deploy_helpers import deploy_customer_container
 
@@ -30,7 +30,7 @@ print(f"{'='*60}")
 if result:
     print("\n📋 Checking deployed .env file for Stripe configuration...")
     import os
-    env_path = "/home/kdresdell/Documents/DEV/minipass_env/deployed/test_stripe/app/.env"
+    env_path = "/home/kdresdell/minipass_env/deployed/test_stripe/app/.env"
 
     if os.path.exists(env_path):
         with open(env_path, 'r') as f:
