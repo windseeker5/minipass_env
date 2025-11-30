@@ -137,7 +137,7 @@
 // Configuration
 const SESSION_ID = "{{ session_id }}";
 const POLL_INTERVAL = 3000;  // 3 seconds
-const MAX_DURATION = 120000; // 2 minutes
+const MAX_DURATION = 10000; // 10 seconds
 const REDIRECT_DELAY = 10000; // 10 seconds (reduced from 20)
 const LOG_DISPLAY_DELAY = 200; // 200ms between each log line (faster, more realistic)
 
@@ -196,19 +196,6 @@ async function displayLogsProgressively() {
     while (logQueue.length > 0) {
         const logText = logQueue.shift();
         addLogLine(logText);
-
-        // Check if this is the final deployment message
-        if (logText.includes('Deploying container') ||
-            logText.includes('déploiement du conteneur') ||
-            logText.includes('Container started') ||
-            logText.includes('Conteneur démarré')) {
-            // Trigger completion after 2 seconds
-            deploymentCompleted = true;
-            await new Promise(resolve => setTimeout(resolve, 2000));
-            const email = document.getElementById('customer-email').textContent || 'votre adresse';
-            showCompletionModal(email);
-            break;
-        }
 
         // IMPORTANT: Wait before displaying next log
         await new Promise(resolve => setTimeout(resolve, LOG_DISPLAY_DELAY));
@@ -317,7 +304,7 @@ function startPolling() {
     pollingTimer = setInterval(() => {
         const elapsed = Date.now() - startTime;
 
-        // Stop polling after 2 minutes
+        // Stop polling after MAX_DURATION
         if (elapsed >= MAX_DURATION) {
             clearInterval(pollingTimer);
             return;
@@ -325,6 +312,23 @@ function startPolling() {
 
         fetchLogs();
     }, POLL_INTERVAL);
+
+    // GUARANTEED modal after MAX_DURATION (independent of polling)
+    // This ensures the modal ALWAYS shows, even if polling doesn't trigger it
+    setTimeout(() => {
+        if (!deploymentCompleted) {
+            deploymentCompleted = true;
+            if (pollingTimer) clearInterval(pollingTimer);
+            logQueue.push('');
+            logQueue.push('⏰ Déploiement en cours...');
+            logQueue.push('📧 Vous recevrez un email dès que tout sera prêt.');
+            displayLogsProgressively();
+            setTimeout(() => {
+                const email = document.getElementById('customer-email').textContent || 'votre adresse';
+                showCompletionModal(email);
+            }, 2000);
+        }
+    }, MAX_DURATION);
 }
 
 // Initialize on page load
