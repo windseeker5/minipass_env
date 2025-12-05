@@ -708,3 +708,16 @@ $('.portfolio-menu').on('click', 'button', function() {
         filter: filterValue
     });
 });
+
+// Hero Image Crossfade - 7 second rotation
+document.addEventListener('DOMContentLoaded', function() {
+    var slides = document.querySelectorAll('.hero-l8-img-group--crossfade .hero-slide');
+    if (slides.length < 2) return;
+
+    var current = 0;
+    setInterval(function() {
+        slides[current].classList.remove('hero-slide--active');
+        current = (current + 1) % slides.length;
+        slides[current].classList.add('hero-slide--active');
+    }, 7000);
+});
