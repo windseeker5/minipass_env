@@ -263,7 +263,53 @@ html {
 </section>
 
 <!-- Section 3: La persévérance qui encourage la persévérance -->
-<section class="section-spacing" style="background-color: #f2f5fb; padding: 80px 0;">
+<section class="section-spacing foundation-section" style="background-color: #f2f5fb; padding: 80px 0;">
+    <style>
+        @keyframes pulse-glow {
+            0%, 100% {
+                filter: drop-shadow(0 0 15px rgba(255, 114, 114, 0.4));
+            }
+            50% {
+                filter: drop-shadow(0 0 25px rgba(255, 114, 114, 0.7));
+            }
+        }
+
+        @keyframes slide-in-right {
+            0% {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .foundation-logo {
+            animation: pulse-glow 2.5s ease-in-out infinite;
+            width: 180px;
+        }
+
+        .donation-badge {
+            font-size: 7rem;
+            font-weight: 300;
+            color: #8b95a5;
+            opacity: 0;
+            margin-right: 20px;
+        }
+
+        .donation-badge.animate {
+            animation: slide-in-right 0.8s ease-out forwards;
+        }
+
+        .foundation-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+    </style>
+
     <div class="container">
         <div class="row align-items-center">
             <!-- Text Column - LEFT -->
@@ -277,13 +323,35 @@ html {
             </div>
 
             <!-- Image Column - RIGHT -->
-            <div class="col-lg-5 order-1 order-lg-2 mb-5 mb-lg-0 text-center d-flex align-items-center justify-content-center" data-aos="fade-up" data-aos-delay="300" data-aos-duration="500" data-aos-once="true">
-                <a href="https://www.facebook.com/p/Fondation-de-la-ligue-de-hockey-Gagnon-Image-61554658763800/" target="_blank" rel="noopener noreferrer">
-                    <img src="{{ url_for('static', filename='image/flhgi.png') }}" alt="La persévérance qui encourage la persévérance" class="img-fluid" style="width: 37%;">
-                </a>
+            <div class="col-lg-5 order-1 order-lg-2 mb-5 mb-lg-0 text-center" data-aos="fade-up" data-aos-delay="300" data-aos-duration="500" data-aos-once="true">
+                <div class="foundation-content">
+                    <span class="donation-badge">2%</span>
+                    <a href="https://www.facebook.com/p/Fondation-de-la-ligue-de-hockey-Gagnon-Image-61554658763800/" target="_blank" rel="noopener noreferrer">
+                        <img src="{{ url_for('static', filename='image/flhgi.png') }}" alt="Fondation de la ligue de hockey Gagnon Image" class="img-fluid foundation-logo">
+                    </a>
+                </div>
             </div>
         </div>
     </div>
+
+    <script>
+        (function() {
+            const section = document.querySelector('.foundation-section');
+            const badge = document.querySelector('.donation-badge');
+            let animated = false;
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting && !animated) {
+                        animated = true;
+                        badge.classList.add('animate');
+                    }
+                });
+            }, { threshold: 0.5 });
+
+            observer.observe(section);
+        })();
+    </script>
 </section>
 
 <!-- Team Section -->
