@@ -1,0 +1,557 @@
+{% extends "base.html" %}
+
+{% block extra_head %}
+<style>
+/* ========================================
+   GUIDES PAGE STYLES
+   ======================================== */
+
+/* Hero Section (merged with intro) */
+.guides-hero {
+    background-color: rgba(21, 205, 168, 0.2);
+    margin-top: 80px;
+    padding: 40px 0 50px 0;
+}
+
+.guides-intro-image {
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.guides-intro-image:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+/* Search & Filter Section */
+.guides-filter-section {
+    background-color: #ffffff;
+    padding: 50px 0;
+}
+
+.guides-search-container {
+    max-width: 600px;
+    margin: 0 auto 30px auto;
+}
+
+.guides-search-input {
+    width: 100%;
+    padding: 15px 20px 15px 50px;
+    border: 2px solid #e8e8e8;
+    border-radius: 50px;
+    font-size: 16px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%238492AF' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'%3E%3C/circle%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'%3E%3C/line%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: 18px center;
+}
+
+.guides-search-input:focus {
+    outline: none;
+    border-color: #099a97;
+    box-shadow: 0 0 0 4px rgba(9, 154, 151, 0.1);
+}
+
+.guides-search-input::placeholder {
+    color: #8492AF;
+}
+
+/* Filter Buttons */
+.filter-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    padding: 10px 24px;
+    border: 2px solid #e8e8e8;
+    border-radius: 50px;
+    background: #fff;
+    color: #2d3748;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.filter-btn:hover {
+    border-color: #099a97;
+    color: #099a97;
+}
+
+.filter-btn.active {
+    background: #099a97;
+    border-color: #099a97;
+    color: #fff;
+}
+
+.filter-btn i {
+    font-size: 14px;
+}
+
+/* Guide Cards Section */
+.guides-cards-section {
+    background-color: #f2f5fb;
+    padding: 80px 0;
+}
+
+/* Column Spacing - THIS is what creates the gap between rows */
+#guidesContainer > [class*="col-"] {
+    margin-bottom: 30px;
+}
+
+/* Guide Card */
+.guide-card {
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.guide-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+}
+
+/* Icon Header (simplified) */
+.guide-icon-header {
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px 8px 0 0;
+}
+
+.guide-icon-header i {
+    font-size: 28px;
+    color: #fff;
+}
+
+.guide-icon-video {
+    background: linear-gradient(135deg, #ff7272 0%, #ff9a9a 100%);  /* Coral gradient */
+}
+
+.guide-icon-document {
+    background: linear-gradient(135deg, #099a97 0%, #15cda8 100%);  /* Teal gradient */
+}
+
+/* Card Content */
+.guide-content {
+    padding: 20px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.guide-card h5 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #0E1A35;
+    margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+/* Description Text */
+.guide-description {
+    font-size: 14px;
+    color: #8492AF;
+    line-height: 1.5;
+    margin-bottom: 15px;
+    flex-grow: 1;
+}
+
+/* Guide Buttons - ALL use the same teal green */
+.btn-guide-video,
+.btn-guide-doc {
+    display: block;
+    width: 100%;
+    padding: 12px 20px;
+    background: #099a97;  /* Teal Green - same as site buttons */
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    text-align: center;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.btn-guide-video:hover,
+.btn-guide-doc:hover {
+    background: #078785;  /* Darker Teal */
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(9, 154, 151, 0.3);
+}
+
+/* No Results Message */
+.no-results {
+    display: none;
+    text-align: center;
+    padding: 60px 20px;
+    color: #8492AF;
+}
+
+.no-results.show {
+    display: block;
+}
+
+.no-results i {
+    font-size: 48px;
+    margin-bottom: 20px;
+    color: #d1d5db;
+}
+
+.no-results h4 {
+    font-size: 20px;
+    color: #2d3748;
+    margin-bottom: 10px;
+}
+
+/* CTA Section */
+.guides-cta {
+    padding: 80px 0;
+    background-color: rgba(21, 205, 168, 0.2);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .guides-hero {
+        padding: 40px 0 15px 0;
+    }
+
+    .guides-intro {
+        padding: 30px 0 60px 0;
+    }
+
+    .guides-filter-section {
+        padding: 40px 0;
+    }
+
+    .guides-cards-section {
+        padding: 60px 0;
+    }
+
+    .filter-buttons {
+        gap: 8px;
+    }
+
+    .filter-btn {
+        padding: 8px 16px;
+        font-size: 13px;
+    }
+
+    .guide-card h5 {
+        font-size: 16px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Hero + Introduction (merged) -->
+<section class="guides-hero">
+    <div class="container">
+        <div class="row align-items-start">
+            <!-- Text Column -->
+            <div class="col-lg-6 order-2 order-lg-1" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
+                <h6 class="text-uppercase mb-3" style="color: #ff7272; font-weight: 600; letter-spacing: 2px;">
+                    GUIDES ET TUTORIELS
+                </h6>
+                <h1 class="display-4 fw-bold mb-4" style="color: #0E1A35;">
+                    Besoin d'aide?
+                </h1>
+                <p style="font-size: 16px; font-weight: 400; line-height: 1.7; color: #2d3748;">
+                    Decouvrez nos tutoriels video et guides pour maitriser minipass en quelques minutes. Que vous soyez debutant ou utilisateur avance, vous trouverez ici toutes les ressources necessaires pour tirer le maximum de votre plateforme.
+                </p>
+            </div>
+
+            <!-- Image Column -->
+            <div class="col-lg-6 order-1 order-lg-2 mb-4 mb-lg-0" data-aos="fade-up" data-aos-delay="300" data-aos-duration="500" data-aos-once="true">
+                <div class="text-center">
+                    <img src="{{ url_for('static', filename='image/guides-hero.png') }}"
+                         alt="Mascotte minipass enseignant les guides et tutoriels"
+                         class="img-fluid"
+                         style="max-height: 280px; width: auto;">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SECTION 3: Search & Filters -->
+<section class="guides-filter-section">
+    <div class="container">
+        <!-- Search Bar -->
+        <div class="guides-search-container" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
+            <input
+                type="text"
+                id="guideSearch"
+                class="guides-search-input"
+                placeholder="Rechercher un guide..."
+                autocomplete="off"
+            >
+        </div>
+
+        <!-- Filter Buttons -->
+        <div class="filter-buttons" data-aos="fade-up" data-aos-delay="200" data-aos-duration="500" data-aos-once="true">
+            <button class="filter-btn active" data-filter="all">
+                <i class="fas fa-th-large"></i>
+                Tous
+            </button>
+            <button class="filter-btn" data-filter="video">
+                <i class="fas fa-play-circle"></i>
+                Videos
+            </button>
+            <button class="filter-btn" data-filter="document">
+                <i class="fas fa-file-alt"></i>
+                Documents
+            </button>
+        </div>
+    </div>
+</section>
+
+<!-- SECTION 4: Guide Cards Grid -->
+<section class="guides-cards-section">
+    <div class="container">
+        <!-- Section Header -->
+        <div class="row justify-content-center mb-5">
+            <div class="col-lg-8 text-center" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
+                <h6 class="text-uppercase mb-3" style="color: #ff7272; font-weight: 600; letter-spacing: 2px;">
+                    TUTORIELS
+                </h6>
+                <h2 class="fw-bold mb-3" style="color: #0E1A35;">Tous nos guides</h2>
+                <p class="text-muted fs-5">Apprenez a utiliser minipass en quelques minutes</p>
+            </div>
+        </div>
+
+        <!-- Guide Cards Container -->
+        <div class="row" id="guidesContainer">
+
+            <!-- VIDEO: Demarrage rapide avec minipass -->
+            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
+                <div class="guide-card" data-type="video" data-title="demarrage rapide commencer" data-desc="configuration premiers pas" data-youtube-id="eftLJ7hTPPs">
+                    <div class="guide-icon-header guide-icon-video">
+                        <i class="fas fa-play"></i>
+                    </div>
+                    <div class="guide-content">
+                        <h5>Demarrage rapide avec minipass</h5>
+                        <p class="guide-description">Apprenez a configurer votre compte et creer votre premiere activite en moins de 5 minutes.</p>
+                        <button class="btn-guide-video" data-bs-toggle="modal" data-bs-target="#videoModal">
+                            Regarder <i class="fas fa-play ms-2"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DOCUMENT: FAQ -->
+            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="100" data-aos-duration="500" data-aos-once="true">
+                <div class="guide-card" data-type="document" data-title="faq questions frequentes aide" data-desc="support reponses">
+                    <div class="guide-icon-header guide-icon-document">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <div class="guide-content">
+                        <h5>Questions frequentes (FAQ)</h5>
+                        <p class="guide-description">Trouvez rapidement les reponses aux questions les plus courantes sur minipass.</p>
+                        <a href="#" onclick="window.open('/guides/faq', 'guide', 'width=850,height=700,toolbar=no,menubar=no,location=no,status=no,scrollbars=yes'); return false;" class="btn-guide-doc">
+                            Lire <i class="fas fa-book-open ms-2"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DOCUMENT: PWA Installation (French) -->
+            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="200" data-aos-duration="500" data-aos-once="true">
+                <div class="guide-card" data-type="document" data-title="installation app telephone mobile pwa francais" data-desc="installer android iphone">
+                    <div class="guide-icon-header guide-icon-document">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <div class="guide-content">
+                        <h5>Installer l'application (FR)</h5>
+                        <p class="guide-description">Apprenez a installer minipass sur votre ecran d'accueil pour un acces rapide.</p>
+                        <a href="#" onclick="window.open('/guides/installation-app-fr', 'guide', 'width=850,height=700,toolbar=no,menubar=no,location=no,status=no,scrollbars=yes'); return false;" class="btn-guide-doc">
+                            Lire <i class="fas fa-book-open ms-2"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DOCUMENT: PWA Installation (English) -->
+            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="300" data-aos-duration="500" data-aos-once="true">
+                <div class="guide-card" data-type="document" data-title="install app phone mobile pwa english" data-desc="install android iphone">
+                    <div class="guide-icon-header guide-icon-document">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <div class="guide-content">
+                        <h5>Install the app (EN)</h5>
+                        <p class="guide-description">Learn how to install minipass on your home screen for quick access.</p>
+                        <a href="#" onclick="window.open('/guides/installation-app-en', 'guide', 'width=850,height=700,toolbar=no,menubar=no,location=no,status=no,scrollbars=yes'); return false;" class="btn-guide-doc">
+                            Read <i class="fas fa-book-open ms-2"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- No Results Message -->
+        <div class="no-results" id="noResults">
+            <i class="fas fa-search"></i>
+            <h4>Aucun guide trouve</h4>
+            <p>Essayez de modifier votre recherche ou vos filtres</p>
+        </div>
+
+    </div>
+</section>
+
+<!-- Video Modal -->
+<div class="modal fade" id="videoModal" tabindex="-1" aria-labelledby="videoModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="videoModalTitle">Video</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="ratio ratio-16x9">
+                    <iframe id="videoFrame" src="" allowfullscreen allow="autoplay; encrypted-media"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SECTION 5: CTA -->
+<section class="guides-cta">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
+                <p class="mb-2" style="font-size: 26px; font-weight: 600; color: #2d3748; line-height: 1.4;">
+                    Vous ne trouvez pas ce que vous cherchez?
+                </p>
+                <p class="mb-4" style="font-size: 16px; color: #8492AF;">
+                    Notre equipe est la pour vous aider
+                </p>
+                <a href="mailto:support@minipass.me" class="btn btn--lg-2 btn-niagara rounded-50 text-white" style="font-weight: 600; min-width: 180px;">
+                    Nous contacter
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+(function() {
+    'use strict';
+
+    // Elements
+    const searchInput = document.getElementById('guideSearch');
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    const guidesContainer = document.getElementById('guidesContainer');
+    const guideCards = document.querySelectorAll('.guide-card');
+    const noResults = document.getElementById('noResults');
+
+    // Current filter state
+    let currentFilter = 'all';
+
+    // Get active category
+    function getActiveCategory() {
+        return currentFilter;
+    }
+
+    // Filter guides based on search and category
+    function filterGuides() {
+        const searchTerm = searchInput.value.toLowerCase().trim();
+        const activeCategory = getActiveCategory();
+        let visibleCount = 0;
+
+        guideCards.forEach(card => {
+            const cardColumn = card.closest('[class*="col-"]');
+            const title = card.dataset.title || '';
+            const desc = card.dataset.desc || '';
+            const type = card.dataset.type || '';
+
+            const matchesSearch = searchTerm === '' ||
+                                  title.includes(searchTerm) ||
+                                  desc.includes(searchTerm);
+            const matchesCategory = activeCategory === 'all' || type === activeCategory;
+
+            if (matchesSearch && matchesCategory) {
+                cardColumn.style.display = '';
+                visibleCount++;
+            } else {
+                cardColumn.style.display = 'none';
+            }
+        });
+
+        // Show/hide no results message
+        if (visibleCount === 0) {
+            noResults.classList.add('show');
+        } else {
+            noResults.classList.remove('show');
+        }
+    }
+
+    // Search input event listener
+    searchInput.addEventListener('input', function() {
+        filterGuides();
+    });
+
+    // Filter button click handlers
+    filterButtons.forEach(btn => {
+        btn.addEventListener('click', function() {
+            // Update active state
+            filterButtons.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+
+            // Update current filter
+            currentFilter = this.dataset.filter;
+
+            // Filter guides
+            filterGuides();
+        });
+    });
+
+    // Initialize
+    filterGuides();
+
+    // ========================================
+    // VIDEO MODAL HANDLER
+    // ========================================
+    const videoModal = document.getElementById('videoModal');
+    const videoFrame = document.getElementById('videoFrame');
+    const videoModalTitle = document.getElementById('videoModalTitle');
+
+    // When modal opens, set the YouTube embed URL
+    videoModal.addEventListener('show.bs.modal', function(event) {
+        const button = event.relatedTarget;
+        const card = button.closest('.guide-card');
+        const youtubeId = card.dataset.youtubeId;
+        const title = card.querySelector('h5').textContent;
+
+        videoModalTitle.textContent = title;
+        videoFrame.src = 'https://www.youtube.com/embed/' + youtubeId + '?autoplay=1&rel=0';
+    });
+
+    // When modal closes, stop the video
+    videoModal.addEventListener('hidden.bs.modal', function() {
+        videoFrame.src = '';
+    });
+})();
+</script>
+{% endblock %}

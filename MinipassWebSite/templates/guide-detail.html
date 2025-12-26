@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guide - minipass</title>
+    <link rel="icon" type="image/x-icon" href="/static/image/favicon.ico">
+    <style>
+        /* Reset & Base */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: #fff;
+            color: #2d3748;
+            line-height: 1.6;
+        }
+
+        /* Header with Logo and Close Button */
+        .doc-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 15px 30px;
+            z-index: 100;
+            background: #fff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e8e8e8;
+        }
+
+        .doc-header img {
+            height: 22px;
+            width: auto;
+        }
+
+        .close-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: #f2f5fb;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s ease;
+        }
+
+        .close-btn:hover {
+            background: #e8e8e8;
+        }
+
+        .close-btn svg {
+            width: 16px;
+            height: 16px;
+            stroke: #2d3748;
+        }
+
+        /* Main Content */
+        .doc-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 60px 40px 80px 40px;
+        }
+
+        /* Typography for Markdown */
+        .doc-content h1 {
+            font-size: 32px;
+            font-weight: 700;
+            color: #0E1A35;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid #e8e8e8;
+        }
+
+        .doc-content h2 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #0E1A35;
+            margin-top: 40px;
+            margin-bottom: 16px;
+        }
+
+        .doc-content h3 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #2d3748;
+            margin-top: 32px;
+            margin-bottom: 12px;
+        }
+
+        .doc-content p {
+            font-size: 16px;
+            line-height: 1.8;
+            color: #4a5568;
+            margin-bottom: 16px;
+        }
+
+        .doc-content ul, .doc-content ol {
+            margin-bottom: 20px;
+            padding-left: 24px;
+        }
+
+        .doc-content li {
+            font-size: 16px;
+            line-height: 1.8;
+            color: #4a5568;
+            margin-bottom: 8px;
+        }
+
+        .doc-content a {
+            color: #099a97;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .doc-content a:hover {
+            color: #078785;
+            text-decoration: underline;
+        }
+
+        .doc-content strong {
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .doc-content code {
+            background: #f2f5fb;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 14px;
+            color: #e53e3e;
+        }
+
+        .doc-content pre {
+            background: #2d3748;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin-bottom: 20px;
+        }
+
+        .doc-content pre code {
+            background: none;
+            padding: 0;
+            color: #e2e8f0;
+            font-size: 14px;
+        }
+
+        .doc-content hr {
+            border: none;
+            border-top: 2px solid #e8e8e8;
+            margin: 40px 0;
+        }
+
+        .doc-content blockquote {
+            border-left: 4px solid #099a97;
+            padding-left: 20px;
+            margin: 20px 0;
+            font-style: italic;
+            color: #718096;
+        }
+
+        .doc-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .doc-content th, .doc-content td {
+            border: 1px solid #e8e8e8;
+            padding: 12px;
+            text-align: left;
+        }
+
+        .doc-content th {
+            background: #f2f5fb;
+            font-weight: 600;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .doc-header {
+                padding: 15px 20px;
+            }
+
+            .doc-header img {
+                height: 18px;
+            }
+
+            .doc-content {
+                padding: 50px 20px 60px 20px;
+            }
+
+            .doc-content h1 {
+                font-size: 26px;
+            }
+
+            .doc-content h2 {
+                font-size: 20px;
+            }
+
+            .doc-content h3 {
+                font-size: 18px;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            .doc-header {
+                position: static;
+                text-align: right;
+                padding: 20px 0;
+                border-bottom: 1px solid #e8e8e8;
+                margin-bottom: 20px;
+            }
+
+            .doc-content {
+                padding: 0;
+                max-width: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header: Logo Left, Close Button Right -->
+    <header class="doc-header">
+        <img src="/static/image/mp-logo-regular.png" alt="minipass">
+        <button class="close-btn" onclick="window.close()" title="Fermer">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
+    </header>
+
+    <!-- Document Content -->
+    <main class="doc-content">
+        {{ content | safe }}
+    </main>
+</body>
+</html>
