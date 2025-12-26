@@ -9,6 +9,7 @@ import re
 from subprocess import run
 from shutil import copytree
 import threading
+import markdown
 
 from utils.deploy_helpers import insert_admin_user
 from utils.email_helpers import init_mail, send_user_deployment_email, send_support_error_email
@@ -89,6 +90,28 @@ def home():
 @app.route("/about")
 def about():
     return render_template("about.html")
+
+
+@app.route("/guides")
+def guides():
+    return render_template("guides.html")
+
+
+@app.route("/guides/<slug>")
+def guide_detail(slug):
+    # Path to markdown file
+    doc_path = os.path.join(app.static_folder, 'docs', f'{slug}.md')
+
+    if not os.path.exists(doc_path):
+        abort(404)
+
+    # Read and convert markdown to HTML
+    with open(doc_path, 'r', encoding='utf-8') as f:
+        content = f.read()
+
+    html_content = markdown.markdown(content, extensions=['tables', 'fenced_code', 'toc'])
+
+    return render_template('guide-detail.html', content=html_content, slug=slug)
 
 
 @app.route("/politiques")

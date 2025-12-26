@@ -7,3 +7,4 @@ bcrypt
 pyfiglet
 instaloader
 Pillow
+markdown
