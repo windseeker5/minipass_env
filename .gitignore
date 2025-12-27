@@ -41,6 +41,10 @@ deployed/
 # Ken 
 .claude
 docs/
+
+# But keep static/docs/
+!static/docs/
+
 CLAUDE.md 
 Marketing/
 .playwright-mcp
