@@ -43,7 +43,7 @@ deployed/
 docs/
 
 # But keep static/docs/
-!static/docs/
+!MinipassWebSite/static/docs/
 
 CLAUDE.md 
 Marketing/
