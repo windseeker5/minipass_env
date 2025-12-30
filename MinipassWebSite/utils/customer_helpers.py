@@ -353,3 +353,47 @@ def get_customer_by_stripe_session_id(stripe_checkout_session_id):
         cur.execute("SELECT * FROM customers WHERE stripe_checkout_session_id = ?", (stripe_checkout_session_id,))
         row = cur.fetchone()
         return dict(row) if row else None
+
+
+def get_all_customers():
+    """
+    Fetch all customers for admin view.
+
+    Returns:
+        list: List of customer dictionaries ordered by creation date (newest first)
+    """
+    with sqlite3.connect(CUSTOMERS_DB) as conn:
+        conn.row_factory = sqlite3.Row
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT subdomain, email, app_name, plan, port, deployed,
+                   email_address, email_password, email_status, created_at,
+                   subscription_status, admin_password, organization_name
+            FROM customers
+            ORDER BY created_at DESC
+        """)
+        rows = cur.fetchall()
+        return [dict(row) for row in rows]
+
+
+def update_customer_password(subdomain, new_password):
+    """
+    Update a customer's admin password.
+
+    Args:
+        subdomain (str): Customer's subdomain
+        new_password (str): New plaintext password (will be hashed)
+
+    Returns:
+        bool: True if update succeeded, False otherwise
+    """
+    with sqlite3.connect(CUSTOMERS_DB) as conn:
+        cur = conn.cursor()
+        hashed = bcrypt.hashpw(new_password.encode(), bcrypt.gensalt())
+        cur.execute("""
+            UPDATE customers
+            SET admin_password = ?, email_password = ?
+            WHERE subdomain = ?
+        """, (hashed, new_password, subdomain))
+        conn.commit()
+        return cur.rowcount > 0
