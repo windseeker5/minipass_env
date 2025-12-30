@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session, abort, jsonify
+from flask import Flask, render_template, request, redirect, url_for, session, abort, jsonify, flash
 from dotenv import load_dotenv
 from datetime import datetime, timezone
 import stripe
@@ -10,6 +10,7 @@ from subprocess import run
 from shutil import copytree
 import threading
 import markdown
+from functools import wraps
 
 from utils.deploy_helpers import insert_admin_user
 from utils.email_helpers import init_mail, send_user_deployment_email, send_support_error_email
@@ -661,6 +662,207 @@ def stripe_webhook():
 
     return "OK", 200
 
+
+# ============================================================================
+# ADMIN TOOLS
+# ============================================================================
+
+def require_admin(f):
+    """Decorator to require admin authentication for routes."""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not session.get('admin_authenticated'):
+            return redirect(url_for('admin_login'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+
+@app.route("/admin/login", methods=["GET", "POST"])
+def admin_login():
+    """Admin login page."""
+    if request.method == "POST":
+        password = request.form.get("password", "")
+        if password == os.getenv("ADMIN_PASSWORD"):
+            session['admin_authenticated'] = True
+            return redirect(url_for('admin_tools'))
+        return render_template("admin/login.html", error="Invalid password")
+    return render_template("admin/login.html")
+
+
+@app.route("/admin/logout")
+def admin_logout():
+    """Admin logout - clear session."""
+    session.pop('admin_authenticated', None)
+    return redirect(url_for('admin_login'))
+
+
+@app.route("/admin/tools")
+@require_admin
+def admin_tools():
+    """Main admin tools page with customer list and email tools."""
+    from utils.customer_helpers import get_all_customers
+    from utils.deploy_helpers import is_production_environment
+
+    customers = get_all_customers()
+    is_prod = is_production_environment()
+
+    # Get email config info for display
+    if is_prod:
+        email_server = os.getenv("PROD_MAIL_SERVER", "mail.minipass.me")
+        email_sender = os.getenv("PROD_MAIL_DEFAULT_SENDER", "support@minipass.me")
+    else:
+        email_server = os.getenv("MAIL_SERVER", "smtp.gmail.com")
+        email_sender = os.getenv("MAIL_DEFAULT_SENDER", "info@minipass.me")
+
+    return render_template(
+        "admin/tools.html",
+        customers=customers,
+        is_production=is_prod,
+        email_server=email_server,
+        email_sender=email_sender,
+        message=request.args.get('message'),
+        error=request.args.get('error')
+    )
+
+
+@app.route("/admin/test-email", methods=["POST"])
+@require_admin
+def admin_test_email():
+    """Send a test email to verify email configuration."""
+    from utils.deploy_helpers import is_production_environment
+    from email.mime.multipart import MIMEMultipart
+    from email.mime.text import MIMEText
+    import smtplib
+
+    recipient = request.form.get("recipient", "").strip()
+    if not recipient:
+        return redirect(url_for('admin_tools', error="Recipient email is required"))
+
+    try:
+        # Get SMTP settings based on environment
+        if is_production_environment():
+            smtp_server = os.getenv("PROD_MAIL_SERVER", "mail.minipass.me")
+            smtp_port = int(os.getenv("PROD_MAIL_PORT", 587))
+            smtp_user = os.getenv("PROD_MAIL_USERNAME", "support@minipass.me")
+            smtp_pass = os.getenv("PROD_MAIL_PASSWORD")
+            sender = os.getenv("PROD_MAIL_DEFAULT_SENDER", "MiniPass <support@minipass.me>")
+            env_name = "Production (minipass.me)"
+        else:
+            smtp_server = os.getenv("MAIL_SERVER", "smtp.gmail.com")
+            smtp_port = int(os.getenv("MAIL_PORT", 587))
+            smtp_user = os.getenv("MAIL_USERNAME")
+            smtp_pass = os.getenv("MAIL_PASSWORD")
+            sender = os.getenv("MAIL_DEFAULT_SENDER", "info@minipass.me")
+            env_name = "Development (Gmail)"
+
+        # Build test email
+        msg = MIMEMultipart()
+        msg['Subject'] = f"[MiniPass] Test Email - {env_name}"
+        msg['From'] = sender
+        msg['To'] = recipient
+
+        html = f"""
+        <html>
+        <body style="font-family: Arial, sans-serif; padding: 20px;">
+            <h2>MiniPass Test Email</h2>
+            <p>This is a test email from the MiniPass admin tools.</p>
+            <hr>
+            <p><strong>Environment:</strong> {env_name}</p>
+            <p><strong>SMTP Server:</strong> {smtp_server}:{smtp_port}</p>
+            <p><strong>Sender:</strong> {sender}</p>
+            <p><strong>Sent at:</strong> {datetime.now().isoformat()}</p>
+            <hr>
+            <p style="color: green;">If you received this email, your email configuration is working correctly!</p>
+        </body>
+        </html>
+        """
+        msg.attach(MIMEText(html, 'html'))
+
+        # Send email
+        with smtplib.SMTP(smtp_server, smtp_port) as server:
+            server.starttls()
+            server.login(smtp_user, smtp_pass)
+            server.send_message(msg)
+
+        return redirect(url_for('admin_tools', message=f"Test email sent to {recipient}"))
+
+    except Exception as e:
+        logging.error(f"Failed to send test email: {e}")
+        return redirect(url_for('admin_tools', error=f"Failed to send email: {str(e)}"))
+
+
+@app.route("/admin/resend-email/<subdomain>", methods=["POST"])
+@require_admin
+def admin_resend_email(subdomain):
+    """Resend onboarding email to a customer."""
+    from utils.customer_helpers import get_customer_by_subdomain
+
+    customer = get_customer_by_subdomain(subdomain)
+    if not customer:
+        return redirect(url_for('admin_tools', error=f"Customer not found: {subdomain}"))
+
+    try:
+        # Build the app URL
+        app_url = f"https://{subdomain}.minipass.me"
+
+        # Get email info
+        email_info = {
+            'email_address': customer.get('email_address'),
+            'email_password': customer.get('email_password'),
+            'forwarding_setup': customer.get('forwarding_email') is not None
+        }
+
+        # Note: We use the stored password (email_password field stores plaintext)
+        admin_password = customer.get('email_password', 'See your original email')
+
+        send_user_deployment_email(
+            to=customer['email'],
+            url=app_url,
+            password=admin_password,
+            email_info=email_info
+        )
+
+        return redirect(url_for('admin_tools', message=f"Onboarding email resent to {customer['email']}"))
+
+    except Exception as e:
+        logging.error(f"Failed to resend email for {subdomain}: {e}")
+        return redirect(url_for('admin_tools', error=f"Failed to resend email: {str(e)}"))
+
+
+@app.route("/admin/reset-password/<subdomain>", methods=["POST"])
+@require_admin
+def admin_reset_password(subdomain):
+    """Generate a new password and send reset email to customer."""
+    from utils.customer_helpers import get_customer_by_subdomain, update_customer_password
+    from utils.email_helpers import send_password_reset_email
+
+    customer = get_customer_by_subdomain(subdomain)
+    if not customer:
+        return redirect(url_for('admin_tools', error=f"Customer not found: {subdomain}"))
+
+    try:
+        # Generate new password
+        new_password = secrets.token_urlsafe(12)
+
+        # Update password in database
+        update_customer_password(subdomain, new_password)
+
+        # Build app URL
+        app_url = f"https://{subdomain}.minipass.me"
+
+        # Send reset email
+        send_password_reset_email(
+            to=customer['email'],
+            subdomain=subdomain,
+            app_url=app_url,
+            new_password=new_password
+        )
+
+        return redirect(url_for('admin_tools', message=f"Password reset email sent to {customer['email']}"))
+
+    except Exception as e:
+        logging.error(f"Failed to reset password for {subdomain}: {e}")
+        return redirect(url_for('admin_tools', error=f"Failed to reset password: {str(e)}"))
 
 
 # ✅ Run server
