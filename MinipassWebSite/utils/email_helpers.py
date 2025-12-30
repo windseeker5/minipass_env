@@ -13,18 +13,32 @@ import smtplib
 from utils.mail import mail
 
 def init_mail(app):
-    app.config['MAIL_SERVER'] = os.getenv("MAIL_SERVER", "smtp.gmail.com")
-    app.config['MAIL_PORT'] = int(os.getenv("MAIL_PORT", 587))
+    from utils.deploy_helpers import is_production_environment
+
+    if is_production_environment():
+        # Production: Use minipass.me mail server
+        app.config['MAIL_SERVER'] = os.getenv("PROD_MAIL_SERVER", "mail.minipass.me")
+        app.config['MAIL_PORT'] = int(os.getenv("PROD_MAIL_PORT", 587))
+        app.config['MAIL_USERNAME'] = os.getenv("PROD_MAIL_USERNAME", "support@minipass.me")
+        app.config['MAIL_PASSWORD'] = os.getenv("PROD_MAIL_PASSWORD")
+        app.config['MAIL_DEFAULT_SENDER'] = os.getenv("PROD_MAIL_DEFAULT_SENDER", "MiniPass <support@minipass.me>")
+    else:
+        # Local dev: Use Gmail
+        app.config['MAIL_SERVER'] = os.getenv("MAIL_SERVER", "smtp.gmail.com")
+        app.config['MAIL_PORT'] = int(os.getenv("MAIL_PORT", 587))
+        app.config['MAIL_USERNAME'] = os.getenv("MAIL_USERNAME")
+        app.config['MAIL_PASSWORD'] = os.getenv("MAIL_PASSWORD")
+        app.config['MAIL_DEFAULT_SENDER'] = os.getenv("MAIL_DEFAULT_SENDER", "info@minipass.me")
+
     app.config['MAIL_USE_TLS'] = True
-    app.config['MAIL_USERNAME'] = os.getenv("MAIL_USERNAME")
-    app.config['MAIL_PASSWORD'] = os.getenv("MAIL_PASSWORD")
-    app.config['MAIL_DEFAULT_SENDER'] = os.getenv("MAIL_DEFAULT_SENDER", "info@minipass.me")
     mail.init_app(app)
 
 
 
 
 def send_user_deployment_email(to, url, password, email_info=None):
+    from utils.deploy_helpers import is_production_environment
+
     subject = "🎉 Votre application minipass est prête!"  # ✅ French translation
 
     # ✅ Render with admin email and email info included
@@ -43,10 +57,26 @@ def send_user_deployment_email(to, url, password, email_info=None):
         if email_info.get('forwarding_setup'):
             body_text += "\nForwarding: Enabled"
 
+    # Select SMTP settings based on environment
+    if is_production_environment():
+        # Production: Use minipass.me mail server
+        smtp_server = os.getenv("PROD_MAIL_SERVER", "mail.minipass.me")
+        smtp_port = int(os.getenv("PROD_MAIL_PORT", 587))
+        smtp_user = os.getenv("PROD_MAIL_USERNAME", "support@minipass.me")
+        smtp_pass = os.getenv("PROD_MAIL_PASSWORD")
+        sender = os.getenv("PROD_MAIL_DEFAULT_SENDER", "MiniPass <support@minipass.me>")
+    else:
+        # Local dev: Use Gmail
+        smtp_server = os.getenv("MAIL_SERVER", "smtp.gmail.com")
+        smtp_port = int(os.getenv("MAIL_PORT", 587))
+        smtp_user = os.getenv("MAIL_USERNAME")
+        smtp_pass = os.getenv("MAIL_PASSWORD")
+        sender = os.getenv("MAIL_DEFAULT_SENDER", "info@minipass.me")
+
     # Build multipart MIME message with images (NO filenames to prevent attachments)
     multipart = MIMEMultipart('related')
     multipart['Subject'] = subject
-    multipart['From'] = os.getenv("MAIL_DEFAULT_SENDER", "info@minipass.me")
+    multipart['From'] = sender
     multipart['To'] = to
 
     # Attach HTML content
@@ -72,12 +102,7 @@ def send_user_deployment_email(to, url, password, email_info=None):
             # NO filename header - this prevents Gmail from showing attachment
             multipart.attach(part)
 
-    # Send using smtplib with Flask-Mail's SMTP config
-    smtp_server = os.getenv("MAIL_SERVER", "smtp.gmail.com")
-    smtp_port = int(os.getenv("MAIL_PORT", 587))
-    smtp_user = os.getenv("MAIL_USERNAME")
-    smtp_pass = os.getenv("MAIL_PASSWORD")
-
+    # Send using smtplib
     with smtplib.SMTP(smtp_server, smtp_port) as server:
         server.starttls()
         server.login(smtp_user, smtp_pass)
@@ -103,4 +128,68 @@ def send_support_error_email(user_email, app_name, error_log):
 
     msg = Message(subject=subject, recipients=recipients, cc=cc, html=html_body)
     mail.send(msg)
+
+
+def send_password_reset_email(to, subdomain, app_url, new_password):
+    """
+    Send a password reset email to a customer.
+
+    Args:
+        to (str): Customer email address
+        subdomain (str): Customer's subdomain
+        app_url (str): Full URL to the customer's app
+        new_password (str): The new password to send
+    """
+    from utils.deploy_helpers import is_production_environment
+
+    subject = "🔑 Votre mot de passe MiniPass a été réinitialisé"
+
+    # Render HTML template
+    html = render_template(
+        "emails/password_reset.html",
+        subdomain=subdomain,
+        app_url=app_url,
+        new_password=new_password,
+        user_email=to
+    )
+
+    # Select SMTP settings based on environment
+    if is_production_environment():
+        smtp_server = os.getenv("PROD_MAIL_SERVER", "mail.minipass.me")
+        smtp_port = int(os.getenv("PROD_MAIL_PORT", 587))
+        smtp_user = os.getenv("PROD_MAIL_USERNAME", "support@minipass.me")
+        smtp_pass = os.getenv("PROD_MAIL_PASSWORD")
+        sender = os.getenv("PROD_MAIL_DEFAULT_SENDER", "MiniPass <support@minipass.me>")
+    else:
+        smtp_server = os.getenv("MAIL_SERVER", "smtp.gmail.com")
+        smtp_port = int(os.getenv("MAIL_PORT", 587))
+        smtp_user = os.getenv("MAIL_USERNAME")
+        smtp_pass = os.getenv("MAIL_PASSWORD")
+        sender = os.getenv("MAIL_DEFAULT_SENDER", "info@minipass.me")
+
+    # Build email message
+    msg = MIMEMultipart('alternative')
+    msg['Subject'] = subject
+    msg['From'] = sender
+    msg['To'] = to
+
+    # Plain text fallback
+    text = f"""
+Votre mot de passe MiniPass a été réinitialisé.
+
+Application: {app_url}
+Nouveau mot de passe: {new_password}
+
+Connectez-vous avec votre email ({to}) et ce nouveau mot de passe.
+
+— L'équipe MiniPass
+    """
+    msg.attach(MIMEText(text, 'plain'))
+    msg.attach(MIMEText(html, 'html'))
+
+    # Send email
+    with smtplib.SMTP(smtp_server, smtp_port) as server:
+        server.starttls()
+        server.login(smtp_user, smtp_pass)
+        server.send_message(msg)
 
