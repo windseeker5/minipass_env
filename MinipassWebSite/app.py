@@ -745,7 +745,7 @@ def admin_test_email():
             smtp_port = int(os.getenv("PROD_MAIL_PORT", 587))
             smtp_user = os.getenv("PROD_MAIL_USERNAME", "support@minipass.me")
             smtp_pass = os.getenv("PROD_MAIL_PASSWORD")
-            sender = os.getenv("PROD_MAIL_DEFAULT_SENDER", "MiniPass <support@minipass.me>")
+            sender = os.getenv("PROD_MAIL_DEFAULT_SENDER", "minipass <support@minipass.me>")
             env_name = "Production (minipass.me)"
         else:
             smtp_server = os.getenv("MAIL_SERVER", "smtp.gmail.com")
@@ -757,15 +757,15 @@ def admin_test_email():
 
         # Build test email
         msg = MIMEMultipart()
-        msg['Subject'] = f"[MiniPass] Test Email - {env_name}"
+        msg['Subject'] = f"[minipass] Test Email - {env_name}"
         msg['From'] = sender
         msg['To'] = recipient
 
         html = f"""
         <html>
         <body style="font-family: Arial, sans-serif; padding: 20px;">
-            <h2>MiniPass Test Email</h2>
-            <p>This is a test email from the MiniPass admin tools.</p>
+            <h2>minipass Test Email</h2>
+            <p>This is a test email from the minipass admin tools.</p>
             <hr>
             <p><strong>Environment:</strong> {env_name}</p>
             <p><strong>SMTP Server:</strong> {smtp_server}:{smtp_port}</p>

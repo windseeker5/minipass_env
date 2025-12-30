@@ -21,7 +21,7 @@ def init_mail(app):
         app.config['MAIL_PORT'] = int(os.getenv("PROD_MAIL_PORT", 587))
         app.config['MAIL_USERNAME'] = os.getenv("PROD_MAIL_USERNAME", "support@minipass.me")
         app.config['MAIL_PASSWORD'] = os.getenv("PROD_MAIL_PASSWORD")
-        app.config['MAIL_DEFAULT_SENDER'] = os.getenv("PROD_MAIL_DEFAULT_SENDER", "MiniPass <support@minipass.me>")
+        app.config['MAIL_DEFAULT_SENDER'] = os.getenv("PROD_MAIL_DEFAULT_SENDER", "minipass <support@minipass.me>")
     else:
         # Local dev: Use Gmail
         app.config['MAIL_SERVER'] = os.getenv("MAIL_SERVER", "smtp.gmail.com")
@@ -64,7 +64,7 @@ def send_user_deployment_email(to, url, password, email_info=None):
         smtp_port = int(os.getenv("PROD_MAIL_PORT", 587))
         smtp_user = os.getenv("PROD_MAIL_USERNAME", "support@minipass.me")
         smtp_pass = os.getenv("PROD_MAIL_PASSWORD")
-        sender = os.getenv("PROD_MAIL_DEFAULT_SENDER", "MiniPass <support@minipass.me>")
+        sender = os.getenv("PROD_MAIL_DEFAULT_SENDER", "minipass <support@minipass.me>")
     else:
         # Local dev: Use Gmail
         smtp_server = os.getenv("MAIL_SERVER", "smtp.gmail.com")
@@ -112,18 +112,18 @@ def send_user_deployment_email(to, url, password, email_info=None):
 
 
 def send_support_error_email(user_email, app_name, error_log):
-    subject = f"[MiniPass Deployment Error] {app_name}"
+    subject = f"[minipass Deployment Error] {app_name}"
     tech_support = "kdresdell@gmail.com"
     recipients = [user_email]
     cc = [tech_support]
 
     html_body = f"""
     <p>Hi,</p>
-    <p>We encountered an issue while deploying your MiniPass app: <strong>{app_name}</strong>.</p>
+    <p>We encountered an issue while deploying your minipass app: <strong>{app_name}</strong>.</p>
     <p>Our technical team has been notified and will investigate shortly. You will receive a follow-up email once the deployment is complete.</p>
     <hr>
     <pre style="background:#f8f9fa;padding:10px;border-radius:5px;font-size:0.9rem;">{error_log}</pre>
-    <p>— MiniPass Deployment Bot</p>
+    <p>— minipass Deployment Bot</p>
     """
 
     msg = Message(subject=subject, recipients=recipients, cc=cc, html=html_body)
@@ -142,7 +142,7 @@ def send_password_reset_email(to, subdomain, app_url, new_password):
     """
     from utils.deploy_helpers import is_production_environment
 
-    subject = "🔑 Votre mot de passe MiniPass a été réinitialisé"
+    subject = "🔑 Votre mot de passe minipass a été réinitialisé"
 
     # Render HTML template
     html = render_template(
@@ -159,7 +159,7 @@ def send_password_reset_email(to, subdomain, app_url, new_password):
         smtp_port = int(os.getenv("PROD_MAIL_PORT", 587))
         smtp_user = os.getenv("PROD_MAIL_USERNAME", "support@minipass.me")
         smtp_pass = os.getenv("PROD_MAIL_PASSWORD")
-        sender = os.getenv("PROD_MAIL_DEFAULT_SENDER", "MiniPass <support@minipass.me>")
+        sender = os.getenv("PROD_MAIL_DEFAULT_SENDER", "minipass <support@minipass.me>")
     else:
         smtp_server = os.getenv("MAIL_SERVER", "smtp.gmail.com")
         smtp_port = int(os.getenv("MAIL_PORT", 587))
@@ -175,14 +175,14 @@ def send_password_reset_email(to, subdomain, app_url, new_password):
 
     # Plain text fallback
     text = f"""
-Votre mot de passe MiniPass a été réinitialisé.
+Votre mot de passe minipass a été réinitialisé.
 
 Application: {app_url}
 Nouveau mot de passe: {new_password}
 
 Connectez-vous avec votre email ({to}) et ce nouveau mot de passe.
 
-— L'équipe MiniPass
+— L'équipe minipass
     """
     msg.attach(MIMEText(text, 'plain'))
     msg.attach(MIMEText(html, 'html'))
