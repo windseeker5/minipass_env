@@ -525,6 +525,20 @@ $(document).ready(function() {
         } else {
             $(target).attr("data-value-active", "monthly");
         }
+
+        // Toggle savings badge text and color based on pricing selection
+        var savingsBadge = document.getElementById('pricing-savings-badge');
+        if (savingsBadge) {
+            if ($(target).attr("data-value-active") == "monthly") {
+                savingsBadge.textContent = 'ÉCONOMISEZ 0%';
+                savingsBadge.classList.remove('bg-half-baked');
+                savingsBadge.style.backgroundColor = '#d3d3d3';
+            } else {
+                savingsBadge.textContent = 'ÉCONOMISEZ 50%';
+                savingsBadge.style.backgroundColor = '';
+                savingsBadge.classList.add('bg-half-baked');
+            }
+        }
     })
 
 
