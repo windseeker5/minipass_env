@@ -8,3 +8,4 @@ pyfiglet
 instaloader
 Pillow
 markdown
+simple-term-menu
