@@ -1,0 +1,6 @@
+# Protect secrets
+.env
+
+# Docker volumes are managed by Docker, but ignore any local backups
+*.sql
+*.backup
