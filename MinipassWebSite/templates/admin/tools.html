@@ -20,11 +20,21 @@
             color: white;
             padding: 20px 40px;
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            position: relative;
         }
-        .header h1 {
+        .header-logo {
+            flex: 0 0 auto;
+        }
+        .header-logo img {
+            height: 25px;
+            width: auto;
+        }
+        .header-title {
+            flex: 1;
+            text-align: center;
             font-size: 24px;
+            font-weight: 700;
         }
         .header a {
             color: white;
@@ -33,6 +43,7 @@
             background: rgba(255,255,255,0.2);
             border-radius: 6px;
             font-size: 14px;
+            flex: 0 0 auto;
         }
         .header a:hover {
             background: rgba(255,255,255,0.3);
@@ -248,7 +259,10 @@
 </head>
 <body>
     <div class="header">
-        <h1>minipass Admin Tools</h1>
+        <div class="header-logo">
+            <img src="{{ url_for('static', filename='image/mp-logo-white.png') }}" alt="minipass">
+        </div>
+        <div class="header-title">Admin Tools</div>
         <a href="{{ url_for('admin_logout') }}">Logout</a>
     </div>
 
