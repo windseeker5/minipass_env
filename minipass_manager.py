@@ -811,64 +811,48 @@ class MiniPassAppManager:
                 if reclaimable_before > 0:
                     print(f"   ⚠️ WARNING: {self.format_size(int(reclaimable_before))} of build cache can be cleaned!")
             
-            # Enhanced cleanup options
-            print("\nCleanup options:")
-            print("1. Standard cleanup (containers, images, volumes, networks)")
-            print("2. Comprehensive cleanup (standard + enhanced build cache + system prune)")
-            print("3. Build cache focused cleanup (multiple build cache strategies)")
-            print("4. Aggressive build cache cleanup (multi-strategy + buildx + dangling)")
-            print("5. Nuclear option (everything + aggressive build cache + running containers)")
-            
-            cleanup_choice = input("\nChoose cleanup type (1-5) or 'n' to cancel: ").strip().lower()
+            # Simplified cleanup options for production safety
+            print("\n🛡️ Safe Docker Cleanup Options:")
+            print("1. 🧹 Safe cleanup - Remove unused containers, images, volumes, networks")
+            print("   └── Safe for production: Running containers remain untouched")
+            print("2. 🚀 Comprehensive cleanup (RECOMMENDED) - Safe cleanup + build cache")
+            print("   └── Best balance: Maximum space savings while preserving running services")
+            print("3. ⚠️  Emergency cleanup - Aggressive cleanup with build cache reset")
+            print("   └── Use only if needed: May impact build performance but preserves running containers")
+
+            print(f"\n💡 Your running containers will be preserved:")
+            print("   • nginx proxy server, mail server, SSL certificate services")
+            print("   • Any running MiniPass customer containers")
+
+            cleanup_choice = input("\nChoose cleanup type (1-3) or 'n' to cancel [2 recommended]: ").strip().lower()
             
             if cleanup_choice == 'n':
                 print("❌ Aborted.")
                 return
-            elif cleanup_choice not in ['1', '2', '3', '4', '5']:
-                print("❌ Invalid choice.")
+            elif cleanup_choice not in ['1', '2', '3']:
+                print("❌ Invalid choice. Please select 1, 2, or 3.")
                 return
             
             total_space_freed = 0
             build_cache_freed = 0
             
-            # Confirm destructive operations
-            if cleanup_choice in ['4', '5']:
-                print(f"\n⚠️ WARNING: Option {cleanup_choice} is aggressive and will remove ALL build cache data!")
-                if cleanup_choice == '5':
-                    print("   🚨 NUCLEAR OPTION: This will also stop and remove ALL containers!")
+            # Confirm emergency cleanup operations
+            if cleanup_choice == '3':
+                print(f"\n⚠️ WARNING: Emergency cleanup is aggressive and will remove ALL build cache data!")
+                print("   This may slow down future Docker builds until cache is rebuilt.")
+                print("   Your running containers will NOT be affected.")
                 confirm = input("Type 'CONFIRM' to proceed: ").strip()
                 if confirm != 'CONFIRM':
                     print("❌ Aborted.")
                     return
             
-            if cleanup_choice in ['1', '2', '5']:
-                # Standard cleanup operations
-                print(f"\n{'🚨' if cleanup_choice == '5' else '🧹'} Standard Docker cleanup operations...")
-                
-                # For nuclear option, stop all containers first
-                if cleanup_choice == '5':
-                    print("🛑 Stopping ALL running containers...")
-                    result = self.run_docker_command(['stop', '$(docker ps -q)'], check=False)
-                    # Use shell to expand the command
-                    import subprocess
-                    result = subprocess.run('docker stop $(docker ps -q)', shell=True, capture_output=True, text=True, check=False)
-                    if result.returncode == 0:
-                        print("   ✅ All containers stopped")
-                    else:
-                        print("   ℹ️ No running containers or stop failed")
-                
-                # Prune containers
-                prune_flag = '-f' if cleanup_choice != '5' else '-f'
-                print(f"🧹 Removing {'ALL' if cleanup_choice == '5' else 'unused'} containers...")
-                if cleanup_choice == '5':
-                    # Remove all containers
-                    result = subprocess.run('docker rm -f $(docker ps -aq)', shell=True, capture_output=True, text=True, check=False)
-                    if result.returncode == 0:
-                        print("   ✅ All containers removed")
-                    else:
-                        result = self.run_docker_command(['container', 'prune', '-f'], check=False)
-                else:
-                    result = self.run_docker_command(['container', 'prune', '-f'], check=False)
+            if cleanup_choice in ['1', '2']:
+                # Safe cleanup operations - preserves all running containers
+                print(f"\n🧹 Safe Docker cleanup operations...")
+
+                # Prune unused containers only
+                print(f"🧹 Removing unused containers...")
+                result = self.run_docker_command(['container', 'prune', '-f'], check=False)
                     
                 if result.returncode == 0:
                     space_freed = self.extract_space_from_output(result.stdout)
@@ -905,28 +889,28 @@ class MiniPassAppManager:
                 else:
                     print(f"   ⚠️ Network cleanup warning: {result.stderr}")
             
-            if cleanup_choice in ['2', '3', '4', '5']:
-                # Enhanced build cache cleanup with multiple strategies
-                print(f"\n🏗️ {'Aggressive' if cleanup_choice in ['4', '5'] else 'Standard'} build cache cleanup...")
-                
+            if cleanup_choice in ['2', '3']:
+                # Build cache cleanup with different strategies
+                print(f"\n🏗️ {'Aggressive' if cleanup_choice == '3' else 'Standard'} build cache cleanup...")
+
                 build_cache_strategies = []
-                
-                if cleanup_choice in ['4', '5']:
-                    # Aggressive: Multiple strategies for maximum build cache cleanup
+
+                if cleanup_choice == '3':
+                    # Emergency: Multiple strategies for maximum build cache cleanup
                     print("🗑️ Removing ALL build cache (multi-strategy approach)...")
-                    
+
                     # Strategy 1: Remove ALL build cache including active layers
                     build_cache_strategies.append((['builder', 'prune', '-a', '-f', '--all'], "ALL build cache (including active)"))
-                    
-                    # Strategy 2: Fallback aggressive cleanup  
+
+                    # Strategy 2: Fallback aggressive cleanup
                     build_cache_strategies.append((['builder', 'prune', '-a', '-f'], "ALL unused build cache"))
-                    
+
                     # Strategy 3: Clean with time filter to force removal
                     build_cache_strategies.append((['builder', 'prune', '-a', '-f', '--filter', 'until=24h'], "Build cache older than 24h"))
-                    
+
                     # Strategy 4: Clean with keep-storage=0 to maximize cleanup
                     build_cache_strategies.append((['builder', 'prune', '-a', '-f', '--keep-storage=0'], "Build cache (keep-storage=0)"))
-                    
+
                 else:
                     # Standard: Remove unused build cache with enhanced approach
                     print("🧹 Removing unused build cache...")
@@ -958,10 +942,10 @@ class MiniPassAppManager:
                 else:
                     print("   ℹ️ No build cache space was freed (cache may be in use or already clean)")
                 
-                # Additional cleanup for aggressive modes
-                if cleanup_choice in ['4', '5']:
-                    print("🧽 Additional aggressive cleanup steps...")
-                    
+                # Additional cleanup for emergency mode
+                if cleanup_choice == '3':
+                    print("🧽 Additional emergency cleanup steps...")
+
                     # Clean dangling images that might be holding build cache references
                     print("   🗑️ Removing dangling images...")
                     result = self.run_docker_command(['image', 'prune', '-f'], check=False)
@@ -972,11 +956,11 @@ class MiniPassAppManager:
                             print(f"     ✅ Dangling images removed: {self.format_size(int(dangling_freed))}")
                         else:
                             print("     ✅ No dangling images found")
-                    
+
                     # Force cleanup of buildkit state
                     print("   🧽 Cleaning buildkit state...")
                     import subprocess
-                    
+
                     # Reset buildkit builder to clear any locked state
                     result = subprocess.run('docker buildx prune -af', shell=True, capture_output=True, text=True, check=False)
                     if result.returncode == 0:
@@ -986,7 +970,7 @@ class MiniPassAppManager:
                             print(f"     ✅ Buildx cache cleared: {self.format_size(int(buildx_freed))}")
                         else:
                             print("     ✅ Buildx state cleaned")
-                    
+
                     # Clean up build context cache with timestamp filter
                     result = subprocess.run('docker builder prune --filter until=1s -f', shell=True, capture_output=True, text=True, check=False)
                     if result.returncode == 0:
@@ -997,8 +981,8 @@ class MiniPassAppManager:
                         else:
                             print("     ✅ Build context cache cleaned")
             
-            # Comprehensive system cleanup for option 2 and 5
-            if cleanup_choice in ['2', '5']:
+            # Comprehensive system cleanup for option 2
+            if cleanup_choice == '2':
                 print("🧹 Running comprehensive system cleanup...")
                 result = self.run_docker_command(['system', 'prune', '-a', '-f', '--volumes'], check=False)
                 if result.returncode == 0:
@@ -1039,7 +1023,7 @@ class MiniPassAppManager:
                     print(f"   ⚠️ Still reclaimable: {self.format_size(int(reclaimable_after))} (run aggressive cleanup)")
             
             # Overall effectiveness assessment
-            if cleanup_choice in ['3', '4'] and actual_build_cache_freed == 0:
+            if cleanup_choice == '3' and actual_build_cache_freed == 0:
                 print(f"   ⚠️ Warning: No build cache was freed. Cache may be in use or already clean.")
             elif actual_build_cache_freed > 0:
                 percentage_freed = (actual_build_cache_freed / build_cache_before) * 100 if build_cache_before > 0 else 0
@@ -1049,16 +1033,18 @@ class MiniPassAppManager:
             print("✅ Docker system cleanup completed!")
             
             # Enhanced recommendations
+            print(f"\n💡 Cleanup Summary:")
+            print(f"   🛡️ Your production containers remained running and unaffected")
             if reclaimable_after and reclaimable_after > 100 * 1024 * 1024:  # > 100MB
-                print(f"\n💡 Recommendations:")
+                print(f"\n💡 Additional Recommendations:")
                 print(f"   🔍 {self.format_size(int(reclaimable_after))} build cache still reclaimable.")
-                if cleanup_choice not in ['4', '5']:
-                    print("   🚀 Run option 4 (Aggressive build cache cleanup) for maximum space recovery.")
-                    print("   🧹 Or try: 'docker builder prune -af --keep-storage=0' manually for forced cleanup.")
+                if cleanup_choice != '3':
+                    print("   🚀 Run option 3 (Emergency cleanup) for maximum space recovery.")
+                    print("   🧹 Or try: 'docker builder prune -af --keep-storage=0' manually.")
                 else:
                     print("   ⚠️ This remaining cache may be from active builds or locked layers.")
                     print("   💡 Try stopping Docker daemon and restarting to unlock build cache.")
-            elif cleanup_choice in ['3', '4'] and actual_build_cache_freed == 0:
+            elif cleanup_choice == '3' and actual_build_cache_freed == 0:
                 print(f"\n💡 Troubleshooting:")
                 print("   🔍 No build cache was freed. Possible causes:")
                 print("   • Build cache is currently in use by active builds")
