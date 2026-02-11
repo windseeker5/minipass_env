@@ -39,7 +39,7 @@ def init_mail(app):
 def send_user_deployment_email(to, url, password, email_info=None):
     from utils.deploy_helpers import is_production_environment
 
-    subject = "🎉 Votre application minipass est prête!"  # ✅ French translation
+    subject = "Votre application Minipass - Informations de connexion"  # Transactional subject
 
     # ✅ Render with admin email and email info included
     html = render_template(

@@ -361,11 +361,14 @@
                         </td>
                         <td>
                             <div class="actions">
+                                <!-- TEMPORARILY DISABLED DUE TO GMAIL DELIVERY ISSUES -->
+                                <!--
                                 <form action="{{ url_for('admin_resend_email', subdomain=customer.subdomain) }}" method="POST">
                                     <button type="submit" class="btn btn-secondary btn-icon" title="Resend onboarding email">
                                         📧
                                     </button>
                                 </form>
+                                -->
                                 <form action="{{ url_for('admin_reset_password', subdomain=customer.subdomain) }}" method="POST"
                                       onsubmit="return confirm('Reset password for {{ customer.subdomain }}? A new password will be generated and emailed.')">
                                     <button type="submit" class="btn btn-secondary btn-icon" title="Reset password">
