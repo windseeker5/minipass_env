@@ -294,6 +294,10 @@ def upgrade_lhgi() -> tuple[bool, str]:
         ("Tagging current image as backup",
          "docker tag minipass_env-lhgi:latest minipass_env-lhgi:backup 2>/dev/null || true"),
 
+        # Step 7.5: Save git version to file
+        ("Saving git version to file",
+         f"cd {LHGI_APP_PATH} && git rev-parse --short=7 HEAD > version.txt"),
+
         # Step 8: Build new container (no cache, pull latest base images)
         ("Building LHGI container (no cache, pull latest)",
          f"cd {MINIPASS_ENV_PATH} && docker-compose build --no-cache --pull lhgi"),
@@ -354,6 +358,9 @@ def upgrade_deployed_customer(subdomain: str) -> tuple[bool, str]:
 
         ("Running database migration",
          f"cd {customer_path} && python3 app/migrations/upgrade_production_database.py"),
+
+        ("Saving git version to file",
+         f"cd {app_path} && git rev-parse --short=7 HEAD > version.txt"),
 
         ("Building container (no cache)",
          f"cd {customer_path} && docker-compose build --no-cache"),
