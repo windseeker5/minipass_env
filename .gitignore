@@ -43,7 +43,7 @@ deployed/
 
 # Ken 
 .claude
-docs/
+#docs/
 
 # But keep static/docs/
 !MinipassWebSite/static/docs/
