@@ -5,6 +5,8 @@ from flask_mail import Message, Mail
 from email.mime.image import MIMEImage
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from email.utils import formatdate
+from datetime import datetime, timezone
 import os
 import smtplib
 
@@ -78,9 +80,13 @@ def send_user_deployment_email(to, url, password, email_info=None):
     multipart['Subject'] = subject
     multipart['From'] = sender
     multipart['To'] = to
+    multipart['Return-Path'] = sender
+    multipart['Date'] = formatdate(localtime=True)
+    multipart['Message-ID'] = f"<{int(datetime.now(timezone.utc).timestamp() * 1000000)}@minipass.me>"
+    multipart['Auto-Submitted'] = "auto-generated"
 
     # Attach HTML content
-    multipart.attach(MIMEText(html, 'html'))
+    multipart.attach(MIMEText(html, 'html', 'utf-8'))
 
     # Load and attach images as inline (WITHOUT filename parameter)
     images = {
@@ -172,6 +178,10 @@ def send_password_reset_email(to, subdomain, app_url, new_password):
     msg['Subject'] = subject
     msg['From'] = sender
     msg['To'] = to
+    msg['Return-Path'] = sender
+    msg['Date'] = formatdate(localtime=True)
+    msg['Message-ID'] = f"<{int(datetime.now(timezone.utc).timestamp() * 1000000)}@minipass.me>"
+    msg['Auto-Submitted'] = "auto-generated"
 
     # Plain text fallback
     text = f"""
@@ -184,8 +194,8 @@ Connectez-vous avec votre email ({to}) et ce nouveau mot de passe.
 
 — L'équipe minipass
     """
-    msg.attach(MIMEText(text, 'plain'))
-    msg.attach(MIMEText(html, 'html'))
+    msg.attach(MIMEText(text, 'plain', 'utf-8'))
+    msg.attach(MIMEText(html, 'html', 'utf-8'))
 
     # Send email
     with smtplib.SMTP(smtp_server, smtp_port) as server:
