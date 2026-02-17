@@ -1,11 +1,11 @@
 # Minipass Email System — Master Roadmap
 
-**Last Updated:** February 16, 2026
+**Last Updated:** February 17, 2026
 **Branch:** `feature/email-infrastructure-overhaul` (merged to main: commit `92b0813`)
 
 ---
 
-## Current Status: Phase 1 Complete ✅
+## Current Status: Phase 1 & 2 Complete ✅ — Phase 3 Next
 
 ```
 Pass Rate:    96.9% (222/229 messages)
@@ -113,28 +113,192 @@ v=DMARC1; p=reject; rua=mailto:kdresdell@minipass.me; ruf=mailto:kdresdell@minip
 
 ---
 
-## Phase 3 — Email Size Optimization (Deferred)
+## Phase 3 — Hybrid Hosted Images (Active — Next Priority)
 
-**Trigger:** Only needed if Gmail blocks resume or email size becomes an issue.
+**Status:** Ready to implement. Architecture fully designed.
 
-Current email size: ~32KB–105KB (inline base64 images)
-Target: ~8KB (75% reduction via hosted images)
+**Current email size:** ~30–50 KB per email (HTML ~8 KB + hero image MIME attachment ~22–42 KB)
+**Target size:** ~8–10 KB per email (HTML only, images served via HTTP)
+**Reduction:** ~75–80%
 
-**Plan:** Host images on CDN/static server, replace base64 inline images with HTTP URLs in email templates.
+### Why Hybrid (Not Fully Hosted)
+
+The QR code is a **functional** element — it must always display, even in privacy-blocking email clients. Hero images and logos are **decorative** — the email is fully usable without them.
+
+**Image client compatibility:**
+| Client | External images | Notes |
+|---|---|---|
+| Gmail | ✅ Auto-loads | Google proxies and caches all external images |
+| Apple Mail | ✅ Auto-loads | Apple Privacy Proxy fetches and caches |
+| Outlook.com (web) | ✅ Usually loads | |
+| Outlook Desktop | ⚠️ Blocked by default | User must click "Download Pictures" |
+
+**Decision:** Outlook Desktop is the only real blocker. Activity managers are predominantly on mobile (Gmail / Apple Mail). The trade-off is acceptable. If an Outlook Desktop user blocks images: QR code still shows, transaction table still shows, CTA button still works. The email is functional — just missing decorative hero/logo.
+
+### Image Delivery Strategy
+
+| Image | Method | Reason |
+|---|---|---|
+| QR code | CID inline (unchanged) | Functional — must always display |
+| Hero image | Hosted URL | Decorative — served via existing priority route |
+| Owner logo | Hosted URL | Decorative — letter fallback already exists |
+| Ticket decoration | Hosted URL (static file) | Tiny static asset, never changes |
+| Interac logo | Hosted URL (static file) | Brand asset, always the same |
+
+### Architecture — How It Works
+
+The system already has all the infrastructure needed. The hero image route handles the full 3-tier priority:
+
+```
+Priority 1: Custom upload → static/uploads/{activity_id}_{template}_hero.png
+Priority 2: Default      → templates/email_templates/{template}_original/inline_images.json
+Priority 3: Fallback     → static/uploads/activity_images/{activity.image_filename}
+                           (only when template has active customizations)
+```
+
+**Hero image URL** (existing route, just not wired to emails yet):
+```
+https://lhgi.minipass.me/activity/{activity_id}/hero-image/{template_type}
+```
+
+**Owner logo URL** (already web-accessible via Flask static serving):
+```
+https://lhgi.minipass.me/static/uploads/{activity_id}_owner_logo.png
+```
+When no custom logo exists: the letter-based fallback design is used (already implemented).
+
+**Static decoration URLs** (one-time extraction from inline_images.json):
+```
+https://lhgi.minipass.me/static/images/email/ticket.png
+https://lhgi.minipass.me/static/images/email/interac-logo.png
+```
+
+### What Does NOT Change
+
+- `inline_images.json` files — still needed by the `/hero-image/` route for Priority 2
+- `_original/` folder structure — unchanged
+- The 3-tier priority logic — unchanged
+- Reset flow — unchanged
+- Upload flow — unchanged
+- QR code delivery — stays CID inline
+
+### Implementation Steps
+
+**Step 1 — Extract static decoration images**
+- Decode `ticket.png` and `interac-logo.jpg` from their `inline_images.json`
+- Save to `app/static/images/email/`
+- These are small (~1–9 KB), global, never change
+
+**Step 2 — Update compiled templates (7 templates + 7 originals)**
+- Replace `<img src="cid:hero_image">` → `<img src="{{ hero_image_url }}">`
+- Replace `<img src="cid:logo">` → `<img src="{{ owner_logo_url }}">`
+- Replace `<img src="cid:ticket">` → `<img src="https://lhgi.minipass.me/static/images/email/ticket.png">`
+- QR code `cid:qr_code` stays unchanged
+
+**Step 3 — Update `get_email_context()` in `utils.py`**
+- Add `hero_image_url` = `f"https://lhgi.minipass.me/activity/{activity.id}/hero-image/{template_type}"`
+- Add `owner_logo_url` = `f"https://lhgi.minipass.me/static/uploads/{activity.id}_owner_logo.png"`
+  - If no logo exists: set to a placeholder or handle in template
+
+**Step 4 — Implement `use_hosted_images=True` in `send_email()` (utils.py:2090+)**
+- When `use_hosted_images=True`: skip all MIME image attachment except QR code
+- The `use_hosted_images` parameter already exists in the function signature — just not implemented
+
+**Step 5 — Update all email function callers**
+- `send_new_pass_email()`, `send_payment_received_email()`, `send_pass_redeemed_email()`
+- `send_signup_email()`, `send_late_payment_email()`, `send_survey_invitation_email()`
+- Pass `use_hosted_images=True`
+
+**Step 6 — Update `compileEmailTemplate.py`**
+- Add a mode that produces URL-referenced HTML output (in addition to current CID mode)
+- Keep base64 JSON generation (still needed for `/hero-image/` route)
+
+**Step 7 — Update preview and test-email functions (app.py)**
+
+`email_preview_live()` currently does post-render string substitution:
+replace `cid:X` → `data:image/...;base64,...` in the rendered HTML.
+
+With URL-based templates, this changes to context-level substitution before rendering:
+- If user uploaded a hero (unsaved): set `hero_image_url = data:image/png;base64,...` in context
+- If hero is saved/default: set `hero_image_url = /activity/{id}/hero-image/{template_type}` (browser fetches)
+- Logo: same pattern using `owner_logo_url`
+- QR code: still handled via string substitution of `cid:qr_code` → data URI (unchanged)
+
+`test_email_template()` currently loads all inline images as CID attachments.
+With URL-based templates: only attach QR code as CID. Remove hero/logo attachment.
+The template HTML already resolves to hosted URLs via context.
+
+**Step 8 — Test**
+- Send test emails for all 7 template types
+- Verify images load in Gmail
+- Verify QR code displays in all clients
+- Verify custom hero override works (Priority 1)
+- Verify reset restores correct image (Priority 2)
+- Verify preview with unsaved uploaded hero shows correctly
+- Verify preview with no logo shows letter fallback
+- Verify print preview works
+
+### Files Changed
+
+| File | Change |
+|---|---|
+| `app/templates/email_templates/*_compiled/index.html` | Replace CID refs with URL refs (7 files) |
+| `app/templates/email_templates/*_original/index.html` | Same update for originals (7 files) |
+| `app/utils.py` | `get_email_context()` + `send_email()` implementation |
+| `app/app.py` | `email_preview_live()` + `test_email_template()` image handling |
+| `app/templates/email_templates/compileEmailTemplate.py` | Add URL mode |
+| `app/static/images/email/` | New directory with 2–3 static decoration images |
+
 **Effort:** ~6–8 hours
 
 ---
 
-## Phase 4 — Email Analytics Dashboard (Deferred, Month 2+)
+## Phase 4 — Email Analytics Dashboard (Active — Follows Phase 3)
 
+**Status:** Data layer complete. UI layer is the remaining work.
 
+**Data source:** `email_monitoring/monitoring.db` — SQLite, already populated by `scripts/email_monitor_to_db.py` running on VPS via cron.
 
-**Trigger:** When operational visibility becomes a priority.
+**Access:** Same admin login as customer management.
 
-**Plan:** Simple Flask dashboard on top of `email_monitor_to_db.py` SQLite data showing:
-- Daily/weekly inbound/outbound volume per sender/domain
-- Authentication pass rate trends
-- Alerts for volume spikes
+### Dashboard Location
+
+Add to existing admin tools infrastructure — new Flask route + template.
+
+**Route:** `/admin/mail-dashboard`
+**Template location:** `MinipassWebSite/templates/admin/mail_dashboard.html` (or integrate into `tools.html`)
+
+### Dashboard Features
+
+| Card | Data | Source |
+|---|---|---|
+| Email volume (today / this week / this month) | Sent, delivered, failed counts | `email_log` table |
+| Success rate | Current % and 7-day trend | `email_log` table |
+| DMARC pass rate | Authentication alignment trend | DMARC reports table |
+| Failure breakdown | SPF fail / DKIM fail / forwarded | DMARC reports table |
+| Mail server health | Queue size, recent errors | Server log queries |
+| Recent failures | Last 10 failed deliveries | `email_log` table |
+
+### Technical Implementation
+
+**New Flask route** in `MinipassWebSite/app.py` (or wherever admin routes live):
+```python
+@app.route('/admin/mail-dashboard')
+def mail_dashboard():
+    # Query email_monitoring/monitoring.db
+    # Pass stats to template
+    return render_template('admin/mail_dashboard.html', **stats)
+```
+
+**UI:**
+- Match existing admin tools styling (Tabler.io cards)
+- Minimalist card layout with red/green status indicators
+- Chart.js for 7-day trend lines
+- Auto-refresh every 5 minutes
+- Mobile-responsive for phone monitoring
+
+**Key open question before implementing:** Verify that `email_monitoring/monitoring.db`
+is accessible from the MinipassWebSite container (check volume mounts in `docker-compose.yml`).
 
 **Effort:** ~4–6 hours
 
