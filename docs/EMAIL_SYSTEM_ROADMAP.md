@@ -41,6 +41,11 @@ Gmail ban:    RESOLVED (Feb 12, 2026)
 - `scripts/email_health_check.py` — Queries `email_log` table, alerts if success rate < 95%
 - `scripts/verify_email_rfc_compliance.sh` — Verifies SPF, DKIM, DMARC, MX, PTR records
 
+### Log Retention Enhancement ✅
+- **Mail Queue**: Extended from 5d to 10d (`maximal_queue_lifetime` and `bounce_queue_lifetime`)
+- **Log Files**: Extended from 4 to 8 weeks rotation (weekly rotation, 8 cycles retained)
+- **Purpose**: Ensures 30+ days of historical data required for Phase 2 DMARC monitoring
+
 ---
 
 ## Failure Analysis (96.9% Pass Rate)
@@ -173,6 +178,139 @@ docker logs mailserver --tail 100
 # Check queue
 docker exec mailserver postqueue -p
 ```
+
+---
+
+## Phase 6 — Mail Server Stability & Operations (Future)
+
+**Trigger:** After Phase 2 DMARC upgrade is stable and operational monitoring is needed.
+
+**Goal:** Bulletproof mail server with backup/recovery strategy and operational dashboard.
+
+### Backup Strategy (Simple MVP)
+
+**Data to Backup (~31MB total):**
+- **Configuration**: `./config/` (136KB), `./mailserver.env`, `docker-compose.yml`
+- **Mailbox Data**: `./maildata/` (~29MB) - user emails and folders
+- **Mail State**: `./mailstate/` (~1.9MB) - postfix queues, certificates
+- **DNS Records**: SPF, DKIM, DMARC settings documentation
+
+**Backup Method Options:**
+1. **Simple rsync/SSH** (Recommended for MVP)
+   - Daily automated rsync to remote server
+   - Retention: 7 daily, 4 weekly, 6 monthly backups
+   - Recovery time: ~30-60 minutes
+
+2. **Docker Volume Backup** (Alternative)
+   - `docker run --rm -v maildata:/data -v $(pwd):/backup alpine tar czf /backup/maildata.tar.gz /data`
+   - Pros: Consistent snapshots, easy automation
+   - Cons: Larger files, slower restore
+
+### Recovery Strategy (Max 1-3 Hour Downtime)
+
+**Option A: Manual Restore Scripts (MVP)**
+```bash
+# Emergency restore procedure
+rsync -av backup-server:/minipass-backup/ ./
+docker-compose down
+docker-compose up -d
+# Verify mail flow and DNS
+```
+
+**Option B: Docker Swarm Evaluation**
+- **Simple 2-node setup** on same VPS provider
+- **Automatic failover** with shared storage
+- **Trade-off**: More complexity vs faster recovery
+- **Decision**: Evaluate after manual backup is proven
+
+**Recovery SLA:**
+- **Detection**: < 15 minutes (monitoring alerts)
+- **Restore**: < 2 hours (manual) or < 30 minutes (automated)
+- **Verification**: < 30 minutes (test email flow)
+
+### Enhanced Log Retention ✅
+
+**Already Completed (Feb 17, 2026):**
+- **Mail Queue**: Extended 5d → 10d (`maximal_queue_lifetime`, `bounce_queue_lifetime`)
+- **Log Files**: Extended 4 weeks → 8 weeks rotation (weekly rotation, 8 cycles)
+- **Purpose**: Minimum 1+ month historical data for troubleshooting and analysis
+- **Implementation**: Postfix config + logrotate configuration updated
+
+### Mail Server Dashboard (MinipassWebSite Integration)
+
+**Integration Plan:**
+- **Location**: Add to existing `MinipassWebSite/templates/admin/tools.html`
+- **Data Source**: `email_monitoring/monitoring.db` (45KB SQLite database)
+- **Access**: Same admin login as customer management
+
+**Dashboard Features:**
+- **Email Volume**: Daily/weekly sent, delivered, failed counts
+- **Success Rate**: Current and historical trends (target: >95%)
+- **DMARC Status**: Pass/fail rates, authentication alignment
+- **Mail Server Health**: Queue size, recent errors, log alerts
+- **Quick Actions**: View recent logs, restart services, test email
+
+**Technical Implementation:**
+- New Flask route: `/admin/mail-dashboard`
+- Query existing monitoring database
+- Simple charts (Chart.js or similar)
+- Refresh every 5 minutes (auto-reload)
+
+**UI Design:**
+- Match existing admin tools styling
+- Minimalist cards layout
+- Red/green status indicators
+- Mobile-responsive for phone monitoring
+
+### Implementation Timeline & Effort
+
+**Phase 6.1 — Basic Backup (Week 1-2)**
+- Effort: ~4-6 hours
+- Create rsync backup scripts
+- Set up remote backup location
+- Test restore procedures
+- Document recovery steps
+
+**Phase 6.2 — Dashboard Integration (Week 3-4)**
+- Effort: ~6-8 hours
+- Add mail dashboard route to MinipassWebSite
+- Create admin template integration
+- Query monitoring database
+- Basic charts and status displays
+
+**Phase 6.3 — Advanced Options (Week 5-6)**
+- Effort: ~8-12 hours
+- Docker Swarm evaluation and testing
+- Automated failover setup (if chosen)
+- Enhanced monitoring alerts
+- Performance optimization
+
+### Docker Swarm Evaluation Criteria
+
+**Evaluate Docker Swarm if:**
+- Manual backup/restore takes >2 hours in practice
+- Downtime becomes business-critical issue
+- Multiple mail server failures occur
+
+**Docker Swarm Benefits:**
+- **Automatic failover**: ~5-10 minute recovery
+- **Load balancing**: Multiple mail server instances
+- **Rolling updates**: Zero-downtime updates
+
+**Docker Swarm Complexity:**
+- **Network setup**: Overlay networks, load balancers
+- **Storage**: Shared volumes or database replication
+- **Monitoring**: Health checks and failure detection
+- **Learning curve**: Docker Swarm concepts
+
+**Decision Matrix:**
+| Factor | Manual Backup | Docker Swarm |
+|--------|---------------|--------------|
+| Complexity | Simple ⭐ | Moderate ⭐⭐⭐ |
+| Recovery Time | 1-2 hours | 5-10 minutes |
+| Setup Effort | 4-6 hours | 12-20 hours |
+| Maintenance | Low | Medium |
+| **Recommendation** | **Start here** | Evaluate later |
 
 ---
 
