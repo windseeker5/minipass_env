@@ -72,10 +72,10 @@ class DMARCReportFetcher:
         if not self.password:
             raise ValueError("Password not provided. Set MAIL_PASSWORD environment variable.")
 
-        # Set output directory to app/tools by default
+        # Set output directory to email_monitoring/dmarc_reports by default
         if output_dir is None:
             script_dir = Path(__file__).resolve().parent.parent
-            output_dir = script_dir / "app" / "tools"
+            output_dir = script_dir / "email_monitoring" / "dmarc_reports"
 
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
@@ -300,21 +300,25 @@ class DMARCReportFetcher:
 
         # Import the analyzer
         try:
-            # Add parent directory to path to import from app/tools
-            sys.path.insert(0, str(self.output_dir))
+            # Import from app/tools (where dmarc_analyzer.py lives)
+            app_tools_dir = Path(__file__).resolve().parent.parent / "app" / "tools"
+            sys.path.insert(0, str(app_tools_dir))
             from dmarc_analyzer import DMARCReportAnalyzer
         except ImportError as e:
             print(f"❌ Could not import dmarc_analyzer: {e}")
-            print(f"   Make sure dmarc_analyzer.py exists in {self.output_dir}")
+            print(f"   Make sure dmarc_analyzer.py exists in app/tools/")
             return
 
         # Create analyzer
         analyzer = DMARCReportAnalyzer(use_ai=use_ai)
 
+        # Set output directory for analysis reports
+        reports_output_dir = Path(__file__).resolve().parent.parent / "email_monitoring" / "reports"
+
         # Process each file
         for filepath in files:
             try:
-                analyzer.process_report_file(filepath)
+                analyzer.process_report_file(filepath, output_dir=str(reports_output_dir))
             except Exception as e:
                 print(f"❌ Error analyzing {filepath}: {e}\n")
 

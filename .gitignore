@@ -64,3 +64,8 @@ customers.db
 
 # app/
 
+
+# Email monitoring data (DMARC reports, analysis)
+email_monitoring/dmarc_reports/
+email_monitoring/reports/
+email_monitoring/analysis/

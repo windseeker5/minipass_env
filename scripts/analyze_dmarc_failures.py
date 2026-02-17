@@ -117,7 +117,7 @@ def parse_dmarc_report(xml_content):
     return results
 
 def main():
-    tools_dir = Path(__file__).parent.parent / 'app' / 'tools'
+    dmarc_reports_dir = Path(__file__).parent.parent / 'email_monitoring' / 'dmarc_reports'
 
     print('=' * 80)
     print('📊 COMPREHENSIVE DMARC FAILURE ANALYSIS')
@@ -127,13 +127,13 @@ def main():
     # Find all report files
     report_files = []
     for pattern in ['*.xml.gz', '*.zip', '*.xml']:
-        report_files.extend(tools_dir.glob(pattern))
+        report_files.extend(dmarc_reports_dir.glob(pattern))
 
     # Exclude the analyzer script itself
     report_files = [f for f in report_files if 'analyzer' not in f.name]
 
     if not report_files:
-        print('❌ No DMARC report files found in app/tools/')
+        print(f'❌ No DMARC report files found in {dmarc_reports_dir}/')
         return
 
     print(f'Found {len(report_files)} DMARC report(s) to analyze\n')
