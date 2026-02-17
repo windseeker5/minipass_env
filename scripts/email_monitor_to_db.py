@@ -52,6 +52,7 @@ SCHEMA_STMTS = [
         sent_count     INTEGER DEFAULT 0,
         bounced_count  INTEGER DEFAULT 0,
         deferred_count INTEGER DEFAULT 0,
+        received_count INTEGER DEFAULT 0,
         created_at     TEXT DEFAULT (datetime('now'))
     )""",
     "CREATE UNIQUE INDEX IF NOT EXISTS ix_evd_date_user ON email_volume_daily (date, user_email)",
@@ -98,6 +99,11 @@ SCHEMA_STMTS = [
     "CREATE UNIQUE INDEX IF NOT EXISTS ix_dd_date_reporter ON dmarc_daily (date, reporter)",
 ]
 
+# Schema migrations - add new columns to existing tables
+MIGRATION_STMTS = [
+    "ALTER TABLE email_volume_daily ADD COLUMN received_count INTEGER DEFAULT 0",
+]
+
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
@@ -130,6 +136,55 @@ def _parse_size_mb(size_str: str) -> float:
         return float(size_str[:-1]) / 1024
     # Bare bytes
     return float(size_str) / (1024 * 1024)
+
+
+def _decode_srs_address(address: str) -> str:
+    """
+    Decode SRS (Sender Rewriting Scheme) addresses to extract original sender.
+
+    SRS format: SRS0=hash=TT=domain.com=localpart@forwarder.com
+    - hash: 4-character hash
+    - TT: timestamp (base32)
+    - domain.com: original sender domain
+    - localpart: original sender local part
+
+    Returns the reconstructed original address, or the input if not SRS.
+    """
+    if not address.startswith('SRS0='):
+        return address
+
+    try:
+        # Extract the SRS part before @ symbol
+        local_part, domain = address.split('@', 1)
+
+        # Parse SRS0 format: SRS0=hash=TT=original_domain=original_localpart
+        parts = local_part.split('=')
+        if len(parts) >= 5 and parts[0] == 'SRS0':
+            # Reconstruct: original_localpart@original_domain
+            original_domain = parts[3]
+            original_localpart = '='.join(parts[4:])  # Handle localparts with = in them
+
+            # Clean up the decoded address - some SRS implementations double-encode
+            decoded = f"{original_localpart}@{original_domain}"
+            # If the decoded address still contains SRS-like patterns, try to clean further
+            if '=' in original_localpart and original_domain:
+                # Handle nested SRS encoding
+                if original_localpart.count('=') >= 3:
+                    try:
+                        inner_parts = original_localpart.split('=')
+                        if len(inner_parts) >= 4:
+                            # Extract the actual original parts
+                            actual_local = '='.join(inner_parts[3:])
+                            decoded = f"{actual_local}@{original_domain}"
+                    except:
+                        pass
+
+            return decoded
+    except (ValueError, IndexError):
+        pass
+
+    # If we can't decode it, return as-is but clean it up for display
+    return address
 
 
 def _extract_postfix_timestamp(line: str, target_date: date) -> str:
@@ -186,6 +241,14 @@ class EmailMonitor:
     def _init_schema(self):
         for stmt in SCHEMA_STMTS:
             self.conn.execute(stmt)
+
+        # Apply migrations (these will fail silently if column already exists)
+        for stmt in MIGRATION_STMTS:
+            try:
+                self.conn.execute(stmt)
+            except sqlite3.OperationalError:
+                pass  # Column likely already exists
+
         self.conn.commit()
 
     # ------------------------------------------------------------------
@@ -215,7 +278,7 @@ class EmailMonitor:
           Syslog: 'Feb 15 06:25:01 mail postfix/...'
 
         Returns:
-            aggregates: {from_email: {'sent': n, 'bounced': n, 'deferred': n}}
+            aggregates: {user_email: {'sent': n, 'bounced': n, 'deferred': n, 'received': n}}
             failures:   [{'timestamp', 'from_user', 'to_address', 'error_message', 'status'}, ...]
         """
         # Build both filter prefixes
@@ -240,10 +303,11 @@ class EmailMonitor:
             if qid_m and from_m:
                 qid    = qid_m.group(1)
                 sender = from_m.group(1) or '<>'   # empty = null sender (DSN/bounce)
+                sender = _decode_srs_address(sender)  # Decode SRS addresses
                 queue_sender.setdefault(qid, sender)   # first seen wins
 
         # --- Pass 2: aggregate delivery statuses ---
-        aggregates: dict = defaultdict(lambda: {'sent': 0, 'bounced': 0, 'deferred': 0})
+        aggregates: dict = defaultdict(lambda: {'sent': 0, 'bounced': 0, 'deferred': 0, 'received': 0})
         failures: list   = []
 
         for line in content.splitlines():
@@ -263,6 +327,10 @@ class EmailMonitor:
             if not from_email:
                 from_m     = RE_FROM.search(line)
                 from_email = (from_m.group(1) if from_m else None) or 'unknown'
+
+            # Apply SRS decoding to the final from_email
+            if from_email and from_email != 'unknown':
+                from_email = _decode_srs_address(from_email)
 
             if 'status=sent' in line:
                 aggregates[from_email]['sent'] += 1
@@ -291,6 +359,23 @@ class EmailMonitor:
                     'status':        'deferred',
                 })
 
+        # --- Pass 3: aggregate received emails (LMTP deliveries to local mailboxes) ---
+        for line in content.splitlines():
+            # Fast date filter
+            if not (line.startswith(iso_prefix) or line.startswith(syslog_prefix)):
+                continue
+
+            # Look for LMTP deliveries to local mailboxes: postfix/lmtp[...]: ... to=<user@minipass.me> ... status=sent
+            if 'postfix/lmtp[' not in line or 'status=sent' not in line or '@minipass.me>' not in line:
+                continue
+
+            to_m = RE_TO.search(line)
+            if to_m:
+                recipient = to_m.group(1)
+                # Only count deliveries to our domain
+                if recipient.endswith('@minipass.me'):
+                    aggregates[recipient]['received'] += 1
+
         return aggregates, failures
 
     def store_volume(self, target_date: date, aggregates: dict) -> int:
@@ -299,9 +384,9 @@ class EmailMonitor:
         for user_email, counts in aggregates.items():
             self.conn.execute("""
                 INSERT OR REPLACE INTO email_volume_daily
-                    (date, user_email, sent_count, bounced_count, deferred_count)
-                VALUES (?, ?, ?, ?, ?)
-            """, (date_str, user_email, counts['sent'], counts['bounced'], counts['deferred']))
+                    (date, user_email, sent_count, bounced_count, deferred_count, received_count)
+                VALUES (?, ?, ?, ?, ?, ?)
+            """, (date_str, user_email, counts['sent'], counts['bounced'], counts['deferred'], counts['received']))
             count += 1
         return count
 
@@ -484,11 +569,13 @@ class EmailMonitor:
         aggregates, failures = self.parse_day(log_content, target_date)
         vol_count  = self.store_volume(target_date, aggregates)
         fail_count = self.store_failures(failures)
-        total_sent    = sum(v['sent']    for v in aggregates.values())
-        total_bounced = sum(v['bounced'] for v in aggregates.values())
+        total_sent     = sum(v['sent']     for v in aggregates.values())
+        total_bounced  = sum(v['bounced']  for v in aggregates.values())
         total_deferred = sum(v['deferred'] for v in aggregates.values())
-        print(f"  Unique senders : {vol_count}")
+        total_received = sum(v['received'] for v in aggregates.values())
+        print(f"  Unique users   : {vol_count}")
         print(f"  Sent           : {total_sent}")
+        print(f"  Received       : {total_received}")
         print(f"  Bounced        : {total_bounced}")
         print(f"  Deferred       : {total_deferred}")
         print(f"  Failures stored: {fail_count}")
@@ -531,19 +618,20 @@ class EmailMonitor:
         print("=" * 60)
 
         # Volume summary
-        print("\n## Email Volume (per sender)")
+        print("\n## Email Volume (per user)")
         rows = self.conn.execute("""
-            SELECT date, user_email, sent_count, bounced_count, deferred_count
+            SELECT date, user_email, sent_count, bounced_count, deferred_count, received_count
             FROM email_volume_daily
             WHERE date >= ?
-            ORDER BY date DESC, sent_count DESC
+            ORDER BY date DESC, COALESCE(sent_count, 0) + COALESCE(received_count, 0) DESC
         """, (since,)).fetchall()
         if rows:
-            print(f"  {'Date':<12} {'Sender':<35} {'Sent':>5} {'Bnc':>5} {'Def':>5}")
-            print(f"  {'-'*12} {'-'*35} {'-'*5} {'-'*5} {'-'*5}")
+            print(f"  {'Date':<12} {'User':<35} {'Sent':>5} {'Rcvd':>5} {'Bnc':>5} {'Def':>5}")
+            print(f"  {'-'*12} {'-'*35} {'-'*5} {'-'*5} {'-'*5} {'-'*5}")
             for r in rows:
+                rcvd_count = r['received_count'] if r['received_count'] is not None else 0
                 print(f"  {r['date']:<12} {r['user_email']:<35} "
-                      f"{r['sent_count']:>5} {r['bounced_count']:>5} {r['deferred_count']:>5}")
+                      f"{r['sent_count']:>5} {rcvd_count:>5} {r['bounced_count']:>5} {r['deferred_count']:>5}")
         else:
             print("  No data")
 
