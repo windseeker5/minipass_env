@@ -204,19 +204,45 @@ class EmailMonitor:
         """
         Filter log content to target_date and parse sent/bounced/deferred.
 
-        Postfix syslog format:  'Feb 15 06:25:01 ...'
-        ISO format (rare):      '2026-02-15 06:25:01 ...'
+        Postfix logs from=<> on a qmgr line tied to a queue ID, while
+        status=sent/bounced/deferred appear on smtp/lmtp lines with the same
+        queue ID but no from=.  We do two passes:
+          Pass 1 — build {queue_id: sender} from any line containing from=<>
+          Pass 2 — resolve sender via queue ID when processing delivery lines
+
+        Supported log date formats:
+          ISO:    '2026-02-15T06:25:01.123456+00:00 mail postfix/...'
+          Syslog: 'Feb 15 06:25:01 mail postfix/...'
 
         Returns:
             aggregates: {from_email: {'sent': n, 'bounced': n, 'deferred': n}}
             failures:   [{'timestamp', 'from_user', 'to_address', 'error_message', 'status'}, ...]
         """
         # Build both filter prefixes
-        iso_prefix     = target_date.isoformat()                          # '2026-02-15'
-        month_abbr     = target_date.strftime("%b")                       # 'Feb'
-        day_padded     = str(target_date.day).rjust(2)                    # '15' or ' 5'
-        syslog_prefix  = f"{month_abbr} {day_padded}"                     # 'Feb 15'
+        iso_prefix     = target_date.isoformat()          # '2026-02-15'
+        month_abbr     = target_date.strftime("%b")        # 'Feb'
+        day_padded     = str(target_date.day).rjust(2)    # '15' or ' 5'
+        syslog_prefix  = f"{month_abbr} {day_padded}"     # 'Feb 15'
 
+        # Queue ID pattern: appears as ']: QUEUEID:' in every Postfix log line
+        # Classic IDs: uppercase hex ~11 chars; long IDs: alphanumeric ~18 chars
+        RE_QUEUE_ID = re.compile(r'postfix/\w+\[\d+\]: ([A-Za-z0-9]{8,}):')
+
+        # --- Pass 1: build queue_id -> sender_email map ---
+        queue_sender: dict[str, str] = {}
+        for line in content.splitlines():
+            if not (line.startswith(iso_prefix) or line.startswith(syslog_prefix)):
+                continue
+            if 'from=<' not in line:
+                continue
+            qid_m  = RE_QUEUE_ID.search(line)
+            from_m = RE_FROM.search(line)
+            if qid_m and from_m:
+                qid    = qid_m.group(1)
+                sender = from_m.group(1) or '<>'   # empty = null sender (DSN/bounce)
+                queue_sender.setdefault(qid, sender)   # first seen wins
+
+        # --- Pass 2: aggregate delivery statuses ---
         aggregates: dict = defaultdict(lambda: {'sent': 0, 'bounced': 0, 'deferred': 0})
         failures: list   = []
 
@@ -224,10 +250,19 @@ class EmailMonitor:
             # Fast date filter
             if not (line.startswith(iso_prefix) or line.startswith(syslog_prefix)):
                 continue
+            if 'status=' not in line:
+                continue
 
-            from_m = RE_FROM.search(line)
-            to_m   = RE_TO.search(line)
-            from_email = from_m.group(1) if from_m else 'unknown'
+            to_m  = RE_TO.search(line)
+            qid_m = RE_QUEUE_ID.search(line)
+
+            # Prefer queue-ID lookup; fall back to inline from= on same line
+            from_email = None
+            if qid_m:
+                from_email = queue_sender.get(qid_m.group(1))
+            if not from_email:
+                from_m     = RE_FROM.search(line)
+                from_email = (from_m.group(1) if from_m else None) or 'unknown'
 
             if 'status=sent' in line:
                 aggregates[from_email]['sent'] += 1
@@ -350,7 +385,11 @@ class EmailMonitor:
         Return [(user_email, size_mb), ...] from du inside mailserver.
         Maildir root is /var/mail/minipass.me/<user>/
         """
-        out = _run("docker exec mailserver du -sh /var/mail/minipass.me/*/")
+        # Use sh -c so the glob expands inside the container, not on the host
+        out = _run("docker exec mailserver sh -c 'du -sh /var/mail/minipass.me/*/'")
+        if out is None:
+            # Fallback: try without trailing slash in case some distros need it
+            out = _run("docker exec mailserver sh -c 'du -sh /var/mail/minipass.me/*'")
         if out is None:
             return []
 
