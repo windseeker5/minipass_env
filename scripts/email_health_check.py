@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 import sys
 
 # Database path
-DB_PATH = "/home/kdresdell/Documents/DEV/minipass_env/app/instance/minipass.db"
+DB_PATH = "/home/kdresdell/minipass_env/app/instance/minipass.db"
 
 def check_email_health():
     conn = sqlite3.connect(DB_PATH)
