@@ -503,7 +503,7 @@ def run_upgrade_production_database(app_name, target_dir, db_path):
         logger.info(f"[{app_name}]    This ensures FK constraints, backfills, and edge cases are covered")
 
         # Run the upgrade script
-        upgrade_cmd = ["python", "upgrade_production_database.py"]
+        upgrade_cmd = ["python3", "upgrade_production_database.py"]
         log_subprocess_call(logger, upgrade_cmd, f"[{app_name}] Running database upgrade script")
 
         upgrade_result = subprocess.run(
