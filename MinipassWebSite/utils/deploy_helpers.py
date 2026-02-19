@@ -3,14 +3,78 @@ import bcrypt
 import os
 import subprocess
 import secrets
+from datetime import datetime, timezone
 from .logging_config import (
     setup_subscription_logger, log_subprocess_call, log_subprocess_result,
     log_operation_start, log_operation_end, log_file_operation, log_validation_check
 )
 from .survey_templates import insert_all_default_templates
+from .email_helpers import send_support_error_email
 
 # Initialize subscription logger
 logger = setup_subscription_logger()
+
+
+def send_deployment_failure_alert(customer_name, customer_email, error_msg, app_name):
+    """
+    Send deployment failure alert using RFC-compliant email system
+    """
+    try:
+        # Use existing RFC-compliant email function
+        detailed_error = f"""DEPLOYMENT FAILURE ALERT
+
+Customer: {customer_name}
+Email: {customer_email}
+App Name: {app_name}
+Time: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')}
+
+ERROR DETAILS:
+{error_msg}
+
+ACTION REQUIRED:
+- Check deployment logs in subscribed_app.log
+- Fix the issue manually
+- Consider redeploying for this customer"""
+
+        send_support_error_email(customer_email, app_name, detailed_error)
+        logger.info(f"[{app_name}] 📧 Deployment failure alert sent using RFC-compliant email system")
+        return True
+
+    except Exception as e:
+        logger.error(f"[{app_name}] ❌ Failed to send deployment failure alert: {str(e)}")
+        return False
+
+
+def send_deployment_success_notification(customer_name, customer_email, app_name, tier, organization_name):
+    """
+    Send deployment success notification to support@minipass.me
+    """
+    try:
+        # Create success notification
+        success_details = f"""NEW CUSTOMER DEPLOYMENT SUCCESS! 🎉
+
+Customer: {customer_name}
+Email: {customer_email}
+App Name: {app_name}
+Organization: {organization_name or 'Not specified'}
+Tier: {tier}
+App URL: https://{app_name}.minipass.me
+Time: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')}
+
+STATUS: ✅ DEPLOYMENT COMPLETED SUCCESSFULLY
+
+The customer has been sent their login credentials and should be able to access their app immediately.
+
+View all customers: https://minipass.me/admin/customers"""
+
+        # Use existing RFC-compliant email function (will CC kdresdell@gmail.com)
+        send_support_error_email(customer_email, f"NEW CUSTOMER: {app_name}", success_details)
+        logger.info(f"[{app_name}] 📧 Deployment success notification sent to support")
+        return True
+
+    except Exception as e:
+        logger.error(f"[{app_name}] ❌ Failed to send deployment success notification: {str(e)}")
+        return False
 
 
 def is_production_environment():
@@ -566,6 +630,11 @@ def deploy_customer_container(app_name, admin_email, admin_password, plan, port,
             error_msg = f"Git clone failed: {e.stderr if e.stderr else str(e)}"
             logger.error(f"❌ {error_msg}")
             log_validation_check(logger, "Repository cloned successfully", False, error_msg)
+
+            # Send failure alert email
+            customer_name = organization_name or app_name
+            send_deployment_failure_alert(customer_name, admin_email, error_msg, app_name)
+
             log_operation_end(logger, "Deploy Customer Container", success=False, error_msg=error_msg)
             return False
 
@@ -703,45 +772,24 @@ def deploy_customer_container(app_name, admin_email, admin_password, plan, port,
 
         db_path = os.path.join(instance_dir, "minipass.db")
 
-        # Run Flask database migrations
-        logger.info(f"[{app_name}]    Running flask db upgrade to create database schema")
-        migrate_cmd = ["flask", "db", "upgrade"]
-        log_subprocess_call(logger, migrate_cmd, "Running database migrations")
-
-        try:
-            migrate_result = subprocess.run(
-                migrate_cmd,
-                cwd=target_dir,
-                capture_output=True,
-                text=True,
-                check=True,
-                env={**os.environ, "FLASK_APP": "app.py"}
-            )
-            log_subprocess_result(logger, migrate_result, "Database migrations completed")
-            log_validation_check(logger, "Database schema created", True, "Flask migrations ran successfully")
-        except subprocess.CalledProcessError as e:
-            error_msg = f"Database migration failed: {e.stderr if e.stderr else str(e)}"
-            logger.error(f"❌ {error_msg}")
-            if e.stdout:
-                logger.error(f"📤 Migration stdout: {e.stdout}")
-            log_validation_check(logger, "Database schema created", False, error_msg)
-            log_operation_end(logger, "Deploy Customer Container", success=False, error_msg=error_msg)
-            return False
-
-        # Verify database file was created
-        if os.path.exists(db_path):
-            log_validation_check(logger, "Database file created", True, f"Database exists: {db_path}")
-        else:
-            log_validation_check(logger, "Database file created", False, "Database file not found after migrations")
-            log_operation_end(logger, "Deploy Customer Container", success=False, error_msg="Database file not created")
-            return False
+        # Skip flask db upgrade - we'll use the production upgrade script instead
+        logger.info(f"[{app_name}] ⏭️  Skipping flask db upgrade - using production upgrade script")
+        logger.info(f"[{app_name}]    This ensures all schema updates are applied consistently")
 
         # Run upgrade script to add Stripe settings and other features
         logger.info(f"[{app_name}] 🔧 Step 2c-2: Running upgrade script to add all features")
         upgrade_success = run_upgrade_production_database(app_name, target_dir, db_path)
 
         if not upgrade_success:
-            logger.warning(f"[{app_name}] ⚠️ Upgrade script had issues, but continuing with deployment")
+            error_msg = f"Database upgrade script failed - DEPLOYMENT ABORTED"
+            logger.error(f"[{app_name}] ❌ {error_msg}")
+
+            # Send failure alert email
+            customer_name = organization_name or app_name
+            send_deployment_failure_alert(customer_name, admin_email, error_msg, app_name)
+
+            log_operation_end(logger, "Deploy Customer Container", success=False, error_msg=error_msg)
+            return False
 
         # Configure admin user and organization
         logger.info(f"[{app_name}] 🔐 Step 2d: Configuring admin user and organization")
@@ -892,6 +940,10 @@ def deploy_customer_container(app_name, admin_email, admin_password, plan, port,
         else:
             log_validation_check(logger, f"[{app_name}] Container minipass_{app_name} is running", False, "Container not found in docker ps output")
 
+        # Send success notification to support
+        customer_name = organization_name or app_name
+        send_deployment_success_notification(customer_name, admin_email, app_name, tier, organization_name)
+
         log_operation_end(logger, f"Deploy Customer Container [{app_name}]", success=True)
         return True
         
@@ -900,10 +952,20 @@ def deploy_customer_container(app_name, admin_email, admin_password, plan, port,
         logger.error(f"❌ {error_msg}")
         if e.stdout:
             logger.error(f"📤 Stdout: {e.stdout}")
+
+        # Send failure alert email
+        customer_name = organization_name or app_name
+        send_deployment_failure_alert(customer_name, admin_email, error_msg, app_name)
+
         log_operation_end(logger, "Deploy Customer Container", success=False, error_msg=error_msg)
         return False
     except Exception as e:
         error_msg = f"Unexpected error during deployment: {str(e)}"
         logger.error(f"❌ {error_msg}")
+
+        # Send failure alert email
+        customer_name = organization_name or app_name
+        send_deployment_failure_alert(customer_name, admin_email, error_msg, app_name)
+
         log_operation_end(logger, "Deploy Customer Container", success=False, error_msg=error_msg)
         return False
