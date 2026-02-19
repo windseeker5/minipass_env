@@ -772,12 +772,52 @@ def deploy_customer_container(app_name, admin_email, admin_password, plan, port,
 
         db_path = os.path.join(instance_dir, "minipass.db")
 
-        # Skip flask db upgrade - we'll use the production upgrade script instead
-        logger.info(f"[{app_name}] ⏭️  Skipping flask db upgrade - using production upgrade script")
-        logger.info(f"[{app_name}]    This ensures all schema updates are applied consistently")
+        # Run Flask database migrations to create basic schema
+        logger.info(f"[{app_name}] 🔄 Step 2c-1: Running flask db upgrade to create basic database schema")
+        migrate_cmd = ["flask", "db", "upgrade"]
+        log_subprocess_call(logger, migrate_cmd, "Running Flask database migrations")
 
-        # Run upgrade script to add Stripe settings and other features
-        logger.info(f"[{app_name}] 🔧 Step 2c-2: Running upgrade script to add all features")
+        try:
+            migrate_result = subprocess.run(
+                migrate_cmd,
+                cwd=target_dir,
+                capture_output=True,
+                text=True,
+                check=True,
+                env={**os.environ, "FLASK_APP": "app.py"}
+            )
+            log_subprocess_result(logger, migrate_result, "Flask database migrations completed")
+            log_validation_check(logger, "Basic database schema created", True, "Flask migrations ran successfully")
+        except subprocess.CalledProcessError as e:
+            error_msg = f"Flask database migration failed: {e.stderr if e.stderr else str(e)}"
+            logger.error(f"❌ {error_msg}")
+            if e.stdout:
+                logger.error(f"📤 Migration stdout: {e.stdout}")
+            log_validation_check(logger, "Basic database schema created", False, error_msg)
+
+            # Send failure alert email
+            customer_name = organization_name or app_name
+            send_deployment_failure_alert(customer_name, admin_email, error_msg, app_name)
+
+            log_operation_end(logger, "Deploy Customer Container", success=False, error_msg=error_msg)
+            return False
+
+        # Verify database file was created
+        if os.path.exists(db_path):
+            log_validation_check(logger, "Database file created", True, f"Database exists: {db_path}")
+        else:
+            error_msg = "Database file not found after Flask migrations"
+            log_validation_check(logger, "Database file created", False, error_msg)
+
+            # Send failure alert email
+            customer_name = organization_name or app_name
+            send_deployment_failure_alert(customer_name, admin_email, error_msg, app_name)
+
+            log_operation_end(logger, "Deploy Customer Container", success=False, error_msg=error_msg)
+            return False
+
+        # Run upgrade script to add advanced features (Stripe, constraints, etc.)
+        logger.info(f"[{app_name}] 🔧 Step 2c-2: Running production upgrade script to add advanced features")
         upgrade_success = run_upgrade_production_database(app_name, target_dir, db_path)
 
         if not upgrade_success:
