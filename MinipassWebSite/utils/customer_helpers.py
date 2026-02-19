@@ -49,6 +49,24 @@ def init_customers_db():
             processed_at TEXT DEFAULT CURRENT_TIMESTAMP
         )
         """)
+
+        # Create promo codes table
+        cur.execute("""
+        CREATE TABLE IF NOT EXISTS promo_codes (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            code TEXT UNIQUE NOT NULL,
+            plan TEXT NOT NULL DEFAULT 'pro',
+            tier INTEGER NOT NULL DEFAULT 2,
+            billing_frequency TEXT NOT NULL DEFAULT 'annual',
+            max_uses INTEGER NOT NULL DEFAULT 1,
+            uses_count INTEGER NOT NULL DEFAULT 0,
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+            expires_at TEXT,
+            notes TEXT,
+            redeemed_by_subdomain TEXT,
+            redeemed_at TEXT
+        )
+        """)
         conn.commit()
 
 
@@ -397,3 +415,111 @@ def update_customer_password(subdomain, new_password):
         """, (hashed, new_password, subdomain))
         conn.commit()
         return cur.rowcount > 0
+
+
+def validate_promo_code(code):
+    """
+    Read-only check of a promo code. Does NOT mark the code as used.
+
+    Args:
+        code (str): Promo code to validate
+
+    Returns:
+        dict: {valid, plan, tier, billing_frequency, error}
+    """
+    with sqlite3.connect(CUSTOMERS_DB) as conn:
+        conn.row_factory = sqlite3.Row
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM promo_codes WHERE code = ?", (code.upper(),))
+        row = cur.fetchone()
+
+    if not row:
+        return {"valid": False, "error": "Code invalide"}
+
+    row = dict(row)
+
+    if row["uses_count"] >= row["max_uses"]:
+        return {"valid": False, "error": "Code déjà utilisé"}
+
+    if row["expires_at"]:
+        now = datetime.utcnow().isoformat()
+        if now > row["expires_at"]:
+            return {"valid": False, "error": "Code expiré"}
+
+    return {
+        "valid": True,
+        "plan": row["plan"],
+        "tier": row["tier"],
+        "billing_frequency": row["billing_frequency"],
+        "error": None
+    }
+
+
+def redeem_promo_code(code, subdomain):
+    """
+    Atomically mark a promo code as used (race-condition safe).
+
+    Args:
+        code (str): Promo code to redeem
+        subdomain (str): The subdomain that is redeeming the code
+
+    Returns:
+        bool: True if successfully redeemed, False if already used or invalid
+    """
+    now = datetime.utcnow().isoformat()
+    with sqlite3.connect(CUSTOMERS_DB) as conn:
+        cur = conn.cursor()
+        cur.execute("""
+            UPDATE promo_codes
+            SET uses_count = uses_count + 1,
+                redeemed_by_subdomain = ?,
+                redeemed_at = ?
+            WHERE code = ? AND uses_count < max_uses
+        """, (subdomain, now, code.upper()))
+        conn.commit()
+        return cur.rowcount > 0
+
+
+def get_all_promo_codes():
+    """
+    Fetch all promo codes for admin view.
+
+    Returns:
+        list: List of promo code dictionaries ordered by creation date (newest first)
+    """
+    with sqlite3.connect(CUSTOMERS_DB) as conn:
+        conn.row_factory = sqlite3.Row
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM promo_codes ORDER BY created_at DESC")
+        rows = cur.fetchall()
+        return [dict(row) for row in rows]
+
+
+def create_promo_code(code, plan='pro', tier=2, billing_frequency='annual',
+                      max_uses=1, expires_at=None, notes=None):
+    """
+    Insert a new promo code into the database.
+
+    Args:
+        code (str): The promo code (will be uppercased)
+        plan (str): Subscription plan
+        tier (int): Tier level
+        billing_frequency (str): 'monthly' or 'annual'
+        max_uses (int): Maximum number of uses
+        expires_at (str|None): Expiry date in ISO format, or None for no expiry
+        notes (str|None): Optional notes about this code
+
+    Returns:
+        bool: True if created successfully, False if code already exists
+    """
+    try:
+        with sqlite3.connect(CUSTOMERS_DB) as conn:
+            cur = conn.cursor()
+            cur.execute("""
+                INSERT INTO promo_codes (code, plan, tier, billing_frequency, max_uses, expires_at, notes)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            """, (code.upper(), plan, tier, billing_frequency, max_uses, expires_at, notes))
+            conn.commit()
+            return True
+    except sqlite3.IntegrityError:
+        return False

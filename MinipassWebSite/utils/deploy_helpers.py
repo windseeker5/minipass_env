@@ -809,6 +809,7 @@ def deploy_customer_container(app_name, admin_email, admin_password, plan, port,
                   - ./app/static/uploads:/app/static/uploads
                 environment:
                   - FLASK_ENV=dev
+                  - SITE_URL=https://{app_name}.minipass.me
 
                   # ✅ NGINX reverse proxy support
                   - VIRTUAL_HOST={app_name}.minipass.me
@@ -850,6 +851,7 @@ def deploy_customer_container(app_name, admin_email, admin_password, plan, port,
                   - ./app/static/uploads:/app/static/uploads
                 environment:
                   - FLASK_ENV=dev
+                  - SITE_URL=http://localhost:{port}
 
                 restart: unless-stopped
             """)
