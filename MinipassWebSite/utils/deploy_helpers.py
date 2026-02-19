@@ -9,7 +9,7 @@ from .logging_config import (
     log_operation_start, log_operation_end, log_file_operation, log_validation_check
 )
 from .survey_templates import insert_all_default_templates
-from .email_helpers import send_support_error_email
+from .email_helpers import send_support_error_email, send_deployment_success_email
 
 # Initialize subscription logger
 logger = setup_subscription_logger()
@@ -67,8 +67,8 @@ The customer has been sent their login credentials and should be able to access 
 
 View all customers: https://minipass.me/admin/customers"""
 
-        # Use existing RFC-compliant email function (will CC kdresdell@gmail.com)
-        send_support_error_email(customer_email, f"NEW CUSTOMER: {app_name}", success_details)
+        # Use proper success email function (will CC kdresdell@gmail.com)
+        send_deployment_success_email(customer_email, app_name, success_details)
         logger.info(f"[{app_name}] 📧 Deployment success notification sent to support")
         return True
 
