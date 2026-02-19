@@ -136,6 +136,24 @@ def send_support_error_email(user_email, app_name, error_log):
     mail.send(msg)
 
 
+def send_deployment_success_email(user_email, app_name, success_details):
+    subject = f"[minipass] New Customer Deployed Successfully: {app_name}"
+    tech_support = "kdresdell@gmail.com"
+    recipients = [user_email]
+    cc = [tech_support]
+
+    html_body = f"""
+    <p>🎉 <strong>Great news!</strong></p>
+    <p>Your minipass app <strong>{app_name}</strong> has been deployed successfully!</p>
+    <hr>
+    <pre style="background:#e8f5e8;padding:10px;border-radius:5px;font-size:0.9rem;border:1px solid #4caf50;">{success_details}</pre>
+    <p>— minipass Deployment Bot</p>
+    """
+
+    msg = Message(subject=subject, recipients=recipients, cc=cc, html=html_body)
+    mail.send(msg)
+
+
 def send_password_reset_email(to, subdomain, app_url, new_password):
     """
     Send a password reset email to a customer.
