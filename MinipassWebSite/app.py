@@ -230,6 +230,91 @@ def create_checkout_session():
         return redirect(url_for("home") + "?error=checkout_failed")
 
 
+# ✅ Promo code validation (AJAX, read-only)
+@app.route("/validate-promo-code", methods=["POST"])
+def validate_promo_code_route():
+    from utils.customer_helpers import init_customers_db, validate_promo_code
+    init_customers_db()
+    data = request.get_json()
+    code = (data.get("code") or "").strip()
+    if not code:
+        return jsonify({"valid": False, "error": "Code manquant"}), 400
+    result = validate_promo_code(code)
+    return jsonify(result)
+
+
+# ✅ Promo code redemption (full Stripe bypass)
+@app.route("/redeem-promo", methods=["POST"])
+def redeem_promo():
+    from utils.customer_helpers import (
+        init_customers_db, validate_promo_code, redeem_promo_code,
+        subdomain_taken, get_next_available_port, insert_customer
+    )
+
+    init_customers_db()
+
+    app_name = (request.form.get("app_name") or "").strip().lower()
+    organization_name = (request.form.get("organization_name") or "").strip()
+    admin_email = (request.form.get("admin_email") or "").strip()
+    promo_code = (request.form.get("promo_code") or "").strip()
+
+    # Server-side re-validation (never trust client state)
+    if not app_name or not admin_email or not promo_code:
+        return redirect(url_for("home") + "?error=missing_fields")
+
+    validation = validate_promo_code(promo_code)
+    if not validation.get("valid"):
+        return redirect(url_for("home") + "?error=invalid_promo")
+
+    subdomain_pattern = re.compile(r'^[a-z0-9][a-z0-9-]{0,61}[a-z0-9]$|^[a-z0-9]{1,2}$')
+    if not subdomain_pattern.match(app_name):
+        return redirect(url_for("home") + "?error=invalid_subdomain")
+
+    if subdomain_taken(app_name):
+        return redirect(url_for("home") + "?error=subdomain_taken")
+
+    plan = validation["plan"]
+    tier = validation["tier"]
+    billing_frequency = validation["billing_frequency"]
+    admin_password = secrets.token_urlsafe(12)
+    promo_session_id = "promo_" + secrets.token_urlsafe(24)
+    port = get_next_available_port()
+    email_address = f"{app_name}_app@minipass.me"
+    forwarding_email = admin_email
+
+    from datetime import timedelta
+    subscription_start_date = datetime.now().isoformat()
+    subscription_end_date = (datetime.now() + timedelta(days=365)).isoformat()
+
+    # Atomic mark-as-used (race condition guard)
+    if not redeem_promo_code(promo_code, app_name):
+        return redirect(url_for("home") + "?error=promo_already_used")
+
+    insert_customer(
+        admin_email, app_name, app_name, plan, admin_password, port,
+        email_address=email_address, forwarding_email=forwarding_email,
+        email_status='pending', organization_name=organization_name,
+        billing_frequency=billing_frequency,
+        subscription_start_date=subscription_start_date,
+        subscription_end_date=subscription_end_date,
+        stripe_checkout_session_id=promo_session_id,
+        payment_amount=0,
+        currency='cad',
+        subscription_status='active'
+    )
+
+    logging.info(f"🎁 Promo code '{promo_code}' redeemed for {app_name} ({admin_email}) — session {promo_session_id}")
+
+    deployment_thread = threading.Thread(
+        target=process_deployment_async,
+        args=(app_name, admin_email, admin_password, plan, port, organization_name,
+              tier, billing_frequency, subscription_start_date, subscription_end_date,
+              None, promo_session_id, None, None, 0, 'cad', email_address, forwarding_email),
+        daemon=True
+    )
+    deployment_thread.start()
+
+    return redirect(url_for("deployment_in_progress") + f"?session_id={promo_session_id}")
 
 
 
@@ -863,6 +948,50 @@ def admin_reset_password(subdomain):
     except Exception as e:
         logging.error(f"Failed to reset password for {subdomain}: {e}")
         return redirect(url_for('admin_tools', error=f"Failed to reset password: {str(e)}"))
+
+
+# ✅ Admin promo codes
+@app.route("/admin/promo-codes")
+@require_admin
+def admin_promo_codes():
+    from utils.customer_helpers import init_customers_db, get_all_promo_codes
+    init_customers_db()
+    codes = get_all_promo_codes()
+    return render_template("admin/promo_codes.html", codes=codes,
+                           message=request.args.get('message'),
+                           error=request.args.get('error'))
+
+
+@app.route("/admin/promo-codes/create", methods=["POST"])
+@require_admin
+def admin_create_promo_code():
+    from utils.customer_helpers import init_customers_db, create_promo_code
+    init_customers_db()
+
+    code = (request.form.get("code") or "").strip().upper()
+    plan = request.form.get("plan", "pro").lower()
+    tier = PLAN_TO_TIER.get(plan, 2)
+    billing_frequency = request.form.get("billing_frequency", "annual").lower()
+    max_uses_raw = request.form.get("max_uses", "1").strip()
+    expires_at = request.form.get("expires_at", "").strip() or None
+    notes = request.form.get("notes", "").strip() or None
+
+    try:
+        max_uses = int(max_uses_raw)
+        if max_uses < 1:
+            raise ValueError
+    except ValueError:
+        return redirect(url_for("admin_promo_codes", error="Nombre d'utilisations invalide"))
+
+    if not code:
+        return redirect(url_for("admin_promo_codes", error="Code requis"))
+
+    success = create_promo_code(code, plan=plan, tier=tier, billing_frequency=billing_frequency,
+                                max_uses=max_uses, expires_at=expires_at, notes=notes)
+    if success:
+        return redirect(url_for("admin_promo_codes", message=f"Code '{code}' créé avec succès"))
+    else:
+        return redirect(url_for("admin_promo_codes", error=f"Le code '{code}' existe déjà"))
 
 
 # ✅ Run server
