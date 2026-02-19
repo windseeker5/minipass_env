@@ -732,12 +732,13 @@
   .modal-price-header {
     background: linear-gradient(135deg, #22c55e 0%, #14b8a6 50%, #0d9488 100%);
     color: white;
-    padding: 2rem 2.5rem;
+    padding: 1.25rem 2rem;
     border-radius: 16px 16px 0 0;
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 2rem;
+    overflow: hidden;
   }
 
   .modal-price-left {
@@ -756,14 +757,14 @@
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 1.5px;
-    margin-bottom: 12px;
+    margin-bottom: 4px;
     opacity: 0.9;
   }
 
   .modal-price-display {
-    font-size: 2.75rem;
+    font-size: 2.5rem;
     font-weight: 700;
-    margin: 8px 0;
+    margin: 4px 0;
     line-height: 1;
   }
 
@@ -789,11 +790,11 @@
   .modal-savings-badge {
     display: inline-block;
     background: rgba(255, 255, 255, 0.2);
-    padding: 7px 18px;
+    padding: 5px 14px;
     border-radius: 20px;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     font-weight: 600;
-    margin-top: 14px;
+    margin-top: 6px;
   }
 
   .modal-savings-badge i {
@@ -803,14 +804,14 @@
 
   /* Modal Body - clean white background */
   .modal-body {
-    padding: 2rem 2.5rem 1.5rem;
+    padding: 1.25rem 2rem 0.5rem;
     background: white;
   }
 
   .modal-body h5 {
-    font-size: 1.3rem;
+    font-size: 1.2rem;
     font-weight: 600;
-    margin-bottom: 1.25rem;
+    margin-bottom: 0.85rem;
     color: #2c3e50;
   }
 
@@ -830,7 +831,7 @@
 
   /* Form Fields with Icons */
   .form-field-group {
-    margin-bottom: 1.5rem;
+    margin-bottom: 0.85rem;
   }
 
   .form-label-with-icon {
@@ -874,32 +875,27 @@
     color: #099a97;
   }
 
-  /* Policy Section */
-  .modal-policy-section {
-    background: #f8f9fa;
-    padding: 16px 20px;
-    border-radius: 8px;
-    margin: 1.5rem 0 0;
-    font-size: 0.875rem;
-    text-align: center;
-    color: #555;
-  }
-
-  .modal-policy-section a {
-    color: #099a97;
-    text-decoration: none;
-    font-weight: 600;
-  }
-
-  .modal-policy-section a:hover {
-    text-decoration: underline;
-  }
-
   /* Modal Footer */
   .modal-footer {
     border-top: none;
-    padding: 0 2.5rem 2rem;
-    margin-top: 0.5rem;
+    padding: 0.5rem 2rem 1.25rem;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .modal-policy-link {
+    font-size: 0.75rem;
+    color: #888;
+    text-align: center;
+  }
+
+  .modal-policy-link a {
+    color: #099a97;
+    text-decoration: none;
+  }
+
+  .modal-policy-link a:hover {
+    text-decoration: underline;
   }
 
   .modal-footer .btn {
@@ -926,24 +922,29 @@
   @media (max-width: 768px) {
     .modal-dialog {
       max-width: 95vw;
-      margin: 1rem auto;
+      margin: 0.5rem auto;
     }
 
     .modal-price-header {
-      padding: 1.75rem 1.5rem;
+      padding: 1rem 1.25rem;
     }
 
-    .modal-price-display {
-      font-size: 2.25rem;
+    .modal-benefits-right {
+      display: none;
     }
 
     .modal-body {
-      padding: 1.75rem 1.5rem 1.25rem;
+      padding: 1rem 1.25rem 0.5rem;
     }
 
     .modal-footer {
-      padding: 0 1.5rem 1.75rem;
+      padding: 0.5rem 1.25rem 1rem;
     }
+
+    .modal-price-display {
+      font-size: 2rem;
+    }
+
   }
 </style>
 
@@ -951,7 +952,7 @@
 <!-- Modal HTML -->
 <div class="modal fade" id="signupModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
-    <form action="/start-checkout" method="POST" class="modal-content">
+    <form id="signup-form" action="/start-checkout" method="POST" class="modal-content">
       <!-- Modal Header with Close Button -->
       <div class="modal-header">
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -1026,9 +1027,22 @@
           </div>
         </div>
 
-        <!-- Policy Section -->
-        <div class="modal-policy-section">
-          Consultez notre <a href="/politiques" target="_blank">politique d'abonnement</a>
+        <!-- Promo Code Section -->
+        <div class="mt-2">
+          <a href="#" class="text-muted small" id="promo-toggle" style="text-decoration:none; font-size:0.85rem;">
+            Vous avez un code promotionnel ?
+          </a>
+          <div id="promo-collapse" style="display:none; margin-top:8px;">
+            <div class="d-flex gap-2 align-items-center">
+              <input type="text" id="promo-code-input" class="form-control form-control-sm"
+                     placeholder="CODE PROMO" style="text-transform:uppercase; max-width:160px;" />
+              <button type="button" class="btn btn-sm btn-outline-secondary" id="promo-apply-btn">
+                Appliquer
+              </button>
+            </div>
+            <div id="promo-feedback" class="mt-1 small"></div>
+            <input type="hidden" name="promo_code" id="promo-code-hidden" value="" />
+          </div>
         </div>
       </div>
 
@@ -1037,6 +1051,9 @@
         <button type="submit" class="btn btn-primary" id="submit-btn">
           Procéder au paiement
         </button>
+        <div class="modal-policy-link">
+          Consultez notre <a href="/politiques" target="_blank">politique d'abonnement</a>
+        </div>
       </div>
     </form>
   </div>
@@ -1100,6 +1117,36 @@
     // Open modal
     const modal = new bootstrap.Modal(document.getElementById('signupModal'));
     modal.show();
+    resetPromoState();
+  }
+
+  // ---------- Promo code state ----------
+  let promoValidated = false;
+
+  function resetPromoState() {
+    promoValidated = false;
+    const hidden = document.getElementById('promo-code-hidden');
+    const input = document.getElementById('promo-code-input');
+    const feedback = document.getElementById('promo-feedback');
+    const collapse = document.getElementById('promo-collapse');
+    if (hidden) hidden.value = '';
+    if (input) input.value = '';
+    if (feedback) { feedback.textContent = ''; feedback.style.color = ''; }
+    if (collapse) collapse.style.display = 'none';
+    updateSubmitButton();
+  }
+
+  function updateSubmitButton() {
+    const btn = document.getElementById('submit-btn');
+    const form = document.getElementById('signup-form');
+    if (!btn || !form) return;
+    if (promoValidated) {
+      btn.textContent = 'Activer mon code';
+      form.action = '/redeem-promo';
+    } else {
+      btn.textContent = 'Procéder au paiement';
+      form.action = '/start-checkout';
+    }
   }
 
   document.addEventListener("DOMContentLoaded", function () {
@@ -1107,6 +1154,7 @@
     const feedback = document.getElementById("subdomain-feedback");
     const submit = document.getElementById("submit-btn");
 
+    // ---------- Subdomain validation (unchanged) ----------
     input.addEventListener("input", function () {
       const subdomain = input.value.trim().toLowerCase();
 
@@ -1140,6 +1188,73 @@
         submit.disabled = true;
       });
     });
+
+    // ---------- Promo code UI ----------
+    const promoToggle = document.getElementById('promo-toggle');
+    const promoCollapse = document.getElementById('promo-collapse');
+    const promoInput = document.getElementById('promo-code-input');
+    const promoApplyBtn = document.getElementById('promo-apply-btn');
+    const promoFeedback = document.getElementById('promo-feedback');
+    const promoHidden = document.getElementById('promo-code-hidden');
+
+    if (promoToggle) {
+      promoToggle.addEventListener('click', function (e) {
+        e.preventDefault();
+        promoCollapse.style.display = promoCollapse.style.display === 'none' ? 'block' : 'none';
+      });
+    }
+
+    if (promoInput) {
+      promoInput.addEventListener('input', function () {
+        promoInput.value = promoInput.value.toUpperCase();
+        // Reset validated state when user edits the code
+        if (promoValidated) {
+          promoValidated = false;
+          promoHidden.value = '';
+          promoFeedback.textContent = '';
+          updateSubmitButton();
+        }
+      });
+    }
+
+    if (promoApplyBtn) {
+      promoApplyBtn.addEventListener('click', function () {
+        const code = promoInput.value.trim();
+        if (!code) return;
+
+        promoApplyBtn.disabled = true;
+        promoFeedback.textContent = '⏳ Vérification…';
+        promoFeedback.style.color = '#6c757d';
+
+        fetch('/validate-promo-code', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code: code })
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.valid) {
+            promoValidated = true;
+            promoHidden.value = code;
+            promoFeedback.innerHTML = '✅ Code valide ! Accès gratuit activé.';
+            promoFeedback.style.color = '#28a745';
+          } else {
+            promoValidated = false;
+            promoHidden.value = '';
+            promoFeedback.innerHTML = `❌ ${data.error || 'Code invalide'}`;
+            promoFeedback.style.color = '#dc3545';
+          }
+          updateSubmitButton();
+        })
+        .catch(() => {
+          promoFeedback.innerHTML = '⚠️ Erreur de vérification';
+          promoFeedback.style.color = '#dc3545';
+        })
+        .finally(() => {
+          promoApplyBtn.disabled = false;
+        });
+      });
+    }
   });
   </script>
 

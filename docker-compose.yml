@@ -92,6 +92,7 @@ services:
       - LETSENCRYPT_EMAIL=kdresdell@gmail.com
       - SITE_URL=https://lhgi.minipass.me
       - TZ=America/Toronto
+      - SITE_URL=https://lhgi.minipass.me
     expose:
       - "8889"
     volumes:
