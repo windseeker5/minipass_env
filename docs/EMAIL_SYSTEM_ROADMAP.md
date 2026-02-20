@@ -1,11 +1,11 @@
 # Minipass Email System — Master Roadmap
 
-**Last Updated:** February 17, 2026
+**Last Updated:** February 19, 2026
 **Branch:** `feature/email-infrastructure-overhaul` (merged to main: commit `92b0813`)
 
 ---
 
-## Current Status: Phase 1 & 2 Complete ✅ — Phase 3 Next
+## Current Status: Phases 1, 2 & 3 Complete ✅ — Phase 4 Next
 
 ```
 Pass Rate:    96.9% (222/229 messages)
@@ -113,13 +113,11 @@ v=DMARC1; p=reject; rua=mailto:kdresdell@minipass.me; ruf=mailto:kdresdell@minip
 
 ---
 
-## Phase 3 — Hybrid Hosted Images (Active — Next Priority)
+## Phase 3 — Hybrid Hosted Images ✅ Complete
 
-**Status:** Ready to implement. Architecture fully designed.
+**Status:** Complete (February 2026). Hero and owner logo images are served via hosted Flask routes. QR code remains CID-embedded as a functional element.
 
-**Current email size:** ~30–50 KB per email (HTML ~8 KB + hero image MIME attachment ~22–42 KB)
-**Target size:** ~8–10 KB per email (HTML only, images served via HTTP)
-**Reduction:** ~75–80%
+**Email size achieved:** ~8–10 KB per email (down from ~30–50 KB with full CID attachments — ~75–80% reduction)
 
 ### Why Hybrid (Not Fully Hosted)
 
@@ -182,7 +180,7 @@ https://lhgi.minipass.me/static/images/email/interac-logo.png
 - Upload flow — unchanged
 - QR code delivery — stays CID inline
 
-### Implementation Steps
+### Implementation Summary (What Was Done)
 
 **Step 1 — Extract static decoration images**
 - Decode `ticket.png` and `interac-logo.jpg` from their `inline_images.json`
@@ -249,7 +247,7 @@ The template HTML already resolves to hosted URLs via context.
 | `app/templates/email_templates/compileEmailTemplate.py` | Add URL mode |
 | `app/static/images/email/` | New directory with 2–3 static decoration images |
 
-**Effort:** ~6–8 hours
+**Actual effort:** ~6–8 hours
 
 ---
 
