@@ -1,6 +1,6 @@
 # Minipass Email System — Master Roadmap
 
-**Last Updated:** February 19, 2026
+**Last Updated:** February 20, 2026
 **Branch:** `feature/email-infrastructure-overhaul` (merged to main: commit `92b0813`)
 
 ---
@@ -50,21 +50,9 @@ Gmail ban:    RESOLVED (Feb 12, 2026)
 
 ## Failure Analysis (96.9% Pass Rate)
 
-### Issue 1 — `mail.minipass.me` domain (2 failures) ❌ FIX THIS
-System emails (postmaster, root) are sent with `From: mail.minipass.me` instead of `From: minipass.me`.
-DKIM and SPF fail because authentication is configured for `minipass.me` only.
-
-**Fix (run on VPS):**
-```bash
-docker exec mailserver postconf -e "myorigin = minipass.me"
-docker exec mailserver postconf -e "smtp_helo_name = minipass.me"
-docker restart mailserver
-```
-
-**Verify:**
-```bash
-docker exec mailserver postconf myorigin smtp_helo_name
-```
+### Issue 1 — `mail.minipass.me` domain ✅ FIXED
+System emails (postmaster, root) were sent with `From: mail.minipass.me` instead of `From: minipass.me`.
+Fix applied: `myorigin = minipass.me` and `smtp_helo_name = minipass.me` set via postconf, mailserver restarted.
 
 ### Issue 2 — Forwarded emails (5 failures) ✅ EXPECTED BEHAVIOR
 Emails forwarded from external domains (telus.com, jfgoulet.com) always break SPF alignment.
@@ -82,7 +70,7 @@ Forwarded:    ~2% SPF fail (expected, DKIM passes)
 
 ## Phase 2 — DMARC Policy Upgrade
 
-**Prerequisite:** Fix `mail.minipass.me` issue above and confirm 98%+ pass rate for 30 days.
+**Prerequisite:** Confirm 98%+ pass rate for 30 days (clock started after `mail.minipass.me` fix applied).
 
 ### Step 1: Quarantine (Week 6 from fix)
 Change DNS TXT record for `_dmarc.minipass.me`:
@@ -103,7 +91,7 @@ v=DMARC1; p=reject; rua=mailto:kdresdell@minipass.me; ruf=mailto:kdresdell@minip
 ### DMARC Upgrade Timeline
 | Week | Action |
 |------|--------|
-| Now  | Fix `mail.minipass.me` issue |
+| Now  | ✅ `mail.minipass.me` fix applied |
 | +1   | Confirm 98% pass rate |
 | +2–5 | Monitor stability |
 | +6   | `p=quarantine; pct=10` |
@@ -251,23 +239,72 @@ The template HTML already resolves to hosted URLs via context.
 
 ---
 
-## Phase 4 — Email Analytics Dashboard (Active — Follows Phase 3)
+## Phase 4 — Email Analytics Dashboard (Active)
 
-**Status:** Data layer complete. UI layer is the remaining work.
+**Status:** In progress — pipeline audit before UI build.
 
-**Data source:** `email_monitoring/monitoring.db` — SQLite, already populated by `scripts/email_monitor_to_db.py` running on VPS via cron.
+**Data source:** `email_monitoring/monitoring.db` — SQLite, populated by `scripts/email_monitor_to_db.py` on VPS.
 
-**Access:** Same admin login as customer management.
+**The rule:** Dashboard UI only starts after data pipeline is validated. No point building UI on top of broken data.
 
-### Dashboard Location
+---
 
-Add to existing admin tools infrastructure — new Flask route + template.
+### Phase 4.0 — KDC Beta Environment ⬜ TODO
+
+Deploy latest app version to `kdc.minipass.me` container and generate a full email lifecycle manually:
+
+- Create test customer + activity
+- Subscribe to activity → generate pass
+- Simulate payment → trigger payment email
+- Redeem pass → trigger redemption email
+
+This produces real, known email traffic that can be traced end-to-end through the data pipeline.
+
+---
+
+### Phase 4.1 — Data Pipeline Audit & Fix ⬜ TODO
+
+The two critical scripts that feed the dashboard. Suspect glitches in `email_monitor_to_db.py` — audit before trusting any data.
+
+**`scripts/email_monitor_to_db.py`** — audit checklist:
+- [ ] What log source is it reading? (mailserver logs / postfix logs?)
+- [ ] Is parsing correct for current email format (RFC headers, hosted images)?
+- [ ] Is it on cron? What schedule? Is it actually firing?
+- [ ] Is it writing to `monitoring.db` without silent errors?
+- [ ] Fix any bugs found
+
+**`scripts/fetch_dmarc_reports.py`** — audit checklist:
+- [ ] IMAP credentials still valid?
+- [ ] Finding and parsing reports from all 5 providers?
+- [ ] Results landing in `monitoring.db`?
+- [ ] Fix any bugs found
+
+**Log retention verification:**
+- [ ] Confirm 8-week log rotation was actually applied on VPS (roadmap says Feb 17 — verify it)
+- [ ] Extend to sufficient retention if needed
+
+---
+
+### Phase 4.2 — Data Validation ⬜ TODO
+
+After KDC traffic generated and scripts running:
+
+- [ ] Query `monitoring.db` directly — does the data make sense?
+- [ ] Cross-check `email_log` counts against emails sent from KDC
+- [ ] Confirm DMARC pass rate calculations are accurate
+- [ ] Confirm success rate reflects reality (target: 98–99% after `mail.minipass.me` fix)
+
+Only proceed to Phase 4.3 after this validation passes.
+
+---
+
+### Phase 4.3 — Dashboard UI ⬜ TODO
 
 **Route:** `/admin/mail-dashboard`
-**Template location:** `MinipassWebSite/templates/admin/mail_dashboard.html` (or integrate into `tools.html`)
+**Template:** `MinipassWebSite/templates/admin/mail_dashboard.html` (or integrate into `tools.html`)
+**Access:** Same admin login as customer management
 
-### Dashboard Features
-
+**Cards:**
 | Card | Data | Source |
 |---|---|---|
 | Email volume (today / this week / this month) | Sent, delivered, failed counts | `email_log` table |
@@ -277,26 +314,14 @@ Add to existing admin tools infrastructure — new Flask route + template.
 | Mail server health | Queue size, recent errors | Server log queries |
 | Recent failures | Last 10 failed deliveries | `email_log` table |
 
-### Technical Implementation
-
-**New Flask route** in `MinipassWebSite/app.py` (or wherever admin routes live):
-```python
-@app.route('/admin/mail-dashboard')
-def mail_dashboard():
-    # Query email_monitoring/monitoring.db
-    # Pass stats to template
-    return render_template('admin/mail_dashboard.html', **stats)
-```
-
 **UI:**
-- Match existing admin tools styling (Tabler.io cards)
-- Minimalist card layout with red/green status indicators
+- Tabler.io cards (matches existing admin tools)
+- Red/green status indicators
 - Chart.js for 7-day trend lines
 - Auto-refresh every 5 minutes
-- Mobile-responsive for phone monitoring
+- Mobile-responsive
 
-**Key open question before implementing:** Verify that `email_monitoring/monitoring.db`
-is accessible from the MinipassWebSite container (check volume mounts in `docker-compose.yml`).
+**Before implementing:** Verify `email_monitoring/monitoring.db` is accessible from the MinipassWebSite container (check volume mounts in `docker-compose.yml`).
 
 **Effort:** ~4–6 hours
 
