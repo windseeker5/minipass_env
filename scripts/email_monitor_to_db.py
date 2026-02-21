@@ -36,10 +36,10 @@ REPORTS_DIR = BASE_DIR / "email_monitoring" / "reports"
 RE_FROM = re.compile(r'from=<([^>]*)>')
 RE_TO   = re.compile(r'to=<([^>]+)>')
 
-# DMARC .md parsing patterns
+# DMARC .md parsing patterns (updated to match dmarc_analyzer.py output)
 RE_PERIOD = re.compile(r'\*\*Period:\*\* (\d{4}-\d{2}-\d{2})')
-RE_TOTAL  = re.compile(r'Total Messages Reported:\*\* (\d+)')
-RE_PASSED = re.compile(r'Both DKIM & SPF Passed:\*\* (\d+)')
+RE_TOTAL  = re.compile(r'- \*\*Total Messages:\*\* (\d+)')
+RE_PASSED = re.compile(r'- \*\*DMARC Pass:\*\* (\d+)')
 
 # ---------------------------------------------------------------------------
 # Schema (all CREATE statements are idempotent)
