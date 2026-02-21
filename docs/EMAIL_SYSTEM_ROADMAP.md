@@ -1,6 +1,6 @@
 # Minipass Email System — Master Roadmap
 
-**Last Updated:** February 19, 2026
+**Last Updated:** February 20, 2026
 **Branch:** `feature/email-infrastructure-overhaul` (merged to main: commit `92b0813`)
 
 ---
@@ -50,21 +50,9 @@ Gmail ban:    RESOLVED (Feb 12, 2026)
 
 ## Failure Analysis (96.9% Pass Rate)
 
-### Issue 1 — `mail.minipass.me` domain (2 failures) ❌ FIX THIS
-System emails (postmaster, root) are sent with `From: mail.minipass.me` instead of `From: minipass.me`.
-DKIM and SPF fail because authentication is configured for `minipass.me` only.
-
-**Fix (run on VPS):**
-```bash
-docker exec mailserver postconf -e "myorigin = minipass.me"
-docker exec mailserver postconf -e "smtp_helo_name = minipass.me"
-docker restart mailserver
-```
-
-**Verify:**
-```bash
-docker exec mailserver postconf myorigin smtp_helo_name
-```
+### Issue 1 — `mail.minipass.me` domain ✅ FIXED
+System emails (postmaster, root) were sent with `From: mail.minipass.me` instead of `From: minipass.me`.
+Fix applied: `myorigin = minipass.me` and `smtp_helo_name = minipass.me` set via postconf, mailserver restarted.
 
 ### Issue 2 — Forwarded emails (5 failures) ✅ EXPECTED BEHAVIOR
 Emails forwarded from external domains (telus.com, jfgoulet.com) always break SPF alignment.
@@ -82,7 +70,7 @@ Forwarded:    ~2% SPF fail (expected, DKIM passes)
 
 ## Phase 2 — DMARC Policy Upgrade
 
-**Prerequisite:** Fix `mail.minipass.me` issue above and confirm 98%+ pass rate for 30 days.
+**Prerequisite:** Confirm 98%+ pass rate for 30 days (clock started after `mail.minipass.me` fix applied).
 
 ### Step 1: Quarantine (Week 6 from fix)
 Change DNS TXT record for `_dmarc.minipass.me`:
@@ -103,7 +91,7 @@ v=DMARC1; p=reject; rua=mailto:kdresdell@minipass.me; ruf=mailto:kdresdell@minip
 ### DMARC Upgrade Timeline
 | Week | Action |
 |------|--------|
-| Now  | Fix `mail.minipass.me` issue |
+| Now  | ✅ `mail.minipass.me` fix applied |
 | +1   | Confirm 98% pass rate |
 | +2–5 | Monitor stability |
 | +6   | `p=quarantine; pct=10` |
