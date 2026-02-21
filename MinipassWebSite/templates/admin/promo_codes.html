@@ -1,194 +1,104 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Codes Promo - minipass Admin</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-            background: #f5f7fa;
-            min-height: 100vh;
-        }
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px 40px;
-            display: flex;
-            align-items: center;
-            position: relative;
-        }
-        .header-logo { flex: 0 0 auto; }
-        .header-logo img { height: 25px; width: auto; }
-        .header-title { flex: 1; text-align: center; font-size: 24px; font-weight: 700; }
-        .header a {
-            color: white;
-            text-decoration: none;
-            padding: 8px 16px;
-            background: rgba(255,255,255,0.2);
-            border-radius: 6px;
-            font-size: 14px;
-            flex: 0 0 auto;
-        }
-        .header a:hover { background: rgba(255,255,255,0.3); }
-        .container { max-width: 1200px; margin: 0 auto; padding: 30px; }
-        .card {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-            margin-bottom: 30px;
-            overflow: hidden;
-        }
-        .card-header {
-            padding: 20px 24px;
-            border-bottom: 1px solid #eee;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .card-header h2 { font-size: 18px; color: #333; }
-        .card-body { padding: 24px; }
-        .alert {
-            padding: 14px 18px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-size: 14px;
-        }
-        .alert-success { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
-        .alert-error { background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-decoration: none;
-            display: inline-block;
-        }
-        .btn-primary { background: #667eea; color: white; }
-        .btn-primary:hover { background: #5a67d8; }
-        .btn-sm { padding: 6px 12px; font-size: 13px; }
-        table { width: 100%; border-collapse: collapse; font-size: 14px; }
-        th {
-            background: #f8fafc;
-            padding: 12px 16px;
-            text-align: left;
-            font-weight: 600;
-            color: #555;
-            border-bottom: 2px solid #eee;
-        }
-        td { padding: 12px 16px; border-bottom: 1px solid #f0f0f0; color: #333; }
-        tr:last-child td { border-bottom: none; }
-        tr:hover td { background: #fafbff; }
-        .badge {
-            display: inline-block;
-            padding: 3px 10px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 500;
-        }
-        .badge-success { background: #dcfce7; color: #166534; }
-        .badge-warning { background: #fef3c7; color: #92400e; }
-        .badge-danger  { background: #fee2e2; color: #dc2626; }
-        .form-row {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 16px;
-            margin-bottom: 16px;
-        }
-        .form-group label { display: block; margin-bottom: 6px; font-size: 13px; color: #666; font-weight: 500; }
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 14px;
-        }
-        .form-group input:focus,
-        .form-group select:focus { outline: none; border-color: #667eea; }
-        .empty-state { text-align: center; padding: 40px; color: #999; font-size: 15px; }
-    </style>
-</head>
-<body>
+{% extends "admin/admin_base.html" %}
 
-<div class="header">
-    <div class="header-logo">
-        <img src="/static/img/logo.png" alt="minipass" onerror="this.style.display='none'">
+{% block title %}Codes Promo{% endblock %}
+{% block page_title %}Codes Promotionnels{% endblock %}
+
+{% block content %}
+
+{% if message %}
+<div class="alert alert-success mb-4">
+    <i data-lucide="check-circle" class="w-4 h-4"></i>
+    <span>{{ message }}</span>
+</div>
+{% endif %}
+
+{% if error %}
+<div class="alert alert-error mb-4">
+    <i data-lucide="x-circle" class="w-4 h-4"></i>
+    <span>{{ error }}</span>
+</div>
+{% endif %}
+
+<!-- Create New Code -->
+<div class="card bg-base-100 shadow-sm border border-base-300 mb-4">
+    <div class="card-body p-4">
+        <h2 class="card-title text-base gap-2 mb-4">
+            <i data-lucide="plus-circle" class="w-4 h-4 text-primary"></i>
+            Créer un nouveau code
+        </h2>
+        <form method="POST" action="/admin/promo-codes/create">
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-4">
+                <div class="form-control lg:col-span-1">
+                    <label class="label py-1">
+                        <span class="label-text text-xs font-medium">Code *</span>
+                    </label>
+                    <input type="text" name="code" placeholder="TESTDEPLOY" required
+                           class="input input-bordered input-sm uppercase w-full"
+                           style="text-transform:uppercase;">
+                </div>
+                <div class="form-control">
+                    <label class="label py-1">
+                        <span class="label-text text-xs font-medium">Forfait</span>
+                    </label>
+                    <select name="plan" class="select select-bordered select-sm w-full">
+                        <option value="basic">Basic</option>
+                        <option value="pro" selected>Pro</option>
+                        <option value="ultimate">Ultimate</option>
+                    </select>
+                </div>
+                <div class="form-control">
+                    <label class="label py-1">
+                        <span class="label-text text-xs font-medium">Fréquence</span>
+                    </label>
+                    <select name="billing_frequency" class="select select-bordered select-sm w-full">
+                        <option value="annual" selected>Annuel</option>
+                        <option value="monthly">Mensuel</option>
+                    </select>
+                </div>
+                <div class="form-control">
+                    <label class="label py-1">
+                        <span class="label-text text-xs font-medium">Utilisations max</span>
+                    </label>
+                    <input type="number" name="max_uses" value="1" min="1"
+                           class="input input-bordered input-sm w-full">
+                </div>
+                <div class="form-control">
+                    <label class="label py-1">
+                        <span class="label-text text-xs font-medium">Expiration</span>
+                    </label>
+                    <input type="datetime-local" name="expires_at"
+                           class="input input-bordered input-sm w-full">
+                </div>
+                <div class="form-control">
+                    <label class="label py-1">
+                        <span class="label-text text-xs font-medium">Notes</span>
+                    </label>
+                    <input type="text" name="notes" placeholder="Test développeur"
+                           class="input input-bordered input-sm w-full">
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary btn-sm gap-2">
+                <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                Créer le code
+            </button>
+        </form>
     </div>
-    <div class="header-title">🎟️ Codes Promotionnels</div>
-    <a href="/admin/tools">← Outils Admin</a>
 </div>
 
-<div class="container">
+<!-- Existing Codes -->
+<div class="card bg-base-100 shadow-sm border border-base-300 mb-4">
+    <div class="card-body p-4">
+        <h2 class="card-title text-base gap-2 mb-4">
+            <i data-lucide="tag" class="w-4 h-4 text-primary"></i>
+            Codes existants
+            <span class="badge badge-ghost badge-sm ml-1">{{ codes|length }}</span>
+        </h2>
 
-    {% if message %}
-    <div class="alert alert-success">✅ {{ message }}</div>
-    {% endif %}
-    {% if error %}
-    <div class="alert alert-error">❌ {{ error }}</div>
-    {% endif %}
-
-    <!-- Create new code -->
-    <div class="card">
-        <div class="card-header">
-            <h2>Créer un nouveau code</h2>
-        </div>
-        <div class="card-body">
-            <form method="POST" action="/admin/promo-codes/create">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Code *</label>
-                        <input type="text" name="code" placeholder="TESTDEPLOY" required
-                               style="text-transform:uppercase;" />
-                    </div>
-                    <div class="form-group">
-                        <label>Forfait</label>
-                        <select name="plan">
-                            <option value="basic">Basic</option>
-                            <option value="pro" selected>Pro</option>
-                            <option value="ultimate">Ultimate</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Fréquence</label>
-                        <select name="billing_frequency">
-                            <option value="annual" selected>Annuel</option>
-                            <option value="monthly">Mensuel</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Utilisations max</label>
-                        <input type="number" name="max_uses" value="1" min="1" />
-                    </div>
-                    <div class="form-group">
-                        <label>Expiration (optionnel)</label>
-                        <input type="datetime-local" name="expires_at" />
-                    </div>
-                    <div class="form-group">
-                        <label>Notes</label>
-                        <input type="text" name="notes" placeholder="Test développeur" />
-                    </div>
-                </div>
-                <button type="submit" class="btn btn-primary">Créer le code</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- Code list -->
-    <div class="card">
-        <div class="card-header">
-            <h2>Codes existants ({{ codes|length }})</h2>
-        </div>
-        <div class="card-body" style="padding: 0;">
-            {% if codes %}
-            <table>
+        {% if codes %}
+        <div class="overflow-x-auto">
+            <table class="table table-sm table-zebra w-full">
                 <thead>
-                    <tr>
+                    <tr class="text-xs uppercase text-base-content/50">
                         <th>Code</th>
                         <th>Forfait</th>
                         <th>Utilisations</th>
@@ -202,40 +112,47 @@
                 <tbody>
                     {% for c in codes %}
                     <tr>
-                        <td><strong>{{ c.code }}</strong></td>
-                        <td>{{ c.plan }} / {{ c.billing_frequency }}</td>
-                        <td>{{ c.uses_count }} / {{ c.max_uses }}</td>
-                        <td>{{ c.expires_at or '—' }}</td>
-                        <td>{{ c.redeemed_by_subdomain or '—' }}</td>
-                        <td>{{ c.created_at[:10] if c.created_at else '—' }}</td>
-                        <td>{{ c.notes or '—' }}</td>
+                        <td class="font-mono font-semibold text-sm">{{ c.code }}</td>
+                        <td class="text-sm">{{ c.plan }} / {{ c.billing_frequency }}</td>
+                        <td class="text-sm">{{ c.uses_count }} / {{ c.max_uses }}</td>
+                        <td class="text-xs text-base-content/60">{{ c.expires_at or '—' }}</td>
+                        <td class="font-mono text-xs">{{ c.redeemed_by_subdomain or '—' }}</td>
+                        <td class="text-xs text-base-content/60">{{ c.created_at[:10] if c.created_at else '—' }}</td>
+                        <td class="text-xs text-base-content/60">{{ c.notes or '—' }}</td>
                         <td>
                             {% if c.uses_count >= c.max_uses %}
-                                <span class="badge badge-warning">Épuisé</span>
+                            <span class="badge badge-warning badge-sm">Épuisé</span>
                             {% elif c.expires_at and c.expires_at < now.isoformat() %}
-                                <span class="badge badge-danger">Expiré</span>
+                            <span class="badge badge-error badge-sm">Expiré</span>
                             {% else %}
-                                <span class="badge badge-success">Actif</span>
+                            <span class="badge badge-success badge-sm">Actif</span>
                             {% endif %}
                         </td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
-            {% else %}
-            <div class="empty-state">Aucun code promotionnel créé.</div>
-            {% endif %}
         </div>
-    </div>
-
-    <!-- Quick SQL hint -->
-    <div class="card">
-        <div class="card-header"><h2>Création manuelle (SQLite)</h2></div>
-        <div class="card-body">
-            <pre style="background:#f8fafc; padding:16px; border-radius:8px; font-size:13px; overflow-x:auto;">sqlite3 customers.db "INSERT INTO promo_codes (code, plan, tier, notes) VALUES ('TESTDEPLOY', 'pro', 2, 'Developer test code');"</pre>
+        {% else %}
+        <div class="text-center py-10 text-base-content/40">
+            <i data-lucide="tag" class="w-8 h-8 mx-auto mb-2"></i>
+            <p class="text-sm">Aucun code promotionnel créé.</p>
         </div>
+        {% endif %}
     </div>
-
 </div>
-</body>
-</html>
+
+<!-- Manual SQL Reference -->
+<div class="card bg-base-100 shadow-sm border border-base-300">
+    <div class="card-body p-4">
+        <h2 class="card-title text-base gap-2 mb-3">
+            <i data-lucide="terminal" class="w-4 h-4 text-base-content/50"></i>
+            Création manuelle (SQLite)
+        </h2>
+        <div class="mockup-code text-xs">
+            <pre><code>sqlite3 customers.db "INSERT INTO promo_codes (code, plan, tier, notes) VALUES ('TESTDEPLOY', 'pro', 2, 'Developer test code');"</code></pre>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

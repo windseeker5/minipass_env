@@ -1,11 +1,11 @@
 # Minipass Email System — Master Roadmap
 
-**Last Updated:** February 20, 2026
-**Branch:** `feature/email-infrastructure-overhaul` (merged to main: commit `92b0813`)
+**Last Updated:** February 21, 2026
+**Branch:** `main`
 
 ---
 
-## Current Status: Phases 1, 2 & 3 Complete ✅ — Phase 4 Next
+## Current Status: Phases 1–4 + Dashboard Intelligence Complete ✅ — VPS Deployment & Cleanup Pending
 
 ```
 Pass Rate:    96.9% (222/229 messages)
@@ -297,24 +297,158 @@ python3 scripts/email_monitor_to_db.py --report
 **Database contents**: 8 days of email analytics (Feb 14-21) for dashboard development and testing
 **Security**: Customer email data stays local, not committed to version control
 
-### ✅ UI Layer Implementation Complete
+### ✅ UI Layer Implementation Complete (Feb 21, 2026)
 **Dashboard accessible at** `/admin/mail-dashboard`:
-- **Route**: Implemented in `MinipassWebSite/app.py` with admin authentication
-- **Template**: `MinipassWebSite/templates/admin/mail_dashboard.html` created
-- **Data source**: `email_monitoring/monitoring.db` (45KB SQLite database)
-- **Features**: Volume cards, success rates, failure breakdown, Chart.js trends
+- **Route**: Implemented in `MinipassWebSite/app.py` with `@require_admin` decorator
+- **Base layout**: `MinipassWebSite/templates/admin/admin_base.html` — DaisyUI 4 sidebar layout shared by all admin pages
+- **Template**: `MinipassWebSite/templates/admin/mail_dashboard.html` — full analytics dashboard
+- **Data source**: `email_monitoring/monitoring.db` (45KB SQLite database, read-only)
+- **Other admin pages rebuilt**: `tools.html` and `promo_codes.html` now extend `admin_base.html`
+
+### Unified Admin Layout (`admin_base.html`)
+- **Stack**: DaisyUI 4 + Tailwind CSS CDN + Lucide Icons + Chart.js (admin-only, NOT loaded on main site)
+- **Layout**: Responsive drawer sidebar (mobile hamburger + desktop always-open)
+- **Nav items**: Customers (`/admin/tools`), Promo Codes (`/admin/promo-codes`), Email Analytics (`/admin/mail-dashboard`)
+- **Active state**: Detected via `request.endpoint` — active item highlighted with `bg-primary text-primary-content`
+- **Dark/light theme toggle**: Sun/moon button in both mobile and desktop headers; `localStorage` persistence; applied before render to avoid flash
+- **CDN dependencies** (admin pages only):
+  - `daisyui@4.12.14/dist/full.min.css`
+  - `cdn.tailwindcss.com`
+  - `unpkg.com/lucide@latest/dist/umd/lucide.min.js`
+  - `cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js`
 
 ### Dashboard Features Implemented
 
-| Card | Data Source | Status |
+| Feature | Data Source | Status |
 |---|---|---|
-| Email volume (today/week/month) | `email_volume_daily` table | ✅ |
-| Success rate + 7-day trend | Calculated from sent/bounced/deferred | ✅ |
-| Recent failures (last 10) | `email_failures` table | ✅ |
-| Mail server health | Queue snapshots + mailbox sizes | ✅ |
-| DMARC pass rate | DMARC reports integration | 🔄 Pending |
+| Email volume (today / 7-day) | `email_volume_daily` table | ✅ |
+| Success rate % | `(sent - bounced - deferred) / sent × 100` | ✅ |
+| Active failures count (7d) | `email_failures` WHERE last 7 days | ✅ |
+| 7-day volume bar chart | `email_volume_daily` GROUP BY date | ✅ |
+| 7-day success rate line chart | Calculated per day; Y-axis: 0–110%, stepSize 20 | ✅ |
+| Recent failures table (200 records) | `email_failures` ORDER BY timestamp DESC LIMIT 200 | ✅ |
+| — Search filter (client-side) | JS `applyFilter()` on all columns | ✅ |
+| — Pagination (10/page) | JS `render()` with DaisyUI `join` buttons | ✅ |
+| Per-sender breakdown table | `email_volume_daily` GROUP BY user_email | ✅ |
+| Mail queue snapshot | `mail_queue_log` most recent record | ✅ |
+| Mailbox sizes | `mailbox_sizes` most recent per user | ✅ |
+| DMARC pass rate | `dmarc_daily` table integration | 🔄 Pending |
 
-### 🔄 REMAINING WORK (Lower Priority):
+### ✅ BUGS FIXED (Feb 21, 2026)
+
+**Bug 1 — `send_support_error_email` swapped arguments** ✅ FIXED
+- Swapped args at all 3 call sites in `MinipassWebSite/app.py` (~lines 445, 480, 637)
+
+**Bug 2 — Duplicate records in `email_failures` table** ✅ FIXED
+- Added `UNIQUE(timestamp, from_user, to_address)` index to schema
+- Changed `INSERT INTO` → `INSERT OR IGNORE INTO` in monitoring script
+- Existing duplicates deduplicated on local DB (26 → 10 rows)
+
+---
+
+### ✅ Phase 4b — Dashboard Intelligence (Feb 21, 2026)
+
+**New features added in this session:**
+
+**1. Plain-English Error Classification + Hover Tooltip**
+- `classify_error()` helper added to `MinipassWebSite/app.py` (above `mail_dashboard` route)
+- Maps raw Postfix error strings to human-readable labels: Gmail rate limit, SPF/DMARC issue, recipient not found, spam filter rejection, temp/permanent bounce
+- Error column in Recent Failures table now shows: bold plain-English reason + muted truncated raw error
+- Hover over any error cell → floating tooltip shows full raw Postfix error string
+
+**2. Deferred Resolution Badge**
+- Each deferred failure now gets a `resolution` field computed at page-load time
+- Queries `email_volume_daily`: if sender had `sent_count > 0` on any date after the deferral → `resolution = 'likely_delivered'`
+- New "Resolved" column in Recent Failures table:
+  - Bounced → `Permanent` (red badge)
+  - Deferred + likely delivered → `✓ Delivered later` (green badge)
+  - Deferred + unknown → `—` (ghost badge)
+- Info icon `ⓘ` on "Failures (7d)" stat card explains deferrals still count as failures
+
+**3. Per-Sender Drill-Down Modal**
+- New Flask route: `GET /admin/mail-dashboard/sender-detail?sender=X` (JSON, `@require_admin`)
+- Sender names in Per-Sender Breakdown table are now clickable buttons
+- DaisyUI `<dialog>` modal shows:
+  - Auto-generated plain-English summary (deferrals by date, bounce count, or "no failures")
+  - Day-by-day table: Date | Sent | Bounced | Deferred
+  - Recent failures sub-table (up to 50): Time | To | Reason | Status
+- Loaded via `fetch()` — no page reload
+
+**4. Fix "unknown" Sender in Monitoring Script**
+- `scripts/email_monitor_to_db.py` Pass 2 fix:
+  - Changed `if not from_email:` → `if from_email is None:` (prevents `'<>'` from triggering fallback)
+  - Changed fallback `(from_m.group(1) if from_m else None) or 'unknown'` → `(from_m.group(1) or '<>') if from_m else 'unknown'`
+  - Empty envelope senders (`from=<>`, used for DSNs/bounce notifications) now stored as `'<>'` instead of `'unknown'`
+  - **Note**: Historical `'unknown'` rows in DB on VPS require manual cleanup (see VPS Deployment section below)
+
+**Files changed in Phase 4b:**
+| File | Change |
+|------|--------|
+| `MinipassWebSite/app.py` | Added `classify_error()`, failures enrichment (reason + resolution), new `/sender-detail` route |
+| `MinipassWebSite/templates/admin/mail_dashboard.html` | Error tooltip UI, Resolution column, info icon, sender buttons, sender modal + JS |
+| `scripts/email_monitor_to_db.py` | Fix `from=<>` stored as `'<>'` instead of `'unknown'` |
+
+---
+
+### 🚀 VPS DEPLOYMENT REQUIRED
+
+**Context:** All changes above were developed and committed locally. The VPS has the old code and the live `monitoring.db`. The following steps must be run on the VPS after `git pull`.
+
+**Step 1 — Pull latest code on VPS**
+```bash
+cd /home/kdresdell/minipass_env
+git pull
+```
+
+**Step 2 — Restart Flask to pick up app.py + template changes**
+```bash
+# (however you restart the MinipassWebSite Flask app in production)
+docker-compose restart lhgi   # or the relevant service
+```
+The new dashboard features (tooltips, resolution badges, sender modal) will work immediately — they read from the existing DB with no further action.
+
+**Step 3 — Clean up historical "unknown" rows in monitoring.db**
+
+⚠️ Re-running the monitoring script alone is NOT enough — old `'unknown'` rows and new `'<>'` rows have different `from_user` keys, so `INSERT OR IGNORE` would add duplicates. You must delete the old rows first.
+
+```bash
+cd /home/kdresdell/minipass_env
+sqlite3 email_monitoring/monitoring.db
+```
+
+```sql
+-- See what we're cleaning up
+SELECT user_email, SUM(sent_count), SUM(deferred_count) FROM email_volume_daily WHERE user_email = 'unknown' GROUP BY user_email;
+SELECT COUNT(*) FROM email_failures WHERE from_user = 'unknown';
+
+-- Delete the old 'unknown' rows
+DELETE FROM email_volume_daily WHERE user_email = 'unknown';
+DELETE FROM email_failures WHERE from_user = 'unknown';
+
+.quit
+```
+
+**Step 4 — Re-run monitoring script for affected dates**
+```bash
+cd /home/kdresdell/minipass_env
+python3 scripts/email_monitor_to_db.py --date 2026-02-15
+python3 scripts/email_monitor_to_db.py --date 2026-02-16
+```
+The 18 emails previously stored as `'unknown'` will now be stored as `'<>'` (empty envelope sender — DSNs/bounce notifications, all successful).
+
+**Step 5 — Verify**
+```bash
+python3 scripts/email_monitor_to_db.py --report
+```
+The `'unknown'` row should be gone from the per-user breakdown. A `'<>'` row will appear with the 18 emails.
+
+**Step 6 — Copy refreshed DB to local dev (optional)**
+```bash
+# Run from local machine
+scp username@vps-ip:/home/kdresdell/minipass_env/email_monitoring/monitoring.db ./email_monitoring/
+```
+
+### 🔄 REMAINING WORK (Lower Priority)
 
 **DMARC Analysis Integration**
 - Current status: DMARC fetching works, analysis works, database integration missing
@@ -325,12 +459,15 @@ python3 scripts/email_monitor_to_db.py --report
 
 ## Phase 4 Summary ✅
 
-**Achievement**: Complete email monitoring infrastructure with real-time dashboard
+**Achievement**: Complete email monitoring infrastructure with real-time dashboard + unified admin layout
 **Data coverage**: 8 days of comprehensive email analytics (maximum available history)
 **Monitoring frequency**: Every 4 hours for current-day data + daily historical processing
-**Dashboard status**: Fully implemented and ready for production use
+**Dashboard status**: Fully implemented — search, pagination, dark mode, per-sender breakdown, health panels
 
-**Next phase**: Dashboard validation and DMARC integration (optional)
+**Next session focus**:
+1. **VPS deployment** — `git pull` on VPS, restart Flask, run DB cleanup sequence (see VPS Deployment section above)
+2. **DMARC integration** — Connect existing DMARC analysis to monitoring DB (~2h effort)
+3. **Copy refreshed DB to local** after VPS cleanup
 
 ---
 
@@ -514,9 +651,15 @@ docker-compose up -d
 |------|---------|
 | `scripts/fetch_dmarc_reports.py` | IMAP auto-fetch DMARC reports |
 | `scripts/analyze_dmarc_failures.py` | Parse and analyze failures |
-| `scripts/email_monitor_to_db.py` | SQLite metrics persistence (VPS) |
+| `scripts/email_monitor_to_db.py` | SQLite metrics persistence (VPS) — UNIQUE + INSERT OR IGNORE fixed; `from=<>` → `'<>'` fix applied |
 | `scripts/email_health_check.py` | Delivery health monitoring |
 | `scripts/verify_email_rfc_compliance.sh` | DNS/RFC verification |
 | `app/utils.py` | Customer app email sending (RFC compliant) |
 | `MinipassWebSite/utils/email_helpers.py` | Platform email sending (RFC compliant) |
+| `MinipassWebSite/app.py` | Main Flask app — `classify_error()` helper, `/sender-detail` route, failures enrichment |
+| `MinipassWebSite/templates/admin/admin_base.html` | Shared DaisyUI 4 sidebar layout for all admin pages |
+| `MinipassWebSite/templates/admin/mail_dashboard.html` | Email analytics dashboard (Phase 4 UI) |
+| `MinipassWebSite/templates/admin/tools.html` | Customers page (extends admin_base) |
+| `MinipassWebSite/templates/admin/promo_codes.html` | Promo codes page (extends admin_base) |
+| `email_monitoring/monitoring.db` | SQLite analytics DB — 8 days data, read-only from dashboard |
 | `docs/VPS_ARCHITECTURE_DIAGRAM.md` | Full VPS/container architecture |

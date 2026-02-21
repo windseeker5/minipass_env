@@ -442,7 +442,7 @@ def process_deployment_async(app_name, admin_email, admin_password, plan_key, po
 
             if not success:
                 subscription_logger.error(f"[{app_name}] ❌ Container deployment failed")
-                send_support_error_email(app_name, admin_email, "Container deployment failed")
+                send_support_error_email(admin_email, app_name, "Container deployment failed")
                 return
 
             log_validation_check(subscription_logger, f"[{app_name}] Container deployment", True, "Container deployed successfully")
@@ -477,7 +477,7 @@ def process_deployment_async(app_name, admin_email, admin_password, plan_key, po
             subscription_logger.error(f"[{app_name}] ❌ Background deployment failed: {e}")
             import traceback
             traceback.print_exc()
-            send_support_error_email(app_name, admin_email, str(e))
+            send_support_error_email(admin_email, app_name, str(e))
             log_operation_end(subscription_logger, f"Background Deployment [{app_name}]", success=False, error_msg=str(e))
 
 
@@ -634,7 +634,7 @@ def stripe_webhook():
             error_msg = f"Webhook processing error: {str(e)}"
             subscription_logger.error(f"❌ {error_msg}")
             log_operation_end(subscription_logger, "Customer Subscription Processing (Webhook)", success=False, error_msg=error_msg)
-            send_support_error_email(app_name, admin_email, error_msg)
+            send_support_error_email(admin_email, app_name, error_msg)
             return "Webhook processing failed", 500
 
     elif event["type"] == "invoice.payment_succeeded":
@@ -992,6 +992,215 @@ def admin_create_promo_code():
         return redirect(url_for("admin_promo_codes", message=f"Code '{code}' créé avec succès"))
     else:
         return redirect(url_for("admin_promo_codes", error=f"Le code '{code}' existe déjà"))
+
+
+def classify_error(msg):
+    """Return a short plain-English label for a raw Postfix error string."""
+    if not msg:
+        return "Unknown error"
+    m = msg.lower()
+    if '421-4.7.28' in m or 'unsolicitedrate' in m:
+        return "Gmail rate limit — IP block (temporary, Postfix will retry)"
+    if '421-4.7.26' in m:
+        return "Gmail SPF/DMARC issue (temporary)"
+    if "user doesn't exist" in m or '5.1.1' in m:
+        return "Recipient doesn't exist on this server"
+    if '5.7.1' in m:
+        return "Rejected by spam/policy filter"
+    if '421' in m:
+        return "Temporary rejection — Postfix will retry"
+    if '550' in m:
+        return "Permanent bounce"
+    return "Delivery failure"
+
+
+# ✅ Email Analytics Dashboard
+@app.route("/admin/mail-dashboard")
+@require_admin
+def mail_dashboard():
+    """Email analytics dashboard — reads from email_monitoring/monitoring.db."""
+    import sqlite3 as _sqlite3
+    from datetime import date as _date, timedelta as _timedelta
+
+    db_path = os.path.join(os.path.dirname(__file__), '..', 'email_monitoring', 'monitoring.db')
+
+    stats = {
+        'sent_today': 0,
+        'sent_week': 0,
+        'success_rate': 100,
+        'failures_week': 0,
+    }
+    chart_data = {'labels': [], 'sent': [], 'bounced': [], 'deferred': [], 'success_rate': []}
+    failures = []
+    sender_stats = []
+    queue_snapshot = None
+    mailbox_sizes = []
+    mailbox_date = None
+
+    try:
+        conn = _sqlite3.connect(db_path)
+        conn.row_factory = _sqlite3.Row
+        cur = conn.cursor()
+
+        today = _date.today().isoformat()
+        week_ago = (_date.today() - _timedelta(days=6)).isoformat()
+
+        # --- Stat cards ---
+        row = cur.execute(
+            "SELECT SUM(sent_count) FROM email_volume_daily WHERE date = ?", (today,)
+        ).fetchone()
+        stats['sent_today'] = row[0] or 0
+
+        row = cur.execute(
+            "SELECT SUM(sent_count), SUM(bounced_count), SUM(deferred_count) "
+            "FROM email_volume_daily WHERE date >= ?", (week_ago,)
+        ).fetchone()
+        w_sent = row[0] or 0
+        w_bounced = row[1] or 0
+        w_deferred = row[2] or 0
+        stats['sent_week'] = w_sent
+        if w_sent > 0:
+            stats['success_rate'] = round(100 * (w_sent - w_bounced - w_deferred) / w_sent, 1)
+
+        row = cur.execute(
+            "SELECT COUNT(*) FROM email_failures WHERE timestamp >= ?", (week_ago,)
+        ).fetchone()
+        stats['failures_week'] = row[0] or 0
+
+        # --- Chart data (7 days) ---
+        rows = cur.execute(
+            "SELECT date, SUM(sent_count), SUM(bounced_count), SUM(deferred_count) "
+            "FROM email_volume_daily WHERE date >= ? GROUP BY date ORDER BY date",
+            (week_ago,)
+        ).fetchall()
+        for r in rows:
+            d_sent = r[1] or 0
+            d_bounced = r[2] or 0
+            d_deferred = r[3] or 0
+            d_success = round(100 * (d_sent - d_bounced - d_deferred) / d_sent, 1) if d_sent > 0 else 100
+            chart_data['labels'].append(r[0][5:])  # MM-DD
+            chart_data['sent'].append(d_sent)
+            chart_data['bounced'].append(d_bounced)
+            chart_data['deferred'].append(d_deferred)
+            chart_data['success_rate'].append(d_success)
+
+        # --- Recent failures ---
+        rows = cur.execute(
+            "SELECT timestamp, from_user, to_address, error_message, status "
+            "FROM email_failures ORDER BY timestamp DESC LIMIT 200"
+        ).fetchall()
+        failures = [dict(r) for r in rows]
+        for f in failures:
+            f['reason'] = classify_error(f.get('error_message'))
+            if f.get('status') == 'deferred':
+                failure_date = (f.get('timestamp') or '')[:10]
+                later = cur.execute(
+                    "SELECT SUM(sent_count) AS later_sent FROM email_volume_daily "
+                    "WHERE user_email = ? AND date > ?",
+                    (f.get('from_user') or '', failure_date)
+                ).fetchone()
+                f['resolution'] = 'likely_delivered' if (later and later['later_sent']) else None
+            else:
+                f['resolution'] = None
+
+        # --- Per-sender breakdown ---
+        rows = cur.execute(
+            "SELECT user_email, "
+            "  SUM(CASE WHEN date = ? THEN sent_count ELSE 0 END) AS today_sent, "
+            "  SUM(CASE WHEN date = ? THEN bounced_count ELSE 0 END) AS today_bounced, "
+            "  SUM(sent_count) AS week_sent, "
+            "  SUM(bounced_count) AS week_bounced, "
+            "  SUM(deferred_count) AS week_deferred "
+            "FROM email_volume_daily WHERE date >= ? GROUP BY user_email ORDER BY week_sent DESC",
+            (today, today, week_ago)
+        ).fetchall()
+        for r in rows:
+            ws = r['week_sent'] or 0
+            wb = r['week_bounced'] or 0
+            wd = r['week_deferred'] or 0
+            pct = round(100 * (ws - wb - wd) / ws, 1) if ws > 0 else 100
+            sender_stats.append({
+                'user_email': r['user_email'],
+                'today_sent': r['today_sent'] or 0,
+                'today_bounced': r['today_bounced'] or 0,
+                'week_sent': ws,
+                'success_pct': pct,
+            })
+
+        # --- Queue snapshot ---
+        row = cur.execute(
+            "SELECT timestamp, queue_size, oldest_age_minutes "
+            "FROM mail_queue_log ORDER BY timestamp DESC LIMIT 1"
+        ).fetchone()
+        if row:
+            queue_snapshot = dict(row)
+
+        # --- Mailbox sizes ---
+        row = cur.execute("SELECT MAX(date) FROM mailbox_sizes").fetchone()
+        mailbox_date = row[0] if row else None
+        if mailbox_date:
+            rows = cur.execute(
+                "SELECT user_email, size_mb FROM mailbox_sizes WHERE date = ? ORDER BY size_mb DESC",
+                (mailbox_date,)
+            ).fetchall()
+            mailbox_sizes = [dict(r) for r in rows]
+
+        conn.close()
+
+    except Exception as e:
+        logging.warning(f"mail_dashboard DB error: {e}")
+
+    return render_template(
+        'admin/mail_dashboard.html',
+        stats=stats,
+        chart_data=chart_data,
+        failures=failures,
+        sender_stats=sender_stats,
+        queue_snapshot=queue_snapshot,
+        mailbox_sizes=mailbox_sizes,
+        mailbox_date=mailbox_date,
+    )
+
+
+@app.route("/admin/mail-dashboard/sender-detail")
+@require_admin
+def mail_dashboard_sender_detail():
+    """JSON endpoint — per-sender drill-down for the dashboard modal."""
+    import sqlite3 as _sqlite3
+    sender = request.args.get('sender', '')
+    db_path = os.path.join(os.path.dirname(__file__), '..', 'email_monitoring', 'monitoring.db')
+    try:
+        conn = _sqlite3.connect(db_path)
+        conn.row_factory = _sqlite3.Row
+        cur = conn.cursor()
+        daily = cur.execute(
+            "SELECT date, sent_count, bounced_count, deferred_count "
+            "FROM email_volume_daily WHERE user_email = ? ORDER BY date",
+            (sender,)
+        ).fetchall()
+        fail_rows = cur.execute(
+            "SELECT timestamp, to_address, error_message, status "
+            "FROM email_failures WHERE from_user = ? ORDER BY timestamp DESC LIMIT 50",
+            (sender,)
+        ).fetchall()
+        conn.close()
+        return jsonify({
+            "sender": sender,
+            "daily": [
+                {"date": r["date"], "sent": r["sent_count"],
+                 "bounced": r["bounced_count"], "deferred": r["deferred_count"]}
+                for r in daily
+            ],
+            "failures": [
+                {"timestamp": r["timestamp"], "to": r["to_address"],
+                 "reason": classify_error(r["error_message"]),
+                 "error": r["error_message"], "status": r["status"]}
+                for r in fail_rows
+            ],
+        })
+    except Exception as e:
+        logging.warning(f"mail_dashboard_sender_detail error: {e}")
+        return jsonify({"error": str(e)}), 500
 
 
 # ✅ Run server

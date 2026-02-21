@@ -26,6 +26,10 @@ maildata/
 mailstate/
 mailserver.env
 
+email_monitoring/
+kdui_mcp/
+
+
 # ACME / Let's Encrypt / SSL
 acme/
 certs/
@@ -41,8 +45,13 @@ opendkim/
 # html/
 deployed/
 
-# Ken 
+# Ken
 .claude
+
+# Development screenshots (root-level only)
+/*.png
+/*.jpg
+/*.jpeg
 #docs/
 
 # But keep static/docs/
