@@ -3,185 +3,269 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Votre application est prête!</title>
-    <style>
-        /* Mobile responsiveness for card text */
-        @media only screen and (max-width: 600px) {
-            .card-label {
-                font-size: 12px !important;
-            }
-            .card-value {
-                font-size: 12px !important;
-            }
-        }
-    </style>
+    <title>Votre application minipass est prête!</title>
 </head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f5f5f5;">
-    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f5f5f5;">
+<body style="margin:0; padding:0; background-color:#f4f5f7;
+             font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;">
+
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%"
+           style="background-color:#f4f5f7;">
         <tr>
-            <td style="padding: 40px 20px;">
-                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="max-width: 600px; margin: 0 auto; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <td style="padding:40px 20px;">
 
-                    <!-- Hero Image -->
+                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%"
+                       style="max-width:600px; margin:0 auto; background-color:#ffffff;
+                              border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+
+                    <!-- ═══════════════════════════════════════════════════════
+                         HEADER — mascot + headline + CTA button
+                    ════════════════════════════════════════════════════════ -->
                     <tr>
-                        <td style="padding: 0; text-align: center; background-color: #ffffff; border-radius: 8px 8px 0 0;">
-                            <img src="cid:welcom4" alt="Bienvenue" style="width: 50%; height: auto; display: inline-block; border: 0;">
-                        </td>
-                    </tr>
+                        <td style="padding:32px 30px 12px; background-color:#ffffff;
+                                   border-radius:12px 12px 0 0;">
 
-                    <!-- Main Content -->
-                    <tr>
-                        <td style="padding: 40px 30px; background-color: #ffffff; border-radius: 0 0 8px 8px;">
-
-                            <!-- Greeting -->
-                            <h1 style="margin: 0 0 20px; font-size: 28px; font-weight: 600; color: #1a1a1a; line-height: 1.3;">
-                                Félicitations!
-                            </h1>
-
-                            <p style="margin: 0 0 20px; font-size: 16px; line-height: 1.6; color: #4a4a4a;">
-                                Votre application <strong>minipass</strong> est maintenant déployée et prête à être utilisée!
-                            </p>
-
-                            <!-- App URL Button -->
-                            <div style="margin: 30px 0;">
-                                <a href="{{ url }}" style="display: inline-block; padding: 14px 32px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);">
-                                    Accéder à votre application
+                            <!-- Mascot image — centered, small, links to minipass.me -->
+                            <div style="text-align:center; margin-bottom:24px;">
+                                <a href="https://minipass.me" style="border:0; text-decoration:none;">
+                                    <img src="https://minipass.me/static/image/mascot-welcome.png"
+                                         alt="minipass"
+                                         width="120"
+                                         style="width:120px; height:auto; display:inline-block; border:0;">
                                 </a>
                             </div>
 
-                            <p style="margin: 20px 0; font-size: 14px; line-height: 1.5; color: #6b6b6b;">
-                                Lien direct: <a href="{{ url }}" style="color: #667eea; text-decoration: none; word-break: break-all;">{{ url }}</a>
+                            <!-- Headline — left-aligned (industry standard for transactional) -->
+                            <h1 style="margin:0 0 12px; font-size:28px; font-weight:600;
+                                       color:#1a1a1a; line-height:1.3;
+                                       font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;">
+                                Félicitations!
+                            </h1>
+
+                            <!-- Intro — left-aligned -->
+                            <p style="margin:0 0 28px; font-size:16px; line-height:1.6; color:#4a4a4a;
+                                      font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;">
+                                Votre application <strong>minipass</strong> est maintenant déployée
+                                et prête à être utilisée.
                             </p>
 
-                            <!-- Security Notice -->
-                            <div style="margin: 20px 0; padding: 15px; background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 6px;">
-                                <p style="margin: 0; font-size: 13px; color: #856404;">
-                                    <strong>🔒 Sécurité:</strong> Vos identifiants temporaires sont inclus ci-dessous pour votre première connexion. Veuillez les modifier après votre première connexion.
+                            <!-- CTA Button — centered -->
+                            <div style="text-align:center; margin:0 0 16px;">
+                                <a href="{{ url }}"
+                                   style="display:inline-block; padding:16px 40px;
+                                          background-color:#667eea; color:#ffffff;
+                                          text-decoration:none; border-radius:8px;
+                                          font-weight:600; font-size:16px; line-height:1;
+                                          font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;">
+                                    Accéder à votre application →
+                                </a>
+                            </div>
+
+                            <!-- Direct link — centered, below button -->
+                            <p style="margin:0; text-align:center; font-size:13px; color:#6b7280;
+                                      font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;">
+                                <a href="{{ url }}"
+                                   style="color:#667eea; text-decoration:none; word-break:break-all;">
+                                    {{ url }}
+                                </a>
+                            </p>
+                        </td>
+                    </tr>
+
+                    <!-- ═══════════════════════════════════════════════════════
+                         BODY — security notice + credential cards + video + support
+                    ════════════════════════════════════════════════════════ -->
+                    <tr>
+                        <td style="padding:12px 30px 32px; background-color:#ffffff;">
+
+                            <!-- Security notice -->
+                            <div style="margin:0 0 24px; padding:14px 16px;
+                                        background-color:#fffbeb; border:1px solid #fde68a;
+                                        border-radius:8px;">
+                                <p style="margin:0; font-size:13px; color:#92400e; line-height:1.5;
+                                          font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;">
+                                    <strong>Sécurité:</strong> Vos identifiants temporaires sont inclus
+                                    ci-dessous. Veuillez les modifier après votre première connexion.
                                 </p>
                             </div>
 
-                            <!-- Credentials Card -->
-                            <div style="margin: 30px 0; background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%); border-radius: 8px; border-left: 4px solid #667eea; overflow: hidden;">
-                                <div style="padding: 24px;">
-                                    <h2 style="margin: 0 0 20px; font-size: 18px; font-weight: 600; color: #1a1a1a;">
-                                        Vos identifiants d'administrateur
-                                    </h2>
+                            <!-- App credentials card — transparent bg, gray border, stacked rows -->
+                            <div style="margin:0 0 24px; padding:20px; background-color:transparent;
+                                        border:1px solid #e2e8f0; border-radius:8px;">
 
-                                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
-                                        <tr>
-                                            <td class="card-label" style="padding: 4px 0; font-size: 14px; color: #6b6b6b; width: 40%; vertical-align: top;">
-                                                <strong>Courriel</strong>
-                                            </td>
-                                            <td class="card-value" style="padding: 4px 0; font-size: 14px; color: #1a1a1a; font-family: 'Courier New', monospace; word-break: break-all;">
-                                                {{ user_email }}
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="card-label" style="padding: 4px 0; font-size: 14px; color: #6b6b6b; width: 40%; vertical-align: top;">
-                                                <strong>Mot de passe</strong>
-                                            </td>
-                                            <td class="card-value" style="padding: 4px 0; font-size: 14px; color: #1a1a1a; font-family: 'Courier New', monospace; word-break: break-all;">
-                                                {{ password }}
-                                            </td>
-                                        </tr>
-                                    </table>
-                                </div>
+                                <p style="margin:0 0 16px; font-size:14px; font-weight:700;
+                                          color:#1a1a1a;
+                                          font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;">
+                                    Identifiants d'administrateur
+                                </p>
+
+                                <!-- Courriel row -->
+                                <p style="margin:0 0 2px; font-size:11px; font-weight:600;
+                                          color:#6b7280; text-transform:uppercase; letter-spacing:0.8px;
+                                          font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;">
+                                    Courriel
+                                </p>
+                                <p style="margin:0 0 20px; font-size:15px; color:#111827;
+                                          font-family:'Courier New',Courier,monospace;
+                                          word-break:break-all;">
+                                    {{ user_email }}
+                                </p>
+
+                                <!-- Mot de passe row -->
+                                <p style="margin:0 0 2px; font-size:11px; font-weight:600;
+                                          color:#6b7280; text-transform:uppercase; letter-spacing:0.8px;
+                                          font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;">
+                                    Mot de passe
+                                </p>
+                                <p style="margin:0; font-size:15px; color:#111827;
+                                          font-family:'Courier New',Courier,monospace;
+                                          word-break:break-all;">
+                                    {{ password }}
+                                </p>
                             </div>
 
                             {% if email_info %}
-                            <!-- Email Account Card -->
-                            <div style="margin: 30px 0; background: linear-gradient(135deg, #f0fff4 0%, #c6f6d5 100%); border-radius: 8px; border-left: 4px solid #48bb78; overflow: hidden;">
-                                <div style="padding: 24px;">
-                                    <h2 style="margin: 0 0 20px; font-size: 18px; font-weight: 600; color: #1a1a1a;">
-                                        Votre compte courriel
-                                    </h2>
+                            <!-- Email account card — same style, consistent -->
+                            <div style="margin:0 0 32px; padding:20px; background-color:transparent;
+                                        border:1px solid #e2e8f0; border-radius:8px;">
 
-                                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
-                                        <tr>
-                                            <td class="card-label" style="padding: 4px 0; font-size: 14px; color: #6b6b6b; width: 40%; vertical-align: top;">
-                                                <strong>Adresse</strong>
-                                            </td>
-                                            <td class="card-value" style="padding: 4px 0; font-size: 14px; color: #1a1a1a; font-family: 'Courier New', monospace; word-break: break-all;">
-                                                {{ email_info.email_address }}
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="card-label" style="padding: 4px 0; font-size: 14px; color: #6b6b6b; width: 40%; vertical-align: top;">
-                                                <strong>Mot de passe</strong>
-                                            </td>
-                                            <td class="card-value" style="padding: 4px 0; font-size: 14px; color: #1a1a1a; font-family: 'Courier New', monospace; word-break: break-all;">
-                                                {{ email_info.email_password }}
-                                            </td>
-                                        </tr>
-                                        {% if email_info.forwarding_setup and email_info.forwarding_email %}
-                                        <tr>
-                                            <td class="card-label" style="padding: 4px 0; font-size: 14px; color: #6b6b6b; width: 40%; vertical-align: top;">
-                                                <strong>Transféré vers</strong>
-                                            </td>
-                                            <td class="card-value" style="padding: 4px 0; font-size: 14px; color: #1a1a1a; font-family: 'Courier New', monospace; word-break: break-all;">
-                                                {{ email_info.forwarding_email }}
-                                            </td>
-                                        </tr>
-                                        {% endif %}
-                                    </table>
-                                </div>
+                                <p style="margin:0 0 16px; font-size:14px; font-weight:700;
+                                          color:#1a1a1a;
+                                          font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;">
+                                    Compte courriel
+                                </p>
+
+                                <!-- Adresse row -->
+                                <p style="margin:0 0 2px; font-size:11px; font-weight:600;
+                                          color:#6b7280; text-transform:uppercase; letter-spacing:0.8px;
+                                          font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;">
+                                    Adresse courriel
+                                </p>
+                                <p style="margin:0 0 20px; font-size:15px; color:#111827;
+                                          font-family:'Courier New',Courier,monospace;
+                                          word-break:break-all;">
+                                    {{ email_info.email_address }}
+                                </p>
+
+                                <!-- Mot de passe row -->
+                                <p style="margin:0 0 2px; font-size:11px; font-weight:600;
+                                          color:#6b7280; text-transform:uppercase; letter-spacing:0.8px;
+                                          font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;">
+                                    Mot de passe
+                                </p>
+                                <p style="margin:0 0 20px; font-size:15px; color:#111827;
+                                          font-family:'Courier New',Courier,monospace;
+                                          word-break:break-all;">
+                                    {{ email_info.email_password }}
+                                </p>
+
+                                <!-- Forwarding explanation -->
+                                <p style="margin:0 0 12px; font-size:13px; color:#4a4a4a; line-height:1.6;
+                                          font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;">
+                                    Ceci est votre adresse courriel officielle <strong>minipass</strong>. Elle est utilisée
+                                    pour recevoir vos paiements et pour envoyer à vos clients leurs laissez-passer ainsi que
+                                    toutes les communications générées par votre application. Vous n'avez pas à surveiller
+                                    cette boîte — elle sert uniquement au suivi des paiements et à l'automatisation de vos
+                                    rapports financiers. Tous les messages reçus sont automatiquement transférés à votre
+                                    courriel personnel&nbsp;:
+                                </p>
+                                {% if email_info.forwarding_setup and email_info.forwarding_email %}
+                                <p style="margin:0; font-size:14px; font-weight:600; color:#667eea;
+                                          font-family:'Courier New',Courier,monospace;
+                                          word-break:break-all;">
+                                    {{ email_info.forwarding_email }}
+                                </p>
+                                {% endif %}
                             </div>
+                            {% else %}
+                            <div style="margin-bottom:32px;"></div>
                             {% endif %}
 
-                            <!-- Getting Started Section -->
-                            <div style="margin: 40px 0 30px;">
-                                <h2 style="margin: 0 0 20px; font-size: 22px; font-weight: 600; color: #1a1a1a;">
-                                    Premiers pas
-                                </h2>
+                            <!-- Getting Started — YouTube thumbnail -->
+                            <h2 style="margin:0 0 10px; font-size:20px; font-weight:600; color:#1a1a1a;
+                                       font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;">
+                                <img src="https://minipass.me/static/image/icon-youtube.svg"
+                                     width="22" height="22" alt=""
+                                     style="vertical-align:middle; margin-right:8px; display:inline-block; border:0;">
+                                Premiers pas
+                            </h2>
+                            <p style="margin:0 0 16px; font-size:16px; color:#4a4a4a; line-height:1.6;
+                                      font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;">
+                                Regardez la vidéo pour créer votre première activité:
+                            </p>
 
-                                <p style="margin: 0 0 20px; font-size: 16px; line-height: 1.6; color: #4a4a4a;">
-                                    Regardez notre vidéo de démarrage pour découvrir toutes les fonctionnalités de votre nouvelle application:
-                                </p>
-
-                                <!-- YouTube Thumbnail with rounded corners -->
-                                <div style="margin: 20px 0; text-align: center;">
-                                    <p style="margin: 0 0 10px; font-size: 14px; color: #6b6b6b;">
-                                        Regardez le tutoriel: <a href="https://www.youtube.com/watch?v=CnuhpzqvPdc" style="color: #667eea;">Guide de démarrage</a>
-                                    </p>
-                                </div>
+                            <!-- Clickable YouTube thumbnail (hosted on YouTube CDN) -->
+                            <div style="text-align:center; margin:0 0 32px;">
+                                <a href="https://www.youtube.com/watch?v=CnuhpzqvPdc"
+                                   style="display:inline-block; border:0; text-decoration:none;">
+                                    <img src="https://img.youtube.com/vi/CnuhpzqvPdc/maxresdefault.jpg"
+                                         alt="Créer votre première activité — Guide de démarrage minipass"
+                                         width="540"
+                                         style="width:100%; max-width:540px; height:auto;
+                                                display:block; border:0; border-radius:8px;
+                                                box-shadow:0 2px 8px rgba(0,0,0,0.12);">
+                                </a>
                             </div>
 
-                            <!-- Support Section -->
-                            <div style="margin: 30px 0; padding: 20px; background-color: #f8f9fa; border-radius: 6px;">
-                                <p style="margin: 0 0 10px; font-size: 14px; line-height: 1.6; color: #4a4a4a;">
-                                    <strong>Besoin d'aide?</strong>
+                            <!-- Support section -->
+                            <div style="background-color:#f8f9fa; border-radius:8px; padding:20px;
+                                        margin:0 0 32px;">
+                                <p style="margin:0 0 12px; font-size:16px; font-weight:600; color:#1a1a1a;
+                                          font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;">
+                                    Besoin d'aide?
                                 </p>
-                                <p style="margin: 0 0 15px; font-size: 14px; line-height: 1.6; color: #6b6b6b;">
-                                    Contactez-nous: <a href="mailto:support@minipass.me" style="color: #667eea;">support@minipass.me</a>
+                                <p style="margin:0 0 16px; font-size:14px; color:#4a4a4a; line-height:1.5;
+                                          font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;">
+                                    <img src="https://minipass.me/static/image/icon-email.svg"
+                                         width="16" height="16" alt=""
+                                         style="vertical-align:middle; margin-right:8px; display:inline-block; border:0;">
+                                    <a href="mailto:support@minipass.me"
+                                       style="color:#667eea; text-decoration:none;">
+                                        support@minipass.me
+                                    </a>
+                                </p>
+                                <p style="margin:0; font-size:14px; color:#4a4a4a; line-height:1.5;
+                                          font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;">
+                                    <img src="https://minipass.me/static/image/icon-discord.svg"
+                                         width="16" height="16" alt=""
+                                         style="vertical-align:middle; margin-right:8px; display:inline-block; border:0;">
+                                    <a href="https://discord.gg/mfzBs8pT26" style="color:#667eea; text-decoration:none;">
+                                        Rejoindre notre communauté Discord →
+                                    </a>
                                 </p>
                             </div>
 
-                            <!-- Closing -->
-                            <p style="margin: 30px 0 0; font-size: 16px; line-height: 1.6; color: #4a4a4a;">
+                            <!-- Sign-off -->
+                            <p style="margin:0; font-size:16px; color:#4a4a4a; line-height:1.6;
+                                      font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;">
                                 Bonne création!<br>
-                                <strong style="color: #667eea;">L'équipe minipass</strong>
+                                <strong style="color:#667eea;">L'équipe minipass</strong>
                             </p>
 
                         </td>
                     </tr>
 
-                    <!-- Footer -->
+                    <!-- ═══════════════════════════════════════════════════════
+                         FOOTER
+                    ════════════════════════════════════════════════════════ -->
                     <tr>
-                        <td style="padding: 30px; background-color: #f5f5f5; text-align: center;">
-                            <p style="margin: 0 0 10px; font-size: 12px; color: #6b6b6b;">
-                                <strong>Minipass Inc.</strong><br>
-                                1234 rue Principale, Montréal, QC H1A 1A1, Canada<br>
-                                support@minipass.me | minipass.me
+                        <td style="padding:24px 30px; background-color:#f4f5f7;
+                                   text-align:center; border-radius:0 0 12px 12px;">
+                            <p style="margin:0 0 8px; font-size:12px; color:#6b6b6b;
+                                      font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;">
+                                <strong>minipass Inc.</strong> · Rimouski, QC, Canada<br>
+                                <a href="https://minipass.me"
+                                   style="color:#667eea; text-decoration:none;">minipass.me</a>
                             </p>
-                            <p style="margin: 10px 0; font-size: 12px; color: #6b6b6b;">
-                                © 2025 Minipass Inc. Tous droits réservés.
+                            <p style="margin:0 0 8px; font-size:12px; color:#9b9b9b;
+                                      font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;">
+                                © 2026 minipass Inc. Tous droits réservés.
                             </p>
-                            <p style="margin: 10px 0; font-size: 12px; color: #6b6b6b;">
-                                Cet email de bienvenue est automatiquement envoyé lors de l'activation de votre service.
-                            </p>
-                            <p style="margin: 0; font-size: 11px; color: #999;">
-                                <a href="mailto:support@minipass.me?subject=Unsubscribe" style="color: #999; text-decoration: underline;">Se désabonner</a> |
-                                <a href="mailto:support@minipass.me" style="color: #999; text-decoration: underline;">Nous contacter</a>
+                            <p style="margin:0; font-size:11px; color:#bbb;
+                                      font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;">
+                                <a href="mailto:support@minipass.me?subject=Unsubscribe"
+                                   style="color:#bbb; text-decoration:underline;">Se désabonner</a> ·
+                                <a href="mailto:support@minipass.me"
+                                   style="color:#bbb; text-decoration:underline;">Nous contacter</a>
                             </p>
                         </td>
                     </tr>
@@ -190,5 +274,6 @@
             </td>
         </tr>
     </table>
+
 </body>
 </html>

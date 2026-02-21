@@ -523,3 +523,25 @@ def create_promo_code(code, plan='pro', tier=2, billing_frequency='annual',
             return True
     except sqlite3.IntegrityError:
         return False
+
+
+def delete_promo_code(code: str) -> bool:
+    """Delete a promo code by code string. Returns True if deleted."""
+    with sqlite3.connect(CUSTOMERS_DB) as conn:
+        cur = conn.execute("DELETE FROM promo_codes WHERE code = ?", (code.upper(),))
+        conn.commit()
+    return cur.rowcount > 0
+
+
+def update_promo_code(code: str, plan: str, tier: int, billing_frequency: str,
+                      max_uses: int, expires_at, notes) -> bool:
+    """Update editable fields of a promo code. Returns True if found + updated."""
+    with sqlite3.connect(CUSTOMERS_DB) as conn:
+        cur = conn.execute(
+            """UPDATE promo_codes
+               SET plan=?, tier=?, billing_frequency=?, max_uses=?, expires_at=?, notes=?
+               WHERE code=?""",
+            (plan, tier, billing_frequency, max_uses, expires_at, notes, code.upper())
+        )
+        conn.commit()
+    return cur.rowcount > 0

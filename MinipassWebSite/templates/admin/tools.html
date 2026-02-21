@@ -19,46 +19,29 @@
 </div>
 {% endif %}
 
-<!-- Email Configuration -->
+<!-- Send Test Email -->
 <div class="card bg-base-100 shadow-sm border border-base-300 mb-4">
     <div class="card-body p-4">
         <div class="flex items-center justify-between mb-3">
             <h2 class="card-title text-base gap-2">
-                <i data-lucide="settings" class="w-4 h-4 text-primary"></i>
-                Email Configuration
+                <i data-lucide="send" class="w-4 h-4 text-primary"></i>
+                Send Test Email
             </h2>
-            {% if is_production %}
-            <span class="badge badge-success gap-1">
-                <span class="w-2 h-2 rounded-full bg-success-content inline-block"></span>
-                Production
-            </span>
-            {% else %}
-            <span class="badge badge-warning gap-1">
-                <span class="w-2 h-2 rounded-full bg-warning-content inline-block"></span>
-                Development
-            </span>
-            {% endif %}
-        </div>
-        <div class="flex flex-wrap gap-6 text-sm">
-            <div>
-                <span class="text-base-content/50">SMTP Server</span>
-                <div class="font-mono mt-0.5 bg-base-200 px-2 py-0.5 rounded text-xs inline-block">{{ email_server }}</div>
-            </div>
-            <div>
-                <span class="text-base-content/50">Sender</span>
-                <div class="font-mono mt-0.5 bg-base-200 px-2 py-0.5 rounded text-xs inline-block">{{ email_sender }}</div>
+            <div class="flex items-center gap-2">
+                <span class="font-mono bg-base-200 px-2 py-0.5 rounded text-xs text-base-content/60">{{ email_server }}</span>
+                {% if is_production %}
+                <span class="badge badge-success gap-1">
+                    <span class="w-2 h-2 rounded-full bg-success-content inline-block"></span>
+                    Production
+                </span>
+                {% else %}
+                <span class="badge badge-warning gap-1">
+                    <span class="w-2 h-2 rounded-full bg-warning-content inline-block"></span>
+                    Development
+                </span>
+                {% endif %}
             </div>
         </div>
-    </div>
-</div>
-
-<!-- Send Test Email -->
-<div class="card bg-base-100 shadow-sm border border-base-300 mb-4">
-    <div class="card-body p-4">
-        <h2 class="card-title text-base gap-2 mb-3">
-            <i data-lucide="send" class="w-4 h-4 text-primary"></i>
-            Send Test Email
-        </h2>
         <form action="{{ url_for('admin_test_email') }}" method="POST" class="flex gap-3 flex-wrap items-end">
             <div class="form-control flex-1 min-w-48">
                 <label class="label py-1">
@@ -78,15 +61,25 @@
 <!-- Customers Table -->
 <div class="card bg-base-100 shadow-sm border border-base-300">
     <div class="card-body p-4">
-        <h2 class="card-title text-base gap-2 mb-4">
-            <i data-lucide="users" class="w-4 h-4 text-primary"></i>
-            Customers
-            <span class="badge badge-ghost badge-sm ml-1">{{ customers|length }}</span>
-        </h2>
+
+        <!-- Header: title | search (center) | count -->
+        <div class="flex items-center gap-3 mb-4 flex-wrap">
+            <h2 class="card-title text-base gap-2 flex-none">
+                <i data-lucide="users" class="w-4 h-4 text-primary"></i>
+                Customers
+            </h2>
+            <div class="flex-1 flex justify-center min-w-48">
+                <label class="input input-bordered input-sm flex items-center gap-2 w-full max-w-xs">
+                    <i data-lucide="search" class="w-3.5 h-3.5 text-base-content/40"></i>
+                    <input type="text" id="customers-search" placeholder="Search customers…" class="grow bg-transparent outline-none text-sm">
+                </label>
+            </div>
+            <span id="customers-count" class="badge badge-ghost badge-sm flex-none"></span>
+        </div>
 
         {% if customers %}
         <div class="overflow-x-auto">
-            <table class="table table-sm table-zebra w-full">
+            <table class="table table-sm table-zebra w-full" id="customers-table">
                 <thead>
                     <tr class="text-xs uppercase text-base-content/50">
                         <th>Subdomain</th>
@@ -98,9 +91,9 @@
                         <th>Actions</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="customers-body">
                     {% for customer in customers %}
-                    <tr>
+                    <tr class="customer-row">
                         <td>
                             <a href="https://{{ customer.subdomain }}.minipass.me" target="_blank"
                                class="font-mono text-xs link link-primary">
@@ -133,24 +126,32 @@
                             {{ customer.created_at[:10] if customer.created_at else 'N/A' }}
                         </td>
                         <td>
-                            <div class="flex gap-1">
-                                <!-- TEMPORARILY DISABLED DUE TO GMAIL DELIVERY ISSUES -->
-                                <!--
-                                <form action="{{ url_for('admin_resend_email', subdomain=customer.subdomain) }}" method="POST">
-                                    <button type="submit" class="btn btn-ghost btn-xs" title="Resend onboarding email">📧</button>
-                                </form>
-                                -->
-                                <form action="{{ url_for('admin_reset_password', subdomain=customer.subdomain) }}" method="POST"
-                                      onsubmit="return confirm('Reset password for {{ customer.subdomain }}? A new password will be generated and emailed.')">
-                                    <button type="submit" class="btn btn-ghost btn-xs" title="Reset password">🔑</button>
-                                </form>
-                            </div>
+                            <button class="btn btn-sm btn-outline gap-1 customer-action-btn"
+                                    data-resend="{{ url_for('admin_resend_email', subdomain=customer.subdomain) }}"
+                                    data-reset="{{ url_for('admin_reset_password', subdomain=customer.subdomain) }}"
+                                    data-subdomain="{{ customer.subdomain }}">
+                                Actions
+                                <i data-lucide="chevron-down" class="w-3.5 h-3.5"></i>
+                            </button>
                         </td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
+
+        <!-- Empty search state -->
+        <div id="customers-empty" class="hidden text-center py-6 text-base-content/40">
+            <i data-lucide="search-x" class="w-6 h-6 mx-auto mb-2"></i>
+            <p class="text-sm">No results match your search</p>
+        </div>
+
+        <!-- Pagination -->
+        <div class="flex items-center justify-between mt-4 flex-wrap gap-2">
+            <span id="customers-page-info" class="text-xs text-base-content/40"></span>
+            <div class="join" id="customers-pagination"></div>
+        </div>
+
         {% else %}
         <div class="text-center py-12 text-base-content/40">
             <i data-lucide="users" class="w-10 h-10 mx-auto mb-3"></i>
@@ -159,5 +160,137 @@
         {% endif %}
     </div>
 </div>
+
+<script>
+// --- Customers Table: Search + Pagination ---
+(function () {
+    const PAGE_SIZE = 10;
+    const body     = document.getElementById('customers-body');
+    const searchEl = document.getElementById('customers-search');
+    const countEl  = document.getElementById('customers-count');
+    const pageInfo = document.getElementById('customers-page-info');
+    const pagDiv   = document.getElementById('customers-pagination');
+    const emptyEl  = document.getElementById('customers-empty');
+
+    if (!body) return;
+
+    const allRows = Array.from(body.querySelectorAll('tr.customer-row'));
+    let filtered  = allRows.slice();
+    let page      = 1;
+
+    function applyFilter() {
+        const q = (searchEl.value || '').toLowerCase().trim();
+        filtered = q ? allRows.filter(r => r.textContent.toLowerCase().includes(q)) : allRows.slice();
+        page = 1;
+        render();
+    }
+
+    function render() {
+        const total = filtered.length;
+        const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+        page        = Math.min(page, pages);
+        const start = (page - 1) * PAGE_SIZE;
+        const end   = start + PAGE_SIZE;
+
+        allRows.forEach(r => r.style.display = 'none');
+        filtered.slice(start, end).forEach(r => r.style.display = '');
+
+        emptyEl.classList.toggle('hidden', total > 0);
+        document.getElementById('customers-table').classList.toggle('hidden', total === 0);
+
+        countEl.textContent = total === allRows.length
+            ? `${total} total`
+            : `${total} of ${allRows.length}`;
+
+        pageInfo.textContent = total > 0
+            ? `Showing ${start + 1}–${Math.min(end, total)} of ${total}`
+            : '';
+
+        pagDiv.innerHTML = '';
+        if (pages <= 1) return;
+
+        const mkBtn = (label, targetPage, disabled, active) => {
+            const btn = document.createElement('button');
+            btn.className = `join-item btn btn-xs ${active ? 'btn-primary' : ''} ${disabled ? 'btn-disabled' : ''}`;
+            btn.textContent = label;
+            if (!disabled) btn.addEventListener('click', () => { page = targetPage; render(); });
+            return btn;
+        };
+
+        pagDiv.appendChild(mkBtn('‹', page - 1, page === 1, false));
+        const range = 2;
+        let lo = Math.max(1, page - range);
+        let hi = Math.min(pages, page + range);
+        if (lo > 1) {
+            pagDiv.appendChild(mkBtn('1', 1, false, false));
+            if (lo > 2) { const s = document.createElement('button'); s.className = 'join-item btn btn-xs btn-disabled'; s.textContent = '…'; pagDiv.appendChild(s); }
+        }
+        for (let i = lo; i <= hi; i++) pagDiv.appendChild(mkBtn(i, i, false, i === page));
+        if (hi < pages) {
+            if (hi < pages - 1) { const s = document.createElement('button'); s.className = 'join-item btn btn-xs btn-disabled'; s.textContent = '…'; pagDiv.appendChild(s); }
+            pagDiv.appendChild(mkBtn(pages, pages, false, false));
+        }
+        pagDiv.appendChild(mkBtn('›', page + 1, page === pages, false));
+    }
+
+    searchEl.addEventListener('input', applyFilter);
+    render();
+})();
+
+// --- Customer Actions: fixed-position dropdown (escapes overflow containers) ---
+(function () {
+    const menu = document.createElement('div');
+    menu.style.cssText = 'position:fixed;z-index:9999;width:220px;display:none;';
+    menu.className = 'rounded-box border border-base-300 bg-base-100 p-1 shadow-lg';
+    menu.innerHTML = `
+        <form id="ca-resend-form" method="POST">
+            <button type="submit" class="flex items-center gap-2 w-full px-3 py-2 text-sm rounded-lg hover:bg-base-200 whitespace-nowrap">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                Resend Onboarding Email
+            </button>
+        </form>
+        <hr class="my-1 border-base-300">
+        <form id="ca-reset-form" method="POST">
+            <button type="submit" class="flex items-center gap-2 w-full px-3 py-2 text-sm text-error rounded-lg hover:bg-error/10 whitespace-nowrap">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6"/><path d="m15.5 7.5 3 3L22 7l-3-3"/></svg>
+                Reset Password
+            </button>
+        </form>
+    `;
+    document.body.appendChild(menu);
+
+    const resendForm = document.getElementById('ca-resend-form');
+    const resetForm  = document.getElementById('ca-reset-form');
+    let currentSubdomain = '';
+    let isOpen = false;
+
+    function openMenu(trigger) {
+        const rect   = trigger.getBoundingClientRect();
+        const menuH  = 90;
+        const top    = (window.innerHeight - rect.bottom > menuH) ? rect.bottom + 4 : rect.top - menuH - 4;
+        const left   = Math.max(8, rect.right - 220);
+        menu.style.top     = top + 'px';
+        menu.style.left    = left + 'px';
+        menu.style.display = 'block';
+        resendForm.action  = trigger.dataset.resend;
+        resetForm.action   = trigger.dataset.reset;
+        currentSubdomain   = trigger.dataset.subdomain;
+        resetForm.onsubmit = () => confirm('Reset password for ' + currentSubdomain + '? A new password will be generated and emailed.');
+        isOpen = true;
+    }
+
+    function closeMenu() { menu.style.display = 'none'; isOpen = false; }
+
+    document.addEventListener('click', function (e) {
+        const trigger = e.target.closest('.customer-action-btn');
+        if (trigger) { isOpen ? closeMenu() : openMenu(trigger); }
+        else if (!menu.contains(e.target)) { closeMenu(); }
+    });
+
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenu(); });
+    window.addEventListener('scroll', closeMenu);
+})();
+
+</script>
 
 {% endblock %}
