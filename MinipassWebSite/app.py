@@ -959,7 +959,8 @@ def admin_promo_codes():
     codes = get_all_promo_codes()
     return render_template("admin/promo_codes.html", codes=codes,
                            message=request.args.get('message'),
-                           error=request.args.get('error'))
+                           error=request.args.get('error'),
+                           now=datetime.utcnow())
 
 
 @app.route("/admin/promo-codes/create", methods=["POST"])
@@ -992,6 +993,37 @@ def admin_create_promo_code():
         return redirect(url_for("admin_promo_codes", message=f"Code '{code}' créé avec succès"))
     else:
         return redirect(url_for("admin_promo_codes", error=f"Le code '{code}' existe déjà"))
+
+
+@app.route("/admin/promo-codes/delete/<code>", methods=["POST"])
+@require_admin
+def admin_delete_promo_code(code):
+    from utils.customer_helpers import init_customers_db, delete_promo_code
+    init_customers_db()
+    ok = delete_promo_code(code)
+    if ok:
+        return redirect(url_for("admin_promo_codes", message=f"Code '{code}' supprimé"))
+    return redirect(url_for("admin_promo_codes", error=f"Code '{code}' introuvable"))
+
+
+@app.route("/admin/promo-codes/update/<code>", methods=["POST"])
+@require_admin
+def admin_update_promo_code(code):
+    from utils.customer_helpers import init_customers_db, update_promo_code
+    init_customers_db()
+    plan = request.form.get("plan", "pro").lower()
+    tier = PLAN_TO_TIER.get(plan, 2)
+    billing_frequency = request.form.get("billing_frequency", "annual").lower()
+    try:
+        max_uses = max(1, int(request.form.get("max_uses", "1")))
+    except ValueError:
+        return redirect(url_for("admin_promo_codes", error="Nombre d'utilisations invalide"))
+    expires_at = request.form.get("expires_at", "").strip() or None
+    notes = request.form.get("notes", "").strip() or None
+    ok = update_promo_code(code, plan, tier, billing_frequency, max_uses, expires_at, notes)
+    if ok:
+        return redirect(url_for("admin_promo_codes", message=f"Code '{code}' mis à jour"))
+    return redirect(url_for("admin_promo_codes", error=f"Code '{code}' introuvable"))
 
 
 def classify_error(msg):
@@ -1060,7 +1092,7 @@ def mail_dashboard():
         w_deferred = row[2] or 0
         stats['sent_week'] = w_sent
         if w_sent > 0:
-            stats['success_rate'] = round(100 * (w_sent - w_bounced - w_deferred) / w_sent, 1)
+            stats['success_rate'] = round(100 * (w_sent - w_bounced) / w_sent, 1)
 
         row = cur.execute(
             "SELECT COUNT(*) FROM email_failures WHERE timestamp >= ?", (week_ago,)
@@ -1077,7 +1109,7 @@ def mail_dashboard():
             d_sent = r[1] or 0
             d_bounced = r[2] or 0
             d_deferred = r[3] or 0
-            d_success = round(100 * (d_sent - d_bounced - d_deferred) / d_sent, 1) if d_sent > 0 else 100
+            d_success = round(100 * (d_sent - d_bounced) / d_sent, 1) if d_sent > 0 else 100
             chart_data['labels'].append(r[0][5:])  # MM-DD
             chart_data['sent'].append(d_sent)
             chart_data['bounced'].append(d_bounced)
@@ -1118,12 +1150,13 @@ def mail_dashboard():
             ws = r['week_sent'] or 0
             wb = r['week_bounced'] or 0
             wd = r['week_deferred'] or 0
-            pct = round(100 * (ws - wb - wd) / ws, 1) if ws > 0 else 100
+            pct = round(100 * (ws - wb) / ws, 1) if ws > 0 else 100
             sender_stats.append({
                 'user_email': r['user_email'],
                 'today_sent': r['today_sent'] or 0,
                 'today_bounced': r['today_bounced'] or 0,
                 'week_sent': ws,
+                'week_deferred': wd,
                 'success_pct': pct,
             })
 
@@ -1201,6 +1234,165 @@ def mail_dashboard_sender_detail():
     except Exception as e:
         logging.warning(f"mail_dashboard_sender_detail error: {e}")
         return jsonify({"error": str(e)}), 500
+
+
+@app.route("/admin/dmarc")
+@require_admin
+def dmarc_dashboard():
+    """DMARC authentication analysis dashboard."""
+    import sqlite3 as _sqlite3
+    import glob as _glob
+    from datetime import date as _date, timedelta as _timedelta, datetime as _datetime
+
+    db_path = os.path.join(os.path.dirname(__file__), '..', 'email_monitoring', 'monitoring.db')
+    reports_dir = os.path.join(os.path.dirname(__file__), '..', 'email_monitoring', 'reports')
+
+    dmarc_stats = []
+    dmarc_overall = None
+    dmarc_date_range = None
+
+    # --- Pipeline health defaults ---
+    pipeline = {
+        'latest_report_date': None,    # most recent `date` column in DB
+        'latest_reporter':    None,    # which reporter sent it
+        'latest_file_date':   None,    # mtime of newest .md file on disk
+        'latest_file_reporter': None,  # reporter extracted from filename
+        'days_stale':         None,    # today - latest_report_date
+        'status':             'unknown',  # 'ok' / 'warn' / 'stale'
+    }
+
+    # --- Recommendation defaults ---
+    rec = {
+        'last_failure_date':      None,
+        'days_since_fix':         None,
+        'post_fix_total':         0,
+        'post_fix_passed':        0,
+        'post_fix_rate':          None,
+        'quarantine_eligible_date': None,
+        'days_remaining':         None,
+        'status':                 'no_data',  # 'on_track' / 'ready' / 'needs_work' / 'no_data'
+    }
+
+    try:
+        conn = _sqlite3.connect(db_path)
+        conn.row_factory = _sqlite3.Row
+        cur = conn.cursor()
+
+        thirty_ago = (_date.today() - _timedelta(days=30)).isoformat()
+
+        # --- 30-day reporter breakdown ---
+        dmarc_rows = cur.execute(
+            "SELECT reporter, SUM(total_messages) AS total, SUM(pass_count) AS passed "
+            "FROM dmarc_daily WHERE date >= ? "
+            "GROUP BY reporter ORDER BY total DESC",
+            (thirty_ago,)
+        ).fetchall()
+
+        for r in dmarc_rows:
+            total  = r['total']  or 0
+            passed = r['passed'] or 0
+            rate   = round(100 * passed / total, 1) if total > 0 else 0.0
+            dmarc_stats.append({
+                'reporter': r['reporter'],
+                'total':    total,
+                'passed':   passed,
+                'failed':   total - passed,
+                'pass_rate': rate,
+            })
+
+        if dmarc_stats:
+            grand_total  = sum(d['total']  for d in dmarc_stats)
+            grand_passed = sum(d['passed'] for d in dmarc_stats)
+            dmarc_overall = round(100 * grand_passed / grand_total, 1) if grand_total > 0 else 0.0
+
+        dmarc_date_row = cur.execute(
+            "SELECT MIN(date) AS earliest, MAX(date) AS latest FROM dmarc_daily"
+        ).fetchone()
+        if dmarc_date_row and dmarc_date_row['earliest']:
+            dmarc_date_range = f"{dmarc_date_row['earliest']} to {dmarc_date_row['latest']}"
+
+        # --- Pipeline health: latest DB entry ---
+        latest_row = cur.execute(
+            "SELECT reporter, date FROM dmarc_daily ORDER BY date DESC LIMIT 1"
+        ).fetchone()
+        if latest_row:
+            pipeline['latest_report_date'] = latest_row['date']
+            pipeline['latest_reporter']    = latest_row['reporter']
+            days_stale = (_date.today() - _date.fromisoformat(latest_row['date'])).days
+            pipeline['days_stale'] = days_stale
+            # DMARC reports lag 1-3 days naturally; flag if > 7 days
+            if days_stale <= 4:
+                pipeline['status'] = 'ok'
+            elif days_stale <= 7:
+                pipeline['status'] = 'warn'
+            else:
+                pipeline['status'] = 'stale'
+
+        # --- Pipeline health: most recent file on disk ---
+        md_files = _glob.glob(os.path.join(reports_dir, '*.md'))
+        if md_files:
+            newest = max(md_files, key=os.path.getmtime)
+            mtime = os.path.getmtime(newest)
+            pipeline['latest_file_date'] = _datetime.fromtimestamp(mtime).strftime('%Y-%m-%d')
+            # extract reporter from filename: "google.com!minipass.me!..." → "google.com"
+            pipeline['latest_file_reporter'] = os.path.basename(newest).split('!')[0]
+
+        # --- Recommendation data ---
+        # Find the date of the most recent failure
+        last_fail_row = cur.execute(
+            "SELECT MAX(date) AS d FROM dmarc_daily WHERE fail_count > 0"
+        ).fetchone()
+        last_failure_date = last_fail_row['d'] if last_fail_row else None
+
+        if last_failure_date:
+            rec['last_failure_date'] = last_failure_date
+            last_fail_dt = _date.fromisoformat(last_failure_date)
+            days_since = (_date.today() - last_fail_dt).days
+            rec['days_since_fix'] = days_since
+
+            # Post-fix metrics (everything AFTER the last failure date)
+            pf_row = cur.execute(
+                "SELECT SUM(total_messages) AS t, SUM(pass_count) AS p "
+                "FROM dmarc_daily WHERE date > ?",
+                (last_failure_date,)
+            ).fetchone()
+            pf_total  = pf_row['t'] or 0
+            pf_passed = pf_row['p'] or 0
+            rec['post_fix_total']  = pf_total
+            rec['post_fix_passed'] = pf_passed
+            rec['post_fix_rate']   = round(100 * pf_passed / pf_total, 1) if pf_total > 0 else None
+
+            # Quarantine eligibility: 30 days of post-fix data at 98%+
+            days_remaining = max(0, 30 - days_since)
+            rec['days_remaining'] = days_remaining
+            eligible_dt = last_fail_dt + _timedelta(days=30)
+            rec['quarantine_eligible_date'] = eligible_dt.isoformat()
+
+            pf_rate = rec['post_fix_rate'] or 0
+            if days_remaining == 0 and pf_rate >= 98:
+                rec['status'] = 'ready'
+            elif pf_rate >= 98:
+                rec['status'] = 'on_track'
+            else:
+                rec['status'] = 'needs_work'
+        else:
+            # No failures ever recorded — already excellent
+            rec['status'] = 'ready'
+            rec['days_since_fix'] = None
+
+        conn.close()
+
+    except Exception as e:
+        logging.warning(f"dmarc_dashboard DB error: {e}")
+
+    return render_template(
+        'admin/dmarc_dashboard.html',
+        dmarc_stats=dmarc_stats,
+        dmarc_overall=dmarc_overall,
+        dmarc_date_range=dmarc_date_range,
+        pipeline=pipeline,
+        rec=rec,
+    )
 
 
 # ✅ Run server

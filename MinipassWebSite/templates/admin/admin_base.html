@@ -44,7 +44,7 @@
         </div>
 
         <!-- Desktop top header -->
-        <header class="hidden lg:flex items-center justify-between px-6 py-4 bg-base-100 border-b border-base-300 sticky top-0 z-30">
+        <header class="hidden lg:flex items-center justify-between px-6 bg-base-100 border-b border-base-300 sticky top-0 z-30 h-[60px]">
             <h1 class="text-xl font-semibold text-base-content">{% block page_title %}Admin{% endblock %}</h1>
             <div class="flex items-center gap-2">
                 <button id="theme-toggle-desktop" onclick="toggleTheme()" class="btn btn-ghost btn-square btn-sm" title="Toggle theme">
@@ -71,16 +71,14 @@
         <aside class="w-64 bg-base-100 border-r border-base-300 min-h-screen flex flex-col">
 
             <!-- Logo -->
-            <div class="px-6 py-5 border-b border-base-300">
-                <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                        <i data-lucide="shield" class="w-4 h-4 text-primary-content"></i>
-                    </div>
-                    <div>
-                        <div class="font-bold text-base leading-tight">minipass</div>
-                        <div class="text-xs text-base-content/50 leading-tight">Admin Panel</div>
-                    </div>
-                </div>
+            <div class="px-6 border-b border-base-300 flex flex-col items-center justify-center h-[60px]">
+                <img src="{{ url_for('static', filename='image/mp-logo-regular.png') }}"
+                     alt="Minipass"
+                     class="h-5 w-auto theme-icon-light">
+                <img src="{{ url_for('static', filename='image/mp-logo-white.png') }}"
+                     alt="Minipass"
+                     class="h-5 w-auto theme-icon-dark hidden">
+                <div class="text-xs text-base-content/50 mt-1 leading-none">Admin Panel</div>
             </div>
 
             <!-- Navigation -->
@@ -107,6 +105,13 @@
                            class="gap-3 rounded-lg {% if request.endpoint == 'mail_dashboard' %}bg-primary text-primary-content hover:bg-primary{% endif %}">
                             <i data-lucide="mail" class="w-4 h-4"></i>
                             Email Analytics
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('dmarc_dashboard') }}"
+                           class="gap-3 rounded-lg {% if request.endpoint == 'dmarc_dashboard' %}bg-primary text-primary-content hover:bg-primary{% endif %}">
+                            <i data-lucide="shield-check" class="w-4 h-4"></i>
+                            DMARC Analysis
                         </a>
                     </li>
                 </ul>

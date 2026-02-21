@@ -19,84 +19,116 @@
 </div>
 {% endif %}
 
-<!-- Create New Code -->
-<div class="card bg-base-100 shadow-sm border border-base-300 mb-4">
-    <div class="card-body p-4">
-        <h2 class="card-title text-base gap-2 mb-4">
-            <i data-lucide="plus-circle" class="w-4 h-4 text-primary"></i>
-            Créer un nouveau code
-        </h2>
-        <form method="POST" action="/admin/promo-codes/create">
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-4">
-                <div class="form-control lg:col-span-1">
-                    <label class="label py-1">
-                        <span class="label-text text-xs font-medium">Code *</span>
-                    </label>
-                    <input type="text" name="code" placeholder="TESTDEPLOY" required
-                           class="input input-bordered input-sm uppercase w-full"
-                           style="text-transform:uppercase;">
-                </div>
-                <div class="form-control">
-                    <label class="label py-1">
-                        <span class="label-text text-xs font-medium">Forfait</span>
-                    </label>
-                    <select name="plan" class="select select-bordered select-sm w-full">
-                        <option value="basic">Basic</option>
-                        <option value="pro" selected>Pro</option>
-                        <option value="ultimate">Ultimate</option>
-                    </select>
-                </div>
-                <div class="form-control">
-                    <label class="label py-1">
-                        <span class="label-text text-xs font-medium">Fréquence</span>
-                    </label>
-                    <select name="billing_frequency" class="select select-bordered select-sm w-full">
-                        <option value="annual" selected>Annuel</option>
-                        <option value="monthly">Mensuel</option>
-                    </select>
-                </div>
-                <div class="form-control">
-                    <label class="label py-1">
-                        <span class="label-text text-xs font-medium">Utilisations max</span>
-                    </label>
-                    <input type="number" name="max_uses" value="1" min="1"
-                           class="input input-bordered input-sm w-full">
-                </div>
-                <div class="form-control">
-                    <label class="label py-1">
-                        <span class="label-text text-xs font-medium">Expiration</span>
-                    </label>
-                    <input type="datetime-local" name="expires_at"
-                           class="input input-bordered input-sm w-full">
-                </div>
-                <div class="form-control">
-                    <label class="label py-1">
-                        <span class="label-text text-xs font-medium">Notes</span>
-                    </label>
-                    <input type="text" name="notes" placeholder="Test développeur"
-                           class="input input-bordered input-sm w-full">
-                </div>
-            </div>
-            <button type="submit" class="btn btn-primary btn-sm gap-2">
-                <i data-lucide="plus" class="w-3.5 h-3.5"></i>
-                Créer le code
-            </button>
-        </form>
-    </div>
+<!-- New Code Button -->
+<div class="flex justify-end mb-3">
+    <label for="promo-modal-toggle" class="btn btn-primary btn-sm gap-2 cursor-pointer" data-mode="create">
+        <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+        Nouveau code promo
+    </label>
+</div>
+
+<!-- Create / Edit Promo Code Modal -->
+<input type="checkbox" id="promo-modal-toggle" class="modal-toggle" />
+<div class="modal modal-bottom sm:modal-middle">
+  <div class="modal-box w-full max-w-lg">
+    <h3 id="promo-modal-title" class="font-bold text-base mb-4">Nouveau code promo</h3>
+    <form id="promo-modal-form" method="POST" action="/admin/promo-codes/create">
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <!-- Code -->
+        <div class="form-control col-span-2 sm:col-span-1">
+          <label class="label py-1"><span class="label-text text-xs font-medium">Code *</span></label>
+          <input type="text" name="code" id="pm-code" placeholder="TESTDEPLOY" required
+                 class="input input-bordered input-sm uppercase w-full"
+                 style="text-transform:uppercase;">
+        </div>
+        <!-- Forfait -->
+        <div class="form-control">
+          <label class="label py-1"><span class="label-text text-xs font-medium">Forfait</span></label>
+          <select name="plan" id="pm-plan" class="select select-bordered select-sm w-full">
+            <option value="basic">Basic</option>
+            <option value="pro" selected>Pro</option>
+            <option value="ultimate">Ultimate</option>
+          </select>
+        </div>
+        <!-- Fréquence -->
+        <div class="form-control">
+          <label class="label py-1"><span class="label-text text-xs font-medium">Fréquence</span></label>
+          <select name="billing_frequency" id="pm-freq" class="select select-bordered select-sm w-full">
+            <option value="annual" selected>Annuel</option>
+            <option value="monthly">Mensuel</option>
+          </select>
+        </div>
+        <!-- Utilisations max -->
+        <div class="form-control">
+          <label class="label py-1"><span class="label-text text-xs font-medium">Utilisations max</span></label>
+          <input type="number" name="max_uses" id="pm-maxuses" value="1" min="1"
+                 class="input input-bordered input-sm w-full">
+        </div>
+        <!-- Expiration -->
+        <div class="form-control">
+          <label class="label py-1"><span class="label-text text-xs font-medium">Expiration</span></label>
+          <input type="datetime-local" name="expires_at" id="pm-expires"
+                 class="input input-bordered input-sm w-full">
+        </div>
+        <!-- Notes -->
+        <div class="form-control col-span-2">
+          <label class="label py-1"><span class="label-text text-xs font-medium">Notes</span></label>
+          <input type="text" name="notes" id="pm-notes" placeholder="Test développeur"
+                 class="input input-bordered input-sm w-full">
+        </div>
+      </div>
+      <div class="modal-action mt-0">
+        <label for="promo-modal-toggle" class="btn btn-ghost btn-sm">Annuler</label>
+        <button type="submit" id="promo-modal-submit" class="btn btn-primary btn-sm">
+          Créer le code
+        </button>
+      </div>
+    </form>
+  </div>
+  <label class="modal-backdrop" for="promo-modal-toggle"></label>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<input type="checkbox" id="promo-delete-toggle" class="modal-toggle" />
+<div class="modal modal-bottom sm:modal-middle">
+  <div class="modal-box max-w-sm">
+    <h3 class="font-bold text-base mb-2">Supprimer ce code ?</h3>
+    <p class="text-sm text-base-content/70 mb-4">
+      Le code <span id="delete-code-name" class="font-mono font-semibold"></span>
+      sera supprimé définitivement.
+    </p>
+    <form id="promo-delete-form" method="POST" action="">
+      <div class="modal-action mt-0">
+        <label for="promo-delete-toggle" class="btn btn-ghost btn-sm">Annuler</label>
+        <button type="submit" class="btn btn-error btn-sm">Supprimer</button>
+      </div>
+    </form>
+  </div>
+  <label class="modal-backdrop" for="promo-delete-toggle"></label>
 </div>
 
 <!-- Existing Codes -->
 <div class="card bg-base-100 shadow-sm border border-base-300 mb-4">
     <div class="card-body p-4">
-        <h2 class="card-title text-base gap-2 mb-4">
-            <i data-lucide="tag" class="w-4 h-4 text-primary"></i>
-            Codes existants
-            <span class="badge badge-ghost badge-sm ml-1">{{ codes|length }}</span>
-        </h2>
+
+        <!-- Header: title | search (center) | count -->
+        <div class="flex items-center gap-3 mb-4 flex-wrap">
+            <h2 class="card-title text-base gap-2 flex-none">
+                <i data-lucide="tag" class="w-4 h-4 text-primary"></i>
+                Codes existants
+            </h2>
+            <div class="flex-1 flex justify-center min-w-48">
+                <label class="input input-bordered input-sm flex items-center gap-2 w-full max-w-xs">
+                    <i data-lucide="search" class="w-3.5 h-3.5 text-base-content/40"></i>
+                    <input type="text" id="promo-search" placeholder="Search codes…" class="grow bg-transparent outline-none text-sm">
+                </label>
+            </div>
+            <span id="promo-count" class="badge badge-ghost badge-sm flex-none"></span>
+        </div>
 
         {% if codes %}
         <div class="overflow-x-auto">
-            <table class="table table-sm table-zebra w-full">
+            <table class="table table-sm table-zebra w-full" id="promo-table">
                 <thead>
                     <tr class="text-xs uppercase text-base-content/50">
                         <th>Code</th>
@@ -107,11 +139,12 @@
                         <th>Créé le</th>
                         <th>Notes</th>
                         <th>Statut</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="promo-body">
                     {% for c in codes %}
-                    <tr>
+                    <tr class="promo-row">
                         <td class="font-mono font-semibold text-sm">{{ c.code }}</td>
                         <td class="text-sm">{{ c.plan }} / {{ c.billing_frequency }}</td>
                         <td class="text-sm">{{ c.uses_count }} / {{ c.max_uses }}</td>
@@ -128,11 +161,36 @@
                             <span class="badge badge-success badge-sm">Actif</span>
                             {% endif %}
                         </td>
+                        <td>
+                            <button class="btn btn-sm btn-outline gap-1 promo-action-btn"
+                                    data-code="{{ c.code }}"
+                                    data-plan="{{ c.plan }}"
+                                    data-freq="{{ c.billing_frequency }}"
+                                    data-maxuses="{{ c.max_uses }}"
+                                    data-expires="{{ c.expires_at or '' }}"
+                                    data-notes="{{ c.notes or '' }}">
+                                Actions
+                                <i data-lucide="chevron-down" class="w-3.5 h-3.5"></i>
+                            </button>
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
+
+        <!-- Empty search state -->
+        <div id="promo-empty" class="hidden text-center py-6 text-base-content/40">
+            <i data-lucide="search-x" class="w-6 h-6 mx-auto mb-2"></i>
+            <p class="text-sm">No results match your search</p>
+        </div>
+
+        <!-- Pagination -->
+        <div class="flex items-center justify-between mt-4 flex-wrap gap-2">
+            <span id="promo-page-info" class="text-xs text-base-content/40"></span>
+            <div class="join" id="promo-pagination"></div>
+        </div>
+
         {% else %}
         <div class="text-center py-10 text-base-content/40">
             <i data-lucide="tag" class="w-8 h-8 mx-auto mb-2"></i>
@@ -142,17 +200,179 @@
     </div>
 </div>
 
-<!-- Manual SQL Reference -->
-<div class="card bg-base-100 shadow-sm border border-base-300">
-    <div class="card-body p-4">
-        <h2 class="card-title text-base gap-2 mb-3">
-            <i data-lucide="terminal" class="w-4 h-4 text-base-content/50"></i>
-            Création manuelle (SQLite)
-        </h2>
-        <div class="mockup-code text-xs">
-            <pre><code>sqlite3 customers.db "INSERT INTO promo_codes (code, plan, tier, notes) VALUES ('TESTDEPLOY', 'pro', 2, 'Developer test code');"</code></pre>
-        </div>
-    </div>
-</div>
+<script>
+// --- Promo Codes Table: Search + Pagination ---
+(function () {
+    const PAGE_SIZE = 10;
+    const body     = document.getElementById('promo-body');
+    const searchEl = document.getElementById('promo-search');
+    const countEl  = document.getElementById('promo-count');
+    const pageInfo = document.getElementById('promo-page-info');
+    const pagDiv   = document.getElementById('promo-pagination');
+    const emptyEl  = document.getElementById('promo-empty');
+
+    if (!body) return;
+
+    const allRows = Array.from(body.querySelectorAll('tr.promo-row'));
+    let filtered  = allRows.slice();
+    let page      = 1;
+
+    function applyFilter() {
+        const q = (searchEl.value || '').toLowerCase().trim();
+        filtered = q ? allRows.filter(r => r.textContent.toLowerCase().includes(q)) : allRows.slice();
+        page = 1;
+        render();
+    }
+
+    function render() {
+        const total = filtered.length;
+        const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+        page        = Math.min(page, pages);
+        const start = (page - 1) * PAGE_SIZE;
+        const end   = start + PAGE_SIZE;
+
+        allRows.forEach(r => r.style.display = 'none');
+        filtered.slice(start, end).forEach(r => r.style.display = '');
+
+        emptyEl.classList.toggle('hidden', total > 0);
+        document.getElementById('promo-table').classList.toggle('hidden', total === 0);
+
+        countEl.textContent = total === allRows.length
+            ? `${total} total`
+            : `${total} of ${allRows.length}`;
+
+        pageInfo.textContent = total > 0
+            ? `Showing ${start + 1}–${Math.min(end, total)} of ${total}`
+            : '';
+
+        pagDiv.innerHTML = '';
+        if (pages <= 1) return;
+
+        const mkBtn = (label, targetPage, disabled, active) => {
+            const btn = document.createElement('button');
+            btn.className = `join-item btn btn-xs ${active ? 'btn-primary' : ''} ${disabled ? 'btn-disabled' : ''}`;
+            btn.textContent = label;
+            if (!disabled) btn.addEventListener('click', () => { page = targetPage; render(); });
+            return btn;
+        };
+
+        pagDiv.appendChild(mkBtn('‹', page - 1, page === 1, false));
+        const range = 2;
+        let lo = Math.max(1, page - range);
+        let hi = Math.min(pages, page + range);
+        if (lo > 1) {
+            pagDiv.appendChild(mkBtn('1', 1, false, false));
+            if (lo > 2) { const s = document.createElement('button'); s.className = 'join-item btn btn-xs btn-disabled'; s.textContent = '…'; pagDiv.appendChild(s); }
+        }
+        for (let i = lo; i <= hi; i++) pagDiv.appendChild(mkBtn(i, i, false, i === page));
+        if (hi < pages) {
+            if (hi < pages - 1) { const s = document.createElement('button'); s.className = 'join-item btn btn-xs btn-disabled'; s.textContent = '…'; pagDiv.appendChild(s); }
+            pagDiv.appendChild(mkBtn(pages, pages, false, false));
+        }
+        pagDiv.appendChild(mkBtn('›', page + 1, page === pages, false));
+    }
+
+    searchEl.addEventListener('input', applyFilter);
+    render();
+})();
+
+// --- Modal open/close logic ---
+(function () {
+    // Reset to create mode when the "Nouveau code promo" button is clicked
+    document.querySelectorAll('label[for="promo-modal-toggle"]').forEach(el => {
+        el.addEventListener('click', function () {
+            if (this.dataset.mode === 'create') {
+                openCreateModal();
+            }
+        });
+    });
+
+    window.openCreateModal = function () {
+        document.getElementById('promo-modal-title').textContent = 'Nouveau code promo';
+        document.getElementById('promo-modal-submit').textContent = 'Créer le code';
+        document.getElementById('promo-modal-form').action = '/admin/promo-codes/create';
+        document.getElementById('pm-code').value = '';
+        document.getElementById('pm-code').readOnly = false;
+        document.getElementById('pm-plan').value = 'pro';
+        document.getElementById('pm-freq').value = 'annual';
+        document.getElementById('pm-maxuses').value = '1';
+        document.getElementById('pm-expires').value = '';
+        document.getElementById('pm-notes').value = '';
+    };
+
+    window.openEditModal = function (code, plan, freq, maxuses, expires, notes) {
+        document.getElementById('promo-modal-title').textContent = `Modifier ${code}`;
+        document.getElementById('promo-modal-submit').textContent = 'Enregistrer';
+        document.getElementById('promo-modal-form').action = `/admin/promo-codes/update/${code}`;
+        document.getElementById('pm-code').value = code;
+        document.getElementById('pm-code').readOnly = true;
+        document.getElementById('pm-plan').value = plan;
+        document.getElementById('pm-freq').value = freq;
+        document.getElementById('pm-maxuses').value = maxuses;
+        document.getElementById('pm-expires').value = expires;
+        document.getElementById('pm-notes').value = notes;
+        document.getElementById('promo-modal-toggle').checked = true;
+    };
+
+    window.openDeleteModal = function (code) {
+        document.getElementById('delete-code-name').textContent = code;
+        document.getElementById('promo-delete-form').action = `/admin/promo-codes/delete/${code}`;
+        document.getElementById('promo-delete-toggle').checked = true;
+    };
+})();
+
+// --- Actions dropdown (position:fixed) ---
+(function () {
+    const menu = document.createElement('div');
+    menu.style.cssText = 'position:fixed;z-index:9999;width:180px;display:none;';
+    menu.className = 'rounded-box border border-base-300 bg-base-100 p-1 shadow-lg';
+    menu.innerHTML = `
+        <button id="pa-edit" class="flex items-center gap-2 w-full px-3 py-2 text-sm rounded-lg hover:bg-base-200">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg>
+            Modifier
+        </button>
+        <hr class="my-1 border-base-300">
+        <button id="pa-delete" class="flex items-center gap-2 w-full px-3 py-2 text-sm text-error rounded-lg hover:bg-error/10">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+            Supprimer
+        </button>
+    `;
+    document.body.appendChild(menu);
+
+    let currentData = {};
+    let isOpen = false;
+
+    function openMenu(trigger) {
+        const rect = trigger.getBoundingClientRect();
+        const menuH = 80;
+        const top = (window.innerHeight - rect.bottom > menuH) ? rect.bottom + 4 : rect.top - menuH - 4;
+        const left = Math.max(8, rect.right - 180);
+        menu.style.top = top + 'px';
+        menu.style.left = left + 'px';
+        menu.style.display = 'block';
+        currentData = trigger.dataset;
+        isOpen = true;
+    }
+    function closeMenu() { menu.style.display = 'none'; isOpen = false; }
+
+    document.getElementById('pa-edit').addEventListener('click', function () {
+        closeMenu();
+        openEditModal(currentData.code, currentData.plan, currentData.freq,
+                      currentData.maxuses, currentData.expires, currentData.notes);
+    });
+    document.getElementById('pa-delete').addEventListener('click', function () {
+        closeMenu();
+        openDeleteModal(currentData.code);
+    });
+
+    document.addEventListener('click', function (e) {
+        const trigger = e.target.closest('.promo-action-btn');
+        if (trigger) { isOpen ? closeMenu() : openMenu(trigger); }
+        else if (!menu.contains(e.target)) { closeMenu(); }
+    });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenu(); });
+    window.addEventListener('scroll', closeMenu);
+})();
+</script>
 
 {% endblock %}

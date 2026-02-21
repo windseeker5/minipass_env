@@ -2,7 +2,6 @@
 
 from flask import render_template
 from flask_mail import Message, Mail
-from email.mime.image import MIMEImage
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.utils import formatdate
@@ -41,7 +40,7 @@ def init_mail(app):
 def send_user_deployment_email(to, url, password, email_info=None):
     from utils.deploy_helpers import is_production_environment
 
-    subject = "Votre application Minipass - Informations de connexion"  # Transactional subject
+    subject = "Votre application minipass - Informations de connexion"  # Transactional subject
 
     # ✅ Render with admin email and email info included
     html = render_template(
@@ -75,8 +74,8 @@ def send_user_deployment_email(to, url, password, email_info=None):
         smtp_pass = os.getenv("MAIL_PASSWORD")
         sender = os.getenv("MAIL_DEFAULT_SENDER", "info@minipass.me")
 
-    # Build multipart MIME message with images (NO filenames to prevent attachments)
-    multipart = MIMEMultipart('related')
+    # Build multipart/alternative MIME message (RFC 5322 compliant — no embedded images)
+    multipart = MIMEMultipart('alternative')
     multipart['Subject'] = subject
     multipart['From'] = sender
     multipart['To'] = to
@@ -85,28 +84,10 @@ def send_user_deployment_email(to, url, password, email_info=None):
     multipart['Message-ID'] = f"<{int(datetime.now(timezone.utc).timestamp() * 1000000)}@minipass.me>"
     multipart['Auto-Submitted'] = "auto-generated"
 
-    # Attach HTML content
+    # Plain-text fallback first (RFC 2046: preferred part must be last)
+    multipart.attach(MIMEText(body_text, 'plain', 'utf-8'))
+    # HTML part last (preferred by mail clients)
     multipart.attach(MIMEText(html, 'html', 'utf-8'))
-
-    # Load and attach images as inline (WITHOUT filename parameter)
-    images = {
-        'welcom4': 'static/image/welcom4.jpg',
-        'thumb-youtube': 'static/image/thumb-youtube.jpg',
-        'discord-icon': 'static/image/discord-icon.png',
-        'facebook-icon': 'static/image/facebook-icon.png',
-        'instagram-icon': 'static/image/instagram-icon.png',
-        'youtube-icon': 'static/image/youtube-icon.png',
-        'linkedin-icon': 'static/image/linkedin-icon.png'
-    }
-
-    for cid, image_path in images.items():
-        with open(image_path, 'rb') as f:
-            image_data = f.read()
-            part = MIMEImage(image_data)
-            part.add_header('Content-ID', f'<{cid}>')
-            part.add_header('Content-Disposition', 'inline')
-            # NO filename header - this prevents Gmail from showing attachment
-            multipart.attach(part)
 
     # Send using smtplib
     with smtplib.SMTP(smtp_server, smtp_port) as server:
