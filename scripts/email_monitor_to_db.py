@@ -33,7 +33,7 @@ REPORTS_DIR = BASE_DIR / "email_monitoring" / "reports"
 # ---------------------------------------------------------------------------
 # Regex patterns  (reused from email_volume_analysis.py lines 86, 95, 132-138)
 # ---------------------------------------------------------------------------
-RE_FROM = re.compile(r'from=<([^>]+)>')
+RE_FROM = re.compile(r'from=<([^>]*)>')
 RE_TO   = re.compile(r'to=<([^>]+)>')
 
 # DMARC .md parsing patterns
@@ -315,6 +315,10 @@ class EmailMonitor:
             if not (line.startswith(iso_prefix) or line.startswith(syslog_prefix)):
                 continue
             if 'status=' not in line:
+                continue
+            # Skip amavis intermediate status lines - they represent pre-filtering queue IDs
+            # that don't have qmgr entries. Only count final delivery status lines.
+            if 'postfix/smtp-amavis/smtp[' in line:
                 continue
 
             to_m  = RE_TO.search(line)
