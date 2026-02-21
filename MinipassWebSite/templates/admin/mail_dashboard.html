@@ -1,0 +1,752 @@
+{% extends "admin/admin_base.html" %}
+
+{% block title %}Email Analytics{% endblock %}
+{% block page_title %}Email Analytics{% endblock %}
+
+{% block content %}
+
+<!-- Stat Cards Row -->
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+
+    <!-- Emails Sent Today -->
+    <div class="card bg-base-100 shadow-sm border border-base-300">
+        <div class="card-body p-4">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-sm font-medium text-base-content/60">Sent Today</span>
+                <div class="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
+                    <i data-lucide="send" class="w-4 h-4 text-primary"></i>
+                </div>
+            </div>
+            <div class="text-3xl font-bold text-base-content">{{ stats.sent_today }}</div>
+            <div class="text-xs text-base-content/40 mt-1">emails delivered</div>
+        </div>
+    </div>
+
+    <!-- Emails Sent This Week -->
+    <div class="card bg-base-100 shadow-sm border border-base-300">
+        <div class="card-body p-4">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-sm font-medium text-base-content/60">Sent (7 days)</span>
+                <div class="w-8 h-8 bg-info/10 rounded-lg flex items-center justify-center">
+                    <i data-lucide="calendar" class="w-4 h-4 text-info"></i>
+                </div>
+            </div>
+            <div class="text-3xl font-bold text-base-content">{{ stats.sent_week }}</div>
+            <div class="text-xs text-base-content/40 mt-1">last 7 days</div>
+        </div>
+    </div>
+
+    <!-- Success Rate -->
+    <div class="card bg-base-100 shadow-sm border border-base-300">
+        <div class="card-body p-4">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-sm font-medium text-base-content/60">Success Rate</span>
+                <div class="w-8 h-8 bg-success/10 rounded-lg flex items-center justify-center">
+                    <i data-lucide="check-circle" class="w-4 h-4 text-success"></i>
+                </div>
+            </div>
+            <div class="text-3xl font-bold text-base-content">{{ stats.success_rate }}%</div>
+            <div class="text-xs text-base-content/40 mt-1">7-day average</div>
+        </div>
+    </div>
+
+    <!-- Active Failures -->
+    <div class="card bg-base-100 shadow-sm border border-base-300">
+        <div class="card-body p-4">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-sm font-medium text-base-content/60">Failures (7d)
+                    <span class="tooltip tooltip-bottom ml-1 cursor-help" data-tip="Counts each Postfix event. A deferred email that was retried and delivered still counts as a failure here. Check the Per-Sender drill-down for the full picture.">
+                        <i data-lucide="info" class="w-3 h-3 inline-block text-base-content/30"></i>
+                    </span>
+                </span>
+                <div class="w-8 h-8 bg-error/10 rounded-lg flex items-center justify-center">
+                    <i data-lucide="alert-circle" class="w-4 h-4 text-error"></i>
+                </div>
+            </div>
+            <div class="text-3xl font-bold {% if stats.failures_week > 0 %}text-error{% else %}text-base-content{% endif %}">
+                {{ stats.failures_week }}
+            </div>
+            <div class="text-xs text-base-content/40 mt-1">bounce / deferred</div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Charts Row -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+
+    <!-- 7-day Volume Bar Chart -->
+    <div class="card bg-base-100 shadow-sm border border-base-300">
+        <div class="card-body p-4">
+            <h2 class="card-title text-base mb-4 gap-2">
+                <i data-lucide="bar-chart-2" class="w-4 h-4 text-primary"></i>
+                7-Day Email Volume
+            </h2>
+            <div class="relative h-56">
+                <canvas id="volumeChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- 7-day Success Rate Line Chart -->
+    <div class="card bg-base-100 shadow-sm border border-base-300">
+        <div class="card-body p-4">
+            <h2 class="card-title text-base mb-4 gap-2">
+                <i data-lucide="trending-up" class="w-4 h-4 text-success"></i>
+                7-Day Success Rate
+            </h2>
+            <div class="relative h-56">
+                <canvas id="successChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Recent Failures Table -->
+<div class="card bg-base-100 shadow-sm border border-base-300 mb-6">
+    <div class="card-body p-4">
+
+        <!-- Header: title | search (center) | count -->
+        <div class="flex items-center gap-3 mb-4 flex-wrap">
+            <h2 class="card-title text-base gap-2 flex-none">
+                <i data-lucide="alert-triangle" class="w-4 h-4 text-warning"></i>
+                Recent Failures
+            </h2>
+            <div class="flex-1 flex justify-center min-w-48">
+                <label class="input input-bordered input-sm flex items-center gap-2 w-full max-w-xs">
+                    <i data-lucide="search" class="w-3.5 h-3.5 text-base-content/40"></i>
+                    <input type="text" id="failures-search" placeholder="Search failures…" class="grow bg-transparent outline-none text-sm">
+                </label>
+            </div>
+            <span id="failures-count" class="badge badge-ghost badge-sm flex-none"></span>
+        </div>
+
+        {% if failures %}
+        <div class="overflow-x-auto">
+            <table class="table table-sm table-zebra w-full" id="failures-table">
+                <thead>
+                    <tr class="text-xs uppercase text-base-content/50">
+                        <th>Time</th>
+                        <th>From</th>
+                        <th>To</th>
+                        <th>Error</th>
+                        <th>Status</th>
+                        <th>Resolved</th>
+                    </tr>
+                </thead>
+                <tbody id="failures-body">
+                    {% for f in failures %}
+                    <tr class="failure-row">
+                        <td class="whitespace-nowrap text-xs text-base-content/60">
+                            {{ f.timestamp[:16] if f.timestamp else '—' }}
+                        </td>
+                        <td class="text-xs font-mono">{{ f.from_user or '—' }}</td>
+                        <td class="text-xs font-mono">{{ f.to_address }}</td>
+                        <td class="text-xs error-cell" data-full-error="{{ f.error_message|e if f.error_message else '' }}">
+                            <span class="block font-medium text-base-content">{{ f.reason }}</span>
+                            <span class="block text-base-content/40 max-w-xs truncate font-mono">
+                                {{ f.error_message[:60] if f.error_message else '—' }}{% if f.error_message and f.error_message|length > 60 %}…{% endif %}
+                            </span>
+                        </td>
+                        <td>
+                            {% if f.status == 'bounced' %}
+                            <span class="badge badge-error badge-xs">bounced</span>
+                            {% elif f.status == 'deferred' %}
+                            <span class="badge badge-warning badge-xs">deferred</span>
+                            {% else %}
+                            <span class="badge badge-ghost badge-xs">{{ f.status }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if f.status == 'bounced' %}
+                            <span class="badge badge-error badge-xs">Permanent</span>
+                            {% elif f.status == 'deferred' and f.resolution == 'likely_delivered' %}
+                            <span class="badge badge-success badge-xs">✓ Delivered later</span>
+                            {% else %}
+                            <span class="badge badge-ghost badge-xs">—</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Empty search state -->
+        <div id="failures-empty" class="hidden text-center py-6 text-base-content/40">
+            <i data-lucide="search-x" class="w-6 h-6 mx-auto mb-2"></i>
+            <p class="text-sm">No results match your search</p>
+        </div>
+
+        <!-- Pagination -->
+        <div class="flex items-center justify-between mt-4 flex-wrap gap-2">
+            <span id="failures-page-info" class="text-xs text-base-content/40"></span>
+            <div class="join" id="failures-pagination"></div>
+        </div>
+
+        {% else %}
+        <div class="text-center py-8 text-base-content/40">
+            <i data-lucide="check-circle-2" class="w-8 h-8 mx-auto mb-2 text-success"></i>
+            <p class="text-sm">No failures recorded</p>
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+
+<!-- Per-Sender Breakdown -->
+<div class="card bg-base-100 shadow-sm border border-base-300 mb-6">
+    <div class="card-body p-4">
+
+        <!-- Header: title | search (center) | count -->
+        <div class="flex items-center gap-3 mb-4 flex-wrap">
+            <h2 class="card-title text-base gap-2 flex-none">
+                <i data-lucide="users" class="w-4 h-4 text-info"></i>
+                Per-Sender Breakdown
+            </h2>
+            <div class="flex-1 flex justify-center min-w-48">
+                <label class="input input-bordered input-sm flex items-center gap-2 w-full max-w-xs">
+                    <i data-lucide="search" class="w-3.5 h-3.5 text-base-content/40"></i>
+                    <input type="text" id="senders-search" placeholder="Search senders…" class="grow bg-transparent outline-none text-sm">
+                </label>
+            </div>
+            <span id="senders-count" class="badge badge-ghost badge-sm flex-none">7 days</span>
+        </div>
+
+        {% if sender_stats %}
+        <div class="overflow-x-auto">
+            <table class="table table-sm table-zebra w-full" id="senders-table">
+                <thead>
+                    <tr class="text-xs uppercase text-base-content/50">
+                        <th>Sender</th>
+                        <th class="text-right">Today Sent</th>
+                        <th class="text-right">Today Bounced</th>
+                        <th class="text-right">7d Sent</th>
+                        <th class="text-right">Success %</th>
+                    </tr>
+                </thead>
+                <tbody id="senders-body">
+                    {% for s in sender_stats %}
+                    <tr class="sender-row">
+                        <td><button class="link link-hover font-mono text-xs text-left" onclick="openSenderModal('{{ s.user_email|e }}')">{{ s.user_email }}</button></td>
+                        <td class="text-right text-sm">{{ s.today_sent }}</td>
+                        <td class="text-right text-sm">
+                            {% if s.today_bounced > 0 %}
+                            <span class="text-error font-medium">{{ s.today_bounced }}</span>
+                            {% else %}
+                            <span class="text-base-content/40">0</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-right text-sm font-medium">{{ s.week_sent }}</td>
+                        <td class="text-right">
+                            {% if s.success_pct >= 95 %}
+                            <span class="badge badge-success badge-sm">{{ s.success_pct }}%</span>
+                            {% elif s.success_pct >= 80 %}
+                            <span class="badge badge-warning badge-sm">{{ s.success_pct }}%</span>
+                            {% else %}
+                            <span class="badge badge-error badge-sm">{{ s.success_pct }}%</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Empty search state -->
+        <div id="senders-empty" class="hidden text-center py-6 text-base-content/40">
+            <i data-lucide="search-x" class="w-6 h-6 mx-auto mb-2"></i>
+            <p class="text-sm">No results match your search</p>
+        </div>
+
+        <!-- Pagination -->
+        <div class="flex items-center justify-between mt-4 flex-wrap gap-2">
+            <span id="senders-page-info" class="text-xs text-base-content/40"></span>
+            <div class="join" id="senders-pagination"></div>
+        </div>
+
+        {% else %}
+        <div class="text-center py-8 text-base-content/40">
+            <p class="text-sm">No sender data available</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Mail Server Health -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+
+    <!-- Queue Snapshot -->
+    <div class="card bg-base-100 shadow-sm border border-base-300">
+        <div class="card-body p-4">
+            <h2 class="card-title text-base mb-4 gap-2">
+                <i data-lucide="server" class="w-4 h-4 text-primary"></i>
+                Mail Queue
+            </h2>
+            {% if queue_snapshot %}
+            <div class="stats stats-vertical shadow-none border border-base-300 w-full">
+                <div class="stat p-3">
+                    <div class="stat-title text-xs">Queue Size</div>
+                    <div class="stat-value text-2xl {% if queue_snapshot.queue_size > 5 %}text-warning{% else %}text-success{% endif %}">
+                        {{ queue_snapshot.queue_size }}
+                    </div>
+                    <div class="stat-desc">messages queued</div>
+                </div>
+                <div class="stat p-3">
+                    <div class="stat-title text-xs">Oldest Message</div>
+                    <div class="stat-value text-2xl">
+                        {% if queue_snapshot.oldest_age_minutes %}
+                            {{ queue_snapshot.oldest_age_minutes|round(1) }}m
+                        {% else %}
+                            —
+                        {% endif %}
+                    </div>
+                    <div class="stat-desc">age in queue</div>
+                </div>
+            </div>
+            <div class="text-xs text-base-content/40 mt-2">
+                Snapshot: {{ queue_snapshot.timestamp[:16] if queue_snapshot.timestamp else 'unknown' }}
+            </div>
+            {% else %}
+            <div class="text-center py-6 text-base-content/40">
+                <i data-lucide="server-off" class="w-6 h-6 mx-auto mb-2"></i>
+                <p class="text-sm">No queue data available</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Mailbox Sizes -->
+    <div class="card bg-base-100 shadow-sm border border-base-300">
+        <div class="card-body p-4">
+            <h2 class="card-title text-base mb-4 gap-2">
+                <i data-lucide="hard-drive" class="w-4 h-4 text-secondary"></i>
+                Mailbox Sizes
+                {% if mailbox_date %}
+                <span class="badge badge-ghost badge-sm ml-auto">{{ mailbox_date }}</span>
+                {% endif %}
+            </h2>
+            {% if mailbox_sizes %}
+            <div class="space-y-2">
+                {% for mb in mailbox_sizes %}
+                <div class="flex items-center justify-between py-1.5 border-b border-base-200 last:border-0">
+                    <span class="font-mono text-xs text-base-content/70">{{ mb.user_email }}</span>
+                    <span class="text-sm font-medium">{{ "%.1f"|format(mb.size_mb) }} MB</span>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-6 text-base-content/40">
+                <i data-lucide="inbox" class="w-6 h-6 mx-auto mb-2"></i>
+                <p class="text-sm">No mailbox data available</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+
+<!-- Sender Drill-Down Modal -->
+<dialog id="sender-modal" class="modal modal-bottom sm:modal-middle">
+    <div class="modal-box max-w-2xl">
+        <form method="dialog">
+            <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+        </form>
+        <h3 id="sender-modal-title" class="font-bold text-lg mb-4 flex items-center gap-2">
+            <i data-lucide="user" class="w-5 h-5 text-info"></i>
+            Sender Details
+        </h3>
+        <div id="sender-modal-content">
+            <!-- Content loaded dynamically -->
+        </div>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+        <button>close</button>
+    </form>
+</dialog>
+
+<!-- Error Tooltip -->
+<div id="error-tooltip" style="position:fixed;z-index:9999;max-width:420px;padding:10px 14px;background:var(--b2,#191e24);border:1px solid var(--b3,#374151);border-radius:8px;font-size:12px;line-height:1.5;box-shadow:0 4px 20px rgba(0,0,0,0.4);pointer-events:none;display:none;word-break:break-all;"></div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+const chartData = {{ chart_data | tojson }};
+
+// --- Volume Bar Chart ---
+const volCtx = document.getElementById('volumeChart').getContext('2d');
+new Chart(volCtx, {
+    type: 'bar',
+    data: {
+        labels: chartData.labels,
+        datasets: [
+            {
+                label: 'Sent',
+                data: chartData.sent,
+                backgroundColor: 'rgba(99, 102, 241, 0.8)',
+                borderRadius: 4,
+            },
+            {
+                label: 'Bounced',
+                data: chartData.bounced,
+                backgroundColor: 'rgba(239, 68, 68, 0.8)',
+                borderRadius: 4,
+            },
+            {
+                label: 'Deferred',
+                data: chartData.deferred,
+                backgroundColor: 'rgba(245, 158, 11, 0.8)',
+                borderRadius: 4,
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { position: 'bottom', labels: { font: { size: 11 }, padding: 12 } }
+        },
+        scales: {
+            x: { grid: { display: false }, ticks: { font: { size: 11 } } },
+            y: { beginAtZero: true, ticks: { font: { size: 11 }, stepSize: 5 } }
+        }
+    }
+});
+
+// --- Failures Table: Search + Pagination ---
+(function () {
+    const PAGE_SIZE = 10;
+    const body      = document.getElementById('failures-body');
+    const searchEl  = document.getElementById('failures-search');
+    const countEl   = document.getElementById('failures-count');
+    const pageInfo  = document.getElementById('failures-page-info');
+    const pagDiv    = document.getElementById('failures-pagination');
+    const emptyEl   = document.getElementById('failures-empty');
+
+    if (!body) return;
+
+    const allRows = Array.from(body.querySelectorAll('tr.failure-row'));
+    let filtered  = allRows.slice();
+    let page      = 1;
+
+    function rowText(row) {
+        return row.textContent.toLowerCase();
+    }
+
+    function applyFilter() {
+        const q = (searchEl.value || '').toLowerCase().trim();
+        filtered = q ? allRows.filter(r => rowText(r).includes(q)) : allRows.slice();
+        page = 1;
+        render();
+    }
+
+    function render() {
+        const total    = filtered.length;
+        const pages    = Math.max(1, Math.ceil(total / PAGE_SIZE));
+        page           = Math.min(page, pages);
+        const start    = (page - 1) * PAGE_SIZE;
+        const end      = start + PAGE_SIZE;
+
+        // Show/hide rows
+        allRows.forEach(r => r.style.display = 'none');
+        filtered.slice(start, end).forEach(r => r.style.display = '');
+
+        // Empty state
+        emptyEl.classList.toggle('hidden', total > 0);
+        document.getElementById('failures-table').classList.toggle('hidden', total === 0);
+
+        // Count badge
+        countEl.textContent = total === allRows.length
+            ? `${total} total`
+            : `${total} of ${allRows.length}`;
+
+        // Page info
+        if (total > 0) {
+            pageInfo.textContent = `Showing ${start + 1}–${Math.min(end, total)} of ${total}`;
+        } else {
+            pageInfo.textContent = '';
+        }
+
+        // Pagination buttons
+        pagDiv.innerHTML = '';
+        if (pages <= 1) return;
+
+        const mkBtn = (label, targetPage, disabled, active) => {
+            const btn = document.createElement('button');
+            btn.className = `join-item btn btn-xs ${active ? 'btn-primary' : ''} ${disabled ? 'btn-disabled' : ''}`;
+            btn.textContent = label;
+            if (!disabled) btn.addEventListener('click', () => { page = targetPage; render(); });
+            return btn;
+        };
+
+        pagDiv.appendChild(mkBtn('‹', page - 1, page === 1, false));
+
+        // Show at most 5 page buttons around current page
+        const range = 2;
+        let lo = Math.max(1, page - range);
+        let hi = Math.min(pages, page + range);
+        if (lo > 1) {
+            pagDiv.appendChild(mkBtn('1', 1, false, false));
+            if (lo > 2) { const s = document.createElement('button'); s.className = 'join-item btn btn-xs btn-disabled'; s.textContent = '…'; pagDiv.appendChild(s); }
+        }
+        for (let i = lo; i <= hi; i++) {
+            pagDiv.appendChild(mkBtn(i, i, false, i === page));
+        }
+        if (hi < pages) {
+            if (hi < pages - 1) { const s = document.createElement('button'); s.className = 'join-item btn btn-xs btn-disabled'; s.textContent = '…'; pagDiv.appendChild(s); }
+            pagDiv.appendChild(mkBtn(pages, pages, false, false));
+        }
+
+        pagDiv.appendChild(mkBtn('›', page + 1, page === pages, false));
+    }
+
+    searchEl.addEventListener('input', applyFilter);
+    render();
+})();
+
+// --- Senders Table: Search + Pagination ---
+(function () {
+    const PAGE_SIZE = 10;
+    const body      = document.getElementById('senders-body');
+    const searchEl  = document.getElementById('senders-search');
+    const countEl   = document.getElementById('senders-count');
+    const pageInfo  = document.getElementById('senders-page-info');
+    const pagDiv    = document.getElementById('senders-pagination');
+    const emptyEl   = document.getElementById('senders-empty');
+
+    if (!body) return;
+
+    const allRows = Array.from(body.querySelectorAll('tr.sender-row'));
+    let filtered  = allRows.slice();
+    let page      = 1;
+
+    function rowText(row) {
+        return row.textContent.toLowerCase();
+    }
+
+    function applyFilter() {
+        const q = (searchEl.value || '').toLowerCase().trim();
+        filtered = q ? allRows.filter(r => rowText(r).includes(q)) : allRows.slice();
+        page = 1;
+        render();
+    }
+
+    function render() {
+        const total = filtered.length;
+        const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+        page        = Math.min(page, pages);
+        const start = (page - 1) * PAGE_SIZE;
+        const end   = start + PAGE_SIZE;
+
+        // Show/hide rows
+        allRows.forEach(r => r.style.display = 'none');
+        filtered.slice(start, end).forEach(r => r.style.display = '');
+
+        // Empty state
+        emptyEl.classList.toggle('hidden', total > 0);
+        document.getElementById('senders-table').classList.toggle('hidden', total === 0);
+
+        // Count badge
+        countEl.textContent = total === allRows.length
+            ? `${total} senders`
+            : `${total} of ${allRows.length}`;
+
+        // Page info
+        pageInfo.textContent = total > 0
+            ? `Showing ${start + 1}–${Math.min(end, total)} of ${total}`
+            : '';
+
+        // Pagination buttons
+        pagDiv.innerHTML = '';
+        if (pages <= 1) return;
+
+        const mkBtn = (label, targetPage, disabled, active) => {
+            const btn = document.createElement('button');
+            btn.className = `join-item btn btn-xs ${active ? 'btn-primary' : ''} ${disabled ? 'btn-disabled' : ''}`;
+            btn.textContent = label;
+            if (!disabled) btn.addEventListener('click', () => { page = targetPage; render(); });
+            return btn;
+        };
+
+        pagDiv.appendChild(mkBtn('‹', page - 1, page === 1, false));
+
+        const range = 2;
+        let lo = Math.max(1, page - range);
+        let hi = Math.min(pages, page + range);
+        if (lo > 1) {
+            pagDiv.appendChild(mkBtn('1', 1, false, false));
+            if (lo > 2) { const s = document.createElement('button'); s.className = 'join-item btn btn-xs btn-disabled'; s.textContent = '…'; pagDiv.appendChild(s); }
+        }
+        for (let i = lo; i <= hi; i++) {
+            pagDiv.appendChild(mkBtn(i, i, false, i === page));
+        }
+        if (hi < pages) {
+            if (hi < pages - 1) { const s = document.createElement('button'); s.className = 'join-item btn btn-xs btn-disabled'; s.textContent = '…'; pagDiv.appendChild(s); }
+            pagDiv.appendChild(mkBtn(pages, pages, false, false));
+        }
+
+        pagDiv.appendChild(mkBtn('›', page + 1, page === pages, false));
+    }
+
+    searchEl.addEventListener('input', applyFilter);
+    render();
+})();
+
+// --- Error Tooltip ---
+(function () {
+    const tooltip = document.getElementById('error-tooltip');
+    if (!tooltip) return;
+
+    function positionTooltip(e) {
+        const pad = 14;
+        let x = e.clientX + pad;
+        let y = e.clientY + pad;
+        const w = tooltip.offsetWidth || 300;
+        const h = tooltip.offsetHeight || 80;
+        if (x + w > window.innerWidth - pad) x = e.clientX - w - pad;
+        if (y + h > window.innerHeight - pad) y = e.clientY - h - pad;
+        tooltip.style.left = x + 'px';
+        tooltip.style.top = y + 'px';
+    }
+
+    document.querySelectorAll('td.error-cell[data-full-error]').forEach(td => {
+        td.style.cursor = 'help';
+        td.addEventListener('mouseenter', e => {
+            const err = td.dataset.fullError;
+            if (!err) return;
+            const reason = td.querySelector('span.font-medium')?.textContent?.trim() || '';
+            tooltip.innerHTML =
+                '<div style="font-weight:600;margin-bottom:4px;color:#f87272">' + reason + '</div>' +
+                '<div style="color:#a6adba;font-family:monospace;white-space:pre-wrap;font-size:11px">' + err + '</div>';
+            tooltip.style.display = 'block';
+            positionTooltip(e);
+        });
+        td.addEventListener('mousemove', positionTooltip);
+        td.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; });
+    });
+})();
+
+// --- Sender Drill-Down Modal ---
+async function openSenderModal(sender) {
+    const modal = document.getElementById('sender-modal');
+    const title = document.getElementById('sender-modal-title');
+    const content = document.getElementById('sender-modal-content');
+
+    title.innerHTML = '<i data-lucide="user" class="w-5 h-5 text-info"></i> ' + sender;
+    content.innerHTML = '<div class="flex justify-center py-8"><span class="loading loading-spinner loading-lg"></span></div>';
+    modal.showModal();
+
+    try {
+        const res = await fetch('/admin/mail-dashboard/sender-detail?sender=' + encodeURIComponent(sender));
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+
+        // Summary block
+        const totalDeferred = data.daily.reduce((a, d) => a + (d.deferred || 0), 0);
+        const totalBounced  = data.daily.reduce((a, d) => a + (d.bounced  || 0), 0);
+        const deferredDays  = data.daily.filter(d => d.deferred > 0);
+        let summaryHtml = '';
+        if (totalDeferred > 0 || totalBounced > 0) {
+            summaryHtml = '<div class="alert alert-warning mb-4 text-sm flex-col items-start gap-1">';
+            if (deferredDays.length > 0) {
+                const dayStrs = deferredDays.map(d => d.deferred + ' deferred on ' + d.date).join(', ');
+                summaryHtml += '<span><strong>Deferrals:</strong> ' + dayStrs + ' — Gmail/server rate limited. Postfix retried automatically — check sent counts on subsequent days.</span>';
+            }
+            if (totalBounced > 0) {
+                summaryHtml += '<span><strong>Permanent bounces:</strong> ' + totalBounced + ' recorded.</span>';
+            }
+            summaryHtml += '</div>';
+        } else {
+            summaryHtml = '<div class="alert alert-success mb-4 text-sm"><span>No failures recorded for this sender.</span></div>';
+        }
+
+        // Day-by-day table
+        let dailyRows = '';
+        data.daily.forEach(d => {
+            const warn = d.bounced > 0 || d.deferred > 0;
+            dailyRows +=
+                '<tr' + (warn ? ' class="text-warning"' : '') + '>' +
+                '<td class="font-mono">' + d.date + '</td>' +
+                '<td class="text-right">' + d.sent + '</td>' +
+                '<td class="text-right">' + (d.bounced > 0 ? '<span class="text-error font-medium">' + d.bounced + '</span>' : d.bounced) + '</td>' +
+                '<td class="text-right">' + (d.deferred > 0 ? '<span class="text-warning font-medium">' + d.deferred + '</span>' : d.deferred) + '</td>' +
+                '</tr>';
+        });
+        const dailyHtml =
+            '<h3 class="font-semibold text-sm mb-2">Day-by-Day Breakdown</h3>' +
+            '<div class="overflow-x-auto mb-4">' +
+            '<table class="table table-xs table-zebra w-full">' +
+            '<thead><tr class="text-xs uppercase text-base-content/50">' +
+            '<th>Date</th><th class="text-right">Sent</th><th class="text-right">Bounced</th><th class="text-right">Deferred</th>' +
+            '</tr></thead><tbody>' + dailyRows + '</tbody></table></div>';
+
+        // Failures section
+        let failuresHtml = '';
+        if (data.failures && data.failures.length > 0) {
+            let fRows = '';
+            data.failures.forEach(f => {
+                const cls = f.status === 'bounced' ? 'badge-error' : 'badge-warning';
+                fRows +=
+                    '<tr>' +
+                    '<td class="whitespace-nowrap font-mono text-xs">' + (f.timestamp || '').slice(0, 16) + '</td>' +
+                    '<td class="font-mono text-xs">' + (f.to || '') + '</td>' +
+                    '<td class="text-xs">' + (f.reason || '') + '</td>' +
+                    '<td><span class="badge badge-xs ' + cls + '">' + f.status + '</span></td>' +
+                    '</tr>';
+            });
+            failuresHtml =
+                '<h3 class="font-semibold text-sm mb-2">Recent Failures (up to 50)</h3>' +
+                '<div class="overflow-x-auto">' +
+                '<table class="table table-xs table-zebra w-full">' +
+                '<thead><tr class="text-xs uppercase text-base-content/50">' +
+                '<th>Time</th><th>To</th><th>Reason</th><th>Status</th>' +
+                '</tr></thead><tbody>' + fRows + '</tbody></table></div>';
+        }
+
+        content.innerHTML = summaryHtml + dailyHtml + failuresHtml;
+    } catch (err) {
+        content.innerHTML = '<div class="alert alert-error"><span>Failed to load: ' + err.message + '</span></div>';
+    }
+}
+
+// --- Success Rate Line Chart ---
+const sucCtx = document.getElementById('successChart').getContext('2d');
+new Chart(sucCtx, {
+    type: 'line',
+    data: {
+        labels: chartData.labels,
+        datasets: [{
+            label: 'Success Rate %',
+            data: chartData.success_rate,
+            borderColor: 'rgba(34, 197, 94, 0.9)',
+            backgroundColor: 'rgba(34, 197, 94, 0.1)',
+            tension: 0.4,
+            fill: true,
+            pointBackgroundColor: 'rgba(34, 197, 94, 1)',
+            pointRadius: 4,
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false }
+        },
+        scales: {
+            x: { grid: { display: false }, ticks: { font: { size: 11 } } },
+            y: {
+                min: 0,
+                max: 110,
+                ticks: {
+                    font: { size: 11 },
+                    stepSize: 20,
+                    callback: v => v <= 100 ? v + '%' : ''
+                }
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

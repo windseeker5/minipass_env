@@ -68,6 +68,7 @@ SCHEMA_STMTS = [
         created_at    TEXT DEFAULT (datetime('now'))
     )""",
     "CREATE INDEX IF NOT EXISTS ix_ef_timestamp ON email_failures (timestamp)",
+    "CREATE UNIQUE INDEX IF NOT EXISTS ix_ef_ts_from_to ON email_failures (timestamp, from_user, to_address)",
 
     """CREATE TABLE IF NOT EXISTS mail_queue_log (
         id                  INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -327,10 +328,10 @@ class EmailMonitor:
             # Prefer queue-ID lookup; fall back to inline from= on same line
             from_email = None
             if qid_m:
-                from_email = queue_sender.get(qid_m.group(1))
-            if not from_email:
+                from_email = queue_sender.get(qid_m.group(1), None)
+            if from_email is None:   # only fall through if truly not found (not if it's '<>')
                 from_m     = RE_FROM.search(line)
-                from_email = (from_m.group(1) if from_m else None) or 'unknown'
+                from_email = (from_m.group(1) or '<>') if from_m else 'unknown'
 
             # Apply SRS decoding to the final from_email
             if from_email and from_email != 'unknown':
@@ -398,7 +399,7 @@ class EmailMonitor:
         count = 0
         for f in failures:
             self.conn.execute("""
-                INSERT INTO email_failures
+                INSERT OR IGNORE INTO email_failures
                     (timestamp, from_user, to_address, subject, error_message, status)
                 VALUES (?, ?, ?, ?, ?, ?)
             """, (f['timestamp'], f['from_user'], f['to_address'],
