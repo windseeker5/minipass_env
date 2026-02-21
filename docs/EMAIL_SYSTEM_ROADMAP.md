@@ -471,6 +471,52 @@ scp username@vps-ip:/home/kdresdell/minipass_env/email_monitoring/monitoring.db 
 
 ---
 
+## Quick How to Set Up Local Dev to Test Dashboard Mini Pass Admin Dashboard
+
+**Purpose:** Copy production monitoring data and customer database from VPS to local development environment for dashboard testing and development.
+
+### Copy Email Monitoring Data from VPS to Local Dev
+
+```bash
+# Copy entire monitoring directory (database + logs + reports)
+scp -P 2222 -r kdresdell@minipass.me:/home/kdresdell/minipass_env/email_monitoring/ ./
+
+# Copy monitoring database only (lightweight option)
+scp -P 2222 kdresdell@minipass.me:/home/kdresdell/minipass_env/email_monitoring/monitoring.db ./email_monitoring/
+
+# Copy monitoring logs for debugging
+scp -P 2222 kdresdell@minipass.me:/home/kdresdell/logs/email_monitor*.log ./logs/
+```
+
+### Copy Customer Database from VPS to Local Dev
+
+```bash
+# Copy main customer database to Flask app instance directory
+scp -P 2222 kdresdell@minipass.me:/home/kdresdell/minipass_env/app/instance/minipass.db ./app/instance/
+
+# Copy MinipassWebSite database (if separate)
+scp -P 2222 kdresdell@minipass.me:/home/kdresdell/minipass_env/MinipassWebSite/instance/minipass.db ./MinipassWebSite/instance/
+```
+
+### Verify Local Setup
+
+```bash
+# Verify monitoring database
+python3 scripts/email_monitor_to_db.py --report
+
+# Test Flask dashboard access (after copying customer DB)
+cd app && flask run
+# Access: http://localhost:5000/admin/mail-dashboard
+
+# Test MinipassWebSite dashboard access
+cd MinipassWebSite && flask run --port 5001
+# Access: http://localhost:5001/admin/mail-dashboard
+```
+
+**Note:** Always copy fresh data from VPS before dashboard development sessions to ensure you're working with current email analytics and customer data.
+
+---
+
 ## Phase 5 — Transactional Email Service (Only if Needed)
 
 **Trigger:** Only consider if Gmail blocks resume after Phases 1–2, or volume exceeds 5,000 emails/day.
