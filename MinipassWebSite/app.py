@@ -894,7 +894,8 @@ def admin_resend_email(subdomain):
         email_info = {
             'email_address': customer.get('email_address'),
             'email_password': customer.get('email_password'),
-            'forwarding_setup': customer.get('forwarding_email') is not None
+            'forwarding_setup': customer.get('forwarding_email') is not None,
+            'forwarding_email': customer.get('forwarding_email')
         }
 
         # Note: We use the stored password (email_password field stores plaintext)
