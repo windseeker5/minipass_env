@@ -1237,6 +1237,35 @@ def mail_dashboard_sender_detail():
         return jsonify({"error": str(e)}), 500
 
 
+@app.route("/admin/run-monitor", methods=["POST"])
+@require_admin
+def run_monitor():
+    """Manually trigger email_monitor_to_db.py for today's date."""
+    import subprocess, time, os
+    from datetime import date as _date
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    script = os.path.join(base_dir, "scripts", "email_monitor_to_db.py")
+    today = _date.today().strftime("%Y-%m-%d")
+    t0 = time.time()
+    try:
+        result = subprocess.run(
+            ["/usr/bin/python3", script, "--date", today],
+            cwd=base_dir,
+            capture_output=True,
+            text=True,
+            timeout=120,
+        )
+        duration = round(time.time() - t0, 1)
+        if result.returncode == 0:
+            return jsonify({"ok": True, "date": today, "duration": duration})
+        else:
+            return jsonify({"ok": False, "error": result.stderr[-500:], "date": today}), 500
+    except subprocess.TimeoutExpired:
+        return jsonify({"ok": False, "error": "Script timed out after 120s"}), 504
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
 @app.route("/admin/dmarc")
 @require_admin
 def dmarc_dashboard():

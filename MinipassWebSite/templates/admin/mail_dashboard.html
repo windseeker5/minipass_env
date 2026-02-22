@@ -5,6 +5,16 @@
 
 {% block content %}
 
+<!-- Manual refresh link -->
+<div class="flex justify-end mb-4">
+    <a id="run-monitor-link" href="#"
+       class="flex items-center gap-1.5 text-sm text-base-content/50 hover:text-primary transition-colors"
+       onclick="runMonitor(event)">
+        <i id="run-monitor-icon" data-lucide="refresh-cw" class="w-4 h-4"></i>
+        <span id="run-monitor-label">Refresh data</span>
+    </a>
+</div>
+
 <!-- Stat Cards Row -->
 <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
 
@@ -760,5 +770,38 @@ new Chart(sucCtx, {
         }
     }
 });
+</script>
+
+<script>
+function runMonitor(e) {
+    e.preventDefault();
+    const link = document.getElementById('run-monitor-link');
+    const icon = document.getElementById('run-monitor-icon');
+    const label = document.getElementById('run-monitor-label');
+
+    link.style.pointerEvents = 'none';
+    icon.classList.add('animate-spin');
+    label.textContent = 'Running\u2026';
+
+    fetch('/admin/run-monitor', { method: 'POST' })
+        .then(r => r.json())
+        .then(data => {
+            icon.classList.remove('animate-spin');
+            if (data.ok) {
+                label.textContent = `Done (${data.duration}s) \u2014 reloading\u2026`;
+                setTimeout(() => location.reload(), 1200);
+            } else {
+                label.textContent = 'Error \u2014 check logs';
+                link.style.color = 'red';
+                link.style.pointerEvents = 'auto';
+                console.error('Monitor error:', data.error);
+            }
+        })
+        .catch(() => {
+            icon.classList.remove('animate-spin');
+            label.textContent = 'Network error';
+            link.style.pointerEvents = 'auto';
+        });
+}
 </script>
 {% endblock %}
