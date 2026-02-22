@@ -558,136 +558,196 @@ docker exec mailserver postqueue -p
 
 ---
 
-## Phase 6 — Mail Server Stability & Operations (Future)
+## Phase 6 — Backup & Failover Strategy
 
-**Trigger:** After Phase 2 DMARC upgrade is stable and operational monitoring is needed.
+**Context:** The Gmail ban crisis of Feb 2026 exposed a critical gap — zero backup strategy and zero alerting. Phases 1–4 are complete (96.9% pass rate, Gmail ban resolved). Phase 6 addresses infrastructure resilience: know immediately when something breaks, recover fast when it does.
 
-**Goal:** Bulletproof mail server with backup/recovery strategy and operational dashboard.
+**Two-tier approach:**
+- **Phase 6a MVP**: Recover in 30–60 min with some manual steps. Zero new ongoing costs. Do this now.
+- **Phase 6b Full**: Ansible-automated provisioning for faster recovery when a crisis hits. No standby VPS running 24/7.
 
-### Backup Strategy (Simple MVP)
+**Key insight — what actually causes downtime:**
+1. Container crash → fixed by `restart: always` (handles ~80% of cases, already configured)
+2. Misconfiguration push → git rollback + `docker-compose up -d` (15 min)
+3. VPS provider failure → backup restore to new VPS (Phase 6a: 45–90 min, Phase 6b: 25–35 min)
+4. Another domain ban → Phase 5 (AWS SES fallback) addresses this
 
-**Data to Backup (~31MB total):**
-- **Configuration**: `./config/` (136KB), `./mailserver.env`, `docker-compose.yml`
-- **Mailbox Data**: `./maildata/` (~29MB) - user emails and folders
-- **Mail State**: `./mailstate/` (~1.9MB) - postfix queues, certificates
-- **DNS Records**: SPF, DKIM, DMARC settings documentation
+The backup strategy doesn't prevent bans. Phase 6 is purely about infrastructure resilience.
 
-**Backup Method Options:**
-1. **Simple rsync/SSH** (Recommended for MVP)
-   - Daily automated rsync to remote server
-   - Retention: 7 daily, 4 weekly, 6 monthly backups
-   - Recovery time: ~30-60 minutes
+---
 
-2. **Docker Volume Backup** (Alternative)
-   - `docker run --rm -v maildata:/data -v $(pwd):/backup alpine tar czf /backup/maildata.tar.gz /data`
-   - Pros: Consistent snapshots, easy automation
-   - Cons: Larger files, slower restore
+### Phase 6a — MVP Backup & Recovery
 
-### Recovery Strategy (Max 1-3 Hour Downtime)
+**Goal:** Know immediately when something breaks. Recover in 30–60 minutes. Zero new ongoing costs.
 
-**Option A: Manual Restore Scripts (MVP)**
+#### Step 1: External Alerting — FREE (Day 1, 30 min)
+
+**UptimeRobot** (free tier, checks every 5 min, SMS + email alerts):
+- Monitor HTTPS: `https://minipass.me`
+- Monitor HTTPS: `https://lhgi.minipass.me`
+- Monitor Port: `minipass.me:587` (mail submission — most critical)
+- Monitor Port: `minipass.me:993` (IMAP)
+- Set: 1-minute downtime threshold, email + SMS alerts
+
+**healthchecks.io** (free tier, cron heartbeat monitor):
+- Add a `/ping` call to the end of the nightly backup cron
+- Alerts if backup stops running (server up, but script broken)
+- Both services are external — alert even when your VPS is completely dead
+
+#### Step 2: Docker Restart Policies — ALREADY DONE ✅
+
+All services already have `restart: always` in `docker-compose.yml`:
+`nginx-proxy`, `nginx-letsencrypt`, `mail-cert-request`, `mailserver`, `lhgi`, `flask-controller-proxy`, `bloomcap`
+
+This handles container crashes automatically. No action needed.
+
+#### Step 3: Home Server Backup via rsync Pull (Day 2, 3–4 hours)
+
+**Strategy:** Cron job on home Linux system / Raspberry Pi pulls critical data from VPS via SSH nightly.
+
+**Why pull (not push from VPS):**
+- No need to expose home IP or SSH to the internet
+- Home system initiates outbound connection — more secure
+- Works with dynamic home IP
+
+**Critical data NOT in git (must be backed up):**
+- `config/opendkim/` — DKIM private keys **(#1 priority: losing this requires DNS TXT update)**
+- `config/postfix-accounts.cf` — email account definitions
+- `mailserver.env` — mail server config
+- All `.env` files (MinipassWebSite, app, Marketing, etc.)
+- SQLite databases: `customers.db`, `minipass.db` (multiple), `monitoring.db`
+- `maildata/` (~29MB) — mail message archive
+- `mailstate/` (~1.9MB) — postfix queues/state
+- `docker-compose.yml` and `nginx/` config
+
+**NOT critical to backup (regeneratable):**
+- `certs/` — Let's Encrypt renews automatically
+- `venv/` — `pip install` regenerates
+- Application code — in git
+
+**Script:** `scripts/backup_pull.sh` (runs on home system, see file for full implementation)
+
+**Retention:** 30 daily snapshots (rolling). Total storage: ~1–2 GB per backup × 30 = ~30–60 GB max.
+
+**Cron setup on home system:**
 ```bash
-# Emergency restore procedure
-rsync -av backup-server:/minipass-backup/ ./
-docker-compose down
-docker-compose up -d
-# Verify mail flow and DNS
+# Add to home crontab (crontab -e):
+0 2 * * * /path/to/scripts/backup_pull.sh >> ~/backups/minipass/backup.log 2>&1
 ```
 
-**Option B: Docker Swarm Evaluation**
-- **Simple 2-node setup** on same VPS provider
-- **Automatic failover** with shared storage
-- **Trade-off**: More complexity vs faster recovery
-- **Decision**: Evaluate after manual backup is proven
+#### Step 4: Recovery Runbook (Day 3, 2 hours)
 
-**Recovery SLA:**
-- **Detection**: < 15 minutes (monitoring alerts)
-- **Restore**: < 2 hours (manual) or < 30 minutes (automated)
-- **Verification**: < 30 minutes (test email flow)
+**Document:** `docs/RECOVERY_RUNBOOK.md` — covers three scenarios:
 
-### Enhanced Log Retention ✅
+| Scenario | Recovery Time |
+|----------|---------------|
+| Container crash (auto-recovered) | 0–2 min |
+| VPS running, data corrupted | 30–45 min |
+| VPS completely gone (nuclear) | 45–90 min |
+| DKIM key lost (no backup) | 60–90 min + DNS wait |
 
-**Already Completed (Feb 17, 2026):**
-- **Mail Queue**: Extended 5d → 10d (`maximal_queue_lifetime`, `bounce_queue_lifetime`)
-- **Log Files**: Extended 4 weeks → 8 weeks rotation (weekly rotation, 8 cycles)
-- **Purpose**: Minimum 1+ month historical data for troubleshooting and analysis
-- **Implementation**: Postfix config + logrotate configuration updated
+---
 
-### Mail Server Dashboard (MinipassWebSite Integration)
+### Phase 6a — Implementation Checklist
 
-**Integration Plan:**
-- **Location**: Add to existing `MinipassWebSite/templates/admin/tools.html`
-- **Data Source**: `email_monitoring/monitoring.db` (45KB SQLite database)
-- **Access**: Same admin login as customer management
+- [ ] UptimeRobot setup (30 min) — monitor ports 25, 587, 993 + HTTPS — FREE
+- [x] Docker restart policies — already `restart: always` on all services
+- [ ] Create `scripts/backup_pull.sh` and test from home system (2–3 hours)
+- [ ] Set up home cron for nightly backup pull (15 min)
+- [ ] Register healthchecks.io → add ping to backup script (30 min)
+- [ ] Create `docs/RECOVERY_RUNBOOK.md` (2 hours)
+- [ ] Run first backup, verify DKIM keys + databases present in `~/backups/minipass/`
 
-**Dashboard Features:**
-- **Email Volume**: Daily/weekly sent, delivered, failed counts
-- **Success Rate**: Current and historical trends (target: >95%)
-- **DMARC Status**: Pass/fail rates, authentication alignment
-- **Mail Server Health**: Queue size, recent errors, log alerts
-- **Quick Actions**: View recent logs, restart services, test email
+---
 
-**Technical Implementation:**
-- New Flask route: `/admin/mail-dashboard`
-- Query existing monitoring database
-- Simple charts (Chart.js or similar)
-- Refresh every 5 minutes (auto-reload)
+### Phase 6b — On-Demand VPS Provisioning (Full)
 
-**UI Design:**
-- Match existing admin tools styling
-- Minimalist cards layout
-- Red/green status indicators
-- Mobile-responsive for phone monitoring
+**Goal:** When disaster strikes, provision a new VPS and restore to full operation in under 30 minutes. No VPS running 24/7 — only spin up when needed.
 
-### Implementation Timeline & Effort
+**Why not Docker Swarm?**
+Mail servers are stateful and don't cluster well. Running active/active Postfix creates split-brain risks (duplicate emails, queue corruption). Warm standby with failover is the industry-standard approach for mail at this scale.
 
-**Phase 6.1 — Basic Backup (Week 1-2)**
-- Effort: ~4-6 hours
-- Create rsync backup scripts
-- Set up remote backup location
-- Test restore procedures
-- Document recovery steps
+**Why not an always-on $11 CAD/month standby?**
+For 62 emails/day of transactional mail, Postfix queues for 10 days. A 1–2 hour recovery window with no ongoing cost is a better trade-off than $132 CAD/year for rare failure scenarios.
 
-**Phase 6.2 — Dashboard Integration (Week 3-4)**
-- Effort: ~6-8 hours
-- Add mail dashboard route to MinipassWebSite
-- Create admin template integration
-- Query monitoring database
-- Basic charts and status displays
+#### Component 1: Ansible Provisioning Playbook
 
-**Phase 6.3 — Advanced Options (Week 5-6)**
-- Effort: ~8-12 hours
-- Docker Swarm evaluation and testing
-- Automated failover setup (if chosen)
-- Enhanced monitoring alerts
-- Performance optimization
+**File:** `deploy/ansible/site.yml`
 
-### Docker Swarm Evaluation Criteria
+Playbook that provisions a fresh VPS to production-ready state:
+1. Install Docker + docker-compose
+2. Clone git repo
+3. Restore from local backup (rsync from home server)
+4. Set environment files
+5. Start all services (`docker-compose up -d`)
+6. Verify mail flow with test email
 
-**Evaluate Docker Swarm if:**
-- Manual backup/restore takes >2 hours in practice
-- Downtime becomes business-critical issue
-- Multiple mail server failures occur
+**Execution:** `ansible-playbook -i NEW_VPS_IP, deploy/ansible/site.yml`
+**Time:** ~20–25 minutes from zero to fully running
 
-**Docker Swarm Benefits:**
-- **Automatic failover**: ~5-10 minute recovery
-- **Load balancing**: Multiple mail server instances
-- **Rolling updates**: Zero-downtime updates
+#### Component 2: Uptime Kuma (Self-Hosted Monitoring)
 
-**Docker Swarm Complexity:**
-- **Network setup**: Overlay networks, load balancers
-- **Storage**: Shared volumes or database replication
-- **Monitoring**: Health checks and failure detection
-- **Learning curve**: Docker Swarm concepts
+Open source: https://github.com/louislam/uptime-kuma
 
-**Decision Matrix:**
-| Factor | Manual Backup | Docker Swarm |
-|--------|---------------|--------------|
-| Complexity | Simple ⭐ | Moderate ⭐⭐⭐ |
-| Recovery Time | 1-2 hours | 5-10 minutes |
-| Setup Effort | 4-6 hours | 12-20 hours |
-| Maintenance | Low | Medium |
-| **Recommendation** | **Start here** | Evaluate later |
+Run on Raspberry Pi or home Linux server. Monitors all services (HTTPS, SMTP ports, ping). Notifications via Telegram, Discord, Slack, email, or SMS. Keeps alerting even when the primary VPS is dead.
+
+```bash
+# Deploy on Raspberry Pi or home server:
+docker run -d --restart=always -p 3001:3001 \
+  -v uptime-kuma:/app/data \
+  --name uptime-kuma louislam/uptime-kuma:1
+```
+
+Complements UptimeRobot: Uptime Kuma provides the self-hosted dashboard; UptimeRobot provides external backup alerting.
+
+#### Component 3: DNS Failover
+
+**Short-term (Phase 6a):** Manual DNS update at domain.com admin panel — 5 minutes, propagates based on TTL.
+
+**Optimization:** Lower TTL on `minipass.me` A record and MX record from 3600 → 300 seconds before any planned maintenance.
+
+**Long-term option:** Migrate DNS to Cloudflare (free) for API-based automated MX/A record updates.
+
+**File:** `scripts/failover.sh` — documents the manual failover procedure (can be automated with Cloudflare API).
+
+#### Recovery Time Targets
+
+| Scenario | Phase 6a | Phase 6b |
+|----------|----------|----------|
+| Container crash | ~2 min (auto) | ~2 min (auto) |
+| Data corruption | 30–45 min | 15–20 min (Ansible) |
+| VPS completely gone | 45–90 min | 25–35 min (Ansible + restore) |
+| DKIM key lost | 60–90 min | 30 min (pre-documented) |
+
+---
+
+### Phase 6b — Implementation Checklist
+
+- [ ] Set up Uptime Kuma on Raspberry Pi/home server
+- [ ] Create `deploy/ansible/site.yml` provisioning playbook
+- [ ] Write and test `scripts/failover.sh`
+- [ ] Consider Cloudflare DNS migration for API-based failover
+- [ ] Fire drill: simulate VPS failure, restore from backup to a test VPS, time it
+
+---
+
+### Files Added / Modified
+
+| File | Purpose |
+|------|---------|
+| `scripts/backup_pull.sh` | Runs on home server — nightly rsync pull of critical VPS data |
+| `scripts/restore.sh` | Runs on VPS (or new VPS) — restores from home backup + starts services |
+| `docs/RECOVERY_RUNBOOK.md` | Step-by-step recovery guide for each failure scenario |
+| `deploy/ansible/site.yml` | (Phase 6b) Ansible playbook for zero-to-running VPS provisioning |
+| `scripts/failover.sh` | (Phase 6b) Failover procedure (manual steps + Cloudflare API option) |
+
+### Verification
+
+1. **Backup test**: Run `backup_pull.sh` from home system, verify all files arrive in `~/backups/minipass/`
+2. **DKIM integrity**: `ls -la ~/backups/minipass/latest/config/opendkim/` — confirm keys present
+3. **Restore test** (non-destructive): Copy backup to `/tmp/restore-test/` on test VPS, run `docker-compose up`, confirm services start
+4. **Alert test**: Stop `nginx-proxy` container, verify UptimeRobot fires within 5 minutes
+5. **Heartbeat test**: Skip the daily backup ping, verify healthchecks.io fires an alert
 
 ---
 
