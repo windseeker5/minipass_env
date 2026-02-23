@@ -105,7 +105,7 @@ v=DMARC1; p=reject; rua=mailto:kdresdell@minipass.me; ruf=mailto:kdresdell@minip
 
 **Status:** Complete (February 2026). Hero and owner logo images are served via hosted Flask routes. QR code remains CID-embedded as a functional element.
 
-**Email size achieved:** ~8–10 KB per email (down from ~30–50 KB with full CID attachments — ~75–80% reduction)
+**Email size achieved:** ~8–12 KB per email (down from ~1.2–1.5 MB with full CID attachments — ~99% reduction)
 
 ### Why Hybrid (Not Fully Hosted)
 
@@ -236,6 +236,27 @@ The template HTML already resolves to hosted URLs via context.
 | `app/static/images/email/` | New directory with 2–3 static decoration images |
 
 **Actual effort:** ~6–8 hours
+
+### Email Size Benchmark — Before & After Phase 3
+
+Hero images were CID-embedded (base64 MIME attachments) before Phase 3.
+After Phase 3, all hero/logo images are served via HTTPS; only the QR code remains CID-embedded.
+
+| Template | Before (CID images) | After (hosted images) | Saved | Reduction |
+|---|---|---|---|---|
+| `signup` | ~1,291 KB | ~9 KB | ~1,282 KB | **99.3%** |
+| `signup_payment_first` | ~1,447 KB | ~12 KB | ~1,435 KB | **99.2%** |
+| `paymentReceived` | ~1,262 KB | ~11 KB | ~1,251 KB | **99.1%** |
+| `newPass` | ~1,252 KB | ~12 KB | ~1,240 KB | **99.1%** |
+| `latePayment` | ~1,205 KB | ~11 KB | ~1,194 KB | **99.1%** |
+| `redeemPass` | ~1,211 KB | ~11 KB | ~1,200 KB | **99.1%** |
+| `survey_invitation` | ~1,247 KB | ~10 KB | ~1,237 KB | **99.2%** |
+| `deployment_ready` *(MinipassWebSite)* | ~22 KB | ~22 KB | — | no change |
+| `password_reset` *(MinipassWebSite)* | ~10 KB | ~10 KB | — | no change |
+
+**Before assumptions:** Hero images are the original full-size PNGs (917–985 KB), base64-encoded
+(+33% MIME overhead). `signup_payment_first` also included the Interac logo (118 KB) as CID.
+MinipassWebSite templates had no CID images before or after.
 
 ---
 
