@@ -29,27 +29,27 @@ SSH_OPTS=(-e "ssh -p $VPS_PORT")
 log() { echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*"; }
 
 log "Starting Minipass backup → $TODAY"
-mkdir -p "$TODAY"/{config,maildata,mailstate,databases,deployed,nginx/vhost.d,env,bloomcap/html}
+mkdir -p "$TODAY"/{mail_server/{config,maildata,mailstate},customers/deployed,minipass_env/{nginx,vhost.d,bloomcap/html,MinipassWebSite,email_monitoring}}
 
 # ── 1. DKIM keys — MOST CRITICAL (losing = emergency DNS TXT update required)
 log "Backing up DKIM keys and mail config..."
-rsync -avz "${SSH_OPTS[@]}" --rsync-path="sudo rsync" "$VPS:$REMOTE_BASE/config/" "$TODAY/config/"
+rsync -avz "${SSH_OPTS[@]}" --rsync-path="sudo rsync" "$VPS:$REMOTE_BASE/config/" "$TODAY/mail_server/config/"
 
 # ── 2. Mail data and state
 log "Backing up maildata and mailstate..."
-rsync -avz "${SSH_OPTS[@]}" --rsync-path="sudo rsync" "$VPS:$REMOTE_BASE/maildata/" "$TODAY/maildata/"
-rsync -avz "${SSH_OPTS[@]}" --rsync-path="sudo rsync" "$VPS:$REMOTE_BASE/mailstate/" "$TODAY/mailstate/"
+rsync -avz "${SSH_OPTS[@]}" --rsync-path="sudo rsync" "$VPS:$REMOTE_BASE/maildata/"  "$TODAY/mail_server/maildata/"
+rsync -avz "${SSH_OPTS[@]}" --rsync-path="sudo rsync" "$VPS:$REMOTE_BASE/mailstate/" "$TODAY/mail_server/mailstate/"
 
 # ── 3. SQLite databases (hot copy — acceptable for small SQLite DBs)
 log "Backing up SQLite databases..."
 rsync -avz "${SSH_OPTS[@]}" --rsync-path="sudo rsync" \
-  "$VPS:$REMOTE_BASE/MinipassWebSite/customers.db" \
-  "$VPS:$REMOTE_BASE/email_monitoring/monitoring.db" \
-  "$TODAY/databases/"
+  "$VPS:$REMOTE_BASE/MinipassWebSite/customers.db"   "$TODAY/minipass_env/MinipassWebSite/"
+rsync -avz "${SSH_OPTS[@]}" --rsync-path="sudo rsync" \
+  "$VPS:$REMOTE_BASE/email_monitoring/monitoring.db" "$TODAY/minipass_env/email_monitoring/"
 
 # ── 4. Deployed customer apps (databases, secrets, uploads — skip regeneratable dirs)
 log "Backing up deployed customer apps (databases, secrets, uploads)..."
-rsync -avz "${SSH_OPTS[@]}" --rsync-path="sudo rsync" "$VPS:$REMOTE_BASE/deployed/" "$TODAY/deployed/" \
+rsync -avz "${SSH_OPTS[@]}" --rsync-path="sudo rsync" "$VPS:$REMOTE_BASE/deployed/" "$TODAY/customers/deployed/" \
   --exclude="venv/" \
   --exclude="__pycache__/" \
   --exclude=".git/" \
@@ -59,33 +59,33 @@ rsync -avz "${SSH_OPTS[@]}" --rsync-path="sudo rsync" "$VPS:$REMOTE_BASE/deploye
 
 # ── 5. Docker Compose + nginx config
 log "Backing up docker-compose.yml and nginx config..."
-rsync -avz "${SSH_OPTS[@]}" "$VPS:$REMOTE_BASE/docker-compose.yml" "$TODAY/"
-rsync -avz "${SSH_OPTS[@]}" "$VPS:$REMOTE_BASE/nginx/" "$TODAY/nginx/"
-rsync -avz "${SSH_OPTS[@]}" "$VPS:$REMOTE_BASE/vhost.d/" "$TODAY/nginx/vhost.d/" \
+rsync -avz "${SSH_OPTS[@]}" "$VPS:$REMOTE_BASE/docker-compose.yml" "$TODAY/minipass_env/"
+rsync -avz "${SSH_OPTS[@]}" "$VPS:$REMOTE_BASE/nginx/"             "$TODAY/minipass_env/nginx/"
+rsync -avz "${SSH_OPTS[@]}" "$VPS:$REMOTE_BASE/vhost.d/"           "$TODAY/minipass_env/vhost.d/" \
   2>/dev/null || log "Warning: vhost.d not found (skipping)"
 
 # ── 6. .env files (SENSITIVE — stays on home server only, never pushed to cloud)
 log "Backing up .env files..."
 rsync -avz "${SSH_OPTS[@]}" \
-  "$VPS:$REMOTE_BASE/.env" \
-  "$VPS:$REMOTE_BASE/MinipassWebSite/.env" \
-  "$VPS:$REMOTE_BASE/MinipassWebSite/.env.production" \
-  "$VPS:$REMOTE_BASE/app/tools/.env" \
-  "$VPS:$REMOTE_BASE/Marketing/.env" \
-  "$VPS:$REMOTE_BASE/mailserver.env" \
-  "$TODAY/env/" 2>/dev/null || log "Warning: some .env files not found (skipping)"
+  "$VPS:$REMOTE_BASE/MinipassWebSite/.env"            "$TODAY/minipass_env/MinipassWebSite/.env"            2>/dev/null || true
+rsync -avz "${SSH_OPTS[@]}" \
+  "$VPS:$REMOTE_BASE/MinipassWebSite/.env.production" "$TODAY/minipass_env/MinipassWebSite/.env.production" 2>/dev/null || true
+rsync -avz "${SSH_OPTS[@]}" \
+  "$VPS:$REMOTE_BASE/mailserver.env" "$TODAY/mail_server/mailserver.env" 2>/dev/null || true
+rsync -avz "${SSH_OPTS[@]}" \
+  "$VPS:$REMOTE_BASE/.env" "$TODAY/minipass_env/.env" 2>/dev/null || true
 
 # ── 7. Bloomcap website content
 log "Backing up bloomcap website..."
-rsync -avz "${SSH_OPTS[@]}" "$VPS:$REMOTE_BASE/bloomcap/html/" "$TODAY/bloomcap/html/" \
-  2>/dev/null || log "Warning: bloomcap/html not found (skipping)"
-rsync -avz "${SSH_OPTS[@]}" "$VPS:$REMOTE_BASE/bloomcap/.env" "$TODAY/bloomcap/" \
-  2>/dev/null || log "Warning: bloomcap/.env not found (skipping)"
+rsync -avz "${SSH_OPTS[@]}" \
+  "$VPS:$REMOTE_BASE/bloomcap/html/" "$TODAY/minipass_env/bloomcap/html/" 2>/dev/null || true
+rsync -avz "${SSH_OPTS[@]}" \
+  "$VPS:$REMOTE_BASE/bloomcap/.env"  "$TODAY/minipass_env/bloomcap/.env"  2>/dev/null || true
 
 # ── 9. VPS crontab
 log "Backing up VPS crontab..."
-ssh -p "$VPS_PORT" "$VPS" "crontab -l" > "$TODAY/crontab.txt" 2>/dev/null \
-  && log "Crontab backup: OK ($(wc -l < "$TODAY/crontab.txt") lines)" \
+ssh -p "$VPS_PORT" "$VPS" "crontab -l" > "$TODAY/minipass_env/crontab.txt" 2>/dev/null \
+  && log "Crontab backup: OK ($(wc -l < "$TODAY/minipass_env/crontab.txt") lines)" \
   || log "Warning: crontab backup failed or empty"
 
 # ── 10. Update 'latest' symlink
@@ -97,23 +97,23 @@ find "$BACKUP_ROOT" -maxdepth 1 -type d -name "20*" -mtime +"$RETENTION_DAYS" \
   -exec rm -rf {} \; 2>/dev/null || true
 
 # ── 12. Quick integrity check
-DKIM_DIR="$TODAY/config/opendkim"
+DKIM_DIR="$TODAY/mail_server/config/opendkim"
 if [ -d "$DKIM_DIR" ] && [ -n "$(ls -A "$DKIM_DIR" 2>/dev/null)" ]; then
   log "DKIM keys present: OK"
 else
   log "WARNING: DKIM key directory missing or empty — check $DKIM_DIR"
 fi
 
-DB_COUNT=$(find "$TODAY/databases" -name "*.db" 2>/dev/null | wc -l)
+DB_COUNT=$(find "$TODAY/minipass_env/MinipassWebSite" -name "*.db" 2>/dev/null | wc -l)
 log "Databases backed up: $DB_COUNT files"
 
-UPLOAD_COUNT=$(find "$TODAY/deployed" -path "*/static/uploads/*" -type f 2>/dev/null | wc -l)
+UPLOAD_COUNT=$(find "$TODAY/customers" -path "*/static/uploads/*" -type f 2>/dev/null | wc -l)
 log "User uploads backed up: $UPLOAD_COUNT files"
 
-ENV_COUNT=$(find "$TODAY" -name ".env" 2>/dev/null | wc -l)
+ENV_COUNT=$(find "$TODAY" \( -name "*.env" -o -name ".env" \) 2>/dev/null | wc -l)
 log "Env files backed up: $ENV_COUNT"
 
-CRON_LINES=$(wc -l < "$TODAY/crontab.txt" 2>/dev/null || echo "0")
+CRON_LINES=$(wc -l < "$TODAY/minipass_env/crontab.txt" 2>/dev/null || echo "0")
 log "Crontab lines: $CRON_LINES"
 
 # ── 13. Ping healthchecks.io (fires alert if this line is never reached)

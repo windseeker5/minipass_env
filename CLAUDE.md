@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 This is a multi-service environment hosting the Minipass SaaS platform and supporting infrastructure:
 
 - **Main Application**: `app/` - Flask-based Minipass activities management platform
-- **Security Tools**: Root-level Python scripts for fail2ban management and security monitoring
+- **Admin Tools**: `tools/` - Python scripts for fail2ban management, security monitoring, and ops tasks
 - **Infrastructure**: Docker Compose setup with nginx proxy, mail server, and SSL certificates
 - **Marketing**: Static sites for bloomcap.ca and minipass.me
 
@@ -47,14 +47,22 @@ flask db upgrade
 # Note: Server is typically already running in debug mode
 ```
 
-### Security Management
+### Admin Tools (`tools/`)
 ```bash
 # Fail2ban manager
-./simplified_fail2ban_manager.py --version
-./secure_fail2ban_manager.py --help
+./tools/simplified_fail2ban_manager.py --version
 
 # Security monitoring
-./minipass_security_monitor.py --report
+./tools/minipass_security_monitor.py --report
+
+# Mail user management
+./tools/mail_manager.py
+
+# Customer container sync
+./tools/minipass_manager.py
+
+# Batch deployment TUI
+./tools/upgrade_customers.py
 ```
 
 ### Docker Operations

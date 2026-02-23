@@ -179,7 +179,7 @@ docker exec mailserver postqueue -p
 Use this only if `config/opendkim/` was NOT in your backup. This is why DKIM backup is the #1 priority in `backup_pull.sh`.
 
 ### Signs you need this section:
-- Backup present but `config/opendkim/` directory is empty or missing
+- Backup present but `mail_server/config/opendkim/` directory is empty or missing
 - Mail is sending but DKIM signatures are failing (check `email_monitoring/monitoring.db`)
 
 ### Step 1: Regenerate DKIM key
@@ -231,7 +231,7 @@ Before any planned maintenance (VPS migration, major config change):
 
 1. **Lower DNS TTL** on `minipass.me` A and MX records to 300 seconds — do this 1+ hour before
 2. **Run a manual backup** on home system: `bash ~/minipass_env/scripts/backup_pull.sh`
-3. **Verify backup** is complete: `ls ~/backups/minipass/latest/config/opendkim/`
+3. **Verify backup** is complete: `ls ~/backups/minipass/latest/mail_server/config/opendkim/`
 4. **Alert UptimeRobot**: Pause monitors temporarily to avoid false alerts during the work
 5. **Document the change** in git before applying it
 

@@ -46,56 +46,59 @@ cd "$TARGET"
 docker compose down 2>/dev/null || docker-compose down 2>/dev/null || true
 
 # ── Restore config (DKIM keys, postfix accounts, etc.)
-if [ -d "$RESTORE_FROM/config" ]; then
+if [ -d "$RESTORE_FROM/mail_server/config" ]; then
   log "Restoring mail config (DKIM keys, postfix accounts)..."
-  rsync -av "$RESTORE_FROM/config/" "$TARGET/config/"
+  rsync -av "$RESTORE_FROM/mail_server/config/" "$TARGET/config/"
 else
-  log "WARNING: config/ not in backup — DKIM keys missing (see RECOVERY_RUNBOOK.md)"
+  log "WARNING: mail_server/config/ not in backup — DKIM keys missing (see RECOVERY_RUNBOOK.md)"
 fi
 
 # ── Restore mail data
-if [ -d "$RESTORE_FROM/maildata" ]; then
+if [ -d "$RESTORE_FROM/mail_server/maildata" ]; then
   log "Restoring maildata..."
-  rsync -av "$RESTORE_FROM/maildata/" "$TARGET/maildata/"
+  rsync -av "$RESTORE_FROM/mail_server/maildata/" "$TARGET/maildata/"
 fi
 
-if [ -d "$RESTORE_FROM/mailstate" ]; then
+if [ -d "$RESTORE_FROM/mail_server/mailstate" ]; then
   log "Restoring mailstate..."
-  rsync -av "$RESTORE_FROM/mailstate/" "$TARGET/mailstate/"
+  rsync -av "$RESTORE_FROM/mail_server/mailstate/" "$TARGET/mailstate/"
 fi
 
 # ── Restore SQLite databases
-if [ -d "$RESTORE_FROM/databases" ]; then
-  log "Restoring SQLite databases..."
-  [ -f "$RESTORE_FROM/databases/customers.db" ] && \
-    cp "$RESTORE_FROM/databases/customers.db" "$TARGET/MinipassWebSite/customers.db"
-  [ -f "$RESTORE_FROM/databases/minipass.db" ] && \
-    cp "$RESTORE_FROM/databases/minipass.db" "$TARGET/app/instance/minipass.db"
-  [ -f "$RESTORE_FROM/databases/monitoring.db" ] && \
-    cp "$RESTORE_FROM/databases/monitoring.db" "$TARGET/email_monitoring/monitoring.db"
+if [ -f "$RESTORE_FROM/minipass_env/MinipassWebSite/customers.db" ]; then
+  log "Restoring customers.db..."
+  cp "$RESTORE_FROM/minipass_env/MinipassWebSite/customers.db" "$TARGET/MinipassWebSite/customers.db"
+fi
+
+if [ -f "$RESTORE_FROM/minipass_env/email_monitoring/monitoring.db" ]; then
+  log "Restoring monitoring.db..."
+  mkdir -p "$TARGET/email_monitoring"
+  cp "$RESTORE_FROM/minipass_env/email_monitoring/monitoring.db" "$TARGET/email_monitoring/monitoring.db"
 fi
 
 # ── Restore deployed customer databases
-if [ -d "$RESTORE_FROM/deployed" ]; then
+if [ -d "$RESTORE_FROM/customers/deployed" ]; then
   log "Restoring deployed customer databases..."
-  rsync -av "$RESTORE_FROM/deployed/" "$TARGET/deployed/" \
+  rsync -av "$RESTORE_FROM/customers/deployed/" "$TARGET/deployed/" \
     --include="*/" --include="*.db" --exclude="*"
 fi
 
 # ── Restore nginx config
-if [ -d "$RESTORE_FROM/nginx" ]; then
+if [ -d "$RESTORE_FROM/minipass_env/nginx" ]; then
   log "Restoring nginx config..."
-  rsync -av "$RESTORE_FROM/nginx/" "$TARGET/nginx/"
+  rsync -av "$RESTORE_FROM/minipass_env/nginx/" "$TARGET/nginx/"
 fi
 
 # ── Restore .env files
-if [ -d "$RESTORE_FROM/env" ]; then
-  log "Restoring .env files..."
-  [ -f "$RESTORE_FROM/env/.env" ] && cp "$RESTORE_FROM/env/.env" "$TARGET/MinipassWebSite/.env"
-  [ -f "$RESTORE_FROM/env/.env.production" ] && cp "$RESTORE_FROM/env/.env.production" "$TARGET/MinipassWebSite/.env.production"
-  [ -f "$RESTORE_FROM/env/app-.env" ] || [ -f "$RESTORE_FROM/env/.env" ] && true  # handled above
-  [ -f "$RESTORE_FROM/env/mailserver.env" ] && cp "$RESTORE_FROM/env/mailserver.env" "$TARGET/mailserver.env"
-fi
+log "Restoring .env files..."
+[ -f "$RESTORE_FROM/minipass_env/MinipassWebSite/.env" ] && \
+  cp "$RESTORE_FROM/minipass_env/MinipassWebSite/.env" "$TARGET/MinipassWebSite/.env"
+[ -f "$RESTORE_FROM/minipass_env/MinipassWebSite/.env.production" ] && \
+  cp "$RESTORE_FROM/minipass_env/MinipassWebSite/.env.production" "$TARGET/MinipassWebSite/.env.production"
+[ -f "$RESTORE_FROM/mail_server/mailserver.env" ] && \
+  cp "$RESTORE_FROM/mail_server/mailserver.env" "$TARGET/mailserver.env"
+[ -f "$RESTORE_FROM/minipass_env/.env" ] && \
+  cp "$RESTORE_FROM/minipass_env/.env" "$TARGET/.env"
 
 # ── Start services
 log "Starting Docker services..."

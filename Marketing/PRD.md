@@ -1,8 +1,8 @@
 # Minipass Product Requirements Document (PRD)
-**Version:** 1.3
-**Date:** August 28, 2025 | **Updated:** November 23, 2025
+**Version:** 1.4
+**Date:** August 28, 2025 | **Updated:** January 31, 2026
 **Product Owner:** Ken Dresdell
-**Target Launch:** November 15, 2025 | **Status:** Production Launch Ready - 2 Live Customers
+**Target Launch:** November 15, 2025 | **Status:** Production - 2 Live Customers
 
 ---
 
@@ -194,6 +194,8 @@ Minipass provides a unified digital platform serving both markets:
   - Customize subject lines, titles, intro text, body content, conclusions
   - HTML-supported content with security sanitization (Bleach library)
   - Custom call-to-action text and URLs (for newPass and survey templates)
+  - **QR Code Toggle:** ⭐ NEW (Jan 2026) - Option to disable QR codes in email templates
+  - **Custom Payment Email:** ⭐ NEW (Jan 2026) - Separate email address for payment instructions
 - **Advanced Visual Branding:** Professional brand customization capabilities
   - **3-Tier Hero Image System:**
     1. Custom uploaded hero images (highest priority)
@@ -236,6 +238,7 @@ Minipass provides a unified digital platform serving both markets:
   - Archive unmatched payments for clean inbox
   - View full payment details and history
   - Manual processing workflow for edge cases
+  - **Create Passport from Payment:** ⭐ NEW (Jan 2026) - Streamlined workflow to create passport directly from unmatched payment
 - **User Interface:**
   - GitHub-style filter buttons for status
   - Responsive table design for desktop and mobile
@@ -280,7 +283,11 @@ Minipass provides a unified digital platform serving both markets:
 - **Financial Summaries:** Revenue summaries by date range
 
 #### G. **COMPREHENSIVE FINANCIAL MANAGEMENT SUITE** ⭐ MAJOR UPGRADE ✅ IMPLEMENTED (All Tiers)
-- **Dual Accounting Standards Support:** ⭐ NEW FEATURE - Professional-grade accounting
+- **Custom Fiscal Year Configuration:** ⭐ NEW (Jan 2026) - Configurable financial year start date
+  - Set fiscal year start month (1-12) per organization
+  - Aligns reporting periods with organizational accounting calendar
+  - Affects all financial reports and period calculations
+- **Dual Accounting Standards Support:** Professional-grade accounting
   - **Cash Basis Accounting** (Primary):
     - Cash Received: Actual deposits and payments received
     - Cash Paid: Actual expenses and bills paid
@@ -1268,6 +1275,52 @@ As a customer/participant, I want to:
 ---
 
 ## Document Version History
+
+### Version 1.4 - January 31, 2026
+**Update: January 2026 Feature Additions & UI Standardization**
+
+This update documents new features implemented in January 2026, focusing on financial flexibility, email customization enhancements, and payment workflow improvements.
+
+#### 🆕 **NEW FEATURES**
+
+1. **Custom Fiscal Year Configuration** (All Tiers)
+   - Configurable financial year start month (1-12)
+   - Aligns reporting periods with organizational accounting calendar
+   - Added to Section 4.1 (G) - Financial Management Suite
+
+2. **QR Code Toggle for Email Templates** (All Tiers)
+   - Option to disable QR codes in email templates
+   - Useful for activities where QR scanning is not needed
+   - Added to Section 4.1 (D-1) - Email Communication System
+
+3. **Custom Payment Email Address** (All Tiers)
+   - Separate email address for payment instructions
+   - Allows different payment routing than organization email
+   - Added to Section 4.1 (D-1) - Email Communication System
+
+4. **Create Passport from Unmatched Payment** (All Tiers)
+   - Streamlined workflow to create passport directly from payment inbox
+   - One-click passport creation for unmatched e-transfer payments
+   - Added to Section 4.1 (E-1) - Payment Inbox
+
+#### 🎨 **UI STANDARDIZATION**
+
+1. **Flash Message Standardization**
+   - Standardized to 4 types: success (green), error (red), warning (orange), info (blue)
+   - Plus special tier-limit variant (yellow) for subscription prompts
+   - Removed inconsistent emoji usage
+   - Added Tabler Icons: `ti-circle-check`, `ti-alert-circle`, `ti-alert-triangle`, `ti-info-circle`
+   - Gradient backgrounds with progress bar auto-dismiss
+   - Documented in Design System v1.1
+
+#### 🐛 **BUG FIXES** (Not PRD Material - Documented for Reference)
+
+- Fixed timezone issues across multiple pages
+- Fixed revenue display alignment with official financial reports
+- Improved auto-complete duplicate removal for passport name/email/phone fields
+- Fixed AR/AP filtering logic
+
+---
 
 ### Version 1.3 - November 23, 2025
 **Major Update: Enhanced Features & New Capabilities Documentation**
