@@ -77,32 +77,6 @@ services:
 
 
 
-  lhgi:
-    build:
-      context: ./app
-    container_name: lhgi
-    restart: always
-    env_file:
-      - .env
-    environment:
-      - FLASK_ENV=prod
-      - VIRTUAL_HOST=lhgi.minipass.me
-      - VIRTUAL_PORT=8889
-      - LETSENCRYPT_HOST=lhgi.minipass.me
-      - LETSENCRYPT_EMAIL=kdresdell@gmail.com
-      - SITE_URL=https://lhgi.minipass.me
-      - TZ=America/Toronto
-      - SITE_URL=https://lhgi.minipass.me
-    expose:
-      - "8889"
-    volumes:
-      - ./app/instance:/app/instance
-      - ./app/static/uploads:/app/static/uploads
-      - /etc/localtime:/etc/localtime:ro
-    networks:
-      - proxy
-
-
 
 
   # This needed to forward and fake my Website app as a container

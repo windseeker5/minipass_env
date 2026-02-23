@@ -38,15 +38,14 @@ except ImportError:
 CUSTOMERS_DB_PATH = "/home/kdresdell/minipass_env/MinipassWebSite/customers.db"
 MINIPASS_ENV_PATH = "/home/kdresdell/minipass_env"
 DEPLOYED_PATH = f"{MINIPASS_ENV_PATH}/deployed"
-LHGI_APP_PATH = f"{MINIPASS_ENV_PATH}/app"
 BACKUP_DIR = os.path.expanduser("~/customer_backups")
 
-# LHGI hardcoded configuration (not in customers.db)
-LHGI_CONFIG = {
+# LHGI static configuration (not in customers.db, but now a normal deployed customer)
+LHGI_STATIC = {
     "subdomain": "lhgi",
     "organization": "LHGI",
     "email": "lhgi@jfgoulet.com",
-    "is_lhgi": True,
+    "is_lhgi": False,
     "is_mailserver": False
 }
 
@@ -126,13 +125,6 @@ def get_customer_data_paths(customer: dict) -> dict:
             "maildata": f"{base}/maildata",
             "mailstate": f"{base}/mailstate",
             "config": f"{base}/config",
-        }
-    elif customer["is_lhgi"]:
-        base = LHGI_APP_PATH
-        candidates = {
-            "instance/minipass.db": f"{base}/instance/minipass.db",
-            "static/uploads": f"{base}/static/uploads",
-            "templates/email_templates": f"{base}/templates/email_templates",
         }
     else:
         base = f"{DEPLOYED_PATH}/{customer['subdomain']}/app"
@@ -262,60 +254,6 @@ def get_customers_from_db() -> list[dict]:
     return customers
 
 
-def upgrade_lhgi() -> tuple[bool, str]:
-    """Run upgrade steps for LHGI (git pull method)."""
-    log("  Creating backup before upgrade...")
-    backup_success, backup_msg = backup_customer(LHGI_CONFIG)
-    if not backup_success:
-        return False, f"Backup failed: {backup_msg}"
-    log(f"  {backup_msg}")
-
-    steps = [
-        # Step 2: Pull latest code
-        ("Fetching and resetting to origin/main",
-         f"cd {LHGI_APP_PATH} && git fetch origin && git reset --hard origin/main"),
-
-        # Step 4: Stop container
-        ("Stopping LHGI container",
-         f"cd {MINIPASS_ENV_PATH} && docker-compose stop lhgi"),
-
-        # Step 5: Run database migration
-        ("Running database migration",
-         f"cd {LHGI_APP_PATH} && python3 migrations/upgrade_production_database.py"),
-
-        # Step 6: Clear Docker cache
-        ("Clearing Docker cache (system prune)",
-         f"cd {MINIPASS_ENV_PATH} && docker system prune -f"),
-
-        ("Clearing Docker cache (builder prune)",
-         f"cd {MINIPASS_ENV_PATH} && docker builder prune -f"),
-
-        # Step 7: Tag current image as backup
-        ("Tagging current image as backup",
-         "docker tag minipass_env-lhgi:latest minipass_env-lhgi:backup 2>/dev/null || true"),
-
-        # Step 7.5: Save git version to file
-        ("Saving git version to file",
-         f"cd {LHGI_APP_PATH} && git rev-parse --short=7 HEAD > version.txt"),
-
-        # Step 8: Build new container (no cache, pull latest base images)
-        ("Building LHGI container (no cache, pull latest)",
-         f"cd {MINIPASS_ENV_PATH} && docker-compose build --no-cache --pull lhgi"),
-
-        # Step 9: Start container
-        ("Starting LHGI container",
-         f"cd {MINIPASS_ENV_PATH} && docker-compose up -d lhgi"),
-    ]
-
-    for step_name, command in steps:
-        log(f"  {step_name}...")
-        success, output = run_command(command)
-        if not success:
-            return False, f"Failed at: {step_name}\n{output}"
-
-    return True, "All steps completed successfully"
-
-
 def upgrade_deployed_customer(subdomain: str) -> tuple[bool, str]:
     """Run upgrade steps for a deployed customer (git reset method)."""
     customer_path = f"{DEPLOYED_PATH}/{subdomain}"
@@ -385,10 +323,7 @@ def upgrade_customer(customer: dict) -> tuple[bool, str]:
     """Upgrade a single customer based on their type."""
     if customer.get("is_mailserver"):
         return False, "Mail server cannot be upgraded, use --backup-only mode"
-    if customer["is_lhgi"]:
-        return upgrade_lhgi()
-    else:
-        return upgrade_deployed_customer(customer["subdomain"])
+    return upgrade_deployed_customer(customer["subdomain"])
 
 
 def main():
@@ -440,7 +375,7 @@ def main():
         c.setdefault("is_mailserver", False)
 
     # Step 2: Build customer list
-    all_customers = [LHGI_CONFIG] + customers
+    all_customers = [LHGI_STATIC] + customers
     if BACKUP_ONLY:
         all_customers.append(MAILSERVER_CONFIG)
 
@@ -448,15 +383,13 @@ def main():
         log("No customers found!", "ERROR")
         sys.exit(1)
 
-    log(f"Found {len(all_customers)} customers (including LHGI)")
+    log(f"Found {len(all_customers)} customers")
 
     # Step 3: Build menu options
     menu_options = []
     for c in all_customers:
         label = f"{c['subdomain'].upper()} - {c['organization']} ({c['email']})"
-        if c["is_lhgi"]:
-            label = f"[LHGI] {label}"
-        elif c.get("is_mailserver"):
+        if c.get("is_mailserver"):
             label = f"[MAIL SERVER] {label}"
         menu_options.append(label)
 
