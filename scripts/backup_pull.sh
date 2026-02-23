@@ -29,7 +29,7 @@ SSH_OPTS=(-e "ssh -p $VPS_PORT")
 log() { echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*"; }
 
 log "Starting Minipass backup → $TODAY"
-mkdir -p "$TODAY"/{config,maildata,mailstate,databases,deployed,nginx/vhost.d,env,uploads,bloomcap/html}
+mkdir -p "$TODAY"/{config,maildata,mailstate,databases,deployed,nginx/vhost.d,env,bloomcap/html}
 
 # ── 1. DKIM keys — MOST CRITICAL (losing = emergency DNS TXT update required)
 log "Backing up DKIM keys and mail config..."
@@ -44,7 +44,6 @@ rsync -avz "${SSH_OPTS[@]}" --rsync-path="sudo rsync" "$VPS:$REMOTE_BASE/mailsta
 log "Backing up SQLite databases..."
 rsync -avz "${SSH_OPTS[@]}" --rsync-path="sudo rsync" \
   "$VPS:$REMOTE_BASE/MinipassWebSite/customers.db" \
-  "$VPS:$REMOTE_BASE/app/instance/minipass.db" \
   "$VPS:$REMOTE_BASE/email_monitoring/monitoring.db" \
   "$TODAY/databases/"
 
@@ -71,18 +70,12 @@ rsync -avz "${SSH_OPTS[@]}" \
   "$VPS:$REMOTE_BASE/.env" \
   "$VPS:$REMOTE_BASE/MinipassWebSite/.env" \
   "$VPS:$REMOTE_BASE/MinipassWebSite/.env.production" \
-  "$VPS:$REMOTE_BASE/app/.env" \
   "$VPS:$REMOTE_BASE/app/tools/.env" \
   "$VPS:$REMOTE_BASE/Marketing/.env" \
   "$VPS:$REMOTE_BASE/mailserver.env" \
   "$TODAY/env/" 2>/dev/null || log "Warning: some .env files not found (skipping)"
 
-# ── 7. User uploads — QR codes, activity images, owner logos (IRREPLACEABLE)
-log "Backing up user uploads (QR codes, images, logos)..."
-rsync -avz "${SSH_OPTS[@]}" --rsync-path="sudo rsync" \
-  "$VPS:$REMOTE_BASE/app/static/uploads/" "$TODAY/uploads/"
-
-# ── 8. Bloomcap website content
+# ── 7. Bloomcap website content
 log "Backing up bloomcap website..."
 rsync -avz "${SSH_OPTS[@]}" "$VPS:$REMOTE_BASE/bloomcap/html/" "$TODAY/bloomcap/html/" \
   2>/dev/null || log "Warning: bloomcap/html not found (skipping)"
@@ -114,7 +107,7 @@ fi
 DB_COUNT=$(find "$TODAY/databases" -name "*.db" 2>/dev/null | wc -l)
 log "Databases backed up: $DB_COUNT files"
 
-UPLOAD_COUNT=$(find "$TODAY/uploads" -type f 2>/dev/null | wc -l)
+UPLOAD_COUNT=$(find "$TODAY/deployed" -path "*/static/uploads/*" -type f 2>/dev/null | wc -l)
 log "User uploads backed up: $UPLOAD_COUNT files"
 
 ENV_COUNT=$(find "$TODAY" -name ".env" 2>/dev/null | wc -l)
