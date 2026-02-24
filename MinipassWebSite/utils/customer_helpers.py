@@ -1,5 +1,9 @@
 import sqlite3
 import bcrypt
+import json
+import logging
+import re
+import subprocess
 from datetime import datetime
 
 
@@ -545,3 +549,79 @@ def update_promo_code(code: str, plan: str, tier: int, billing_frequency: str,
         )
         conn.commit()
     return cur.rowcount > 0
+
+
+# ── Docker container helpers ───────────────────────────────────────────────────
+
+def _is_production():
+    """Thin wrapper so we can import lazily and avoid circular deps."""
+    from utils.deploy_helpers import is_production_environment
+    return is_production_environment()
+
+
+def get_container_admins(subdomain):
+    """Return a list of admin dicts from the customer's Docker container.
+
+    In local dev (no production containers present) returns two mock admins so
+    the full UI/flow can be tested without any Docker containers.
+    """
+    if not re.match(r'^[a-zA-Z0-9-]+$', subdomain):
+        raise ValueError("Invalid subdomain")
+
+    if not _is_production():
+        logging.info(f"[DEV MODE] Returning mock admins for {subdomain}")
+        return [
+            {"id": 1, "email": "admin@example.com", "first_name": "Test", "last_name": "Admin"},
+            {"id": 2, "email": "owner@example.com", "first_name": "Owner", "last_name": "User"},
+        ]
+
+    container_name = f"minipass_{subdomain}"
+    script = (
+        "import sqlite3, json; "
+        "conn = sqlite3.connect('instance/minipass.db'); "
+        "rows = conn.execute('SELECT id, email, first_name, last_name FROM admin').fetchall(); "
+        "print(json.dumps([{'id':r[0],'email':r[1],'first_name':r[2],'last_name':r[3]} for r in rows])); "
+        "conn.close()"
+    )
+    result = subprocess.run(
+        ['docker', 'exec', container_name, 'python', '-c', script],
+        capture_output=True, text=True, timeout=10
+    )
+    if result.returncode != 0:
+        raise RuntimeError(result.stderr.strip() or "Container not reachable")
+    return json.loads(result.stdout.strip())
+
+
+def reset_container_admin_password(subdomain, admin_email, new_password):
+    """Reset a specific admin's bcrypt password inside a customer's Docker container.
+
+    In local dev mode this is a no-op (returns True) so email can still be
+    tested without any Docker containers.
+    """
+    if not re.match(r'^[a-zA-Z0-9-]+$', subdomain):
+        raise ValueError("Invalid subdomain")
+
+    if not _is_production():
+        logging.info(f"[DEV MODE] Skipping docker exec password reset for {subdomain}/{admin_email}")
+        return True
+
+    container_name = f"minipass_{subdomain}"
+    script = (
+        "import bcrypt, sqlite3, sys; "
+        f"email = {repr(admin_email)}; "
+        f"new_pw = {repr(new_password)}; "
+        "hashed = bcrypt.hashpw(new_pw.encode(), bcrypt.gensalt()).decode(); "
+        "conn = sqlite3.connect('instance/minipass.db'); "
+        "rows = conn.execute('UPDATE admin SET password_hash=? WHERE email=?', (hashed, email)).rowcount; "
+        "conn.commit(); conn.close(); "
+        "sys.exit(0 if rows > 0 else 1)"
+    )
+    result = subprocess.run(
+        ['docker', 'exec', container_name, 'python', '-c', script],
+        capture_output=True, text=True, timeout=15
+    )
+    if result.returncode != 0:
+        raise RuntimeError(
+            f"Reset failed (admin not found or container error): {result.stderr.strip()}"
+        )
+    return True

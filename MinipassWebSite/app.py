@@ -918,37 +918,58 @@ def admin_resend_email(subdomain):
 @app.route("/admin/reset-password/<subdomain>", methods=["POST"])
 @require_admin
 def admin_reset_password(subdomain):
-    """Generate a new password and send reset email to customer."""
-    from utils.customer_helpers import get_customer_by_subdomain, update_customer_password
+    """Generate a new password, reset it inside the container, and email the admin."""
+    from utils.customer_helpers import (
+        get_customer_by_subdomain, update_customer_password,
+        reset_container_admin_password,
+    )
     from utils.email_helpers import send_password_reset_email
 
     customer = get_customer_by_subdomain(subdomain)
     if not customer:
         return redirect(url_for('admin_tools', error=f"Customer not found: {subdomain}"))
 
+    # admin_email is required — sent by the modal form
+    admin_email = (request.form.get('admin_email') or '').strip()
+    if not admin_email or not re.match(r'^[^@\s]+@[^@\s]+\.[^@\s]+$', admin_email):
+        return redirect(url_for('admin_tools', error="Invalid or missing admin email"))
+
     try:
-        # Generate new password
         new_password = secrets.token_urlsafe(12)
 
-        # Update password in database
+        # 1. Reset password inside the container's SQLite DB
+        reset_container_admin_password(subdomain, admin_email, new_password)
+
+        # 2. Keep customers.db in sync (legacy field)
         update_customer_password(subdomain, new_password)
 
-        # Build app URL
+        # 3. Email the reset password to the admin whose account was changed
         app_url = f"https://{subdomain}.minipass.me"
-
-        # Send reset email
         send_password_reset_email(
-            to=customer['email'],
+            to=admin_email,
             subdomain=subdomain,
             app_url=app_url,
             new_password=new_password
         )
 
-        return redirect(url_for('admin_tools', message=f"Password reset email sent to {customer['email']}"))
+        return redirect(url_for('admin_tools', message=f"Password reset email sent to {admin_email}"))
 
     except Exception as e:
         logging.error(f"Failed to reset password for {subdomain}: {e}")
         return redirect(url_for('admin_tools', error=f"Failed to reset password: {str(e)}"))
+
+
+@app.route("/admin/api/container-admins/<subdomain>")
+@require_admin
+def admin_get_container_admins(subdomain):
+    """Return JSON list of admins inside a customer's container (used by the reset-password modal)."""
+    from utils.customer_helpers import get_container_admins
+    try:
+        admins = get_container_admins(subdomain)
+        return jsonify({"success": True, "admins": admins})
+    except Exception as e:
+        logging.error(f"Failed to list admins for {subdomain}: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
 
 
 # ✅ Admin promo codes
