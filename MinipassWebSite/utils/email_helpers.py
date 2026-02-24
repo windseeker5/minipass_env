@@ -147,7 +147,7 @@ def send_password_reset_email(to, subdomain, app_url, new_password):
     """
     from utils.deploy_helpers import is_production_environment
 
-    subject = "🔑 Votre mot de passe minipass a été réinitialisé"
+    subject = "minipass - Vos informations de connexion"
 
     # Render HTML template
     html = render_template(
@@ -183,15 +183,19 @@ def send_password_reset_email(to, subdomain, app_url, new_password):
     msg['Auto-Submitted'] = "auto-generated"
 
     # Plain text fallback
-    text = f"""
-Votre mot de passe minipass a été réinitialisé.
+    text = f"""minipass - Vos informations de connexion
+
+L'accès a votre application minipass a ete mis a jour.
 
 Application: {app_url}
-Nouveau mot de passe: {new_password}
+Courriel: {to}
+Identifiant d'acces: {new_password}
 
-Connectez-vous avec votre email ({to}) et ce nouveau mot de passe.
+Accedez a votre application avec ces informations.
 
-— L'équipe minipass
+-- L'equipe minipass
+minipass Inc. - Rimouski, QC, Canada
+minipass.me
     """
     msg.attach(MIMEText(text, 'plain', 'utf-8'))
     msg.attach(MIMEText(html, 'html', 'utf-8'))
