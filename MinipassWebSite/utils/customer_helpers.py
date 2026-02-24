@@ -559,6 +559,23 @@ def _is_production():
     return is_production_environment()
 
 
+def _resolve_container_name(subdomain):
+    """Return the Docker container name for a subdomain.
+
+    New containers are named minipass_{subdomain}. Legacy containers
+    (e.g. lhgi) use just the subdomain as their name. We probe for the
+    new name first and fall back to the bare subdomain.
+    """
+    new_name = f"minipass_{subdomain}"
+    probe = subprocess.run(
+        ['docker', 'inspect', '--format', '{{.Name}}', new_name],
+        capture_output=True, text=True, timeout=5
+    )
+    if probe.returncode == 0:
+        return new_name
+    return subdomain
+
+
 def get_container_admins(subdomain):
     """Return a list of admin dicts from the customer's Docker container.
 
@@ -575,7 +592,7 @@ def get_container_admins(subdomain):
             {"id": 2, "email": "owner@example.com", "first_name": "Owner", "last_name": "User"},
         ]
 
-    container_name = f"minipass_{subdomain}"
+    container_name = _resolve_container_name(subdomain)
     script = (
         "import sqlite3, json; "
         "conn = sqlite3.connect('instance/minipass.db'); "
@@ -605,7 +622,7 @@ def reset_container_admin_password(subdomain, admin_email, new_password):
         logging.info(f"[DEV MODE] Skipping docker exec password reset for {subdomain}/{admin_email}")
         return True
 
-    container_name = f"minipass_{subdomain}"
+    container_name = _resolve_container_name(subdomain)
     script = (
         "import bcrypt, sqlite3, sys; "
         f"email = {repr(admin_email)}; "
