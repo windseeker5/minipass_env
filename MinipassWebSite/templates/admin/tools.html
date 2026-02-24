@@ -250,18 +250,17 @@
             </button>
         </form>
         <hr class="my-1 border-base-300">
-        <form id="ca-reset-form" method="POST">
-            <button type="submit" class="flex items-center gap-2 w-full px-3 py-2 text-sm text-error rounded-lg hover:bg-error/10 whitespace-nowrap">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6"/><path d="m15.5 7.5 3 3L22 7l-3-3"/></svg>
-                Reset Password
-            </button>
-        </form>
+        <button id="ca-reset-btn" type="button" class="flex items-center gap-2 w-full px-3 py-2 text-sm text-error rounded-lg hover:bg-error/10 whitespace-nowrap">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6"/><path d="m15.5 7.5 3 3L22 7l-3-3"/></svg>
+            Reset Password
+        </button>
     `;
     document.body.appendChild(menu);
 
     const resendForm = document.getElementById('ca-resend-form');
-    const resetForm  = document.getElementById('ca-reset-form');
+    const resetBtn   = document.getElementById('ca-reset-btn');
     let currentSubdomain = '';
+    let currentResetUrl  = '';
     let isOpen = false;
 
     function openMenu(trigger) {
@@ -273,11 +272,15 @@
         menu.style.left    = left + 'px';
         menu.style.display = 'block';
         resendForm.action  = trigger.dataset.resend;
-        resetForm.action   = trigger.dataset.reset;
+        currentResetUrl    = trigger.dataset.reset;
         currentSubdomain   = trigger.dataset.subdomain;
-        resetForm.onsubmit = () => confirm('Reset password for ' + currentSubdomain + '? A new password will be generated and emailed.');
         isOpen = true;
     }
+
+    resetBtn.addEventListener('click', function () {
+        closeMenu();
+        openResetModal(currentSubdomain, currentResetUrl);
+    });
 
     function closeMenu() { menu.style.display = 'none'; isOpen = false; }
 
@@ -291,6 +294,110 @@
     window.addEventListener('scroll', closeMenu);
 })();
 
+</script>
+
+<!-- Reset Password Modal -->
+<dialog id="reset-password-modal" class="modal">
+    <div class="modal-box max-w-md">
+        <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-error" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6"/><path d="m15.5 7.5 3 3L22 7l-3-3"/></svg>
+            Reset Admin Password
+        </h3>
+
+        <!-- Loading state -->
+        <div id="rpm-loading" class="flex flex-col items-center py-6 gap-3">
+            <span class="loading loading-spinner loading-md"></span>
+            <p class="text-sm text-base-content/60">Loading admin accounts…</p>
+        </div>
+
+        <!-- Error state -->
+        <div id="rpm-error" class="hidden">
+            <div class="alert alert-error">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                <span id="rpm-error-text"></span>
+            </div>
+        </div>
+
+        <!-- Admin selection -->
+        <div id="rpm-content" class="hidden">
+            <p class="text-sm text-base-content/70 mb-4">
+                A new password will be generated and emailed to the selected admin.
+                Select the admin account to reset:
+            </p>
+            <form id="rpm-form" method="POST">
+                <div id="rpm-admin-list" class="flex flex-col gap-2 mb-5"></div>
+                <div class="modal-action mt-0">
+                    <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('reset-password-modal').close()">Cancel</button>
+                    <button type="submit" class="btn btn-error btn-sm">Confirm Reset</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <form method="dialog" class="modal-backdrop"><button>close</button></form>
+</dialog>
+
+<script>
+function openResetModal(subdomain, resetUrl) {
+    const modal    = document.getElementById('reset-password-modal');
+    const loading  = document.getElementById('rpm-loading');
+    const errorDiv = document.getElementById('rpm-error');
+    const errorTxt = document.getElementById('rpm-error-text');
+    const content  = document.getElementById('rpm-content');
+    const adminList= document.getElementById('rpm-admin-list');
+    const form     = document.getElementById('rpm-form');
+
+    // Reset state
+    loading.classList.remove('hidden');
+    errorDiv.classList.add('hidden');
+    content.classList.add('hidden');
+    adminList.innerHTML = '';
+    form.action = resetUrl;
+
+    modal.showModal();
+
+    fetch('/admin/api/container-admins/' + encodeURIComponent(subdomain))
+        .then(r => r.json())
+        .then(data => {
+            loading.classList.add('hidden');
+            if (!data.success) {
+                errorTxt.textContent = data.error || 'Failed to load admin accounts.';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+            const admins = data.admins;
+            if (admins.length === 0) {
+                errorTxt.textContent = 'No admin accounts found in this container.';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+            admins.forEach((admin, i) => {
+                const label = document.createElement('label');
+                label.className = 'flex items-center gap-3 p-3 rounded-lg border border-base-300 cursor-pointer hover:bg-base-200 has-[:checked]:border-primary has-[:checked]:bg-primary/5';
+                label.innerHTML = `
+                    <input type="radio" name="admin_email" value="${escHtml(admin.email)}"
+                           class="radio radio-primary radio-sm" ${i === 0 ? 'checked' : ''}>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-medium">${escHtml(admin.first_name)} ${escHtml(admin.last_name)}</p>
+                        <p class="text-xs text-base-content/60 truncate">${escHtml(admin.email)}</p>
+                    </div>`;
+                adminList.appendChild(label);
+            });
+            content.classList.remove('hidden');
+        })
+        .catch(err => {
+            loading.classList.add('hidden');
+            errorTxt.textContent = 'Network error: ' + err.message;
+            errorDiv.classList.remove('hidden');
+        });
+}
+
+function escHtml(str) {
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+}
 </script>
 
 {% endblock %}
