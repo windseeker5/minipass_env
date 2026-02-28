@@ -1022,6 +1022,38 @@ def admin_get_container_admins(subdomain):
         return jsonify({"success": False, "error": str(e)}), 500
 
 
+@app.route("/admin/delete-customer/<subdomain>", methods=["POST"])
+@require_admin
+def admin_delete_customer(subdomain):
+    """Perform a complete teardown of a customer deployment."""
+    import re as _re
+    from utils.cleanup_helpers import delete_customer_complete
+    from utils.customer_helpers import get_customer_by_subdomain
+
+    if not _re.match(r'^[a-zA-Z0-9-]+$', subdomain):
+        return jsonify({"success": False, "error": "Invalid subdomain format.", "results": []}), 400
+
+    try:
+        body = request.get_json(force=True) or {}
+    except Exception:
+        body = {}
+
+    if body.get("confirm_subdomain") != subdomain:
+        return jsonify({"success": False, "error": "Subdomain confirmation does not match.", "results": []}), 400
+
+    if not get_customer_by_subdomain(subdomain):
+        return jsonify({"success": False, "error": f"Customer '{subdomain}' not found.", "results": []}), 404
+
+    try:
+        results = delete_customer_complete(subdomain)
+        success = all(r["status"] in ("ok", "warning") for r in results)
+        logging.info(f"Admin deleted customer '{subdomain}': success={success}")
+        return jsonify({"success": success, "subdomain": subdomain, "results": results})
+    except Exception as e:
+        logging.error(f"Admin delete customer '{subdomain}' unexpected error: {e}")
+        return jsonify({"success": False, "error": str(e), "results": []}), 500
+
+
 # ✅ Admin promo codes
 @app.route("/admin/promo-codes")
 @require_admin

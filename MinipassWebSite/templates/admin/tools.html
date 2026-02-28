@@ -129,7 +129,9 @@
                             <button class="btn btn-sm btn-outline gap-1 customer-action-btn"
                                     data-resend="{{ url_for('admin_resend_email', subdomain=customer.subdomain) }}"
                                     data-reset="{{ url_for('admin_reset_password', subdomain=customer.subdomain) }}"
-                                    data-subdomain="{{ customer.subdomain }}">
+                                    data-delete="{{ url_for('admin_delete_customer', subdomain=customer.subdomain) }}"
+                                    data-subdomain="{{ customer.subdomain }}"
+                                    data-customer-email="{{ customer.email }}">
                                 Actions
                                 <i data-lucide="chevron-down" class="w-3.5 h-3.5"></i>
                             </button>
@@ -254,32 +256,47 @@
             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6"/><path d="m15.5 7.5 3 3L22 7l-3-3"/></svg>
             Reset Password
         </button>
+        <hr class="my-1 border-base-300">
+        <button id="ca-delete-btn" type="button" class="flex items-center gap-2 w-full px-3 py-2 text-sm text-error rounded-lg hover:bg-error/10 whitespace-nowrap">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+            Delete Customer
+        </button>
     `;
     document.body.appendChild(menu);
 
     const resendForm = document.getElementById('ca-resend-form');
     const resetBtn   = document.getElementById('ca-reset-btn');
-    let currentSubdomain = '';
-    let currentResetUrl  = '';
+    const deleteBtn  = document.getElementById('ca-delete-btn');
+    let currentSubdomain    = '';
+    let currentResetUrl     = '';
+    let currentDeleteUrl    = '';
+    let currentCustomerEmail = '';
     let isOpen = false;
 
     function openMenu(trigger) {
         const rect   = trigger.getBoundingClientRect();
-        const menuH  = 90;
+        const menuH  = 140;
         const top    = (window.innerHeight - rect.bottom > menuH) ? rect.bottom + 4 : rect.top - menuH - 4;
         const left   = Math.max(8, rect.right - 220);
-        menu.style.top     = top + 'px';
-        menu.style.left    = left + 'px';
-        menu.style.display = 'block';
-        resendForm.action  = trigger.dataset.resend;
-        currentResetUrl    = trigger.dataset.reset;
-        currentSubdomain   = trigger.dataset.subdomain;
+        menu.style.top       = top + 'px';
+        menu.style.left      = left + 'px';
+        menu.style.display   = 'block';
+        resendForm.action    = trigger.dataset.resend;
+        currentResetUrl      = trigger.dataset.reset;
+        currentDeleteUrl     = trigger.dataset.delete;
+        currentSubdomain     = trigger.dataset.subdomain;
+        currentCustomerEmail = trigger.dataset.customerEmail;
         isOpen = true;
     }
 
     resetBtn.addEventListener('click', function () {
         closeMenu();
         openResetModal(currentSubdomain, currentResetUrl);
+    });
+
+    deleteBtn.addEventListener('click', function () {
+        closeMenu();
+        openDeleteModal(currentSubdomain, currentDeleteUrl, currentCustomerEmail);
     });
 
     function closeMenu() { menu.style.display = 'none'; isOpen = false; }
@@ -397,6 +414,160 @@ function escHtml(str) {
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;');
+}
+</script>
+
+<!-- Delete Customer Modal -->
+<dialog id="delete-customer-modal" class="modal">
+    <div class="modal-box max-w-md">
+
+        <!-- Phase 1: Confirmation -->
+        <div id="dcm-confirm">
+            <h3 class="font-bold text-lg mb-4 flex items-center gap-2 text-error">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                Delete Customer
+            </h3>
+            <div class="alert alert-error mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                <div>
+                    <p class="font-semibold">This is irreversible!</p>
+                    <p class="text-sm">Deletes container, image, deployed files, mail account, and database record.</p>
+                </div>
+            </div>
+            <p class="text-sm mb-1">Customer: <span id="dcm-email" class="font-mono font-semibold"></span></p>
+            <p class="text-sm mb-3">Type <strong id="dcm-subdomain-display" class="font-mono"></strong> to confirm:</p>
+            <input type="text" id="dcm-confirm-input" class="input input-bordered input-sm w-full mb-4"
+                   placeholder="Type subdomain to confirm" autocomplete="off">
+            <div class="modal-action mt-0">
+                <button type="button" class="btn btn-ghost btn-sm"
+                        onclick="document.getElementById('delete-customer-modal').close()">Cancel</button>
+                <button type="button" id="dcm-delete-btn" class="btn btn-error btn-sm" disabled>
+                    Delete Permanently
+                </button>
+            </div>
+        </div>
+
+        <!-- Phase 2: Loading -->
+        <div id="dcm-loading" class="hidden">
+            <div class="flex flex-col items-center py-8 gap-3">
+                <span class="loading loading-spinner loading-md"></span>
+                <p class="text-sm text-base-content/60">Deleting customer… this may take a few seconds.</p>
+            </div>
+        </div>
+
+        <!-- Phase 3: Results -->
+        <div id="dcm-results" class="hidden">
+            <h3 id="dcm-results-title" class="font-bold text-lg mb-4"></h3>
+            <ul id="dcm-results-list" class="flex flex-col gap-1.5 mb-4 text-sm max-h-64 overflow-y-auto"></ul>
+            <div class="modal-action mt-0">
+                <button type="button" class="btn btn-sm"
+                        onclick="document.getElementById('delete-customer-modal').close(); window.location.reload();">
+                    Close &amp; Refresh
+                </button>
+            </div>
+        </div>
+
+    </div>
+    <form method="dialog" class="modal-backdrop"><button>close</button></form>
+</dialog>
+
+<script>
+function openDeleteModal(subdomain, deleteUrl, customerEmail) {
+    const modal        = document.getElementById('delete-customer-modal');
+    const confirmDiv   = document.getElementById('dcm-confirm');
+    const loadingDiv   = document.getElementById('dcm-loading');
+    const resultsDiv   = document.getElementById('dcm-results');
+    const emailSpan    = document.getElementById('dcm-email');
+    const subLabel     = document.getElementById('dcm-subdomain-display');
+    const confirmInput = document.getElementById('dcm-confirm-input');
+    const deleteBtn    = document.getElementById('dcm-delete-btn');
+
+    // Reset to phase 1
+    confirmDiv.classList.remove('hidden');
+    loadingDiv.classList.add('hidden');
+    resultsDiv.classList.add('hidden');
+
+    emailSpan.textContent = customerEmail || '—';
+    subLabel.textContent  = subdomain;
+    confirmInput.value    = '';
+    deleteBtn.disabled    = true;
+
+    // Named input handler — removed on modal close to avoid leaks
+    function onInput() {
+        deleteBtn.disabled = (confirmInput.value !== subdomain);
+    }
+    confirmInput.addEventListener('input', onInput);
+    modal.addEventListener('close', () => {
+        confirmInput.removeEventListener('input', onInput);
+    }, { once: true });
+
+    deleteBtn.onclick = function () {
+        // Phase 2: Loading
+        confirmDiv.classList.add('hidden');
+        loadingDiv.classList.remove('hidden');
+
+        fetch(deleteUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ confirm_subdomain: subdomain }),
+        })
+        .then(r => r.json())
+        .then(data => {
+            loadingDiv.classList.add('hidden');
+            resultsDiv.classList.remove('hidden');
+
+            const title = document.getElementById('dcm-results-title');
+            const list  = document.getElementById('dcm-results-list');
+
+            const allOk = Array.isArray(data.results) && data.results.length > 0
+                          && data.results.every(r => r.status === 'ok');
+
+            if (data.success && allOk) {
+                title.textContent = 'Customer deleted successfully';
+                title.className   = 'font-bold text-lg mb-4 text-success';
+            } else if (data.success) {
+                title.textContent = 'Deletion completed with issues';
+                title.className   = 'font-bold text-lg mb-4 text-warning';
+            } else {
+                title.textContent = 'Deletion failed';
+                title.className   = 'font-bold text-lg mb-4 text-error';
+            }
+
+            list.innerHTML = '';
+            (data.results || []).forEach(function (r) {
+                const icon = r.status === 'ok' ? '✅' : r.status === 'warning' ? '⚠️' : '❌';
+                const li   = document.createElement('li');
+                li.className = 'flex items-start gap-2';
+                li.innerHTML = '<span class="flex-shrink-0 leading-5">' + icon + '</span>'
+                             + '<span><strong>' + escHtml(r.step) + '</strong> — ' + escHtml(r.message) + '</span>';
+                list.appendChild(li);
+            });
+
+            if (data.error && !(data.results || []).length) {
+                const li = document.createElement('li');
+                li.innerHTML = '❌ ' + escHtml(data.error);
+                list.appendChild(li);
+            }
+
+            // Auto-reload only on full success (all steps "ok")
+            if (data.success && allOk) {
+                setTimeout(() => { window.location.reload(); }, 3000);
+            }
+        })
+        .catch(function (err) {
+            loadingDiv.classList.add('hidden');
+            resultsDiv.classList.remove('hidden');
+
+            const title = document.getElementById('dcm-results-title');
+            title.textContent = 'Network error';
+            title.className   = 'font-bold text-lg mb-4 text-error';
+
+            const list = document.getElementById('dcm-results-list');
+            list.innerHTML = '<li>❌ ' + escHtml(err.message) + '</li>';
+        });
+    };
+
+    modal.showModal();
 }
 </script>
 
