@@ -77,6 +77,29 @@ View all customers: https://minipass.me/admin/customers"""
         return False
 
 
+def create_vhost_config(app_name, base_dir):
+    """Create nginx-proxy vhost.d location config for the new customer subdomain."""
+    vhost_dir = os.path.join(base_dir, 'vhost.d')
+    os.makedirs(vhost_dir, exist_ok=True)
+
+    filename = f"{app_name}.minipass.me_location"
+    vhost_path = os.path.join(vhost_dir, filename)
+
+    content = f"""# {app_name.upper()} — standard customer
+client_max_body_size 20M;
+
+# Static asset caching via proxy_cache_valid for file extensions
+if ($uri ~* \\.(css|js|woff|woff2|ttf|eot|png|jpg|jpeg|gif|ico|svg)$) {{
+    add_header Cache-Control "public, max-age=2592000, immutable";
+}}
+"""
+    with open(vhost_path, 'w') as f:
+        f.write(content)
+
+    logger.info(f"[DEPLOY] Created vhost.d config: {vhost_path}")
+    return vhost_path
+
+
 def is_production_environment():
     """
     Detect if running on production VPS or local development machine.
@@ -953,6 +976,10 @@ def deploy_customer_container(app_name, admin_email, admin_password, plan, port,
             log_validation_check(logger, "Docker compose file created", True, f"File written: {compose_path}")
         else:
             log_validation_check(logger, "Docker compose file created", False, "Compose file not found after write")
+
+        # Create nginx-proxy vhost.d config for caching/body-size optimizations
+        if is_production:
+            create_vhost_config(app_name, base_dir)
 
         # Step 8: Deploy the container
         logger.info(f"[{app_name}] 🚀 Step 4: Deploying container in {deploy_dir}")
