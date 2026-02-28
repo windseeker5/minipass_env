@@ -40,14 +40,7 @@ MINIPASS_ENV_PATH = "/home/kdresdell/minipass_env"
 DEPLOYED_PATH = f"{MINIPASS_ENV_PATH}/deployed"
 BACKUP_DIR = os.path.expanduser("~/customer_backups")
 
-# LHGI static configuration (not in customers.db, but now a normal deployed customer)
-LHGI_STATIC = {
-    "subdomain": "lhgi",
-    "organization": "LHGI",
-    "email": "lhgi@jfgoulet.com",
-    "is_lhgi": False,
-    "is_mailserver": False
-}
+# LHGI is now in customers.db as a regular customer - no longer needed here
 
 MAILSERVER_CONFIG = {
     "subdomain": "mailserver",
@@ -195,14 +188,19 @@ def create_tar_backup(subdomain: str, data_paths: dict) -> tuple[bool, str, str]
 def backup_customer(customer: dict) -> tuple[bool, str]:
     """Orchestrate backup for a customer. Returns (success, message)."""
     subdomain = customer["subdomain"]
-    log(f"  Getting data paths for {subdomain}...")
+    log(f"  🔍 Scanning data paths for {subdomain.upper()}...")
     data_paths = get_customer_data_paths(customer)
 
     if not data_paths:
         return False, "No data found to back up"
 
-    log(f"  Creating backup archive...")
+    log(f"  📦 Creating backup archive...")
+    log(f"     Data to backup: {', '.join(data_paths.keys())}")
     success, message, archive_path = create_tar_backup(subdomain, data_paths)
+
+    if success:
+        log(f"  ✅ Backup completed: {message}")
+
     return success, message
 
 
@@ -269,7 +267,7 @@ def upgrade_deployed_customer(subdomain: str) -> tuple[bool, str]:
     backup_success, backup_msg = backup_customer(customer_config)
     if not backup_success:
         return False, f"Backup failed: {backup_msg}"
-    log(f"  {backup_msg}")
+    log(f"  ✅ {backup_msg}")
 
     # Temporary copies for the git-reset-then-restore dance
     tmp_db = f"/tmp/upgrade_{subdomain}_minipass.db"
@@ -294,7 +292,7 @@ def upgrade_deployed_customer(subdomain: str) -> tuple[bool, str]:
         ("Restoring uploads from temp",
          f"cp -r {tmp_uploads}/. {app_path}/static/uploads/"),
 
-        ("Running database migration",
+        ("Running database migration (includes Task 29: 85% photo compression)",
          f"cd {customer_path} && python3 app/migrations/upgrade_production_database.py"),
 
         ("Saving git version to file",
@@ -310,13 +308,25 @@ def upgrade_deployed_customer(subdomain: str) -> tuple[bool, str]:
          f"rm -f {tmp_db} && rm -rf {tmp_uploads}"),
     ]
 
-    for step_name, command in steps:
-        log(f"  {step_name}...")
-        success, output = run_command(command)
-        if not success:
-            return False, f"Failed at: {step_name}\n{output}"
+    total_steps = len(steps)
 
-    return True, "All steps completed successfully"
+    for step_num, (step_name, command) in enumerate(steps, 1):
+        log(f"  📋 STEP {step_num}/{total_steps}: {step_name}...")
+        success, output = run_command(command)
+
+        if not success:
+            log(f"  ❌ STEP {step_num} FAILED: {step_name}", "ERROR")
+            return False, f"Failed at Step {step_num}: {step_name}\n{output}"
+        else:
+            log(f"  ✅ STEP {step_num} COMPLETED: {step_name}")
+
+            # Special verbose output for critical steps
+            if step_num == 7:  # Database migration step
+                log(f"     🖼️  This step includes Task 29 - Photo cover compression at 85% quality")
+            elif step_num == 9:  # Docker build step
+                log(f"     🐳 Container rebuild includes all latest application improvements")
+
+    return True, f"All {total_steps} steps completed successfully"
 
 
 def upgrade_customer(customer: dict) -> tuple[bool, str]:
@@ -375,7 +385,7 @@ def main():
         c.setdefault("is_mailserver", False)
 
     # Step 2: Build customer list
-    all_customers = [LHGI_STATIC] + customers
+    all_customers = customers
     if BACKUP_ONLY:
         all_customers.append(MAILSERVER_CONFIG)
 
@@ -424,15 +434,19 @@ def main():
     # Step 6: Run operations
     print("\n" + "-" * 60)
     results = []
+    total_customers = len(selected_customers)
 
-    for customer in selected_customers:
+    for idx, customer in enumerate(selected_customers, 1):
         subdomain = customer["subdomain"].upper()
 
+        print(f"\n🎯 CUSTOMER {idx}/{total_customers}: {subdomain}")
+        print("=" * 40)
+
         if BACKUP_ONLY:
-            log(f"Backing up {subdomain}...")
+            log(f"🔄 Starting backup for {subdomain}...")
             success, message = backup_customer(customer)
         else:
-            log(f"Upgrading {subdomain}...")
+            log(f"🚀 Starting upgrade for {subdomain}...")
             success, message = upgrade_customer(customer)
 
         results.append({
@@ -442,9 +456,9 @@ def main():
         })
 
         if success:
-            log(f"{subdomain}: SUCCESS", "SUCCESS")
+            log(f"🎉 {subdomain}: SUCCESS - {message}", "SUCCESS")
         else:
-            log(f"{subdomain}: FAILED - {message}", "ERROR")
+            log(f"💥 {subdomain}: FAILED - {message}", "ERROR")
 
         print("-" * 60)
 
