@@ -120,6 +120,56 @@ def politiques():
     return render_template("politiques.html")
 
 
+@app.route("/sitemap.xml")
+def sitemap():
+    from flask import Response
+    import glob as _glob
+
+    base_url = "https://minipass.me"
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
+    static_pages = [
+        ("", "weekly", "1.0"),
+        ("/about", "monthly", "0.8"),
+        ("/guides", "weekly", "0.9"),
+        ("/politiques", "monthly", "0.5"),
+    ]
+
+    docs_dir = os.path.join(app.static_folder, "docs")
+    guide_slugs = [
+        os.path.splitext(os.path.basename(f))[0]
+        for f in _glob.glob(os.path.join(docs_dir, "*.md"))
+    ]
+
+    urls = []
+    for path, changefreq, priority in static_pages:
+        urls.append(
+            f"  <url>\n"
+            f"    <loc>{base_url}{path}</loc>\n"
+            f"    <lastmod>{today}</lastmod>\n"
+            f"    <changefreq>{changefreq}</changefreq>\n"
+            f"    <priority>{priority}</priority>\n"
+            f"  </url>"
+        )
+    for slug in sorted(guide_slugs):
+        urls.append(
+            f"  <url>\n"
+            f"    <loc>{base_url}/guides/{slug}</loc>\n"
+            f"    <lastmod>{today}</lastmod>\n"
+            f"    <changefreq>monthly</changefreq>\n"
+            f"    <priority>0.7</priority>\n"
+            f"  </url>"
+        )
+
+    xml = (
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+        + "\n".join(urls)
+        + "\n</urlset>"
+    )
+    return Response(xml, mimetype="application/xml")
+
+
 @app.route("/check-subdomain", methods=["POST"])
 def check_subdomain():
     data = request.get_json()
