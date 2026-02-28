@@ -24,15 +24,10 @@
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
 }
 
-/* Search & Filter Section */
-.guides-filter-section {
-    background-color: #ffffff;
-    padding: 50px 0;
-}
-
+/* Search & Filter (embedded in cards section header) */
 .guides-search-container {
     max-width: 600px;
-    margin: 0 auto 30px auto;
+    margin: 0 auto;
 }
 
 .guides-search-input {
@@ -116,6 +111,7 @@
     height: 100%;
     display: flex;
     flex-direction: column;
+    cursor: pointer;
 }
 
 .guide-card:hover {
@@ -123,31 +119,133 @@
     box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
 }
 
-/* Icon Header (simplified) */
-.guide-icon-header {
-    height: 70px;
+/* Thumbnail container */
+.guide-thumb {
+    position: relative;
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+    border-radius: 12px 12px 0 0;
+    background: #0e1a35;
+}
+
+.guide-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.4s ease;
+}
+
+.guide-card:hover .guide-thumb img {
+    transform: scale(1.04);
+}
+
+/* Document styled cover */
+.guide-thumb-doc {
+    background: linear-gradient(135deg, #0e2a3a 0%, #099a97 100%);
+}
+
+.guide-doc-cover {
+    width: 100%;
+    height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 8px 8px 0 0;
+    background-image: radial-gradient(circle, rgba(255,255,255,0.08) 1px, transparent 1px);
+    background-size: 20px 20px;
 }
 
-.guide-icon-header i {
-    font-size: 28px;
+.guide-doc-cover i {
+    font-size: 64px;
+    color: rgba(255,255,255,0.85);
+}
+
+/* Play overlay (video only) */
+.guide-play-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.25);
+    transition: background 0.3s ease;
+}
+
+.guide-card:hover .guide-play-overlay {
+    background: rgba(0,0,0,0.40);
+}
+
+.guide-play-btn {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.92);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease;
+}
+
+.guide-play-btn i { color: #ff7272; font-size: 20px; margin-left: 3px; }
+
+.guide-card:hover .guide-play-btn { transform: scale(1.12); }
+
+/* Type badge (top-left of thumb) */
+.guide-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    backdrop-filter: blur(6px);
+}
+
+.guide-badge-video {
+    background: rgba(255, 114, 114, 0.9);
     color: #fff;
 }
 
-.guide-icon-video {
-    background: linear-gradient(135deg, #ff7272 0%, #ff9a9a 100%);  /* Coral gradient */
+.guide-badge-doc {
+    background: rgba(9, 154, 151, 0.9);
+    color: #fff;
 }
 
-.guide-icon-document {
-    background: linear-gradient(135deg, #099a97 0%, #15cda8 100%);  /* Teal gradient */
+/* Share button (top-right of thumb) */
+.guide-share-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255,255,255,0.88);
+    backdrop-filter: blur(6px);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #0e1a35;
+    font-size: 13px;
+    opacity: 0;
+    transform: scale(0.85);
+    transition: opacity 0.2s, transform 0.2s, background 0.2s;
 }
+
+.guide-card:hover .guide-share-btn {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.guide-share-btn.copied { background: #099a97; color: #fff; }
 
 /* Card Content */
 .guide-content {
-    padding: 20px;
+    padding: 18px 20px 20px;
     flex-grow: 1;
     display: flex;
     flex-direction: column;
@@ -166,33 +264,8 @@
     font-size: 14px;
     color: #8492AF;
     line-height: 1.5;
-    margin-bottom: 15px;
+    margin-bottom: 0;
     flex-grow: 1;
-}
-
-/* Guide Buttons - ALL use the same teal green */
-.btn-guide-video,
-.btn-guide-doc {
-    display: block;
-    width: 100%;
-    padding: 12px 20px;
-    background: #099a97;  /* Teal Green - same as site buttons */
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 500;
-    text-align: center;
-    text-decoration: none;
-    transition: all 0.3s ease;
-}
-
-.btn-guide-video:hover,
-.btn-guide-doc:hover {
-    background: #078785;  /* Darker Teal */
-    color: #fff;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(9, 154, 151, 0.3);
 }
 
 /* No Results Message */
@@ -233,10 +306,6 @@
 
     .guides-intro {
         padding: 30px 0 60px 0;
-    }
-
-    .guides-filter-section {
-        padding: 40px 0;
     }
 
     .guides-cards-section {
@@ -291,49 +360,38 @@
     </div>
 </section>
 
-<!-- SECTION 3: Search & Filters -->
-<section class="guides-filter-section">
-    <div class="container">
-        <!-- Search Bar -->
-        <div class="guides-search-container" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
-            <input
-                type="text"
-                id="guideSearch"
-                class="guides-search-input"
-                placeholder="Rechercher un guide..."
-                autocomplete="off"
-            >
-        </div>
-
-        <!-- Filter Buttons -->
-        <div class="filter-buttons" data-aos="fade-up" data-aos-delay="200" data-aos-duration="500" data-aos-once="true">
-            <button class="filter-btn active" data-filter="all">
-                <i class="fas fa-th-large"></i>
-                Tous
-            </button>
-            <button class="filter-btn" data-filter="video">
-                <i class="fas fa-play-circle"></i>
-                Vidéos
-            </button>
-            <button class="filter-btn" data-filter="document">
-                <i class="fas fa-file-alt"></i>
-                Documents
-            </button>
-        </div>
-    </div>
-</section>
-
 <!-- SECTION 4: Guide Cards Grid -->
 <section class="guides-cards-section">
     <div class="container">
         <!-- Section Header -->
-        <div class="row justify-content-center mb-5">
+        <div class="row justify-content-center mb-4">
             <div class="col-lg-8 text-center" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
                 <h6 class="text-uppercase mb-3" style="color: #ff7272; font-weight: 600; letter-spacing: 2px;">
                     TUTORIELS
                 </h6>
-                <h2 class="fw-bold mb-3" style="color: #0E1A35;">Tous nos guides</h2>
-                <p class="text-muted fs-5">Apprenez à utiliser minipass en quelques minutes</p>
+                <h2 class="fw-bold mb-4" style="color: #0E1A35;">Tous nos guides</h2>
+
+                <!-- Filter Buttons -->
+                <div class="filter-buttons mb-4" data-aos="fade-up" data-aos-delay="100" data-aos-duration="500" data-aos-once="true">
+                    <button class="filter-btn active" data-filter="all">
+                        <i class="fas fa-th-large"></i>
+                        Tous
+                    </button>
+                    <button class="filter-btn" data-filter="video">
+                        <i class="fas fa-play-circle"></i>
+                        Vidéos
+                    </button>
+                    <button class="filter-btn" data-filter="document">
+                        <i class="fas fa-file-alt"></i>
+                        Documents
+                    </button>
+                </div>
+
+                <!-- Search Bar -->
+                <div class="guides-search-container mb-5" data-aos="fade-up" data-aos-delay="200" data-aos-duration="500" data-aos-once="true">
+                    <input type="text" id="guideSearch" class="guides-search-input"
+                           placeholder="Rechercher un guide..." autocomplete="off">
+                </div>
             </div>
         </div>
 
@@ -341,81 +399,96 @@
         <div class="row" id="guidesContainer">
 
             <!-- VIDEO: Demarrage rapide avec minipass -->
-            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
+            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
                 <div class="guide-card" data-type="video" data-title="demarrage rapide commencer" data-desc="configuration premiers pas" data-youtube-id="CnuhpzqvPdc">
-                    <div class="guide-icon-header guide-icon-video">
-                        <i class="fas fa-play"></i>
+                    <div class="guide-thumb">
+                        <img src="https://img.youtube.com/vi/CnuhpzqvPdc/maxresdefault.jpg"
+                             onerror="this.src='https://img.youtube.com/vi/CnuhpzqvPdc/hqdefault.jpg'"
+                             alt="Démarrage rapide" loading="lazy">
+                        <div class="guide-play-overlay">
+                            <div class="guide-play-btn"><i class="fas fa-play"></i></div>
+                        </div>
+                        <span class="guide-badge guide-badge-video"><i class="fas fa-play me-1"></i>Vidéo</span>
+                        <button class="guide-share-btn" data-share-url="https://www.youtube.com/watch?v=CnuhpzqvPdc"
+                                title="Copier le lien" aria-label="Copier le lien">
+                            <i class="fas fa-link"></i>
+                        </button>
                     </div>
                     <div class="guide-content">
                         <h5>Démarrage rapide avec minipass</h5>
                         <p class="guide-description">Apprenez à configurer votre compte et créer votre première activité en moins de 5 minutes.</p>
-                        <button class="btn-guide-video" data-bs-toggle="modal" data-bs-target="#videoModal">
-                            Regarder <i class="fas fa-play ms-2"></i>
-                        </button>
                     </div>
                 </div>
             </div>
 
             <!-- DOCUMENT: FAQ -->
-            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="100" data-aos-duration="500" data-aos-once="true">
-                <div class="guide-card" data-type="document" data-title="faq questions frequentes aide" data-desc="support reponses">
-                    <div class="guide-icon-header guide-icon-document">
-                        <i class="fas fa-file-alt"></i>
+            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100" data-aos-duration="500" data-aos-once="true">
+                <div class="guide-card" data-type="document" data-title="faq questions frequentes aide" data-desc="support reponses" data-guide-url="/guides/faq">
+                    <div class="guide-thumb guide-thumb-doc">
+                        <div class="guide-doc-cover"><i class="fas fa-file-alt"></i></div>
+                        <span class="guide-badge guide-badge-doc"><i class="fas fa-file-alt me-1"></i>Guide</span>
+                        <button class="guide-share-btn" data-share-url="https://minipass.me/guides/faq"
+                                title="Copier le lien" aria-label="Copier le lien">
+                            <i class="fas fa-link"></i>
+                        </button>
                     </div>
                     <div class="guide-content">
                         <h5>Questions fréquentes (FAQ)</h5>
                         <p class="guide-description">Trouvez rapidement les réponses aux questions les plus courantes sur minipass.</p>
-                        <a href="#" onclick="window.open('/guides/faq', 'guide', 'width=850,height=700,toolbar=no,menubar=no,location=no,status=no,scrollbars=yes'); return false;" class="btn-guide-doc">
-                            Lire <i class="fas fa-book-open ms-2"></i>
-                        </a>
                     </div>
                 </div>
             </div>
 
             <!-- DOCUMENT: PWA Installation (French) -->
-            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="200" data-aos-duration="500" data-aos-once="true">
-                <div class="guide-card" data-type="document" data-title="installation app telephone mobile pwa francais" data-desc="installer android iphone">
-                    <div class="guide-icon-header guide-icon-document">
-                        <i class="fas fa-file-alt"></i>
+            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="200" data-aos-duration="500" data-aos-once="true">
+                <div class="guide-card" data-type="document" data-title="installation app telephone mobile pwa francais" data-desc="installer android iphone" data-guide-url="/guides/installation-app-fr">
+                    <div class="guide-thumb guide-thumb-doc">
+                        <div class="guide-doc-cover"><i class="fas fa-mobile-alt"></i></div>
+                        <span class="guide-badge guide-badge-doc"><i class="fas fa-file-alt me-1"></i>Guide</span>
+                        <button class="guide-share-btn" data-share-url="https://minipass.me/guides/installation-app-fr"
+                                title="Copier le lien" aria-label="Copier le lien">
+                            <i class="fas fa-link"></i>
+                        </button>
                     </div>
                     <div class="guide-content">
                         <h5>Installer l'application (FR)</h5>
                         <p class="guide-description">Apprenez à installer minipass sur votre écran d'accueil pour un accès rapide.</p>
-                        <a href="#" onclick="window.open('/guides/installation-app-fr', 'guide', 'width=850,height=700,toolbar=no,menubar=no,location=no,status=no,scrollbars=yes'); return false;" class="btn-guide-doc">
-                            Lire <i class="fas fa-book-open ms-2"></i>
-                        </a>
                     </div>
                 </div>
             </div>
 
             <!-- DOCUMENT: PWA Installation (English) -->
-            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="300" data-aos-duration="500" data-aos-once="true">
-                <div class="guide-card" data-type="document" data-title="install app phone mobile pwa english" data-desc="install android iphone">
-                    <div class="guide-icon-header guide-icon-document">
-                        <i class="fas fa-file-alt"></i>
+            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="300" data-aos-duration="500" data-aos-once="true">
+                <div class="guide-card" data-type="document" data-title="install app phone mobile pwa english" data-desc="install android iphone" data-guide-url="/guides/installation-app-en">
+                    <div class="guide-thumb guide-thumb-doc">
+                        <div class="guide-doc-cover"><i class="fas fa-mobile-alt"></i></div>
+                        <span class="guide-badge guide-badge-doc"><i class="fas fa-file-alt me-1"></i>Guide</span>
+                        <button class="guide-share-btn" data-share-url="https://minipass.me/guides/installation-app-en"
+                                title="Copier le lien" aria-label="Copier le lien">
+                            <i class="fas fa-link"></i>
+                        </button>
                     </div>
                     <div class="guide-content">
                         <h5>Install the app (EN)</h5>
                         <p class="guide-description">Learn how to install minipass on your home screen for quick access.</p>
-                        <a href="#" onclick="window.open('/guides/installation-app-en', 'guide', 'width=850,height=700,toolbar=no,menubar=no,location=no,status=no,scrollbars=yes'); return false;" class="btn-guide-doc">
-                            Read <i class="fas fa-book-open ms-2"></i>
-                        </a>
                     </div>
                 </div>
             </div>
 
             <!-- DOCUMENT: Configurer Stripe (FR) -->
-            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="400" data-aos-duration="500" data-aos-once="true">
-                <div class="guide-card" data-type="document" data-title="stripe carte credit paiement configurer" data-desc="configuration payment credit card">
-                    <div class="guide-icon-header guide-icon-document">
-                        <i class="fas fa-file-alt"></i>
+            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="400" data-aos-duration="500" data-aos-once="true">
+                <div class="guide-card" data-type="document" data-title="stripe carte credit paiement configurer" data-desc="configuration payment credit card" data-guide-url="/guides/setup-stripe-fr">
+                    <div class="guide-thumb guide-thumb-doc">
+                        <div class="guide-doc-cover"><i class="fas fa-credit-card"></i></div>
+                        <span class="guide-badge guide-badge-doc"><i class="fas fa-file-alt me-1"></i>Guide</span>
+                        <button class="guide-share-btn" data-share-url="https://minipass.me/guides/setup-stripe-fr"
+                                title="Copier le lien" aria-label="Copier le lien">
+                            <i class="fas fa-link"></i>
+                        </button>
                     </div>
                     <div class="guide-content">
                         <h5>Configurer Stripe (FR)</h5>
                         <p class="guide-description">Configurez Stripe en mode test puis en mode live : clés API, webhook (2 événements requis) et activation par activité.</p>
-                        <a href="#" onclick="window.open('/guides/setup-stripe-fr', 'guide', 'width=850,height=700,toolbar=no,menubar=no,location=no,status=no,scrollbars=yes'); return false;" class="btn-guide-doc">
-                            Lire <i class="fas fa-book-open ms-2"></i>
-                        </a>
                     </div>
                 </div>
             </div>
@@ -547,26 +620,57 @@
     filterGuides();
 
     // ========================================
-    // VIDEO MODAL HANDLER
+    // CARD CLICK HANDLER (replaces buttons)
     // ========================================
     const videoModal = document.getElementById('videoModal');
     const videoFrame = document.getElementById('videoFrame');
     const videoModalTitle = document.getElementById('videoModalTitle');
 
-    // When modal opens, set the YouTube embed URL
-    videoModal.addEventListener('show.bs.modal', function(event) {
-        const button = event.relatedTarget;
-        const card = button.closest('.guide-card');
-        const youtubeId = card.dataset.youtubeId;
-        const title = card.querySelector('h5').textContent;
+    document.querySelectorAll('.guide-card').forEach(card => {
+        card.addEventListener('click', function(e) {
+            if (e.target.closest('.guide-share-btn')) return;
 
-        videoModalTitle.textContent = title;
-        videoFrame.src = 'https://www.youtube.com/embed/' + youtubeId + '?autoplay=1&rel=0';
+            if (this.dataset.youtubeId) {
+                videoModalTitle.textContent = this.querySelector('h5').textContent;
+                videoFrame.src = 'https://www.youtube.com/embed/' + this.dataset.youtubeId + '?autoplay=1&rel=0';
+                new bootstrap.Modal(document.getElementById('videoModal')).show();
+            } else if (this.dataset.guideUrl) {
+                window.open(this.dataset.guideUrl, 'guide',
+                    'width=850,height=700,toolbar=no,menubar=no,location=no,status=no,scrollbars=yes');
+            }
+        });
     });
 
     // When modal closes, stop the video
     videoModal.addEventListener('hidden.bs.modal', function() {
         videoFrame.src = '';
+    });
+
+    // ========================================
+    // SHARE BUTTON — COPY TO CLIPBOARD
+    // ========================================
+    document.querySelectorAll('.guide-share-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const url = this.dataset.shareUrl;
+            const icon = this.querySelector('i');
+            const self = this;
+
+            function showFeedback() {
+                icon.className = 'fas fa-check';
+                self.classList.add('copied');
+                setTimeout(() => {
+                    icon.className = 'fas fa-link';
+                    self.classList.remove('copied');
+                }, 2000);
+            }
+
+            if (navigator.share) {
+                navigator.share({ url }).catch(() => {});
+            } else {
+                navigator.clipboard.writeText(url).then(showFeedback);
+            }
+        });
     });
 })();
 </script>
