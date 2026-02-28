@@ -1,2 +1,7 @@
 # HEQ — standard customer
 client_max_body_size 20M;
+
+# Static asset caching via proxy_cache_valid for file extensions
+if ($uri ~* \.(css|js|woff|woff2|ttf|eot|png|jpg|jpeg|gif|ico|svg)$) {
+    add_header Cache-Control "public, max-age=2592000, immutable";
+}

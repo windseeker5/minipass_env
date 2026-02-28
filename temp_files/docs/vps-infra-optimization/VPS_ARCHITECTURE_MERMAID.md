@@ -6,12 +6,13 @@
 graph TB
     Internet[🌐 Internet] --> nginxproxy[nginx-proxy<br/>Port 80/443<br/>60.8MB RAM]
 
-    nginxproxy --> |minipass.me| flaskproxy[flask-controller-proxy<br/>6.4MB RAM<br/>✅ Cache Headers]
-    nginxproxy --> |lhgi.minipass.me| lhgi[minipass_lhgi<br/>280MB RAM<br/>21.9MB uploads<br/>✅ 30d Cache]
-    nginxproxy --> |kdc.minipass.me| kdc[minipass_kdc<br/>218MB RAM<br/>1.1MB uploads<br/>✅ 30d Cache]
-    nginxproxy --> |heq.minipass.me| heq[minipass_heq<br/>250MB RAM<br/>0.7MB uploads<br/>✅ 30d Cache]
-    nginxproxy --> |testdel...| testdel[minipass_testdel<br/>157MB RAM<br/>0.3MB uploads<br/>✅ 30d Cache]
+    nginxproxy --> |minipass.me| flaskproxy[flask-controller-proxy<br/>6.4MB RAM]
+    nginxproxy --> |lhgi.minipass.me| lhgi[minipass_lhgi<br/>248MB RAM<br/>21.9MB uploads]
+    nginxproxy --> |kdc.minipass.me| kdc[minipass_kdc<br/>217MB RAM<br/>1.1MB uploads]
+    nginxproxy --> |heq.minipass.me| heq[minipass_heq<br/>263MB RAM<br/>0.7MB uploads]
+    nginxproxy --> |testdel...| testdel[minipass_testdel<br/>157MB RAM<br/>0.3MB uploads]
     nginxproxy --> |mail.minipass.me| mailcert[mail-cert-request<br/>8MB RAM]
+    nginxproxy --> |bloomcap.ca| bloomcap[bloomcap<br/>7.8MB RAM<br/>⚠️ Remove]
 
     flaskproxy --> |proxy_pass :5000| hostapp[Host Flask App<br/>176MB RAM<br/>Main Application]
 
@@ -33,6 +34,7 @@ graph TB
     class lhgi,kdc,heq,testdel customerContainer
     class nginxproxy,flaskproxy,letsencrypt,mailserver,mailcert infrastructure
     class hostdb,lhgidb,kdcdb,heqdb,testdeldb database
+    class bloomcap problem
 ```
 
 ## Network Flow Architecture
@@ -65,42 +67,39 @@ flowchart TD
 ## Resource Usage Breakdown
 
 ```mermaid
-pie title VPS Memory Usage (7.6GB Total) - OPTIMIZED
-    "Available Memory" : 5286
-    "Customer Containers" : 905
+pie title VPS Memory Usage (7.6GB Total)
+    "Available Memory" : 5151
+    "Customer Containers" : 886
     "Mail Server" : 311
-    "nginx-proxy + Cache" : 61
-    "Other Infrastructure" : 144
+    "nginx-proxy" : 61
+    "Other Infrastructure" : 151
 ```
 
 ## Performance Bottleneck Analysis
 
 ```mermaid
 graph LR
-    A[User Request] --> B[nginx-proxy<br/>✅ Gzip + Cache Headers]
-    B --> |70% Cache Hit| B1[Browser Cache<br/>✅ 0ms Static Assets]
-    B --> |30% Cache Miss| C[Customer Container<br/>✅ Compressed Response]
-    C --> D[Flask App<br/>Normal Processing]
-    D --> E[SQLite Query<br/>Standard Performance]
-    E --> F[File System<br/>Optimized Delivery]
+    A[User Request] --> B[nginx-proxy<br/>❌ No Cache]
+    B --> C[Customer Container<br/>❌ Every Request]
+    C --> D[Flask App<br/>❌ Full Processing]
+    D --> E[SQLite Query<br/>❌ No Connection Pool]
+    E --> F[File System<br/>❌ No Optimization]
 
-    G[✅ FIXED: Gzip + Browser Caching] --> B
-    H[⚠️ REMAINING: 21.9MB LHGI uploads] --> F
-    I[✅ FIXED: 72% compression active] --> C
+    G[🔥 PROBLEM: No caching at ANY level] --> B
+    H[🔥 PROBLEM: 21.9MB LHGI uploads] --> F
+    I[🔥 PROBLEM: No compression] --> C
 
-    classDef optimized fill:#c8e6c9,stroke:#2e7d32,stroke-width:3px
-    classDef remaining fill:#fff3e0,stroke:#f57c00,stroke-width:2px
-    class B,B1,C,I optimized
-    class H remaining
+    classDef problem fill:#ffebee,stroke:#c62828,stroke-width:3px
+    class B,C,D,E,F problem
 ```
 
 ## Scaling Projection
 
 ```mermaid
 graph LR
-    A[4 Customers<br/>31.8% Memory<br/>✅ Optimized] --> B[10 Customers<br/>52% Memory]
-    B --> C[15 Customers<br/>72% Memory<br/>⚠️ Plan Migration]
-    C --> D[22 Customers<br/>95% Memory<br/>❌ Critical]
+    A[4 Customers<br/>33.5% Memory] --> B[10 Customers<br/>55% Memory]
+    B --> C[15 Customers<br/>76% Memory<br/>⚠️ Plan Migration]
+    C --> D[20 Customers<br/>97% Memory<br/>❌ Critical]
     D --> E[25+ Customers<br/>>100% Memory<br/>❌ Impossible]
 
     classDef safe fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px
@@ -152,14 +151,14 @@ graph TB
     class L1,K1,H1,T1 customer
 ```
 
-## Optimization Implementation Status
+## Recommended Optimization Flow
 
 ```mermaid
 graph TD
-    A[✅ COMPLETED: Caching Optimized] --> B[✅ COMPLETED: nginx Cache<br/>🚀 72% gzip compression<br/>🚀 30-day browser cache]
-    B --> C[⚠️ REMAINING: Optimize Images<br/>🚀 Reduce LHGI uploads]
-    C --> D[✅ COMPLETED: Remove Unused<br/>🚀 Bloomcap removed]
-    D --> E[✅ AVAILABLE: Monitor<br/>📊 Scripts ready to deploy]
+    A[Current: No Caching] --> B[Phase 1: Add nginx Cache<br/>🚀 50-80% improvement]
+    B --> C[Phase 2: Optimize Images<br/>🚀 Reduce LHGI uploads]
+    C --> D[Phase 3: Remove Unused<br/>🚀 Remove bloomcap]
+    D --> E[Phase 4: Monitor<br/>📊 Track performance]
 
     F[Future: Hybrid Architecture] --> G[Shared Services<br/>Auth, Email, Payments]
     G --> H[Lightweight Customers<br/>~50MB each vs 221MB]

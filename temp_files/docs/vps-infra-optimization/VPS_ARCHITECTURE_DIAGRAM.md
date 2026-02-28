@@ -12,14 +12,15 @@
                     │         nginx-proxy                 │
                     │    (jwilder/nginx-proxy:alpine)     │
                     │  ┌─────────────────────────────────┐ │
-                    │  │  Virtual Host Router + Cache    │ │
+                    │  │     Virtual Host Router         │ │
                     │  │  ┌─ minipass.me                │ │
                     │  │  ├─ lhgi.minipass.me           │ │
                     │  │  ├─ kdc.minipass.me            │ │
                     │  │  ├─ heq.minipass.me            │ │
-                    │  │  └─ mail.minipass.me           │ │
+                    │  │  ├─ mail.minipass.me           │ │
+                    │  │  └─ bloomcap.ca                │ │
                     │  └─────────────────────────────────┘ │
-                    │  ✅ Gzip + Cache Headers + SSL       │
+                    │  SSL Termination (Let's Encrypt)     │
                     └─────────────────────────────────────┘
                                        |
                     ┌─────────────────────────────────────┐
@@ -71,19 +72,18 @@ Internet Traffic
 │ testdelancementmf... ──► minipass_testdel...   │
 │                                                 │
 │ mail.minipass.me     ──► mail-cert-request     │
-│ [bloomcap.ca removed - ~8MB RAM saved]        │
+│ bloomcap.ca          ──► bloomcap              │
 │                                                 │
 ├─────────────────────────────────────────────────┤
 │ FEATURES:                                       │
 │ ✓ Automatic SSL (Let's Encrypt)                │
 │ ✓ Docker socket monitoring                     │
 │ ✓ Auto-configuration from container env vars   │
-│ ✅ GZIP COMPRESSION (72% reduction)            │
-│ ✅ BROWSER CACHE HEADERS (30-day static)       │
-│ ✅ NGINX CACHE INFRASTRUCTURE (2GB disk)       │
+│ ✗ NO CACHING (Performance Issue!)             │
+│ ✗ NO COMPRESSION                               │
 ├─────────────────────────────────────────────────┤
-│ RESOURCES: ~61MB RAM, <1% CPU                  │
-│ OPTIMIZATIONS: +5MB cache volume               │
+│ RESOURCES: 60.82MB RAM, 0.24% CPU              │
+│ NETWORK: 1.04GB RX / 1.28GB TX                 │
 └─────────────────────────────────────────────────┘
 ```
 
@@ -204,10 +204,9 @@ Internet Traffic
 │ ├── LETSENCRYPT_HOST=lhgi.minipass.me          │
 │ └── SITE_URL=https://lhgi.minipass.me          │
 ├─────────────────────────────────────────────────┤
-│ RESOURCES: 280.3MB RAM, 0.08% CPU              │
-│ UPLOADS: 21.9MB (Remaining optimization target) │
+│ RESOURCES: 248.2MB RAM, 0.06% CPU              │
+│ UPLOADS: 21.9MB (PERFORMANCE ISSUE!)           │
 │ NETWORK: 240MB RX / 197MB TX (Highest)         │
-│ ✅ 30-DAY BROWSER CACHE on static assets       │
 └─────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────┐
@@ -217,10 +216,9 @@ Internet Traffic
 │ CONTAINER: minipass_kdc                         │
 │ IDENTICAL STACK TO LHGI                        │
 ├─────────────────────────────────────────────────┤
-│ RESOURCES: 217.5MB RAM, 0.10% CPU              │
+│ RESOURCES: 217.5MB RAM, 0.09% CPU              │
 │ UPLOADS: 1.1MB                                  │
 │ NETWORK: 12.4MB RX / 47.8MB TX                 │
-│ ✅ 30-DAY BROWSER CACHE on static assets       │
 └─────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────┐
@@ -230,10 +228,9 @@ Internet Traffic
 │ CONTAINER: minipass_heq                         │
 │ IDENTICAL STACK TO LHGI                        │
 ├─────────────────────────────────────────────────┤
-│ RESOURCES: 249.7MB RAM, 0.06% CPU              │
+│ RESOURCES: 263.1MB RAM, 0.08% CPU              │
 │ UPLOADS: 0.7MB                                  │
 │ NETWORK: 4.3MB RX / 40MB TX                    │
-│ ✅ 30-DAY BROWSER CACHE on static assets       │
 └─────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────┐
@@ -242,15 +239,13 @@ Internet Traffic
 │ CONTAINER: minipass_testdelancementmf           │
 │ IDENTICAL STACK TO LHGI                        │
 ├─────────────────────────────────────────────────┤
-│ RESOURCES: 157.1MB RAM, 0.11% CPU              │
+│ RESOURCES: 157.1MB RAM, 0.08% CPU              │
 │ UPLOADS: 0.3MB                                  │
 │ NETWORK: 4.51MB RX / 12.1MB TX                 │
-│ ✅ 30-DAY BROWSER CACHE on static assets       │
 └─────────────────────────────────────────────────┘
 ```
 
 ### 7. SUPPORTING SERVICES
-
 ```
 ┌─────────────────────────────────────────────────┐
 │                  bloomcap                       │
@@ -259,10 +254,9 @@ Internet Traffic
 │ PURPOSE: Static website for son                │
 │ DOMAINS: bloomcap.ca, www.bloomcap.ca          │
 │ CONTENT: Static HTML files                     │
-│ STATUS: ✅ REMOVED (Feb 2026)                  │
+│ STATUS: ⚠️ CANDIDATE FOR REMOVAL               │
 ├─────────────────────────────────────────────────┤
-│ RESOURCES: ~8MB RAM FREED                      │
-│ COMMENTED IN: docker-compose.yml for reference │
+│ RESOURCES: 7.848MB RAM (Wasted)                │
 └─────────────────────────────────────────────────┘
 ```
 
@@ -274,9 +268,7 @@ User Request (https://lhgi.minipass.me)
     │
     ▼
 nginx-proxy (Port 443)
-    │ ✅ SSL Termination
-    │ ✅ Gzip Compression (72% reduction)
-    │ ✅ Cache Headers Added
+    │ SSL Termination
     │ Virtual Host Lookup
     ▼
 minipass_lhgi Container (Port 8889)
@@ -287,7 +279,6 @@ SQLite Database + File System
     │ Query/File Read
     ▼
 Response through same path (reversed)
-    │ ✅ Static files cached 30 days in browser
 ```
 
 ### Request Flow for Main Site
@@ -334,23 +325,22 @@ Integration with Flask Apps
 VPS Specification: 4 vCPU, 7.6GB RAM, 75GB disk
 
 Current Usage:
-├── Memory: 2.4GB / 7.6GB (31.8%) ✅ OPTIMIZED
-├── Disk:   17.9GB / 75GB (24.0%) ✅ HEALTHY
+├── Memory: 2.5GB / 7.6GB (33.5%) ✅ HEALTHY
+├── Disk:   18GB / 75GB (24.1%)   ✅ HEALTHY
 └── CPU:    <1% average           ✅ HEALTHY
 
-Container Breakdown (AFTER OPTIMIZATION):
+Container Breakdown:
 ├── Infrastructure: ~400MB
-│   ├── nginx-proxy:      ~61MB (+ 5MB cache)
-│   ├── mailserver:      311MB
-│   ├── nginx-letsencrypt: 30MB
+│   ├── nginx-proxy:     60.8MB
+│   ├── mailserver:     311.1MB
+│   ├── nginx-letsencrypt: 30.2MB
 │   └── Other services:   ~50MB
-│   ├── bloomcap:        REMOVED (~8MB freed)
 │
-└── Customer Apps: ~905MB (226MB average per customer)
-    ├── LHGI:     280.3MB (+ 21.9MB uploads) ✅ Cache
-    ├── HEQ:      249.7MB (+ 0.7MB uploads)  ✅ Cache
-    ├── KDC:      217.5MB (+ 1.1MB uploads)  ✅ Cache
-    └── TestMF:   157.1MB (+ 0.3MB uploads)  ✅ Cache
+└── Customer Apps: ~886MB (221.5MB average per customer)
+    ├── LHGI:     248.2MB (+ 21.9MB uploads)
+    ├── HEQ:      263.1MB (+ 0.7MB uploads)
+    ├── KDC:      217.5MB (+ 1.1MB uploads)
+    └── TestMF:   157.1MB (+ 0.3MB uploads)
 ```
 
 ## Data Flow Patterns
@@ -360,10 +350,8 @@ Container Breakdown (AFTER OPTIMIZATION):
 Customer Upload Request
     │
     ▼
-nginx-proxy (✅ OPTIMIZED)
-    │ ✅ Gzip compression (72% reduction)
-    │ ✅ Browser cache headers (30-day)
-    │ ✅ Cache infrastructure ready
+nginx-proxy (NO CACHING ❌)
+    │
     ▼
 Customer Container
     │ Flask file handling
@@ -371,8 +359,8 @@ Customer Container
     ▼
 File System Storage (Per-customer isolation)
 
-STATUS: ✅ 72% compression + browser caching implemented
-REMAINING: Large files (LHGI: 21.9MB) - consider image optimization
+PROBLEM: Large files (LHGI: 21.9MB) served repeatedly without caching
+SOLUTION: Implement proxy-level caching + image optimization
 ```
 
 ### Database Access Pattern
@@ -396,11 +384,11 @@ Alternative Architecture Consideration:
 ```
 Customer Count vs Memory Usage:
 
- 4 customers  ├──────────┤ 31.8% (Current - OPTIMIZED)
-10 customers  ├─────────────────┤ 52%
-15 customers  ├────────────────────────┤ 72% ⚠️
-22 customers  ├─────────────────────────────────┤ 95% ❌
-25 customers  ├────────────────────────────────────────┤ 110% ❌
+ 4 customers  ├──────────┤ 33.5% (Current)
+10 customers  ├───────────────────┤ 55%
+15 customers  ├──────────────────────────┤ 76% ⚠️
+20 customers  ├─────────────────────────────────┤ 97% ❌
+25 customers  ├────────────────────────────────────────┤ 122% ❌
 
             0%    25%    50%    75%   100%   125%
            └─────┴──────┴──────┴──────┴──────┴──────┘
@@ -414,49 +402,30 @@ KEY:
 
 ## Critical Performance Issues Identified
 
-### 1. Caching Layer (✅ IMPLEMENTED)
+### 1. No Caching Layer (CRITICAL)
 ```
-Every Request Path NOW:
-User → nginx-proxy → Browser Cache Check → Customer Container
-                 ├─ CACHE HIT ✅ (70-90% of static assets - 0ms)
-                 ├─ GZIP COMPRESSION ✅ (72% size reduction)
-                 └─ CACHE MISS → Customer Container (30% of requests)
+Every Request Path:
+User → nginx-proxy → Customer Container → Flask App → Database
+                 └─ NO CACHING AT ANY LEVEL ❌
 
-STATUS: ✅ OPTIMIZATION COMPLETE
-- Gzip compression: Active (72% reduction)
-- Browser cache headers: 30 days for static assets
-- Nginx cache infrastructure: Ready for future use
+Should Be:
+User → nginx-proxy → CACHE HIT ✅ (70-90% of requests)
+             └─ CACHE MISS → Customer Container (10-30% of requests)
 ```
 
-### 2. Large Upload Files (REMAINING OPTIMIZATION TARGET)
+### 2. Large Upload Files (HIGH IMPACT)
 ```
 LHGI Customer Upload Analysis:
 ├── Total uploads: 21.9MB
-├── ✅ NOW SERVED WITH: Gzip compression (72% reduction)
-├── ✅ NOW SERVED WITH: 30-day browser cache
-├── ⚠️  REMAINING: Image optimization potential
-└── STATUS: Significantly improved, further optimization possible
+├── Served without optimization
+├── No compression
+├── No CDN/caching
+└── Causing reported slowness ❌
 
-Next Phase Impact (Optional):
-├── Image compression/optimization: 60-80% additional size reduction
-├── CDN integration: Geographic distribution
-└── Estimated improvement: 2-3x additional performance gain
+Solution Impact:
+├── Image optimization: 60-80% size reduction
+├── Proxy caching: 90% reduction in container hits
+└── Performance improvement: 5-10x faster loading
 ```
 
-## OPTIMIZATION STATUS SUMMARY
-
-✅ **COMPLETED OPTIMIZATIONS (February 2026):**
-- Gzip compression: 72% size reduction on all responses
-- Browser cache headers: 30-day caching for static assets (CSS, JS, images, fonts)
-- Nginx cache infrastructure: Ready for future proxy-level caching
-- Container cleanup: Bloomcap removed (~8MB RAM freed)
-- Memory usage: Reduced from 33.5% to 31.8%
-
-⚠️ **REMAINING OPPORTUNITIES:**
-- LHGI image optimization: Potential 60-80% additional reduction
-- Monitoring deployment: Scripts ready to implement
-
-🎯 **PERFORMANCE IMPACT:**
-- Static assets now load **instantly** on repeat visits (browser cache)
-- All content **72% smaller** due to gzip compression
-- **Zero downtime** implementation - customers unaffected
+This visual architecture diagram shows exactly how all components in your VPS connect and interact, with the performance bottlenecks clearly identified. The missing caching layer is the root cause of your slowness issues!
