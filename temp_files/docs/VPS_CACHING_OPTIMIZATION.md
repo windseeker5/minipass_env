@@ -8,18 +8,9 @@
 
 ## Quick Summary
 
-- **What:** Add browser-level cache headers for static assets across all customer domains, plus proxy-level caching infrastructure and gzip compression.
+- **What:** Add browser-level cache headers for static assets across all customer domains, plus proxy-level caching infrastructure for future use.
 - **Why:** Every static file request (CSS, JS, images) currently hits the application container and gunicorn every single time. After caching, returning users get files from their browser's disk in 0ms.
-- **Results Achieved:**
-  - **Gzip compression**: 72% size reduction on all customer pages
-  - **30-day browser cache**: CSS, JS, images cached instantly for returning visitors
-  - **Zero downtime deployment**: Only nginx-proxy restarted, customers unaffected
-- **Performance gains:** Static assets 50–80% faster on repeat loads, bandwidth 30–50% lower, no RAM increase required.
-
-## Implementation Status: ✅ COMPLETE (Both Phase 1 & 2)
-
-**Phase 1**: Gzip compression + cache infrastructure → **DEPLOYED**
-**Phase 2**: Browser cache headers for all static assets → **DEPLOYED**
+- **Expected results:** Static assets 50–80% faster on repeat loads, bandwidth 30–50% lower, no RAM increase required.
 
 ---
 
@@ -120,7 +111,7 @@ These files have been created. They set body-size limits and timeouts per custom
 
 **How these work:** The `_location` suffix tells jwilder/nginx-proxy to include the file inside the `location /` block for that domain. Only directives valid at the location context level are used here — no nested location blocks, which would break proxy_pass inheritance.
 
-**UPDATED:** Browser Cache-Control headers are now implemented for all customer containers. Each vhost.d file includes cache headers for static assets (30-day cache). Gzip compression (from `cache.conf`) applies to all customer domains.
+**Note:** Browser Cache-Control headers for customer containers are deferred to a future phase. Gzip compression (from `cache.conf`) still applies to all customer domains.
 
 ---
 
@@ -136,24 +127,13 @@ git push
 
 # On VPS
 cd ~/minipass_env
-
-# IMPORTANT: Fix permission issues that may prevent git pull
-sudo chown -R kdresdell:kdresdell vhost.d/
-
-# Stash any local changes and pull
-git stash push -m "Stashing before cache optimization"
-# Move conflicting untracked files if present
-mkdir -p temp_files && mv docs/ nginx/cache.conf scripts/bench.sh temp_files/ 2>/dev/null || true
 git pull
-
-# Fix Windows line endings in bench script if needed
-sed -i 's/\r$//' scripts/bench.sh
 
 # Validate nginx config before restarting
 docker exec nginx-proxy nginx -t
 
 # If test passes, recreate nginx-proxy to pick up new volumes
-docker-compose up -d --force-recreate nginx-proxy
+docker compose up -d --force-recreate nginx-proxy
 ```
 
 > **Why `--force-recreate` instead of `restart`:**
@@ -173,79 +153,30 @@ This is a zero-downtime hot reload — no connections are dropped. nginx gracefu
 
 ---
 
-### Step 6.5 — PHASE 2: Add Browser Cache Headers for Static Assets (CRITICAL)
-
-**IMPORTANT:** The original plan deferred this step, but it's the most impactful optimization. Customer static assets (CSS, JS, fonts, images) rarely change and should be cached aggressively.
-
-Add cache headers to each customer vhost.d file:
-
-```bash
-# Add cache headers to LHGI (high-upload customer)
-cat >> vhost.d/lhgi.minipass.me_location << 'EOF'
-
-# Static asset caching via proxy_cache_valid for file extensions
-if ($uri ~* \.(css|js|woff|woff2|ttf|eot|png|jpg|jpeg|gif|ico|svg)$) {
-    add_header Cache-Control "public, max-age=2592000, immutable";
-}
-EOF
-
-# Add cache headers to other customers (KDC, HEQ, TestdelancementMF)
-for customer in kdc heq testdelancementmf; do
-    cat >> vhost.d/${customer}.minipass.me_location << 'EOF'
-
-# Static asset caching via proxy_cache_valid for file extensions
-if ($uri ~* \.(css|js|woff|woff2|ttf|eot|png|jpg|jpeg|gif|ico|svg)$) {
-    add_header Cache-Control "public, max-age=2592000, immutable";
-}
-EOF
-done
-
-# Reload nginx to apply cache headers
-docker exec nginx-proxy nginx -t
-docker exec nginx-proxy nginx -s reload
-```
-
-**What this does:**
-- CSS, JS, fonts, images cached for **30 days** in user's browser
-- Returning visitors load static files **instantly** (0ms from disk)
-- Massive performance boost for repeat visits
-
----
-
 ### Step 7 — Run After Benchmark (from local machine)
 
 ```bash
 # From your LOCAL MACHINE in Quebec
-# Fix Windows line endings if benchmark script fails
-sed -i 's/\r$//' scripts/bench.sh
-
 bash scripts/bench.sh > bench_after.txt
 diff bench_before.txt bench_after.txt
 ```
 
-**NOTE:** The benchmark script may have Windows line endings from git. If you get `$'\r': command not found` errors, run `sed -i 's/\r$//' scripts/bench.sh` first.
-
 Expected results after deploy:
 
-| | Before | After Phase 1 | After Phase 2 |
-|---|---|---|---|
-| `Cache-Control` on customer static assets | `absent` | `absent` | `public, max-age=2592000, immutable` |
-| `Content-Encoding` on customer static assets | `none` | `gzip` | `gzip` |
-| `Cache-Control` on minipass.me static assets | `absent` | `public, max-age=2592000, immutable` | `public, max-age=2592000, immutable` |
+| | Before | After |
+|---|---|---|
+| `Cache-Control` on customer static assets | `absent` | `absent` (browser cache deferred to future phase) |
+| `Content-Encoding` on customer static assets | `none` | `gzip` (compression via cache.conf) |
+| `Cache-Control` on minipass.me static assets | `absent` | `public, max-age=2592000, immutable` |
 
 Manual spot-check from local machine:
 
 ```bash
-# Check cache headers are present on actual customer static assets
-curl -sI https://lhgi.minipass.me/static/tabler/css/tabler.min.css | grep -i cache-control
+# Check cache headers are present on a static asset
+curl -sI https://lhgi.minipass.me/static/css/tabler.min.css | grep -i cache-control
 
 # Check gzip is active
-curl -sI https://lhgi.minipass.me/static/tabler/css/tabler.min.css | grep -i content-encoding
-
-# Expected output after Phase 2:
-# cache-control: no-cache
-# cache-control: public, max-age=2592000, immutable
-# content-encoding: gzip
+curl -sI https://lhgi.minipass.me/static/css/tabler.min.css | grep -i content-encoding
 ```
 
 **Browser test (the real proof):** Open Chrome DevTools → Network tab → visit any customer page → reload. Static files (CSS, JS, images) should show `(disk cache)` in the Status column on the second load.
@@ -258,8 +189,8 @@ The bloomcap container (~8MB RAM, 1 nginx process) is for bloomcap.ca. If that s
 
 ```bash
 # On VPS only — NOT in docker-compose.yml (keeps it as reference)
-docker-compose stop bloomcap
-docker-compose rm -f bloomcap
+docker compose stop bloomcap
+docker compose rm -f bloomcap
 ```
 
 Only remove if bloomcap.ca traffic is handled elsewhere. Saves ~8MB RAM and simplifies `docker stats` output. **Do not remove from docker-compose.yml until you're certain you don't need it.**

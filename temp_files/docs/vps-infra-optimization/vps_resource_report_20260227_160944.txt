@@ -1,0 +1,51 @@
+================================================================================
+VPS RESOURCE ANALYSIS REPORT
+================================================================================
+Generated: 2026-02-27T16:09:41.981985
+
+SYSTEM OVERVIEW
+----------------------------------------
+Memory: 2.5GB / 7.6GB (33.5%)
+Disk:   18.0GB / 74.8GB (24.1%)
+CPU:    4 cores - Intel Xeon Processor (Skylake, IBRS, no TSX)
+Load:   0.94, 0.52, 0.33
+
+CUSTOMER CONTAINER ANALYSIS
+----------------------------------------
+Customer Count: 4
+Average Memory per Customer: 221.5MB
+Total Customer Memory: 885.9MB
+
+Individual Customer Stats:
+  lhgi                 |  263.1MB | CPU:  0.06% | Uploads:   21.9MB
+  kdc                  |  217.5MB | CPU:  0.09% | Uploads:    1.1MB
+  testdelancementmf    |  157.1MB | CPU:  0.08% | Uploads:    0.3MB
+  heq                  |  248.2MB | CPU:  0.08% | Uploads:    0.7MB
+
+SCALING CAPACITY ANALYSIS
+----------------------------------------
+Current Customers: 4
+Available Memory: 5151.1MB
+
+Conservative Estimate (1GB buffer): 22 customers total
+Aggressive Estimate (512MB buffer): 24 customers total
+
+At 50 customers:
+  Projected Memory Usage: 11497.8MB (148.3% of system)
+
+RECOMMENDATIONS
+----------------------------------------
+[HIGH] Performance: Customer lhgi has large uploads (21.93MB)
+    → Implement image compression and CDN caching for this customer
+
+[MEDIUM] Scaling: Limited scaling capacity (22 customers max)
+    → Plan RAM upgrade or architecture optimization before reaching 25 customers
+
+[HIGH] Performance: No caching layer detected
+    → Implement nginx proxy caching for static assets and API responses
+
+[MEDIUM] Architecture: Container-per-customer model has high memory overhead
+    → Evaluate shared application architecture for better resource utilization
+
+[LOW] Maintenance: Bloomcap container uses unnecessary resources
+    → Remove bloomcap container or migrate to static file hosting

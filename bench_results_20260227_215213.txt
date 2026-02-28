@@ -1,0 +1,69 @@
+
+Minipass Benchmark — run from LOCAL MACHINE — 20260227_215213
+(Quebec → Germany, real network latency)
+────────────────────────────────────────────────────────────────────
+
+STATIC ASSETS
+  What to look for:
+  BEFORE deploy: Cache-Control: absent,  Content-Encoding: none
+  AFTER  deploy: Cache-Control: public max-age=...,  Content-Encoding: gzip
+────────────────────────────────────────────────────────────────────
+
+  lhgi.minipass.me  /static/css/tabler.min.css          HTTP 404  0.363539s  207 bytes
+    Cache-Control:    absent
+    Content-Encoding: none
+
+  kdc.minipass.me  /static/css/tabler.min.css           HTTP 404  0.042776s  207 bytes
+    Cache-Control:    absent
+    Content-Encoding: none
+
+  heq.minipass.me  /static/css/tabler.min.css           HTTP 404  0.209732s  207 bytes
+    Cache-Control:    absent
+    Content-Encoding: none
+
+  testdelancementmf.minipass.me  /static/css/tabler.min.css  HTTP 404  0.186647s  207 bytes
+    Cache-Control:    absent
+    Content-Encoding: none
+
+  minipass.me  /static/css/tabler.min.css               HTTP 404  0.163861s  207 bytes
+    Cache-Control:    absent
+    Content-Encoding: none
+
+HOME PAGES
+  What to look for:
+  Cache-Control: private, max-age=0, no-cache  (dynamic pages must NOT be cached)
+────────────────────────────────────────────────────────────────────
+
+  lhgi.minipass.me  /                                   HTTP 302  0.027813s  199 bytes
+    Cache-Control:    absent
+    Content-Encoding: none
+
+  kdc.minipass.me  /                                    HTTP 302  0.302805s  199 bytes
+    Cache-Control:    absent
+    Content-Encoding: none
+
+  heq.minipass.me  /                                    HTTP 302  0.307790s  199 bytes
+    Cache-Control:    absent
+    Content-Encoding: none
+
+  testdelancementmf.minipass.me  /                      HTTP 302  0.191779s  199 bytes
+    Cache-Control:    absent
+    Content-Encoding: none
+
+  minipass.me  /                                        HTTP 200  0.073800s  50614 bytes
+    Cache-Control:    absent
+    Content-Encoding: none
+
+────────────────────────────────────────────────────────────────────
+Results saved to: bench_results_20260227_215213.txt
+
+Quick pass/fail checklist:
+  [ ] Static assets: Cache-Control contains 'public' and a max-age value
+  [ ] Static assets: Content-Encoding is 'gzip'
+  [ ] Home pages:    Cache-Control contains 'no-cache' or 'private'
+  [ ] All URLs:      HTTP 200 (not 404 or 502)
+
+Note: browser cache benefit (0ms on repeat visit) is NOT visible in curl.
+To see it: open Chrome DevTools → Network tab → reload a customer page twice.
+Second load should show '(disk cache)' next to static files.
+

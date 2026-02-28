@@ -101,20 +101,20 @@ services:
 
 
 
-  bloomcap:
-    image: nginx:alpine
-    container_name: bloomcap
-    restart: always
-    volumes:
-      - ./bloomcap/html:/usr/share/nginx/html:ro
-    environment:
-      - VIRTUAL_HOST=bloomcap.ca,www.bloomcap.ca
-      - LETSENCRYPT_HOST=bloomcap.ca,www.bloomcap.ca
-      - LETSENCRYPT_EMAIL=kdresdell@gmail.com
-    expose:
-      - "80"
-    networks:
-      - proxy
+  # bloomcap:
+  #   image: nginx:alpine
+  #   container_name: bloomcap
+  #   restart: always
+  #   volumes:
+  #     - ./bloomcap/html:/usr/share/nginx/html:ro
+  #   environment:
+  #     - VIRTUAL_HOST=bloomcap.ca,www.bloomcap.ca
+  #     - LETSENCRYPT_HOST=bloomcap.ca,www.bloomcap.ca
+  #     - LETSENCRYPT_EMAIL=kdresdell@gmail.com
+  #   expose:
+  #     - "80"
+  #   networks:
+  #     - proxy
 
 
 
