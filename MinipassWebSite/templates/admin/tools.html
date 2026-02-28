@@ -519,13 +519,10 @@ function openDeleteModal(subdomain, deleteUrl, customerEmail) {
             const title = document.getElementById('dcm-results-title');
             const list  = document.getElementById('dcm-results-list');
 
-            const allOk = Array.isArray(data.results) && data.results.length > 0
-                          && data.results.every(r => r.status === 'ok');
-
-            if (data.success && allOk) {
+            if (data.success) {
                 title.textContent = 'Customer deleted successfully';
                 title.className   = 'font-bold text-lg mb-4 text-success';
-            } else if (data.success) {
+            } else if ((data.results || []).length > 0) {
                 title.textContent = 'Deletion completed with issues';
                 title.className   = 'font-bold text-lg mb-4 text-warning';
             } else {
@@ -549,8 +546,8 @@ function openDeleteModal(subdomain, deleteUrl, customerEmail) {
                 list.appendChild(li);
             }
 
-            // Auto-reload only on full success (all steps "ok")
-            if (data.success && allOk) {
+            // Auto-reload on success (warnings for "already gone" are not issues)
+            if (data.success) {
                 setTimeout(() => { window.location.reload(); }, 3000);
             }
         })
