@@ -1,5 +1,10 @@
 {% extends "base.html" %}
 
+{% block page_title %}À propos de minipass — Logiciel canadien de gestion d'activités{% endblock %}
+{% block meta_desc %}Découvrez l'équipe derrière minipass, la plateforme canadienne qui automatise la gestion des ligues sportives, paiements Interac et inscriptions en ligne.{% endblock %}
+{% block og_title %}À propos de minipass — Logiciel canadien de gestion d'activités{% endblock %}
+{% block og_desc %}Découvrez l'équipe derrière minipass, la plateforme canadienne qui automatise la gestion des ligues sportives et paiements Interac.{% endblock %}
+
 {% block extra_head %}
 <!-- SignFlow animations CSS only -->
 <link rel="stylesheet" href="{{ url_for('static', filename='css/signflow-animations.css') }}">

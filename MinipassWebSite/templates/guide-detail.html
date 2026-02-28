@@ -1,9 +1,17 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr-CA">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Guide - minipass</title>
+    <title>{{ slug | replace('-', ' ') | title }} — Guide minipass</title>
+    <meta name="description" content="Guide minipass : {{ slug | replace('-', ' ') | title }}. Tutoriels détaillés pour maîtriser les inscriptions en ligne, paiements Interac et passeports numériques.">
+    <link rel="canonical" href="https://minipass.me/guides/{{ slug }}">
+    <meta property="og:title" content="{{ slug | replace('-', ' ') | title }} — Guide minipass">
+    <meta property="og:description" content="Guide minipass : {{ slug | replace('-', ' ') | title }}. Apprenez à utiliser minipass en quelques minutes.">
+    <meta property="og:image" content="https://minipass.me/static/image/favicon-512x512.png">
+    <meta property="og:url" content="https://minipass.me/guides/{{ slug }}">
+    <meta property="og:type" content="article">
+    <meta property="og:locale" content="fr_CA">
     <link rel="icon" type="image/x-icon" href="/static/image/favicon.ico">
     <style>
         /* Reset & Base */

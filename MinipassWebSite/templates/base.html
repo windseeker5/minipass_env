@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr-CA">
   <head>
    
 
@@ -19,7 +19,41 @@
   <meta charset="utf-8"/>
   <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
   <meta content="ie=edge" http-equiv="X-UA-Compatible"/>
-  <title>minipass</title>
+  <title>{% block page_title %}minipass — Gestion de ligues et d'activités avec Interac | Canada{% endblock %}</title>
+  <meta name="description" content="{% block meta_desc %}Minipass automatise les inscriptions, paiements Interac, passeports numériques et comptabilité pour vos ligues sportives et cours. Fait au Canada. Dès 10$/mois.{% endblock %}">
+  <link rel="canonical" href="https://minipass.me{{ request.path }}">
+
+  <!-- Open Graph — controls Facebook / LinkedIn / WhatsApp link previews -->
+  <meta property="og:title" content="{% block og_title %}minipass — Gestion de ligues avec Interac{% endblock %}">
+  <meta property="og:description" content="{% block og_desc %}Automatisez inscriptions, paiements Interac et passeports numériques. Logiciel canadien. Dès 10$/mois.{% endblock %}">
+  <meta property="og:image" content="https://minipass.me/static/image/favicon-512x512.png">
+  <meta property="og:url" content="https://minipass.me{{ request.path }}">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="fr_CA">
+  <meta property="og:site_name" content="minipass">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{{ self.og_title() }}">
+  <meta name="twitter:description" content="{{ self.og_desc() }}">
+  <meta name="twitter:image" content="https://minipass.me/static/image/favicon-512x512.png">
+
+  <!-- JSON-LD Structured Data — tells Google you're a real SaaS product -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "minipass",
+    "description": "Plateforme canadienne de gestion d'activités avec matching automatique de paiements Interac",
+    "url": "https://minipass.me",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Web",
+    "offers": { "@type": "Offer", "priceCurrency": "CAD", "price": "10" },
+    "areaServed": "CA",
+    "inLanguage": ["fr-CA", "en-CA"]
+  }
+  </script>
+
   <!-- Favicon -->
   <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='image/favicon.ico') }}">
   <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='image/favicon-32x32.png') }}">
