@@ -1,0 +1,5 @@
+# LHGI — high-upload-volume customer
+# Directives inside location / {} — no nested location blocks allowed here
+client_max_body_size 100M;
+client_body_timeout 120s;
+proxy_read_timeout 120s;
