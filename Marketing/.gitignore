@@ -50,3 +50,5 @@ teaser_shots/
 # OS files
 .DS_Store
 Thumbs.db
+*.docx
+.venv/
