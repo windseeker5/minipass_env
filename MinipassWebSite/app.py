@@ -765,6 +765,75 @@ def stripe_webhook():
         else:
             subscription_logger.warning(f"⚠️ Customer not found for subscription ID: {stripe_subscription_id}")
 
+    elif event["type"] == "customer.subscription.updated":
+        from utils.customer_helpers import get_customer_by_stripe_subscription_id, update_customer_plan
+        from utils.deploy_helpers import set_stripe_subscription_settings_to_database
+        import os
+
+        subscription_obj = event["data"]["object"]
+        stripe_subscription_id = subscription_obj.get("id")
+
+        subscription_logger.info(f"🔄 customer.subscription.updated: {stripe_subscription_id}")
+
+        customer = get_customer_by_stripe_subscription_id(stripe_subscription_id)
+        if not customer:
+            subscription_logger.warning(f"⚠️ No customer found for subscription: {stripe_subscription_id}")
+            return "OK", 200
+
+        subdomain = customer['subdomain']
+
+        # Determine new plan from price ID (may be unchanged for cancel/reactivate flips)
+        new_price_id = None
+        try:
+            items = subscription_obj.get("items", {}).get("data", [])
+            if items:
+                new_price_id = items[0]["price"]["id"]
+        except (KeyError, IndexError, TypeError):
+            pass
+
+        # Build reverse price-ID → plan_key mapping from env
+        price_to_plan = {v: k for k, v in STRIPE_PRICES.items() if v}
+        plan_key = price_to_plan.get(new_price_id) if new_price_id else None
+
+        # Update plan/billing columns only when price changed
+        if plan_key:
+            plan_name, billing_frequency = plan_key.rsplit('_', 1)
+            update_customer_plan(
+                subdomain,
+                plan=plan_name,
+                billing_frequency=billing_frequency,
+                stripe_price_id=new_price_id
+            )
+            subscription_logger.info(f"✅ Plan updated for {subdomain}: {plan_key}")
+
+            # Update the customer app's Setting table
+            try:
+                base_dir = os.path.dirname(os.path.abspath(__file__))
+                db_path = os.path.join(base_dir, "..", "deployed", subdomain, "app", "instance", "minipass.db")
+                db_path = os.path.normpath(db_path)
+                if os.path.exists(db_path):
+                    tier_map = {'basic': 1, 'pro': 2, 'ultimate': 3}
+                    tier = tier_map.get(plan_name, customer.get('plan', 'basic'))
+                    set_stripe_subscription_settings_to_database(
+                        db_path,
+                        customer.get('stripe_customer_id', ''),
+                        stripe_subscription_id,
+                        customer.get('payment_amount', ''),
+                        customer.get('subscription_end_date', ''),
+                        tier,
+                        billing_frequency
+                    )
+                    subscription_logger.info(f"✅ Setting table updated for {subdomain}")
+                else:
+                    subscription_logger.warning(f"⚠️ DB not found at {db_path}")
+            except Exception as e:
+                subscription_logger.error(f"❌ Failed to update Setting table for {subdomain}: {e}")
+        else:
+            subscription_logger.info(f"ℹ️ No price change for {subdomain} — cancel/reactivate flip only")
+
+        # Always sync subscription_status from Stripe
+        update_customer_plan(subdomain, subscription_status=subscription_obj.get("status", "active"))
+
     elif event["type"] == "customer.subscription.deleted":
         # Handle subscription cancellation
         from utils.customer_helpers import get_customer_by_stripe_subscription_id
