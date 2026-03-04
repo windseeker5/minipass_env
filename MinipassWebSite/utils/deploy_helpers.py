@@ -735,6 +735,14 @@ def deploy_customer_container(app_name, admin_email, admin_password, plan, port,
         # Unsplash API Configuration
         UNSPLASH_ACCESS_KEY={parent_env_vars.get('UNSPLASH_ACCESS_KEY', '')}
 
+        # Stripe Price IDs (for plan switching)
+        STRIPE_PRICE_BASIC_MONTHLY={parent_env_vars.get('STRIPE_PRICE_BASIC_MONTHLY', '')}
+        STRIPE_PRICE_BASIC_ANNUAL={parent_env_vars.get('STRIPE_PRICE_BASIC_ANNUAL', '')}
+        STRIPE_PRICE_PRO_MONTHLY={parent_env_vars.get('STRIPE_PRICE_PRO_MONTHLY', '')}
+        STRIPE_PRICE_PRO_ANNUAL={parent_env_vars.get('STRIPE_PRICE_PRO_ANNUAL', '')}
+        STRIPE_PRICE_ULTIMATE_MONTHLY={parent_env_vars.get('STRIPE_PRICE_ULTIMATE_MONTHLY', '')}
+        STRIPE_PRICE_ULTIMATE_ANNUAL={parent_env_vars.get('STRIPE_PRICE_ULTIMATE_ANNUAL', '')}
+
         # Chatbot Configuration
         CHATBOT_ENABLE_GEMINI=true
         CHATBOT_ENABLE_GROQ=true
@@ -1036,3 +1044,31 @@ def deploy_customer_container(app_name, admin_email, admin_password, plan, port,
 
         log_operation_end(logger, "Deploy Customer Container", success=False, error_msg=error_msg)
         return False
+
+
+def update_customer_env_file(deploy_dir, remove_keys):
+    """Remove specific keys from a deployed customer's .env file on disk.
+
+    Used during migration to remove MINIPASS_TIER and BILLING_FREQUENCY so
+    get_setting() falls through to the DB instead of the stale env file.
+
+    Args:
+        deploy_dir (str): Path to the deployed customer directory (e.g. 'deployed/kdc')
+        remove_keys (list[str]): List of env var names to remove (case-sensitive)
+    """
+    env_path = os.path.join(deploy_dir, "app", ".env")
+    if not os.path.exists(env_path):
+        logger.warning(f"update_customer_env_file: .env not found at {env_path}")
+        return
+
+    with open(env_path, 'r') as f:
+        lines = f.readlines()
+
+    remove_set = {k.upper() for k in remove_keys}
+    kept = [line for line in lines if not any(line.startswith(f"{k}=") for k in remove_set)]
+
+    with open(env_path, 'w') as f:
+        f.writelines(kept)
+
+    removed = len(lines) - len(kept)
+    logger.info(f"update_customer_env_file: removed {removed} key(s) from {env_path}")

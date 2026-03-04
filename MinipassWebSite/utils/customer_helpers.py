@@ -310,6 +310,51 @@ def mark_event_processed(event_id, event_type):
         conn.commit()
 
 
+def update_customer_plan(subdomain, plan=None, billing_frequency=None, payment_amount=None,
+                         subscription_end_date=None, stripe_price_id=None, subscription_status=None):
+    """Update plan-related fields for a customer (all args optional).
+
+    Args:
+        subdomain (str): Customer's subdomain
+        plan (str|None): New plan key (basic/pro/ultimate)
+        billing_frequency (str|None): 'monthly' or 'annual'
+        payment_amount (int|None): Amount in cents
+        subscription_end_date (str|None): ISO date string
+        stripe_price_id (str|None): Stripe Price ID
+        subscription_status (str|None): Subscription status string
+    """
+    updates = []
+    params = []
+
+    if plan is not None:
+        updates.append("plan = ?")
+        params.append(plan)
+    if billing_frequency is not None:
+        updates.append("billing_frequency = ?")
+        params.append(billing_frequency)
+    if payment_amount is not None:
+        updates.append("payment_amount = ?")
+        params.append(payment_amount)
+    if subscription_end_date is not None:
+        updates.append("subscription_end_date = ?")
+        params.append(subscription_end_date)
+    if stripe_price_id is not None:
+        updates.append("stripe_price_id = ?")
+        params.append(stripe_price_id)
+    if subscription_status is not None:
+        updates.append("subscription_status = ?")
+        params.append(subscription_status)
+
+    if not updates:
+        return
+
+    params.append(subdomain)
+    with sqlite3.connect(CUSTOMERS_DB) as conn:
+        cur = conn.cursor()
+        cur.execute(f"UPDATE customers SET {', '.join(updates)} WHERE subdomain = ?", tuple(params))
+        conn.commit()
+
+
 def update_customer_stripe_ids(subdomain, stripe_customer_id=None, stripe_subscription_id=None):
     """
     Update Stripe Customer and Subscription IDs for a customer.
