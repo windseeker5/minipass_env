@@ -29,7 +29,7 @@ SSH_OPTS=(-e "ssh -p $VPS_PORT")
 log() { echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*"; }
 
 log "Starting Minipass backup → $TODAY"
-mkdir -p "$TODAY"/{mail_server/{config,maildata,mailstate},customers/deployed,minipass_env/{nginx,vhost.d,bloomcap/html,MinipassWebSite,email_monitoring}}
+mkdir -p "$TODAY"/{mail_server/{config,maildata,mailstate},customers/deployed,minipass_env/{nginx,vhost.d,bloomcap/html,MinipassWebSite,email_monitoring/{reports,dmarc_reports}}}
 
 # ── 1. DKIM keys — MOST CRITICAL (losing = emergency DNS TXT update required)
 log "Backing up DKIM keys and mail config..."
@@ -47,12 +47,18 @@ rsync -avz "${SSH_OPTS[@]}" --rsync-path="sudo rsync" \
 rsync -avz "${SSH_OPTS[@]}" --rsync-path="sudo rsync" \
   "$VPS:$REMOTE_BASE/email_monitoring/monitoring.db" "$TODAY/minipass_env/email_monitoring/"
 
+# ── 3a. Email monitoring reports and DMARC files
+log "Backing up email monitoring reports..."
+rsync -avz "${SSH_OPTS[@]}" --rsync-path="sudo rsync" \
+  "$VPS:$REMOTE_BASE/email_monitoring/reports/" "$TODAY/minipass_env/email_monitoring/reports/" 2>/dev/null || true
+rsync -avz "${SSH_OPTS[@]}" --rsync-path="sudo rsync" \
+  "$VPS:$REMOTE_BASE/email_monitoring/dmarc_reports/" "$TODAY/minipass_env/email_monitoring/dmarc_reports/" 2>/dev/null || true
+
 # ── 4. Deployed customer apps (databases, secrets, uploads — skip regeneratable dirs)
 log "Backing up deployed customer apps (databases, secrets, uploads)..."
 rsync -avz "${SSH_OPTS[@]}" --rsync-path="sudo rsync" "$VPS:$REMOTE_BASE/deployed/" "$TODAY/customers/deployed/" \
   --exclude="venv/" \
   --exclude="__pycache__/" \
-  --exclude=".git/" \
   --exclude="*.pyc" \
   --exclude="migrations/" \
   --exclude="node_modules/"
