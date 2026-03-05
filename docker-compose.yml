@@ -88,6 +88,7 @@ services:
     restart: always
     volumes:
       - ./nginx/controller-proxy.conf:/etc/nginx/conf.d/default.conf:ro
+      - /home/kdresdell/minipass_env/MinipassWebSite/static:/app/static:ro
     environment:
       - VIRTUAL_HOST=minipass.me,www.minipass.me
       - VIRTUAL_PORT=80
