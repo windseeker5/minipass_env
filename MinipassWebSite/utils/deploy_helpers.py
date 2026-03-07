@@ -125,6 +125,116 @@ def is_production_environment():
         return False  # Default to local/safe mode if can't detect
 
 
+def test_container_network_connectivity(container_name, app_name):
+    """
+    Test if the newly deployed container can reach critical infrastructure.
+
+    This prevents the network connectivity issue that occurred with KDC deployment
+    where containers appeared to be on the network but couldn't actually communicate.
+
+    Args:
+        container_name: Name of the container to test (e.g., 'minipass_kdc')
+        app_name: Application name for logging
+
+    Returns:
+        bool: True if connectivity is working, False if there are issues
+    """
+    logger.info(f"[{app_name}] 🔗 Testing network connectivity for {container_name}")
+
+    # Test 1: Can the container reach the mail server?
+    mail_test_cmd = [
+        "docker", "exec", container_name, "python3", "-c",
+        "import socket; sock = socket.socket(); sock.settimeout(10); "
+        "result = sock.connect_ex(('mail.minipass.me', 587)); "
+        "print('CONNECTIVITY_TEST_RESULT:', result); sock.close()"
+    ]
+
+    try:
+        logger.info(f"[{app_name}] 📧 Testing mail server connectivity...")
+        result = subprocess.run(
+            mail_test_cmd,
+            capture_output=True,
+            text=True,
+            timeout=15
+        )
+
+        if result.returncode == 0 and "CONNECTIVITY_TEST_RESULT: 0" in result.stdout:
+            logger.info(f"[{app_name}] ✅ Mail server connectivity test PASSED")
+            log_validation_check(logger, f"{container_name} mail server connectivity", True, "Can reach mail.minipass.me:587")
+            return True
+        else:
+            logger.error(f"[{app_name}] ❌ Mail server connectivity test FAILED")
+            logger.error(f"[{app_name}] 📤 Test output: {result.stdout}")
+            logger.error(f"[{app_name}] 📤 Test error: {result.stderr}")
+            log_validation_check(logger, f"{container_name} mail server connectivity", False, "Cannot reach mail.minipass.me:587 - network isolation issue")
+            return False
+
+    except subprocess.TimeoutExpired:
+        logger.error(f"[{app_name}] ❌ Network connectivity test timed out")
+        log_validation_check(logger, f"{container_name} mail server connectivity", False, "Test timeout - possible network issue")
+        return False
+    except Exception as e:
+        logger.error(f"[{app_name}] ❌ Network connectivity test failed with error: {str(e)}")
+        log_validation_check(logger, f"{container_name} mail server connectivity", False, f"Test error: {str(e)}")
+        return False
+
+
+def fix_container_network_connectivity(container_name, app_name, deploy_dir):
+    """
+    Attempt to fix network connectivity issues by recreating the container.
+
+    This addresses the stale network reference issue that caused KDC email failures.
+
+    Args:
+        container_name: Name of container with connectivity issues
+        app_name: Application name for logging
+        deploy_dir: Directory containing docker-compose.yml
+
+    Returns:
+        bool: True if fix was successful, False otherwise
+    """
+    logger.warning(f"[{app_name}] 🔧 Attempting to fix network connectivity for {container_name}")
+
+    try:
+        # Step 1: Stop and remove the problematic container
+        logger.info(f"[{app_name}] 🛑 Removing container with network issues...")
+        subprocess.run(["docker", "rm", "-f", container_name],
+                      capture_output=True, text=True, timeout=30)
+
+        # Step 2: Recreate the container with --force-recreate
+        logger.info(f"[{app_name}] 🔄 Recreating container with fresh network connections...")
+        recreate_cmd = ["docker-compose", "up", "-d", "--force-recreate"]
+        result = subprocess.run(
+            recreate_cmd,
+            cwd=deploy_dir,
+            capture_output=True,
+            text=True,
+            timeout=120
+        )
+
+        if result.returncode != 0:
+            logger.error(f"[{app_name}] ❌ Container recreation failed: {result.stderr}")
+            return False
+
+        # Step 3: Wait a moment for container to fully start
+        logger.info(f"[{app_name}] ⏱️ Waiting for container to initialize...")
+        import time
+        time.sleep(10)
+
+        # Step 4: Test connectivity again
+        logger.info(f"[{app_name}] 🔍 Testing connectivity after recreation...")
+        if test_container_network_connectivity(container_name, app_name):
+            logger.info(f"[{app_name}] ✅ Network connectivity fix SUCCESSFUL")
+            return True
+        else:
+            logger.error(f"[{app_name}] ❌ Network connectivity fix FAILED - issue persists")
+            return False
+
+    except Exception as e:
+        logger.error(f"[{app_name}] ❌ Network fix attempt failed: {str(e)}")
+        return False
+
+
 
 def insert_admin_user(db_path, email, password):
     import sqlite3
@@ -735,14 +845,6 @@ def deploy_customer_container(app_name, admin_email, admin_password, plan, port,
         # Unsplash API Configuration
         UNSPLASH_ACCESS_KEY={parent_env_vars.get('UNSPLASH_ACCESS_KEY', '')}
 
-        # Stripe Price IDs (for plan switching)
-        STRIPE_PRICE_BASIC_MONTHLY={parent_env_vars.get('STRIPE_PRICE_BASIC_MONTHLY', '')}
-        STRIPE_PRICE_BASIC_ANNUAL={parent_env_vars.get('STRIPE_PRICE_BASIC_ANNUAL', '')}
-        STRIPE_PRICE_PRO_MONTHLY={parent_env_vars.get('STRIPE_PRICE_PRO_MONTHLY', '')}
-        STRIPE_PRICE_PRO_ANNUAL={parent_env_vars.get('STRIPE_PRICE_PRO_ANNUAL', '')}
-        STRIPE_PRICE_ULTIMATE_MONTHLY={parent_env_vars.get('STRIPE_PRICE_ULTIMATE_MONTHLY', '')}
-        STRIPE_PRICE_ULTIMATE_ANNUAL={parent_env_vars.get('STRIPE_PRICE_ULTIMATE_ANNUAL', '')}
-
         # Chatbot Configuration
         CHATBOT_ENABLE_GEMINI=true
         CHATBOT_ENABLE_GROQ=true
@@ -900,6 +1002,11 @@ def deploy_customer_container(app_name, admin_email, admin_password, plan, port,
         )
         logger.info(f"[{app_name}] ✅ Stripe settings saved to Setting table")
 
+        # Configure Stripe Price IDs
+        logger.info(f"[{app_name}] 💳 Step 2h: Configuring Stripe Price IDs in Setting table")
+        set_stripe_price_ids_to_database(db_path)
+        logger.info(f"[{app_name}] ✅ Stripe Price IDs saved to Setting table")
+
         # Database will be created by Flask app on startup
         log_validation_check(logger, "Database preparation completed", True, f"Flask app will create database at: {db_path}")
 
@@ -1015,6 +1122,39 @@ def deploy_customer_container(app_name, admin_email, admin_password, plan, port,
         else:
             log_validation_check(logger, f"[{app_name}] Container minipass_{app_name} is running", False, "Container not found in docker ps output")
 
+        # Step 10: Test network connectivity (production only)
+        container_name = f"minipass_{app_name}"
+        if is_production:
+            logger.info(f"[{app_name}] 🔗 Step 5: Testing network connectivity")
+
+            # Wait a moment for container to fully initialize
+            import time
+            time.sleep(5)
+
+            connectivity_ok = test_container_network_connectivity(container_name, app_name)
+
+            if not connectivity_ok:
+                logger.warning(f"[{app_name}] ⚠️ Network connectivity issues detected - attempting automatic fix...")
+
+                # Try to fix the connectivity issue
+                fix_success = fix_container_network_connectivity(container_name, app_name, deploy_dir)
+
+                if fix_success:
+                    logger.info(f"[{app_name}] ✅ Network connectivity issue resolved automatically")
+                else:
+                    # Network fix failed - this is a critical issue
+                    error_msg = f"CRITICAL: Container deployed but cannot reach mail server. Email functionality will not work. This requires manual intervention."
+                    logger.error(f"[{app_name}] 🚨 {error_msg}")
+
+                    # Send failure alert since this is a critical infrastructure issue
+                    customer_name = organization_name or app_name
+                    send_deployment_failure_alert(customer_name, admin_email, error_msg, app_name)
+
+                    # Still return True since container is running, but log the critical issue
+                    log_validation_check(logger, f"{container_name} network connectivity", False, "CRITICAL: Email functionality compromised")
+            else:
+                logger.info(f"[{app_name}] ✅ Network connectivity verified successfully")
+
         # Send success notification to support
         customer_name = organization_name or app_name
         send_deployment_success_notification(customer_name, admin_email, app_name, tier, organization_name)
@@ -1044,6 +1184,92 @@ def deploy_customer_container(app_name, admin_email, admin_password, plan, port,
 
         log_operation_end(logger, "Deploy Customer Container", success=False, error_msg=error_msg)
         return False
+
+
+def set_stripe_price_ids_to_database(db_path):
+    """
+    Sets Stripe Price IDs in the Setting table (where the app actually reads from).
+
+    The deployed app reads price IDs from the Setting table with these keys:
+    - STRIPE_PRICE_BASIC_MONTHLY
+    - STRIPE_PRICE_BASIC_ANNUAL
+    - STRIPE_PRICE_PRO_MONTHLY
+    - STRIPE_PRICE_PRO_ANNUAL
+    - STRIPE_PRICE_ULTIMATE_MONTHLY
+    - STRIPE_PRICE_ULTIMATE_ANNUAL
+
+    Args:
+        db_path (str): Path to the app's database
+    """
+    log_operation_start(logger, "Set Stripe Price IDs to Database", db_path=db_path)
+
+    try:
+        logger.info(f"💳 Writing Stripe Price IDs to Setting table")
+
+        log_file_operation(logger, "Connecting to database for Setting table updates", db_path)
+
+        conn = sqlite3.connect(db_path)
+        cur = conn.cursor()
+
+        # Verify Setting table exists
+        logger.info("📋 Verifying Setting table structure")
+        cur.execute("""
+        SELECT name FROM sqlite_master
+        WHERE type='table' AND name='setting'
+        """)
+
+        if not cur.fetchone():
+            logger.warning("⚠️ Setting table does not exist - it will be created by migrations")
+            conn.close()
+            log_operation_end(logger, "Set Stripe Price IDs", success=True)
+            return
+
+        log_validation_check(logger, "Setting table exists", True, "Table found in database")
+
+        # Hardcoded Stripe Price IDs (from main website configuration)
+        price_id_settings = {
+            'STRIPE_PRICE_BASIC_MONTHLY': 'price_1SV1gpGrhkirXbsPpZYSgZwp',
+            'STRIPE_PRICE_BASIC_ANNUAL': 'price_1SV1gpGrhkirXbsPygpv6QkE',
+            'STRIPE_PRICE_PRO_MONTHLY': 'price_1SV1gbGrhkirXbsPNyMFCfUE',
+            'STRIPE_PRICE_PRO_ANNUAL': 'price_1SV1gbGrhkirXbsPMQ72KWjR',
+            'STRIPE_PRICE_ULTIMATE_MONTHLY': 'price_1SV1gLGrhkirXbsPzBIcLfuz',
+            'STRIPE_PRICE_ULTIMATE_ANNUAL': 'price_1SV1gLGrhkirXbsPBeQtyedT'
+        }
+
+        # Insert or update each price ID
+        for key, value in price_id_settings.items():
+            # Check if setting exists
+            cur.execute("SELECT id FROM setting WHERE key = ?", (key,))
+            existing = cur.fetchone()
+
+            if existing:
+                # Update existing setting
+                logger.info(f"   ♻️  Updating {key} = {value}")
+                cur.execute("""
+                UPDATE setting
+                SET value = ?
+                WHERE key = ?
+                """, (value, key))
+            else:
+                # Insert new setting
+                logger.info(f"   ➕ Inserting {key} = {value}")
+                cur.execute("""
+                INSERT INTO setting (key, value)
+                VALUES (?, ?)
+                """, (key, value))
+
+        conn.commit()
+        conn.close()
+
+        logger.info("✅ Stripe Price IDs successfully saved to Setting table")
+        log_validation_check(logger, "Stripe Price IDs written", True, f"{len(price_id_settings)} price IDs written successfully")
+        log_operation_end(logger, "Set Stripe Price IDs to Database", success=True)
+
+    except Exception as e:
+        error_msg = f"Failed to set Stripe Price IDs: {str(e)}"
+        logger.error(f"❌ {error_msg}")
+        log_operation_end(logger, "Set Stripe Price IDs to Database", success=False, error_msg=error_msg)
+        raise
 
 
 def update_customer_env_file(deploy_dir, remove_keys):
