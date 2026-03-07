@@ -97,7 +97,7 @@ def delete_customer_complete(subdomain: str) -> list:
         try:
             result = _run([
                 "docker", "exec", MAILSERVER_CONTAINER,
-                "setup", "email", "del", email_address,
+                "setup", "email", "del", "-y", email_address,
             ])
             if result.returncode == 0:
                 record("Delete mail account", "ok",

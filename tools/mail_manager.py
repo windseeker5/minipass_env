@@ -146,7 +146,7 @@ def hard_delete_user():
         print("🗑️ Deleting user...")
         subprocess.run([
             "docker", "exec", MAILSERVER,
-            "setup", "email", "del", email
+            "setup", "email", "del", "-y", email
         ], check=True)
     except subprocess.CalledProcessError as e:
         print(f"❌ Failed to delete user: {e}")

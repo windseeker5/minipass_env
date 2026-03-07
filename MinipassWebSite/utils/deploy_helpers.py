@@ -542,6 +542,13 @@ def set_stripe_subscription_settings_to_database(
             'BILLING_FREQUENCY': billing_frequency
         }
 
+        # For promo codes/beta testers: disable Stripe payments when no real customer data
+        if not stripe_customer_id or not stripe_subscription_id or stripe_customer_id == '' or stripe_subscription_id == '':
+            stripe_settings['STRIPE_PAYMENTS_ENABLED'] = 'False'
+            logger.info(f"   🎁 Promo/Beta deployment detected - STRIPE_PAYMENTS_ENABLED set to False")
+        else:
+            logger.info(f"   💳 Paid subscription detected - payments enabled by default")
+
         # Insert or update each setting
         for key, value in stripe_settings.items():
             # Check if setting exists
