@@ -650,7 +650,7 @@ class MiniPassAppManager:
             print("   🗑️ Removing user from mail server...")
             result = subprocess.run([
                 "docker", "exec", MAILSERVER,
-                "setup", "email", "del", email_address
+                "setup", "email", "del", "-y", email_address
             ], capture_output=True, text=True, check=False)
             
             if result.returncode != 0:
