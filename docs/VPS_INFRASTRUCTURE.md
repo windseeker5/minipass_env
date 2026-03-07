@@ -22,38 +22,25 @@ This document provides the complete infrastructure mapping of the Minipass SaaS 
 
 ```mermaid
 graph TB
-    subgraph "Internet Entry"
-        INT[🌐 Internet Traffic<br/>Ports: 80, 443, 25, 587, 993]
-    end
+    INTERNET[🌐 Internet Entry<br/>Ports: 80,443,25,587,993]
 
-    subgraph "Core Infrastructure Containers"
-        PROXY[📦 nginx-proxy<br/>jwilder/nginx-proxy:alpine<br/>61MB RAM<br/>Routing & SSL termination]
-        SSL[📦 nginx-letsencrypt<br/>nginxproxy/acme-companion<br/>30MB RAM<br/>SSL certificate automation]
-        MAILCERT[📦 mail-cert-request<br/>nginx:alpine<br/>8MB RAM<br/>Mail SSL handling]
-    end
+    PROXY[📦 nginx-proxy<br/>61MB RAM<br/>Main reverse proxy]
+    SSL[📦 nginx-letsencrypt<br/>30MB RAM<br/>SSL automation]
 
-    subgraph "Host Services"
-        HOSTAPP[🖥️ Main Flask Application<br/>Host Process Port 5000<br/>176MB RAM<br/>minipass.me main site]
-        FLASKPROXY[📦 flask-controller-proxy<br/>nginx:alpine<br/>6MB RAM<br/>Proxy to host app]
-    end
+    HOSTAPP[🖥️ Host Flask App<br/>176MB RAM<br/>minipass.me]
+    FLASKPROXY[📦 flask-controller-proxy<br/>6MB RAM<br/>Proxy to host]
 
-    subgraph "Mail Infrastructure"
-        MAILSERVER[📦 mailserver<br/>docker-mailserver<br/>311MB RAM<br/>Full email stack]
-    end
+    MAILSERVER[📦 mailserver<br/>311MB RAM<br/>Full email stack]
+    MAILCERT[📦 mail-cert-request<br/>8MB RAM<br/>Mail SSL]
 
-    subgraph "Customer Containers (4 Active)"
-        LHGI[📦 minipass_lhgi<br/>Flask app container<br/>280MB RAM + 22MB uploads<br/>lhgi.minipass.me]
-        KDC[📦 minipass_kdc<br/>Flask app container<br/>218MB RAM + 1MB uploads<br/>kdc.minipass.me]
-        HEQ[📦 minipass_heq<br/>Flask app container<br/>250MB RAM + 1MB uploads<br/>heq.minipass.me]
-        TESTDEL[📦 minipass_testdel<br/>Flask app container<br/>157MB RAM + 1MB uploads<br/>testdelancementmf.minipass.me]
-    end
+    LHGI[📦 minipass_lhgi<br/>280MB RAM<br/>lhgi.minipass.me]
+    KDC[📦 minipass_kdc<br/>218MB RAM<br/>kdc.minipass.me]
+    HEQ[📦 minipass_heq<br/>250MB RAM<br/>heq.minipass.me]
+    TESTDEL[📦 minipass_testdel<br/>157MB RAM<br/>testdel...]
 
-    subgraph "Supporting Services"
-        BLOOM[📦 bloomcap<br/>nginx:alpine<br/>8MB RAM<br/>Static site: bloomcap.ca<br/>(Optional - can be removed)]
-    end
+    BLOOM[📦 bloomcap<br/>8MB RAM<br/>bloomcap.ca<br/>OPTIONAL]
 
-    %% Connections
-    INT --> PROXY
+    INTERNET --> PROXY
     PROXY --> FLASKPROXY
     PROXY --> LHGI
     PROXY --> KDC
