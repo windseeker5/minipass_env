@@ -15,14 +15,18 @@ import pyfiglet
 
 
 
-CUSTOMERS_DB = "MinipassWebSite/customers.db"
-DEPLOYED_FOLDER = "deployed"
+# Get the parent directory (minipass_env) from the current script location
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+PARENT_DIR = os.path.dirname(SCRIPT_DIR)
+
+CUSTOMERS_DB = os.path.join(PARENT_DIR, "MinipassWebSite", "customers.db")
+DEPLOYED_FOLDER = os.path.join(PARENT_DIR, "deployed")
 
 # Mail server constants (from mail_manager.py)
 MAILSERVER = "mailserver"
 DOMAIN = "minipass.me"
-LOCAL_SIEVE_BASE = "./config/user-patches"
-FORWARD_DIR = "./config/user-patches"
+LOCAL_SIEVE_BASE = os.path.join(PARENT_DIR, "config", "user-patches")
+FORWARD_DIR = os.path.join(PARENT_DIR, "config", "user-patches")
 
 
 

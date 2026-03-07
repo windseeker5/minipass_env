@@ -1,4 +1,4 @@
-# RECOVERYTEST — standard customer
+# DEMO — standard customer
 client_max_body_size 20M;
 
 # Static asset caching via proxy_cache_valid for file extensions

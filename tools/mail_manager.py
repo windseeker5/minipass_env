@@ -6,13 +6,15 @@ import getpass
 import shutil
 import pyfiglet
 
-
+# Get the parent directory (minipass_env) from the current script location
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+PARENT_DIR = os.path.dirname(SCRIPT_DIR)
 
 MAILSERVER = "mailserver"
 DOMAIN = "minipass.me"
 USER_BASE_DIR = f"/var/mail/{DOMAIN}"
-LOCAL_SIEVE_BASE = "./config/user-patches"
-FORWARD_DIR = "./config/user-patches"
+LOCAL_SIEVE_BASE = os.path.join(PARENT_DIR, "config", "user-patches")
+FORWARD_DIR = os.path.join(PARENT_DIR, "config", "user-patches")
 
 def is_minipass_app_email(email):
     """Check if email is a minipass app email and return appropriate prefix"""

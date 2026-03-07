@@ -1,0 +1,2 @@
+# Dependencies for MiniPass management tools
+pyfiglet==1.0.2
