@@ -74,9 +74,7 @@ services:
       - NET_ADMIN
       - SYS_PTRACE
     networks:
-      proxy:
-        aliases:
-          - mail.minipass.me
+      - proxy
 
 
 

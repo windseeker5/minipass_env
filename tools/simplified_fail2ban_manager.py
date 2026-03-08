@@ -1,4 +1,4 @@
-#!/home/kdresdell/minipass_env/MinipassWebSite/venv/bin/python
+#!/home/kdresdell/minipass_env/tools/venv/bin/python
 """
 Simplified Secure Fail2Ban Manager - Fixed Logging Issues
 
@@ -377,8 +377,8 @@ class SimplifiedFail2BanManager:
             
             sanitized_args.append(sanitized_arg)
         
-        # Build secure command
-        command = ['sudo', '-n', self.FAIL2BAN_CLIENT] + sanitized_args
+        # Build secure command - use Docker mailserver container
+        command = ['docker', 'exec', 'mailserver', 'fail2ban-client'] + sanitized_args
         
         try:
             result = subprocess.run(
