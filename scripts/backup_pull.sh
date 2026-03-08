@@ -29,7 +29,7 @@ SSH_OPTS=(-e "ssh -p $VPS_PORT")
 log() { echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*"; }
 
 log "Starting Minipass backup → $TODAY"
-mkdir -p "$TODAY"/{mail_server/{config,maildata,mailstate},customers/deployed,minipass_env/{nginx,vhost.d,bloomcap/html,MinipassWebSite,email_monitoring/{reports,dmarc_reports}}}
+mkdir -p "$TODAY"/{mail_server/{config,maildata,mailstate},customers/deployed,minipass_env/{nginx,vhost.d,bloomcap/html,MinipassWebSite,email_monitoring/{reports,dmarc_reports},tools,scripts}}
 
 # ── 1. DKIM keys — MOST CRITICAL (losing = emergency DNS TXT update required)
 log "Backing up DKIM keys and mail config..."
@@ -87,6 +87,13 @@ rsync -avz "${SSH_OPTS[@]}" \
   "$VPS:$REMOTE_BASE/bloomcap/html/" "$TODAY/minipass_env/bloomcap/html/" 2>/dev/null || true
 rsync -avz "${SSH_OPTS[@]}" \
   "$VPS:$REMOTE_BASE/bloomcap/.env"  "$TODAY/minipass_env/bloomcap/.env"  2>/dev/null || true
+
+# ── 8. Tools and scripts directories (fail2ban manager, .conf files, operational scripts)
+log "Backing up tools and scripts directories..."
+rsync -avz "${SSH_OPTS[@]}" \
+  "$VPS:$REMOTE_BASE/tools/" "$TODAY/minipass_env/tools/" 2>/dev/null || true
+rsync -avz "${SSH_OPTS[@]}" \
+  "$VPS:$REMOTE_BASE/scripts/" "$TODAY/minipass_env/scripts/" 2>/dev/null || true
 
 # ── 9. VPS crontab
 log "Backing up VPS crontab..."
