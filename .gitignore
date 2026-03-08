@@ -78,3 +78,6 @@ customers.db
 email_monitoring/dmarc_reports/
 email_monitoring/reports/
 email_monitoring/analysis/
+
+# Configuration files with sensitive information
+tools/*.conf
