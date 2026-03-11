@@ -37,9 +37,9 @@ RE_FROM = re.compile(r'from=<([^>]*)>')
 RE_TO   = re.compile(r'to=<([^>]+)>')
 
 # DMARC .md parsing patterns (updated to match dmarc_analyzer.py output)
-RE_PERIOD = re.compile(r'\*\*Period:\*\* (\d{4}-\d{2}-\d{2})')
+RE_PERIOD = re.compile(r'\*\*(?:Report Date|Period):\*\* (\d{4}-\d{2}-\d{2})')
 RE_TOTAL  = re.compile(r'- \*\*Total Messages:\*\* (\d+)')
-RE_PASSED = re.compile(r'- \*\*DMARC Pass:\*\* (\d+)')
+RE_PASSED = re.compile(r'- \*\*(?:Pass Count|DMARC Pass):\*\* (\d+)')
 
 # ---------------------------------------------------------------------------
 # Schema (all CREATE statements are idempotent)
