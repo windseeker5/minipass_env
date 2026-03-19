@@ -1609,15 +1609,15 @@ def internal_notify_password_reset():
     if not subdomain or not new_password:
         return jsonify({"error": "missing fields"}), 400
 
-    # Only update admin_password (bcrypt hash) — do NOT touch email_password,
-    # which is the mail server account password and is unrelated to the app login.
+    # Update admin_password (bcrypt hash for app login) AND email_password (plaintext,
+    # used when resending onboarding email so the customer gets their current password).
     import sqlite3 as _sqlite3
     import bcrypt as _bcrypt
     hashed = _bcrypt.hashpw(new_password.encode(), _bcrypt.gensalt())
     with _sqlite3.connect("customers.db") as _conn:
         _cur = _conn.execute(
-            "UPDATE customers SET admin_password = ? WHERE subdomain = ?",
-            (hashed, subdomain)
+            "UPDATE customers SET admin_password = ?, email_password = ? WHERE subdomain = ?",
+            (hashed, new_password, subdomain)
         )
         _conn.commit()
     if _cur.rowcount == 0:
