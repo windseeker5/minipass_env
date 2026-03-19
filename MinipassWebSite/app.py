@@ -1597,6 +1597,35 @@ def dmarc_dashboard():
     )
 
 
+@app.route("/internal/notify-password-reset", methods=["POST"])
+def internal_notify_password_reset():
+    """Called by customer containers after a self-service password reset."""
+    data = request.get_json(silent=True) or {}
+    if data.get("secret") != os.environ.get("INTERNAL_API_SECRET"):
+        return jsonify({"error": "unauthorized"}), 401
+
+    subdomain = data.get("subdomain", "").strip()
+    new_password = data.get("new_password", "")
+    if not subdomain or not new_password:
+        return jsonify({"error": "missing fields"}), 400
+
+    # Only update admin_password (bcrypt hash) — do NOT touch email_password,
+    # which is the mail server account password and is unrelated to the app login.
+    import sqlite3 as _sqlite3
+    import bcrypt as _bcrypt
+    hashed = _bcrypt.hashpw(new_password.encode(), _bcrypt.gensalt())
+    with _sqlite3.connect("customers.db") as _conn:
+        _cur = _conn.execute(
+            "UPDATE customers SET admin_password = ? WHERE subdomain = ?",
+            (hashed, subdomain)
+        )
+        _conn.commit()
+    if _cur.rowcount == 0:
+        return jsonify({"error": "subdomain not found"}), 404
+
+    return jsonify({"ok": True})
+
+
 # ✅ Run server
 if __name__ == "__main__":
     app.run(host='0.0.0.0', debug=True, port=5000)
