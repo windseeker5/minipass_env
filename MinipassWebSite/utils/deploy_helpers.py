@@ -858,6 +858,11 @@ def deploy_customer_container(app_name, admin_email, admin_password, plan, port,
         CHATBOT_ENABLE_OLLAMA=false
         CHATBOT_DAILY_BUDGET_CENTS=1000
         CHATBOT_MONTHLY_BUDGET_CENTS=10000
+
+        # Self-service password reset sync back to minipass.me
+        APP_SUBDOMAIN={app_name}
+        MINIPASS_SITE_URL=https://minipass.me
+        INTERNAL_API_SECRET={parent_env_vars.get('INTERNAL_API_SECRET', '')}
         """)
 
         log_file_operation(logger, "Writing .env file", env_path)
