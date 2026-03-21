@@ -1,13 +1,23 @@
 {% extends "base.html" %}
 
-{% block page_title %}minipass — Gérez votre ligue sportive avec matching Interac automatique{% endblock %}
-{% block meta_desc %}Inscriptions en ligne, matching automatique des virements Interac, passeports QR et comptabilité. Le seul logiciel canadien pour ligues sportives et activités. Dès 10$/mois.{% endblock %}
-{% block og_title %}minipass — Gérez votre ligue sportive avec matching Interac automatique{% endblock %}
-{% block og_desc %}Inscriptions en ligne, matching automatique des virements Interac, passeports QR et comptabilité. Le seul logiciel canadien pour ligues sportives. Dès 10$/mois.{% endblock %}
+{% block page_title %}minipass — Jumelage automatique des virements Interac pour ligues et coachs{% endblock %}
+{% block meta_desc %}La seule plateforme canadienne qui jumèle automatiquement tes virements Interac aux inscriptions. Cours, ligues, événements. À partir de 10$/mois. Sans contrat.{% endblock %}
+{% block og_title %}minipass — Jumelage automatique des virements Interac pour ligues et coachs{% endblock %}
+{% block og_desc %}La seule plateforme canadienne qui jumèle automatiquement tes virements Interac aux inscriptions. Cours, ligues, événements. À partir de 10$/mois. Sans contrat.{% endblock %}
 
 {% block content %}
 
-
+<style>
+@keyframes wordGlow {
+  0%, 100%   { color: inherit; }
+  15%, 50%   { color: #ff7272; }
+  65%        { color: inherit; }
+}
+.word-anim { display: inline; }
+.word-anim--1 { animation: wordGlow 6s ease-in-out infinite; animation-delay: 0s; }
+.word-anim--2 { animation: wordGlow 6s ease-in-out infinite; animation-delay: 2s; }
+.word-anim--3 { animation: wordGlow 6s ease-in-out infinite; animation-delay: 4s; }
+</style>
 
 <div class="site-wrapper overflow-hidden">
    <div id="loading">
@@ -32,24 +42,15 @@
       <!-- Welcome content Area -->
       <div class="col-xxl-6 col-lg-7 col-md-9 col-xs-11 order-2 order-lg-1">
        <div class="welcome-content welcome-content--l8">
-        <h3 class="welcome-content--l8__sub-title text-bittersweet" data-aos="fade-up" data-aos-duration="500" data-aos-once="true" style="font-size: 24px;">
-        Faciliter
+        <h3 class="welcome-content--l8__sub-title text-bittersweet" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
+         Tu crées. Tout s'automatise.
         </h3>
-        <h1 class="welcome-content__title">
-
-         La gestion d'activités
-
-         <br/>
-         <span class="text-highlight highlight-text d-inline-block">
-         </span>
+        <h1 class="welcome-content__title" style="font-size: 2.6rem; line-height: 1.2; font-weight: 800;">
+         Automatise la gestion de tes <span class="word-anim word-anim--1">cours</span>, <span class="word-anim word-anim--2">ligues</span> et <span class="word-anim word-anim--3">événements</span>
         </h1>
         <p class="welcome-content--l8__descriptions" data-aos="fade-up" data-aos-delay="500" data-aos-duration="500" data-aos-once="true">
-         <span style="font-size: 22px;">
-         minipass centralise inscriptions, paiements, passeports et suivis.
-         </span>
-         <br><br>
-         <span style="font-size: 22px; font-weight: 600; color: #2d3748;">
-         Simple. Automatisé. Sécurisé.
+         <span style="font-size: 18px;">
+          Inscriptions. Paiements Interac automatiques. Passeports numériques. Courriels. Finances. Tout en un.
          </span>
         </p>
         
@@ -58,7 +59,7 @@
           Découvrir <i class="fab fa-youtube ms-2" style="font-size: 1.5em;"></i>
          </a>
          <a class="btn btn--lg-2 btn-niagara rounded-50 me-3 text-white" data-aos="fade-up" data-aos-delay="900" data-aos-duration="500" data-aos-once="true" href="/#pricing">
-         S'abonner
+         Voir les forfaits
          </a>
         </div>
        </div>
@@ -82,6 +83,179 @@
     </div>
    </div>
    <!--/ .Hero Area -->
+
+   <!-- Testimonial / Social Proof Area -->
+   <div class="testimonial-section testimonial-section--l8 bg-default-5" style="padding-top: 40px; padding-bottom: 40px;">
+    <div class="container">
+     <div class="row justify-content-center">
+      <div class="col-lg-8 col-xl-7">
+       <div class="section-title section-title--l8 text-center" style="padding-bottom: 16px; margin-bottom: 0;">
+        <h6 class="section-title__sub-heading text-bittersweet mb-0" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
+         Ils nous font confiance
+        </h6>
+       </div>
+      </div>
+     </div>
+     <div class="row justify-content-center" data-aos="fade-up" data-aos-delay="500" data-aos-duration="500" data-aos-once="true">
+      <div class="col-lg-7 col-md-9 col-12">
+
+       <!-- Custom fade slider — no Slick -->
+       <div class="mp-tslider" style="position:relative; min-height: 220px;">
+
+        <!-- Slide 1 — FLHGI (réel) -->
+        <div class="mp-tslide mp-tslide--active">
+         <div class="card card-testimonial--l4">
+          <div class="card-body">
+           <div class="card-body__top d-flex align-items-center justify-content-between">
+            <div class="d-flex flex-wrap align-items-center">
+             <div class="card-image">
+              <img alt="Jean-François Goulet" src="{{ url_for('static', filename='image/home-3/jfg-circle-1.png') }}"/>
+             </div>
+             <div class="card-body__user mr-3">
+              <h3 class="card-title">Jean-François Goulet</h3>
+              <p class="card-text--ext">Co-administrateur de la FLHGI</p>
+             </div>
+            </div>
+            <div class="card-icon"><i class="fa fa-quote-left"></i></div>
+           </div>
+           <p class="card-description">
+            Avec minipass, nous avons enfin un outil qui nous permet de nous concentrer sur nos résultats plutôt que sur la paperasse. Son intuitivité et ses tableaux de bord budgétaires ont simplifié nos suivis de <strong>75 %</strong>. C'est devenu l'allié indispensable pour la coordination rapide et simple de toutes les activités de financement de notre Fondation.
+           </p>
+          </div>
+         </div>
+        </div>
+
+        <!-- Slide 2 — Coach hockey (placeholder) -->
+        <div class="mp-tslide">
+         <div class="card card-testimonial--l4">
+          <div class="card-body">
+           <div class="card-body__top d-flex align-items-center justify-content-between">
+            <div class="d-flex flex-wrap align-items-center">
+             <div class="card-image" style="background:#e8f4f0; display:flex; align-items:center; justify-content:center; font-size:20px; font-weight:700; color:#40c2a0;">M</div>
+             <div class="card-body__user mr-3">
+              <h3 class="card-title">Marc Tremblay</h3>
+              <p class="card-text--ext">Entraîneur hockey, Académie Tremblay</p>
+             </div>
+            </div>
+            <div class="card-icon"><i class="fa fa-quote-left"></i></div>
+           </div>
+           <p class="card-description">
+            Avant minipass, je passais mes fins de semaine à vérifier les virements Interac un par un. Maintenant, tout est jumelé automatiquement. Mes parents reçoivent leur passeport QR par courriel et je me concentre sur la glace, pas sur les chiffriers.
+           </p>
+          </div>
+         </div>
+        </div>
+
+        <!-- Slide 3 — Yoga/fitness (placeholder) -->
+        <div class="mp-tslide">
+         <div class="card card-testimonial--l4">
+          <div class="card-body">
+           <div class="card-body__top d-flex align-items-center justify-content-between">
+            <div class="d-flex flex-wrap align-items-center">
+             <div class="card-image" style="background:#fef3e8; display:flex; align-items:center; justify-content:center; font-size:20px; font-weight:700; color:#ff7272;">S</div>
+             <div class="card-body__user mr-3">
+              <h3 class="card-title">Sophie Lavoie</h3>
+              <p class="card-text--ext">Instructrice yoga, Studio Lumière</p>
+             </div>
+            </div>
+            <div class="card-icon"><i class="fa fa-quote-left"></i></div>
+           </div>
+           <p class="card-description">
+            J'avais essayé trois autres outils avant minipass. Aucun comprenait Interac. Mes clientes s'inscrivent en 2 minutes depuis leur téléphone et je reçois la confirmation automatiquement. La gestion de mes cours n'a jamais été aussi simple.
+           </p>
+          </div>
+         </div>
+        </div>
+
+       </div><!-- /.mp-tslider -->
+
+       <!-- Custom dots -->
+       <div class="mp-tdots text-center mt-3">
+        <span class="mp-tdot mp-tdot--active" data-slide="0"></span>
+        <span class="mp-tdot" data-slide="1"></span>
+        <span class="mp-tdot" data-slide="2"></span>
+       </div>
+
+      </div>
+     </div>
+
+     <style>
+      .mp-tslide { display: none; }
+      .mp-tslide--active { display: block; animation: mpFadeIn .5s ease; }
+      @keyframes mpFadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+      .mp-tdot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #d0d5dd; margin: 0 5px; cursor: pointer; transition: background .3s; }
+      .mp-tdot--active { background: #ff7272; transform: scale(1.2); }
+     </style>
+    </div>
+   </div>
+   <!--/ .Testimonial / Social Proof Area -->
+
+   <!-- Comment ça marche Area -->
+   <div class="service-area service-area--l8 bg-default" id="comment-ca-marche" style="padding-top: 20px; padding-bottom: 50px;">
+    <div class="container">
+     <div class="row justify-content-center">
+      <div class="col-xl-8">
+       <div class="section-title section-title--l8 text-center" style="margin-bottom: 30px;">
+        <h6 class="section-title__sub-heading text-bittersweet" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
+         Simple comme bonjour
+        </h6>
+        <h2 class="section-title__heading" data-aos="fade-up" data-aos-delay="300" data-aos-duration="500" data-aos-once="true">
+         Comment ça marche
+        </h2>
+       </div>
+      </div>
+     </div>
+     <div class="row justify-content-center" data-aos="fade-up" data-aos-delay="500" data-aos-duration="500" data-aos-once="true">
+      <!-- Étape 1 -->
+      <div class="col-xl-3 col-lg-4 col-md-6 col-xs-8">
+       <div class="card card--services-l6 text-center card-hover__niagara h-100">
+        <div class="card--services-l6__icon bg-op1__niagara mx-auto d-flex align-items-center justify-content-center">
+         <span style="font-size: 1.6rem; font-weight: 700; color: #099a97; line-height: 1;">1</span>
+        </div>
+        <h3 class="card--services-l6__heading">
+         Crée ton activité
+        </h3>
+        <p class="card--services-l6__content">
+         Configure ta ligue, ton cours ou ton service en 4 minutes. Tu définis les séances, le prix et les limites de capacité. Ton formulaire d'inscription est généré automatiquement — en ligne, prêt à recevoir tes paiements.
+        </p>
+       </div>
+      </div>
+      <!--/ Étape 1 -->
+      <!-- Étape 2 -->
+      <div class="col-xl-3 col-lg-4 col-md-6 col-xs-8">
+       <div class="card card--services-l6 text-center card-hover__bittersweet h-100">
+        <div class="card--services-l6__icon bg-op1__bittersweet mx-auto d-flex align-items-center justify-content-center">
+         <span style="font-size: 1.6rem; font-weight: 700; color: #ff7272; line-height: 1;">2</span>
+        </div>
+        <h3 class="card--services-l6__heading">
+         Partage ton lien
+        </h3>
+        <p class="card--services-l6__content">
+         Tes participants s'inscrivent depuis leur téléphone ou ordinateur. Ils paient par virement Interac ou par carte de crédit — au choix.
+        </p>
+       </div>
+      </div>
+      <!--/ Étape 2 -->
+      <!-- Étape 3 -->
+      <div class="col-xl-3 col-lg-4 col-md-6 col-xs-8">
+       <div class="card card--services-l6 text-center card-hover__niagara h-100">
+        <div class="card--services-l6__icon bg-op1__niagara mx-auto d-flex align-items-center justify-content-center">
+         <span style="font-size: 1.6rem; font-weight: 700; color: #099a97; line-height: 1;">3</span>
+        </div>
+        <h3 class="card--services-l6__heading">
+         Pilote automatique
+        </h3>
+        <p class="card--services-l6__content">
+         Chaque paiement reçu est jumelé au bon participant. Confirmation de paiement, participations et passeport numérique sont envoyés automatiquement par courriel. Ta comptabilité est toujours à jour — sans que tu touches à rien.
+        </p>
+       </div>
+      </div>
+      <!--/ Étape 3 -->
+     </div>
+    </div>
+   </div>
+   <!--/ .Comment ça marche Area -->
+
    <!-- Services Area -->
    <div id="services" class="service-area service-area--l8 bg-default">
     <div class="container">
@@ -90,11 +264,10 @@
        <!-- Section Title -->
        <div class="section-title section-title--l8 text-center">
         <h6 class="section-title__sub-heading text-bittersweet" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
-         Fonctionnalités
-
+         Fonctionnalités clés
         </h6>
         <h2 class="section-title__heading" data-aos="fade-up" data-aos-delay="300" data-aos-duration="500" data-aos-once="true">
-         Expérience intégrée unique
+         Tout ce dont tu as besoin pour gérer ta saison
         </h2>
        </div>
        <!--/ .Section Title -->
@@ -105,23 +278,15 @@
       <div class="col-xl-3 col-lg-4 col-md-6 col-xs-8">
        <div class="card card--services-l6 text-center card-hover__bittersweet">
         <div class="card--services-l6__icon bg-op1__bittersweet mx-auto">
-         <i class="text-bittersweet fas fa-bell">
+         <i class="text-bittersweet fas fa-bolt">
          </i>
         </div>
         <h3 class="card--services-l6__heading">
-
-         Expérience mobile intuitive 
-
+         Jumelage automatique des virements Interac
         </h3>
         <p class="card--services-l6__content">
-        Gérez numériquement : inscriptions, paiements et présences par code QR. Simple, rapide, sans papier.
-
-         <br class="d-none d-xs-block"/>
-
-         <br class="d-none d-xs-block"/>
-
+         Tes participants font leur virement comme d'habitude — pas d'app à télécharger. Minipass jumèle chaque paiement tout seul. Fini les 3-4 heures par semaine à vérifier manuellement.
         </p>
-
        </div>
       </div>
       <!--/ .Single Services -->
@@ -129,22 +294,14 @@
       <div class="col-xl-3 col-lg-4 col-md-6 col-xs-8">
        <div class="card card--services-l6 text-center card-hover__niagara">
         <div class="card--services-l6__icon bg-op1__niagara mx-auto">
-         <i class="text-niagara fas fa-layer-group">
+         <i class="text-niagara fas fa-qrcode">
          </i>
         </div>
         <h3 class="card--services-l6__heading">
-
-         Communications simplifiées
-
+         Inscriptions et passeports QR
         </h3>
         <p class="card--services-l6__content">
-        Automatisez vos rappels de paiement, lancez des sondages express et partagez facilement sur vos réseaux sociaux.
-
-         <br class="d-none d-xs-block"/>
-
-         <br class="d-none d-xs-block"/>
-
-
+         Un formulaire d'inscription personnalisé par activité. Chaque participant reçoit son passeport numérique avec code QR par courriel. Scan à l'entrée, séances restantes affichées.
         </p>
        </div>
       </div>
@@ -153,23 +310,14 @@
       <div class="col-xl-3 col-lg-4 col-md-6 col-xs-8">
        <div class="card card--services-l6 text-center card-hover__coral">
         <div class="card--services-l6__icon bg-op1__coral mx-auto">
-         <i class="text-coral fas fa-envelope">
+         <i class="text-coral fas fa-envelope-open-text">
          </i>
         </div>
         <h3 class="card--services-l6__heading">
-
-        Suivi de performance
-
+         7 modèles de courriels automatiques
         </h3>
         <p class="card--services-l6__content">
-
-        Visualisez vos ventes, paiements et objectifs en un coup d'œil. Rapports financiers prêts en un clic.
-
-         <br class="d-none d-xs-block"/>
-
-
-         <br class="d-none d-xs-block"/>
-
+         Confirmation d'inscription, rappel de paiement, rédemption de passeport — tout est automatisé et personnalisable. Tes participants reçoivent les bonnes informations au bon moment.
         </p>
        </div>
       </div>
@@ -178,23 +326,14 @@
       <div class="col-xl-3 col-lg-4 col-md-6 col-xs-8">
        <div class="card card--services-l6 text-center card-hover__lavender">
         <div class="card--services-l6__icon bg-op1__lavender mx-auto">
-         <i class="text-lavender fas fa-chart-pie">
+         <i class="text-lavender fas fa-chart-line">
          </i>
         </div>
         <h3 class="card--services-l6__heading">
- 
-        Données intelligentes 
-
+         Gestion financière intégrée
         </h3>
         <p class="card--services-l6__content">
-
-         Posez vos questions à l'assistant IA intégré en langage naturel, obtenez vos réponses instantanément.
-
-
-         <br class="d-none d-xs-block"/>
-
-         <br class="d-none d-xs-block"/>
-
+         Comptabilité caisse et d'exercice, suivi des revenus et dépenses, export compatible QuickBooks, Wave et Xero. Le rapport financier de ta saison en un clic.
         </p>
        </div>
       </div>
@@ -211,14 +350,10 @@
        <!-- Section Title -->
        <div class="section-title section-title--l8 mt-4 mt-md-0 text-center">
         <h6 class="section-title__sub-heading text-bittersweet" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
-         
          Avantages minipass
-
         </h6>
         <h2 class="section-title__heading" data-aos="fade-up" data-aos-delay="300" data-aos-duration="500" data-aos-once="true">
-
-         Solution complète, unique et intuitive
-
+         Une plateforme complète, conçue pour toi
         </h2>
        </div>
        <!--/ .Section Title -->
@@ -239,15 +374,10 @@
          </div>
          <div class="widgets__content">
           <h5 class="widgets__title">
-
-           Abonnements et paiements faciles
-           
+           Tes inscriptions en ligne en 4 minutes
           </h5>
           <p class="widgets__text">
- 
-          Connectez vos médias sociaux, gérez inscriptions et paiements en quelques clics.
-
-
+           Crée ton formulaire, partage le lien, et Minipass gère les inscriptions et les paiements à ta place.
           </p>
          </div>
         </div>
@@ -272,13 +402,10 @@
          </div>
          <div class="widgets__content">
           <h5 class="widgets__title">
-
-           Passeports automatiques
-
+           Passeports numériques automatiques
           </h5>
           <p class="widgets__text">
-
-          Créez, envoyez et suivez les présences par passeports sans effort.
+           Chaque participant reçoit son passeport numérique QR par courriel. Tu scannes à l'entrée, le solde se met à jour.
 
            </p>
          </div>
@@ -294,14 +421,10 @@
          </div>
          <div class="widgets__content">
           <h5 class="widgets__title">
-
-           Communications simplifiées
-
+           Rappels et confirmations automatiques
           </h5>
           <p class="widgets__text">
-
-           Centralisez vos messages, rappels et sondages au même endroit.
-
+           Plus besoin de courir après les paiements. Les rappels partent tout seuls. Les confirmations aussi.
           </p>
          </div>
         </div>
@@ -332,14 +455,10 @@
          </div>
          <div class="widgets__content">
           <h5 class="widgets__title">
-
-           Suivi intelligent
-
+           Tableaux de bord en temps réel
           </h5>
           <p class="widgets__text">
-        
-            Suivez ventes et présences, posez vos questions à l’assistant intelligent.
-
+           Ventes, paiements en attente, présences — tout visible d’un coup d’œil depuis ton téléphone ou ordinateur.
           </p>
          </div>
         </div>
@@ -379,16 +498,10 @@
          </div>
          <div class="widgets__content">
           <h5 class="widgets__title">
-
-           Facile et intuitive
-
-
+           Conçu au Canada, pour Interac
           </h5>
           <p class="widgets__text">
-
-          Interface claire, aucune formation requise
-
-
+           Aucun outil américain ne comprend Interac natif. Minipass oui. Support en français. Données hébergées au Canada.
           </p>
          </div>
         </div>
@@ -417,13 +530,10 @@
      <div class="table-section-top">
       <div class="section-title section-title--l6 text-center" data-aos="fade-top" data-aos-duration="500" data-aos-once="true">
        <h6 class="section-title__sub-heading text-bittersweet mb-5" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
-
         Nos forfaits
-
-      </h6>
+       </h6>
        <h2 class="section-title__heading mb-4" data-aos="fade-up" data-aos-delay="300" data-aos-duration="500" data-aos-once="true">
-
-        Simples et adaptés à vos besoins 
+        Simples, clairs, sans surprise
 
        </h2>
       </div>
@@ -451,9 +561,11 @@
        <div class="card card--table-single border--niagara text-center">
         <div class="table-top bg-niagara">
          <h5 class="table-top__title">
-
-          1 Activité
+          Solo
          </h5>
+         <p class="table-top__text" style="font-size: 0.82rem; opacity: 0.88; margin-bottom: 4px;">
+          Coach hockey, instructeur yoga, 1 programme actif
+         </p>
          <p class="table-top__text dynamic-value" data-active="Forfait annuel" data-monthly="Forfait mensuel" data-yearly="Forfait annuel">
          </p>
          <div class="card--price">
@@ -469,7 +581,7 @@
         </div>
         <ul class="card--table-single__list list-unstyled list-checked list-checked--niagara">
          <li>
-         Droit à 1 activité
+         1 activité active (ligue, cours ou service)
          </li>
          <li>
          Participants & passeports QR illimités
@@ -501,10 +613,11 @@
        <div class="card card--table-single border--bittersweet text-center">
         <div class="table-top bg-bittersweet">
          <h5 class="table-top__title">
-          15 Activités
-
-
+          Club
          </h5>
+         <p class="table-top__text" style="font-size: 0.82rem; opacity: 0.88; margin-bottom: 4px;">
+          Ligue avec divisions, école de danse, multi-cours
+         </p>
          <p class="table-top__text dynamic-value" data-active="Forfait annuel" data-monthly="Forfait mensuel" data-yearly="Forfait annuel">
          </p>
          <div class="card--price">
@@ -520,7 +633,7 @@
         </div>
         <ul class="card--table-single__list list-unstyled list-checked list-checked--bittersweet">
          <li>
-         Droit à 15 activités
+         15 activités actives
          </li>
          <li>
          Participants & passeports QR illimités
@@ -550,10 +663,11 @@
        <div class="card card--table-single border--niagara text-center">
         <div class="table-top bg-niagara">
          <h5 class="table-top__title">
-
-         100 Activités
-
+          Organisation
          </h5>
+         <p class="table-top__text" style="font-size: 0.82rem; opacity: 0.88; margin-bottom: 4px;">
+          Fondation, organisme, réseau de programmes
+         </p>
          <p class="table-top__text dynamic-value" data-active="Forfait annuel" data-monthly="Forfait mensuel" data-yearly="Forfait annuel">
          </p>
          <div class="card--price">
@@ -569,7 +683,7 @@
         </div>
         <ul class="card--table-single__list list-unstyled list-checked list-checked--niagara">
          <li>
-         Droit à 100 activités
+         100 activités actives
          </li>
          <li>
          Participants & passeports QR illimités
@@ -596,78 +710,46 @@
        </div>
       </div>
      </div>
+     <!-- Note définition activité + sans contrat -->
+     <div class="row justify-content-center mt-4" data-aos="fade-up" data-aos-delay="300" data-aos-duration="500" data-aos-once="true">
+      <div class="col-lg-10 col-xl-8 text-center">
+       <p class="text-muted mb-2" style="font-size: 0.95rem;">
+        <i class="fas fa-info-circle text-niagara me-2"></i>
+        <strong>1 activité = 1 ligue, cours ou service complet, sessions illimitées incluses.</strong>
+        Exemple : une ligue de hockey de 20 semaines avec 2 parties/semaine = 1 activité.
+       </p>
+       <p class="text-muted" style="font-size: 0.95rem;">
+        <i class="fas fa-check-circle text-niagara me-2"></i>
+        <strong>Pas de contrat. Annule en tout temps.</strong>
+       </p>
+      </div>
+     </div>
+     <!--/ Note définition activité -->
     </div>
    </div>
-   <div class="testimonial-section testimonial-section--l8 bg-default-5">
+   <!-- CTA Final Area -->
+   <div class="py-5" style="background: linear-gradient(135deg, #099a97 0%, #077775 100%);">
     <div class="container">
-     <div class="row justify-content-center">
-      <div class="col-lg-8 col-xl-7">
-       <div class="section-title section-title--l8 text-center">
-        <h6 class="section-title__sub-heading text-bittersweet" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
-         Témoignage
-        </h6>
-        <h2 class="section-title__heading mb-0" data-aos="fade-up" data-aos-delay="300" data-aos-duration="500" data-aos-once="true">
-         Ils nous font confiance
-        </h2>
-       </div>
-      </div>
-     </div>
-     <div class="row justify-content-center" data-aos="fade-up" data-aos-delay="500" data-aos-duration="500" data-aos-once="true">
-      <div class="col-lg-6 col-md-8">
-       <div class="card card-testimonial--l4">
-        <div class="card-body">
-         <div class="card-body__top d-flex align-items-center justify-content-between">
-          <div class="d-flex flex-wrap align-items-center">
-           <div class="card-image">
-            <img alt="Jean-François Goulet" src="{{ url_for('static', filename='image/home-3/jfg-circle-1.png') }}"/>
-           </div>
-           <div class="card-body__user mr-3">
-            <h3 class="card-title">
-             Jean-François Goulet
-            </h3>
-            <p class="card-text--ext">
-             Co-administrateur de la FLHGI
-            </p>
-           </div>
-          </div>
-          <div class="card-icon">
-           <i class="fa fa-quote-left">
-           </i>
-          </div>
-         </div>
-         <p class="card-description">
-          Avec minipass, nous avons enfin un outil qui nous permet de nous concentrer sur nos résultats plutôt que sur la paperasse. Son intuitivité et ses tableaux de bord budgétaires ont simplifié nos suivis de 75 %. C'est devenu l'allié indispensable pour la coordination rapide et simple de toutes les activités de financement de notre Fondation.
-         </p>
-        </div>
-       </div>
+     <div class="row justify-content-center text-center">
+      <div class="col-xl-7 col-lg-8">
+       <h2 class="text-white mb-3" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
+        Prêt à récupérer tes fins de semaine?
+       </h2>
+       <p class="text-white mb-4" style="font-size: 1.15rem; opacity: 0.95;" data-aos="fade-up" data-aos-delay="200" data-aos-duration="500" data-aos-once="true">
+        10$/mois. Pas de contrat. Annule en tout temps. Déployé en 5 minutes.
+       </p>
+       <a class="btn btn--lg-2 rounded-50 fw-bold" href="/#pricing" style="background: white; color: #099a97;" data-aos="fade-up" data-aos-delay="400" data-aos-duration="500" data-aos-once="true">
+        Voir les forfaits
+       </a>
       </div>
      </div>
     </div>
    </div>
-   <!--/ .Testimonial Area -->
-   <!-- promo Area -->
-   <!--/ .promo Area -->
-   <!-- CTA Area -->
-   <!--/ .CTA Area -->
+   <!--/ .CTA Final Area -->
    <!-- Footer Area -->
    
    <!--/ .Footer Area -->
   </div>
-  <!-- Typed.js Animation Script (other scripts loaded in base.html) -->
-  <script src="{{ url_for('static', filename='plugins/type-js/typed.min.js') }}">
-  </script>
-
-  <script>
-   var typed = new Typed('.highlight-text', {
-    strings: ["repensée", "minipass"],
-    typeSpeed: 80,
-    backSpeed: 80,
-    cursorChar: '',
-    shuffle: true,
-    smartBackspace: false,
-    loop: true
-  });
-  </script>
 
 
 
@@ -1265,4 +1347,33 @@
 
 
 
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  (function(){
+    var slides = document.querySelectorAll('.mp-tslide');
+    var dots   = document.querySelectorAll('.mp-tdot');
+    var current = 0;
+    var timer;
+
+    function goTo(n) {
+      slides[current].classList.remove('mp-tslide--active');
+      dots[current].classList.remove('mp-tdot--active');
+      current = (n + slides.length) % slides.length;
+      slides[current].classList.add('mp-tslide--active');
+      dots[current].classList.add('mp-tdot--active');
+    }
+
+    dots.forEach(function(dot) {
+      dot.addEventListener('click', function() {
+        clearInterval(timer);
+        goTo(parseInt(this.getAttribute('data-slide')));
+        timer = setInterval(function(){ goTo(current + 1); }, 6000);
+      });
+    });
+
+    timer = setInterval(function(){ goTo(current + 1); }, 6000);
+  })();
+</script>
 {% endblock %}
