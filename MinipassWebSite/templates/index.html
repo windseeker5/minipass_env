@@ -17,6 +17,15 @@
 .word-anim--1 { animation: wordGlow 6s ease-in-out infinite; animation-delay: 0s; }
 .word-anim--2 { animation: wordGlow 6s ease-in-out infinite; animation-delay: 2s; }
 .word-anim--3 { animation: wordGlow 6s ease-in-out infinite; animation-delay: 4s; }
+
+/* Reduce excessive section top padding globally */
+@media (min-width: 992px) {
+  .content-section--8     { padding-top: 60px !important; }
+  .table-section--l6,
+  .table-section--l8      { padding-top: 60px !important; }
+  .cta-section--l1        { padding-top: 60px !important; }
+  .service-area--l8       { padding-top: 40px !important; padding-bottom: 40px !important; }
+}
 </style>
 
 <div class="site-wrapper overflow-hidden">
@@ -256,13 +265,67 @@
    </div>
    <!--/ .Comment ça marche Area -->
 
-   <!-- Services Area -->
-   <div id="services" class="service-area service-area--l8 bg-default">
+   <!-- Features Area -->
+   <style>
+    /* Features CSS Grid — guarantees per-row alignment */
+    #services .features-grid {
+      display: grid;
+      grid-template-columns: 1fr 500px 1fr;
+      grid-template-rows: repeat(3, auto);
+      margin-top: 40px;
+    }
+    #services .features-grid .phone-cell {
+      grid-column: 2;
+      grid-row: 1 / 4;
+      position: relative;
+      overflow: visible;
+    }
+    /* Green blob: centered, shifted 50px up, size reduced 40% */
+    #services .features-grid .phone-cell .green-shape-img {
+      position: absolute;
+      top: calc(50% - 50px);
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 437px;
+      max-width: none;
+      z-index: 0;
+    }
+    /* Phone: shifted right 40px, up 60px */
+    #services .features-grid .phone-cell img.phone-img {
+      position: absolute;
+      top: calc(5% - 60px);
+      left: calc(50% - 60px);
+      transform: translateX(-50%);
+      width: 630px;
+      max-width: none;
+      z-index: 1;
+    }
+    #services .features-grid .feat-left {
+      grid-column: 1;
+      padding: 0 20px 35px 0;
+    }
+    #services .features-grid .feat-right {
+      grid-column: 3;
+      padding: 0 0 35px 20px;
+    }
+    /* Icon style — same as before */
+    #services .features-grid .feature-icon {
+      margin-bottom: 0;
+      flex-shrink: 0;
+    }
+    /* Left features: icon on right, text right-aligned */
+    #services .features-grid .feat-left .feature-icon { order: 2; margin-left: 15px; }
+    #services .features-grid .feat-left .widgets__content { order: 1; text-align: right; }
+    /* Right features: icon on left */
+    #services .features-grid .feat-right .feature-icon { order: 1; margin-right: 15px; }
+    #services .features-grid .feat-right .widgets__content { order: 2; }
+   </style>
+   <div id="services" class="content-section content-section--8 bg-default-5 border-bottom border-default-color-3">
     <div class="container">
      <div class="row justify-content-center">
-      <div class="col-xl-8">
+      <div class="col-xl-6 col-lg-8 col-md-9 col-xs-10">
        <!-- Section Title -->
-       <div class="section-title section-title--l8 text-center">
+       <div class="section-title section-title--l8 mt-4 mt-md-0 text-center">
         <h6 class="section-title__sub-heading text-bittersweet" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
          Fonctionnalités clés
         </h6>
@@ -273,245 +336,84 @@
        <!--/ .Section Title -->
       </div>
      </div>
-     <div class="row justify-content-center" data-aos="fade-up" data-aos-delay="500" data-aos-duration="500" data-aos-once="true">
-      <!-- Single Services -->
-      <div class="col-xl-3 col-lg-4 col-md-6 col-xs-8">
-       <div class="card card--services-l6 text-center card-hover__bittersweet">
-        <div class="card--services-l6__icon bg-op1__bittersweet mx-auto">
-         <i class="text-bittersweet fas fa-bolt">
-         </i>
-        </div>
-        <h3 class="card--services-l6__heading">
-         Jumelage automatique des virements Interac
-        </h3>
-        <p class="card--services-l6__content">
-         Tes participants font leur virement comme d'habitude — pas d'app à télécharger. Minipass jumèle chaque paiement tout seul. Fini les 3-4 heures par semaine à vérifier manuellement.
-        </p>
+     <div class="features-grid" data-aos="fade-up" data-aos-delay="300" data-aos-duration="500" data-aos-once="true">
+
+      <!-- Phone image — spans all 3 rows -->
+      <div class="phone-cell">
+       <img class="green-shape-img" alt="" src="{{ url_for("static", filename="image/home-7/green-shape.png") }}"/>
+       <img class="phone-img" alt="" src="{{ url_for("static", filename="image/home-7/about-mobile-img.png") }}"/>
+      </div>
+
+      <!-- Row 1 left -->
+      <div class="widgets widgets--about-l6 d-flex feat-left">
+       <div class="card--services-l6__icon bg-op1__bittersweet feature-icon">
+        <i class="text-bittersweet fas fa-bolt"></i>
+       </div>
+       <div class="widgets__content">
+        <h5 class="widgets__title">Jumelage automatique des virements Interac</h5>
+        <p class="widgets__text">Tes participants font leur virement comme d’habitude — pas d’app à télécharger. Minipass jumèle chaque paiement tout seul. Fini les 3–4 heures par semaine à vérifier manuellement.</p>
        </div>
       </div>
-      <!--/ .Single Services -->
-      <!-- Single Services -->
-      <div class="col-xl-3 col-lg-4 col-md-6 col-xs-8">
-       <div class="card card--services-l6 text-center card-hover__niagara">
-        <div class="card--services-l6__icon bg-op1__niagara mx-auto">
-         <i class="text-niagara fas fa-qrcode">
-         </i>
-        </div>
-        <h3 class="card--services-l6__heading">
-         Inscriptions et passeports QR
-        </h3>
-        <p class="card--services-l6__content">
-         Un formulaire d'inscription personnalisé par activité. Chaque participant reçoit son passeport numérique avec code QR par courriel. Scan à l'entrée, séances restantes affichées.
-        </p>
+
+      <!-- Row 1 right -->
+      <div class="widgets widgets--about-l6 d-flex feat-right">
+       <div class="card--services-l6__icon bg-op1__lavender feature-icon">
+        <i class="text-lavender fas fa-envelope-open-text"></i>
+       </div>
+       <div class="widgets__content">
+        <h5 class="widgets__title">Courriels et rappels automatiques</h5>
+        <p class="widgets__text">Confirmation d’inscription, rappel de paiement, rédemption de passeport — tout est automatisé. Tes participants reçoivent les bonnes informations au bon moment, sans effort de ta part.</p>
        </div>
       </div>
-      <!--/ .Single Services -->
-      <!-- Single Services -->
-      <div class="col-xl-3 col-lg-4 col-md-6 col-xs-8">
-       <div class="card card--services-l6 text-center card-hover__coral">
-        <div class="card--services-l6__icon bg-op1__coral mx-auto">
-         <i class="text-coral fas fa-envelope-open-text">
-         </i>
-        </div>
-        <h3 class="card--services-l6__heading">
-         7 modèles de courriels automatiques
-        </h3>
-        <p class="card--services-l6__content">
-         Confirmation d'inscription, rappel de paiement, rédemption de passeport — tout est automatisé et personnalisable. Tes participants reçoivent les bonnes informations au bon moment.
-        </p>
+
+      <!-- Row 2 left -->
+      <div class="widgets widgets--about-l6 d-flex feat-left">
+       <div class="card--services-l6__icon bg-op1__niagara feature-icon">
+        <i class="text-niagara fas fa-clipboard-list"></i>
+       </div>
+       <div class="widgets__content">
+        <h5 class="widgets__title">Inscriptions en ligne en 4 minutes</h5>
+        <p class="widgets__text">Crée ton formulaire, partage le lien, et Minipass gère les inscriptions et les paiements à ta place. Tes participants s’inscrivent en quelques clics.</p>
        </div>
       </div>
-      <!--/ .Single Services -->
-      <!-- Single Services -->
-      <div class="col-xl-3 col-lg-4 col-md-6 col-xs-8">
-       <div class="card card--services-l6 text-center card-hover__lavender">
-        <div class="card--services-l6__icon bg-op1__lavender mx-auto">
-         <i class="text-lavender fas fa-chart-line">
-         </i>
-        </div>
-        <h3 class="card--services-l6__heading">
-         Gestion financière intégrée
-        </h3>
-        <p class="card--services-l6__content">
-         Comptabilité caisse et d'exercice, suivi des revenus et dépenses, export compatible QuickBooks, Wave et Xero. Le rapport financier de ta saison en un clic.
-        </p>
+
+      <!-- Row 2 right -->
+      <div class="widgets widgets--about-l6 d-flex feat-right">
+       <div class="card--services-l6__icon bg-op1__bittersweet feature-icon">
+        <i class="text-bittersweet fas fa-chart-line"></i>
+       </div>
+       <div class="widgets__content">
+        <h5 class="widgets__title">Gestion financière intégrée</h5>
+        <p class="widgets__text">Tableaux financiers complets : revenus, dépenses, soldes en attente. Export direct vers QuickBooks, Wave et Xero. Fini les fins de mois à rattraper.</p>
        </div>
       </div>
-      <!--/ .Single Services -->
+
+      <!-- Row 3 left -->
+      <div class="widgets widgets--about-l6 d-flex feat-left">
+       <div class="card--services-l6__icon bg-op1__coral feature-icon">
+        <i class="text-coral fas fa-qrcode"></i>
+       </div>
+       <div class="widgets__content">
+        <h5 class="widgets__title">Passeports numériques QR</h5>
+        <p class="widgets__text">Chaque participant reçoit son passeport numérique avec code QR par courriel. Tu scannes à l’entrée, le solde se met à jour automatiquement.</p>
+       </div>
+      </div>
+
+      <!-- Row 3 right -->
+      <div class="widgets widgets--about-l6 d-flex feat-right">
+       <div class="card--services-l6__icon bg-op1__niagara feature-icon">
+        <i class="text-niagara fas fa-map-marker-alt"></i>
+       </div>
+       <div class="widgets__content">
+        <h5 class="widgets__title">Conçu au Canada, pour Interac</h5>
+        <p class="widgets__text">Aucun outil américain ne comprend Interac natif. Minipass oui. Support en français. Données hébergées au Canada.</p>
+       </div>
+      </div>
+
      </div>
     </div>
    </div>
-   <!--/ .Services Area -->
-   <!-- About Us Area -->
-   <div class="content-section content-section--8 bg-default-5 border-bottom border-default-color-3">
-    <div class="container">
-     <div class="row justify-content-center">
-      <div class="col-xl-6 col-lg-8 col-md-9 col-xs-10">
-       <!-- Section Title -->
-       <div class="section-title section-title--l8 mt-4 mt-md-0 text-center">
-        <h6 class="section-title__sub-heading text-bittersweet" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
-         Avantages minipass
-        </h6>
-        <h2 class="section-title__heading" data-aos="fade-up" data-aos-delay="300" data-aos-duration="500" data-aos-once="true">
-         Une plateforme complète, conçue pour toi
-        </h2>
-       </div>
-       <!--/ .Section Title -->
-      </div>
-     </div>
-     <div class="row align-items-center justify-content-center" data-aos="fade-up" data-aos-delay="300" data-aos-duration="500" data-aos-once="true">
-      <div class="col-xxl-3 col-lg-4 col-md-6 col-sm-8 col-xs-9 order-2 order-lg-1">
-       <div class="widget widget--about widgets-align-right">
-        <!-- Single Services -->
-        <div class="widgets widgets--about-l6 d-flex">
-         <div class="widgets__icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block;">
-           <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
-           <path d="M6 21v-2a4 4 0 0 1 4 -4h3" />
-           <path d="M21 15h-2.5a1.5 1.5 0 0 0 0 3h1a1.5 1.5 0 0 1 0 3h-2.5" />
-           <path d="M19 21v1m0 -8v1" />
-          </svg>
-         </div>
-         <div class="widgets__content">
-          <h5 class="widgets__title">
-           Tes inscriptions en ligne en 4 minutes
-          </h5>
-          <p class="widgets__text">
-           Crée ton formulaire, partage le lien, et Minipass gère les inscriptions et les paiements à ta place.
-          </p>
-         </div>
-        </div>
-        <!--/ .Single Services -->
-        <!-- Single Services -->
-        <div class="widgets widgets--about-l6 d-flex">
-         <div class="widgets__icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block;">
-           <path d="M4 4m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" />
-           <path d="M7 17l0 .01" />
-           <path d="M14 4m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" />
-           <path d="M7 7l0 .01" />
-           <path d="M4 14m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" />
-           <path d="M17 7l0 .01" />
-           <path d="M14 14l3 0" />
-           <path d="M20 14l0 .01" />
-           <path d="M14 14l0 3" />
-           <path d="M14 20l3 0" />
-           <path d="M17 17l3 0" />
-           <path d="M20 17l0 3" />
-          </svg>
-         </div>
-         <div class="widgets__content">
-          <h5 class="widgets__title">
-           Passeports numériques automatiques
-          </h5>
-          <p class="widgets__text">
-           Chaque participant reçoit son passeport numérique QR par courriel. Tu scannes à l'entrée, le solde se met à jour.
-
-           </p>
-         </div>
-        </div>
-        <!--/ .Single Services -->
-        <!-- Single Services -->
-        <div class="widgets widgets--about-l6 d-flex">
-         <div class="widgets__icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block;">
-           <path d="M3 20l1.3 -3.9a9 8 0 1 1 3.4 2.9l-4.7 1" />
-           <path d="M8 13l3 -2l2 2l3 -2" />
-          </svg>
-         </div>
-         <div class="widgets__content">
-          <h5 class="widgets__title">
-           Rappels et confirmations automatiques
-          </h5>
-          <p class="widgets__text">
-           Plus besoin de courir après les paiements. Les rappels partent tout seuls. Les confirmations aussi.
-          </p>
-         </div>
-        </div>
-        <!--/ .Single Services -->
-       </div>
-      </div>
-      <div class="col-xxl-6 col-lg-4 col-md-8 col-xs-9 order-1 order-lg-2" data-aos="fade-up" data-aos-delay="300" data-aos-duration="500" data-aos-once="true">
-       <div class="content-img content-img--l7-group-img text-center">
-        <img alt="" class="w-100" src="{{ url_for('static', filename='image/home-7/about-mobile-img.png') }}"/>
-        <div class="shape">
-         <img alt="" src="{{ url_for('static', filename='image/home-7/green-shape.png') }}"/>
-        </div>
-       </div>
-      </div>
-      <div class="col-xxl-3 col-lg-4 col-md-6 col-sm-8 col-xs-9 order-3" data-aos="fade-up" data-aos-delay="300" data-aos-duration="500" data-aos-once="true">
-       <div class="widget widget--about">
-        <!-- Single Services -->
-        <div class="widgets widgets--about-l6 d-flex">
-         <div class="widgets__icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block;">
-           <path d="M16 6m-5 0a5 3 0 1 0 10 0a5 3 0 1 0 -10 0" />
-           <path d="M11 6v4c0 1.657 2.239 3 5 3s5 -1.343 5 -3v-4" />
-           <path d="M11 10v4c0 1.657 2.239 3 5 3s5 -1.343 5 -3v-4" />
-           <path d="M11 14v4c0 1.657 2.239 3 5 3s5 -1.343 5 -3v-4" />
-           <path d="M7 9h-2.5a1.5 1.5 0 0 0 0 3h1a1.5 1.5 0 0 1 0 3h-2.5" />
-           <path d="M5 15v1m0 -8v1" />
-          </svg>
-         </div>
-         <div class="widgets__content">
-          <h5 class="widgets__title">
-           Tableaux de bord en temps réel
-          </h5>
-          <p class="widgets__text">
-           Ventes, paiements en attente, présences — tout visible d’un coup d’œil depuis ton téléphone ou ordinateur.
-          </p>
-         </div>
-        </div>
-        <!--/ .Single Services -->
-        <!-- Single Services -->
-        <div class="widgets widgets--about-l6 d-flex">
-         <div class="widgets__icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block;">
-           <path d="M9.173 14.83a4 4 0 1 1 5.657 -5.657" />
-           <path d="M11.294 12.707l.174 .247a7.5 7.5 0 0 0 8.845 2.492a9 9 0 0 1 -14.671 2.914" />
-           <path d="M3 12h1" />
-           <path d="M12 3v1" />
-           <path d="M5.6 5.6l.7 .7" />
-           <path d="M3 21l18 -18" />
-          </svg>
-         </div>
-         <div class="widgets__content">
-          <h5 class="widgets__title">
-
-           Disponible partout, tout le temps
-
-          </h5>
-          <p class="widgets__text">
-
-            Accédez à minipass depuis votre téléphone ou ordinateur, 24/7
-
-          </p>
-         </div>
-        </div>
-        <!--/ .Single Services -->
-        <!-- Single Services -->
-        <div class="widgets widgets--about-l6 d-flex">
-         <div class="widgets__icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block;">
-           <path d="M16 18a2 2 0 0 1 2 2a2 2 0 0 1 2 -2a2 2 0 0 1 -2 -2a2 2 0 0 1 -2 2zm0 -12a2 2 0 0 1 2 2a2 2 0 0 1 2 -2a2 2 0 0 1 -2 -2a2 2 0 0 1 -2 2zm-7 12a6 6 0 0 1 6 -6a6 6 0 0 1 -6 -6a6 6 0 0 1 -6 6a6 6 0 0 1 6 6z" />
-          </svg>
-         </div>
-         <div class="widgets__content">
-          <h5 class="widgets__title">
-           Conçu au Canada, pour Interac
-          </h5>
-          <p class="widgets__text">
-           Aucun outil américain ne comprend Interac natif. Minipass oui. Support en français. Données hébergées au Canada.
-          </p>
-         </div>
-        </div>
-        <!--/ .Single Services -->
-       </div>
-      </div>
-     </div>
-    </div>
-   </div>
-   <!--/ .About Us Area -->
+   <!--/ .Features Area -->
 
 
 
