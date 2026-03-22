@@ -73,10 +73,10 @@
             <!-- Logo -->
             <div class="px-6 border-b border-base-300 flex flex-col items-center justify-center h-[60px]">
                 <img src="{{ url_for('static', filename='image/mp-logo-regular.png') }}"
-                     alt="Minipass"
+                     alt="minipass"
                      class="h-5 w-auto theme-icon-light">
                 <img src="{{ url_for('static', filename='image/mp-logo-white.png') }}"
-                     alt="Minipass"
+                     alt="minipass"
                      class="h-5 w-auto theme-icon-dark hidden">
                 <div class="text-xs text-base-content/50 mt-1 leading-none">Admin Panel</div>
             </div>
@@ -97,6 +97,13 @@
                            class="gap-3 rounded-lg {% if request.endpoint == 'admin_promo_codes' %}bg-primary text-primary-content hover:bg-primary{% endif %}">
                             <i data-lucide="tag" class="w-4 h-4"></i>
                             Promo Codes
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('admin_blog') }}"
+                           class="gap-3 rounded-lg {% if request.endpoint in ('admin_blog','admin_blog_new','admin_blog_edit') %}bg-primary text-primary-content hover:bg-primary{% endif %}">
+                            <i data-lucide="newspaper" class="w-4 h-4"></i>
+                            Blog
                         </a>
                     </li>
                     <li class="menu-title text-xs uppercase tracking-widest text-base-content/40 mt-3 mb-1">Monitoring</li>
