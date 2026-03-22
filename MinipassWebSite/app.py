@@ -85,7 +85,20 @@ def inject_now():
 
 @app.route("/")
 def home():
-    return render_template("index.html")
+    import sqlite3
+    homepage_posts = []
+    try:
+        with sqlite3.connect("customers.db") as conn:
+            conn.row_factory = sqlite3.Row
+            _init_blog_db(conn)
+            homepage_posts = conn.execute("""
+                SELECT * FROM blog_posts WHERE published=1
+                ORDER BY CASE WHEN category='Documentation' THEN 1 ELSE 0 END ASC,
+                         published_at DESC LIMIT 3
+            """).fetchall()
+    except Exception:
+        pass
+    return render_template("index.html", homepage_posts=homepage_posts)
 
 
 @app.route("/about")
@@ -95,29 +108,218 @@ def about():
 
 @app.route("/guides")
 def guides():
-    return render_template("guides.html")
+    return redirect(url_for('blog'), 301)
 
 
 @app.route("/guides/<slug>")
 def guide_detail(slug):
-    # Path to markdown file
-    doc_path = os.path.join(app.static_folder, 'docs', f'{slug}.md')
-
-    if not os.path.exists(doc_path):
-        abort(404)
-
-    # Read and convert markdown to HTML
-    with open(doc_path, 'r', encoding='utf-8') as f:
-        content = f.read()
-
-    html_content = markdown.markdown(content, extensions=['tables', 'fenced_code', 'toc'])
-
-    return render_template('guide-detail.html', content=html_content, slug=slug)
+    return redirect(url_for('blog_detail', slug=slug), 301)
 
 
 @app.route("/politiques")
 def politiques():
     return render_template("politiques.html")
+
+
+@app.route("/lead-magnet", methods=["POST"])
+def lead_magnet():
+    import sqlite3
+    email = request.json.get("email", "").strip().lower() if request.is_json else request.form.get("email", "").strip().lower()
+    if not email or not re.match(r'^[^@\s]+@[^@\s]+\.[^@\s]+$', email):
+        return jsonify({"success": False, "error": "Adresse courriel invalide."}), 400
+
+    with sqlite3.connect("customers.db") as conn:
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS leads (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                email TEXT NOT NULL UNIQUE,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                source TEXT DEFAULT 'lead_magnet'
+            )
+        """)
+        conn.execute("INSERT OR IGNORE INTO leads (email) VALUES (?)", (email,))
+        conn.commit()
+
+    return jsonify({"success": True, "download_url": "/static/guides/guide-minipass.pdf"})
+
+
+@app.route("/newsletter-subscribe", methods=["POST"])
+def newsletter_subscribe():
+    import sqlite3
+    data = request.get_json(silent=True) or {}
+    email = data.get("email", "").strip().lower() or request.form.get("email", "").strip().lower()
+    if not email or not re.match(r'^[^@\s]+@[^@\s]+\.[^@\s]+$', email):
+        return jsonify({"success": False, "error": "Adresse courriel invalide."}), 400
+    with sqlite3.connect("customers.db") as conn:
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS leads (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                email TEXT NOT NULL UNIQUE,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                source TEXT DEFAULT 'lead_magnet'
+            )
+        """)
+        conn.execute("INSERT OR IGNORE INTO leads (email, source) VALUES (?, 'newsletter')", (email,))
+        conn.commit()
+    return jsonify({"success": True})
+
+
+# ============================================================================
+# BLOG
+# ============================================================================
+
+def _strip_md(text):
+    """Strip common markdown syntax for plain text excerpt."""
+    import re as _re
+    text = _re.sub(r'^\s*#{1,6}\s+', '', text, flags=_re.MULTILINE)
+    text = _re.sub(r'\*{1,3}([^*]+)\*{1,3}', r'\1', text)
+    text = _re.sub(r'`{1,3}[^`]*`{1,3}', '', text)
+    text = _re.sub(r'!?\[([^\]]*)\]\([^)]*\)', r'\1', text)
+    text = _re.sub(r'^\s*[-*>|]+\s*', '', text, flags=_re.MULTILINE)
+    text = _re.sub(r'\s+', ' ', text).strip()
+    return text
+
+
+def _init_blog_db(conn):
+    """Create blog_posts table and add any missing columns."""
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS blog_posts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            slug TEXT NOT NULL UNIQUE,
+            excerpt TEXT,
+            body TEXT,
+            category TEXT DEFAULT 'Stratégie',
+            author TEXT DEFAULT 'Marie-France',
+            published INTEGER DEFAULT 0,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            published_at DATETIME,
+            video_url TEXT
+        )
+    """)
+    try:
+        conn.execute("ALTER TABLE blog_posts ADD COLUMN video_url TEXT")
+    except Exception:
+        pass  # column already exists
+
+
+def _migrate_guides_to_blog(conn):
+    """Import existing static/docs/*.md files + seed data. Idempotent via INSERT OR IGNORE."""
+    docs_dir = os.path.join(app.static_folder, 'docs')
+    migrations = [
+        ("faq.md", "faq", "Documentation", "Minipass"),
+        ("guide-demarrage.md", "guide-demarrage", "Documentation", "Minipass"),
+        ("installation-app-fr.md", "installation-app-fr", "Documentation", "Minipass"),
+        ("installation-app-en.md", "installation-app-en", "Documentation", "Minipass"),
+        ("setup-stripe-fr.md", "setup-stripe-fr", "Tutoriel", "Minipass"),
+        ("plan-changes-and-proration.md", "plan-changes-and-proration", "Documentation", "Minipass"),
+        ("architecture-and-data-flow.md", "architecture-and-data-flow", "Documentation", "Minipass"),
+    ]
+    for filename, slug, category, author in migrations:
+        fpath = os.path.join(docs_dir, filename)
+        if not os.path.exists(fpath):
+            continue
+        with open(fpath, 'r', encoding='utf-8') as f:
+            body = f.read()
+        lines = [l.strip() for l in body.splitlines() if l.strip()]
+        title = _strip_md(lines[0]) if lines else slug
+        excerpt_lines = [l for l in lines[1:] if not l.startswith('#') and len(l) > 20]
+        excerpt = _strip_md(excerpt_lines[0])[:200] if excerpt_lines else ""
+        conn.execute("""
+            INSERT OR IGNORE INTO blog_posts (title, slug, excerpt, body, category, author, published, published_at)
+            VALUES (?, ?, ?, ?, ?, ?, 1, CURRENT_TIMESTAMP)
+        """, (title, slug, excerpt, body, category, author))
+        # Fix any existing records with raw markdown excerpts
+        conn.execute("""
+            UPDATE blog_posts SET title=?, excerpt=? WHERE slug=? AND (
+                excerpt LIKE '%**%' OR excerpt LIKE '%*Last%' OR excerpt LIKE '%*Derni%' OR title LIKE '%**%'
+            )
+        """, (title, excerpt, slug))
+
+    # YouTube video: Démarrage rapide
+    conn.execute("""
+        INSERT OR IGNORE INTO blog_posts (title, slug, excerpt, body, category, author, published, published_at, video_url)
+        VALUES (?, ?, ?, ?, ?, ?, 1, CURRENT_TIMESTAMP, ?)
+    """, (
+        "Démarrage rapide avec minipass",
+        "demarrage-rapide-video",
+        "Apprenez à configurer votre compte et créer votre première activité en moins de 5 minutes.",
+        "# Démarrage rapide avec minipass\n\nRegarde cette vidéo pour configurer ton compte et créer ta première activité en moins de 5 minutes.",
+        "Tutoriel", "Minipass",
+        "https://www.youtube.com/watch?v=71_fjztO0dM"
+    ))
+
+    # Seed 3 draft SEO articles
+    seed_articles = [
+        ("Guide complet : gérer une ligue de hockey amateur en 2026",
+         "gerer-ligue-hockey-amateur",
+         "Tout ce que tu dois savoir pour gérer ta ligue de hockey amateur sans stress, des inscriptions aux paiements.",
+         "# Guide complet : gérer une ligue de hockey amateur en 2026\n\n*Contenu à venir — rédige cet article et publie-le pour qu'il apparaisse sur le site.*",
+         "Stratégie", "Marie-France"),
+        ("Automatiser le suivi des virements Interac pour votre ligue",
+         "automatiser-virements-interac",
+         "Comment ne plus jamais perdre un paiement Interac et automatiser le suivi pour ta ligue sportive.",
+         "# Automatiser le suivi des virements Interac\n\n*Contenu à venir — rédige cet article et publie-le pour qu'il apparaisse sur le site.*",
+         "Stratégie", "Marie-France"),
+        ("Créer un formulaire d'inscription en 5 minutes",
+         "formulaire-inscription-5-minutes",
+         "Un tutoriel pas-à-pas pour créer ton premier formulaire d'inscription en ligne avec minipass.",
+         "# Créer un formulaire d'inscription en 5 minutes\n\n*Contenu à venir — rédige cet article et publie-le pour qu'il apparaisse sur le site.*",
+         "Tutoriel", "Marie-France"),
+    ]
+    for title, slug, excerpt, body, category, author in seed_articles:
+        conn.execute("""
+            INSERT OR IGNORE INTO blog_posts (title, slug, excerpt, body, category, author, published)
+            VALUES (?, ?, ?, ?, ?, ?, 0)
+        """, (title, slug, excerpt, body, category, author))
+
+
+@app.route("/blog")
+def blog():
+    import sqlite3
+    category = request.args.get('category', '')
+    with sqlite3.connect("customers.db") as conn:
+        conn.row_factory = sqlite3.Row
+        _init_blog_db(conn)
+        _migrate_guides_to_blog(conn)
+        if category:
+            posts = conn.execute(
+                "SELECT * FROM blog_posts WHERE published=1 AND category=? ORDER BY published_at DESC",
+                (category,)
+            ).fetchall()
+        else:
+            posts = conn.execute(
+                "SELECT * FROM blog_posts WHERE published=1 ORDER BY published_at DESC"
+            ).fetchall()
+        categories = conn.execute(
+            "SELECT DISTINCT category FROM blog_posts WHERE published=1 ORDER BY category"
+        ).fetchall()
+    return render_template("blog.html", posts=posts, categories=categories, active_category=category)
+
+
+def _yt_id(url):
+    """Extract YouTube video ID from URL."""
+    if not url:
+        return None
+    import re as _re
+    m = _re.search(r'(?:v=|youtu\.be/|embed/)([A-Za-z0-9_-]{11})', url)
+    return m.group(1) if m else None
+
+
+@app.route("/blog/<slug>")
+def blog_detail(slug):
+    import sqlite3
+    with sqlite3.connect("customers.db") as conn:
+        conn.row_factory = sqlite3.Row
+        _init_blog_db(conn)
+        post = conn.execute(
+            "SELECT * FROM blog_posts WHERE slug=? AND published=1", (slug,)
+        ).fetchone()
+    if not post:
+        abort(404)
+    html_content = markdown.markdown(post['body'] or '', extensions=['tables', 'fenced_code', 'toc'])
+    video_id = _yt_id(post['video_url']) if post['video_url'] else None
+    return render_template("blog-detail.html", post=post, content=html_content, video_id=video_id)
 
 
 @app.route("/sitemap.xml")
@@ -865,6 +1067,143 @@ def stripe_webhook():
             subscription_logger.warning(f"⚠️ Customer not found for subscription ID: {stripe_subscription_id}")
 
     return "OK", 200
+
+
+# ============================================================================
+# ADMIN BLOG
+# ============================================================================
+
+def _slug_from_title(title):
+    """Generate URL-safe slug from title."""
+    import unicodedata
+    slug = unicodedata.normalize('NFKD', title).encode('ascii', 'ignore').decode('ascii')
+    slug = re.sub(r'[^\w\s-]', '', slug).strip().lower()
+    slug = re.sub(r'[-\s]+', '-', slug)
+    return slug[:80]
+
+
+@app.route("/admin/blog")
+def admin_blog():
+    import sqlite3
+    require_admin_check = session.get('admin_authenticated')
+    if not require_admin_check:
+        return redirect(url_for('admin_login'))
+    with sqlite3.connect("customers.db") as conn:
+        conn.row_factory = sqlite3.Row
+        _init_blog_db(conn)
+        _migrate_guides_to_blog(conn)
+        posts = conn.execute(
+            "SELECT * FROM blog_posts ORDER BY created_at DESC"
+        ).fetchall()
+    return render_template("admin/blog.html", posts=posts)
+
+
+@app.route("/admin/blog/new")
+def admin_blog_new():
+    if not session.get('admin_authenticated'):
+        return redirect(url_for('admin_login'))
+    return render_template("admin/blog-form.html", post=None, action=url_for('admin_blog_create'))
+
+
+@app.route("/admin/blog/create", methods=["POST"])
+def admin_blog_create():
+    if not session.get('admin_authenticated'):
+        return redirect(url_for('admin_login'))
+    import sqlite3
+    title = request.form.get("title", "").strip()
+    slug = request.form.get("slug", "").strip() or _slug_from_title(title)
+    excerpt = request.form.get("excerpt", "").strip()[:300]
+    body = request.form.get("body", "")
+    category = request.form.get("category", "Stratégie")
+    author = request.form.get("author", "Marie-France").strip()
+    video_url = request.form.get("video_url", "").strip() or None
+    published = 1 if request.form.get("published") else 0
+    published_at = datetime.now(timezone.utc).isoformat() if published else None
+    with sqlite3.connect("customers.db") as conn:
+        _init_blog_db(conn)
+        conn.execute("""
+            INSERT INTO blog_posts (title, slug, excerpt, body, category, author, published, published_at, video_url)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (title, slug, excerpt, body, category, author, published, published_at, video_url))
+        conn.commit()
+    return redirect(url_for('admin_blog'))
+
+
+@app.route("/admin/blog/edit/<int:post_id>")
+def admin_blog_edit(post_id):
+    if not session.get('admin_authenticated'):
+        return redirect(url_for('admin_login'))
+    import sqlite3
+    with sqlite3.connect("customers.db") as conn:
+        conn.row_factory = sqlite3.Row
+        post = conn.execute("SELECT * FROM blog_posts WHERE id=?", (post_id,)).fetchone()
+    if not post:
+        abort(404)
+    return render_template("admin/blog-form.html", post=post, action=url_for('admin_blog_update', post_id=post_id))
+
+
+@app.route("/admin/blog/update/<int:post_id>", methods=["POST"])
+def admin_blog_update(post_id):
+    if not session.get('admin_authenticated'):
+        return redirect(url_for('admin_login'))
+    import sqlite3
+    title = request.form.get("title", "").strip()
+    slug = request.form.get("slug", "").strip() or _slug_from_title(title)
+    excerpt = request.form.get("excerpt", "").strip()[:300]
+    body = request.form.get("body", "")
+    category = request.form.get("category", "Stratégie")
+    author = request.form.get("author", "Marie-France").strip()
+    video_url = request.form.get("video_url", "").strip() or None
+    published = 1 if request.form.get("published") else 0
+    with sqlite3.connect("customers.db") as conn:
+        old = conn.execute("SELECT published, published_at FROM blog_posts WHERE id=?", (post_id,)).fetchone()
+        if old:
+            published_at = old[1]
+            if published and not old[0]:
+                published_at = datetime.now(timezone.utc).isoformat()
+            conn.execute("""
+                UPDATE blog_posts SET title=?, slug=?, excerpt=?, body=?, category=?, author=?, published=?, published_at=?, video_url=?
+                WHERE id=?
+            """, (title, slug, excerpt, body, category, author, published, published_at, video_url, post_id))
+            conn.commit()
+    return redirect(url_for('admin_blog'))
+
+
+@app.route("/admin/blog/toggle/<int:post_id>", methods=["POST"])
+def admin_blog_toggle(post_id):
+    if not session.get('admin_authenticated'):
+        return redirect(url_for('admin_login'))
+    import sqlite3
+    with sqlite3.connect("customers.db") as conn:
+        row = conn.execute("SELECT published FROM blog_posts WHERE id=?", (post_id,)).fetchone()
+        if row:
+            new_val = 0 if row[0] else 1
+            published_at = datetime.now(timezone.utc).isoformat() if new_val else None
+            conn.execute("UPDATE blog_posts SET published=?, published_at=? WHERE id=?",
+                         (new_val, published_at, post_id))
+            conn.commit()
+    return redirect(url_for('admin_blog'))
+
+
+@app.route("/admin/blog/delete/<int:post_id>", methods=["POST"])
+def admin_blog_delete(post_id):
+    if not session.get('admin_authenticated'):
+        return redirect(url_for('admin_login'))
+    import sqlite3
+    with sqlite3.connect("customers.db") as conn:
+        conn.execute("DELETE FROM blog_posts WHERE id=?", (post_id,))
+        conn.commit()
+    return redirect(url_for('admin_blog'))
+
+
+@app.route("/admin/blog/preview", methods=["POST"])
+def admin_blog_preview():
+    if not session.get('admin_authenticated'):
+        return jsonify({"html": ""}), 401
+    data = request.get_json(silent=True) or {}
+    md_text = data.get("markdown", "")
+    html = markdown.markdown(md_text, extensions=['tables', 'fenced_code', 'toc'])
+    return jsonify({"html": html})
 
 
 # ============================================================================

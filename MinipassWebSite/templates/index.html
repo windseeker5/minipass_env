@@ -8,6 +8,22 @@
 {% block content %}
 
 <style>
+/* Blog teaser cards on homepage */
+.guide-card {
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+.guide-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+}
+
 @keyframes wordGlow {
   0%, 100%   { color: inherit; }
   15%, 50%   { color: #ff7272; }
@@ -54,7 +70,7 @@
         <h3 class="welcome-content--l8__sub-title text-bittersweet" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
          Tu crées. Tout s'automatise.
         </h3>
-        <h1 class="welcome-content__title" style="font-size: 2.6rem; line-height: 1.2; font-weight: 800;">
+        <h1 class="welcome-content__title section-title__heading" style="font-size: 50px;">
          Automatise la gestion de tes <span class="word-anim word-anim--1">cours</span>, <span class="word-anim word-anim--2">ligues</span> et <span class="word-anim word-anim--3">événements</span>
         </h1>
         <p class="welcome-content--l8__descriptions" data-aos="fade-up" data-aos-delay="500" data-aos-duration="500" data-aos-once="true">
@@ -294,9 +310,9 @@
     #services .features-grid .phone-cell img.phone-img {
       position: absolute;
       top: calc(5% - 60px);
-      left: calc(50% - 60px);
+      left: calc(50% - 48px);
       transform: translateX(-50%);
-      width: 630px;
+      width: 567px;
       max-width: none;
       z-index: 1;
     }
@@ -350,8 +366,8 @@
         <i class="text-bittersweet fas fa-bolt"></i>
        </div>
        <div class="widgets__content">
-        <h5 class="widgets__title">Jumelage automatique des virements Interac</h5>
-        <p class="widgets__text">Tes participants font leur virement comme d’habitude — pas d’app à télécharger. Minipass jumèle chaque paiement tout seul. Fini les 3–4 heures par semaine à vérifier manuellement.</p>
+        <h5 class="widgets__title">Jumelage automatique de paiement</h5>
+        <p class="widgets__text">Tes participants font leur virement comme d’habitude — pas d’application à télécharger. minipass jumèle chaque paiement automatiquement. Fini les heures par semaine à vérifier manuellement.</p>
        </div>
       </div>
 
@@ -372,8 +388,8 @@
         <i class="text-niagara fas fa-clipboard-list"></i>
        </div>
        <div class="widgets__content">
-        <h5 class="widgets__title">Inscriptions en ligne en 4 minutes</h5>
-        <p class="widgets__text">Crée ton formulaire, partage le lien, et Minipass gère les inscriptions et les paiements à ta place. Tes participants s’inscrivent en quelques clics.</p>
+        <h5 class="widgets__title">Inscriptions en ligne simplifiées</h5>
+        <p class="widgets__text">Crée ton activité, partage le lien, et minipass gère les inscriptions et les paiements à ta place. Tes participants s’inscrivent en quelques clics.</p>
        </div>
       </div>
 
@@ -406,7 +422,7 @@
        </div>
        <div class="widgets__content">
         <h5 class="widgets__title">Conçu au Canada, pour Interac</h5>
-        <p class="widgets__text">Aucun outil américain ne comprend Interac natif. Minipass oui. Support en français. Données hébergées au Canada.</p>
+        <p class="widgets__text">Aucun outil américain ne comprend Interac natif. minipass oui. Support en français. Données hébergées au Canada.</p>
        </div>
       </div>
 
@@ -427,7 +443,50 @@
 
 
 
-   <div id="pricing" class="table-section table-section--l6 table-section--l8 bg-default border-bottom border-default-color-3">
+   <style>
+   .activite-tooltip {
+    position: relative;
+    display: inline;
+    border-bottom: 1px dotted currentColor;
+    cursor: help;
+   }
+   .activite-tooltip__box {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    width: 260px;
+    background: #fff;
+    color: #444;
+    font-size: 0.82rem;
+    font-weight: 400;
+    line-height: 1.5;
+    padding: 10px 14px;
+    border-radius: 8px;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.13);
+    border: 1px solid #e5e5e5;
+    z-index: 100;
+    text-align: left;
+    pointer-events: none;
+    white-space: normal;
+   }
+   .activite-tooltip__box::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: #fff;
+   }
+   .activite-tooltip:hover .activite-tooltip__box,
+   .activite-tooltip:focus .activite-tooltip__box {
+    display: block;
+   }
+  </style>
+
+  <div id="pricing" class="table-section table-section--l6 table-section--l8 bg-default border-bottom border-default-color-3">
     <div class="container">
      <div class="table-section-top">
       <div class="section-title section-title--l6 text-center" data-aos="fade-top" data-aos-duration="500" data-aos-once="true">
@@ -483,7 +542,9 @@
         </div>
         <ul class="card--table-single__list list-unstyled list-checked list-checked--niagara">
          <li>
-         1 activité active (ligue, cours ou service)
+         1 <span class="activite-tooltip" tabindex="0">activité
+          <span class="activite-tooltip__box">1 activité = 1 ligue, cours ou service complet, sessions illimitées incluses.<br><em>Ex : ligue de hockey 20 semaines, 2 parties/semaine = 1 activité.</em></span>
+         </span> <span style="font-size: 0.72em;">(ligue, cours ou service)</span>
          </li>
          <li>
          Participants & passeports QR illimités
@@ -535,7 +596,9 @@
         </div>
         <ul class="card--table-single__list list-unstyled list-checked list-checked--bittersweet">
          <li>
-         15 activités actives
+         15 <span class="activite-tooltip" tabindex="0">activités
+          <span class="activite-tooltip__box">1 activité = 1 ligue, cours ou service complet, sessions illimitées incluses.<br><em>Ex : ligue de hockey 20 semaines, 2 parties/semaine = 1 activité.</em></span>
+         </span> <span style="font-size: 0.72em;">(ligue, cours ou service)</span>
          </li>
          <li>
          Participants & passeports QR illimités
@@ -585,7 +648,9 @@
         </div>
         <ul class="card--table-single__list list-unstyled list-checked list-checked--niagara">
          <li>
-         100 activités actives
+         100 <span class="activite-tooltip" tabindex="0">activités
+          <span class="activite-tooltip__box">1 activité = 1 ligue, cours ou service complet, sessions illimitées incluses.<br><em>Ex : ligue de hockey 20 semaines, 2 parties/semaine = 1 activité.</em></span>
+         </span> <span style="font-size: 0.72em;">(ligue, cours ou service)</span>
          </li>
          <li>
          Participants & passeports QR illimités
@@ -612,23 +677,94 @@
        </div>
       </div>
      </div>
-     <!-- Note définition activité + sans contrat -->
+     <!-- Sans contrat -->
      <div class="row justify-content-center mt-4" data-aos="fade-up" data-aos-delay="300" data-aos-duration="500" data-aos-once="true">
       <div class="col-lg-10 col-xl-8 text-center">
-       <p class="text-muted mb-2" style="font-size: 0.95rem;">
-        <i class="fas fa-info-circle text-niagara me-2"></i>
-        <strong>1 activité = 1 ligue, cours ou service complet, sessions illimitées incluses.</strong>
-        Exemple : une ligue de hockey de 20 semaines avec 2 parties/semaine = 1 activité.
-       </p>
-       <p class="text-muted" style="font-size: 0.95rem;">
-        <i class="fas fa-check-circle text-niagara me-2"></i>
-        <strong>Pas de contrat. Annule en tout temps.</strong>
+       <p class="text-muted" style="font-size: 0.85rem; font-weight: 400;">
+        Pas de contrat. Annule en tout temps.
        </p>
       </div>
      </div>
      <!--/ Note définition activité -->
     </div>
    </div>
+   <!-- Zone A: Blog Teaser Section -->
+   {% set blog_posts = [] %}
+   {% if blog_posts is defined %}{% endif %}
+   {# Posts are injected via context — fallback if not available #}
+   {% if homepage_posts is defined and homepage_posts %}
+   <section class="py-5" style="background: #f2f5fb;">
+    <div class="container">
+     <div class="row justify-content-center text-center mb-4" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
+      <div class="col-lg-7">
+       <h2 class="fw-bold" style="font-size:clamp(1.6rem,3vw,2.1rem); color:#0E1A35;">Ressources pour ta ligue</h2>
+       <p class="text-muted mt-2" style="font-size:1rem;">Des conseils pratiques, par des gens qui comprennent ton sport.</p>
+      </div>
+     </div>
+     <div class="row justify-content-center g-4">
+      {% for post in homepage_posts %}
+      <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="{{ loop.index0 * 100 }}" data-aos-duration="500" data-aos-once="true">
+       <a href="/blog/{{ post['slug'] }}" class="guide-card d-block" style="text-decoration:none; color:inherit;">
+        <div style="height:110px; display:flex; align-items:center; justify-content:center; position:relative;
+             background: {% if post['category'] == 'Stratégie' %}linear-gradient(135deg,#3a1010,#ff7272){% elif post['category'] == 'Tutoriel' %}linear-gradient(135deg,#0e2a3a,#099a97){% else %}linear-gradient(135deg,#1a2e45,#4a6fa5){% endif %};">
+         <span style="position:absolute; top:10px; left:12px; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:600; color:#fff; backdrop-filter:blur(6px);
+               background: {% if post['category'] == 'Stratégie' %}rgba(255,114,114,0.9){% elif post['category'] == 'Tutoriel' %}rgba(9,154,151,0.9){% else %}rgba(74,111,165,0.8){% endif %};">
+          {{ post['category'] }}
+         </span>
+         <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="rgba(255,255,255,0.35)" stroke-width="1.2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+         </svg>
+        </div>
+        <div style="padding:18px 20px 20px; flex-grow:1; display:flex; flex-direction:column;">
+         <h3 style="font-size:1rem; font-weight:700; color:#0E1A35; margin-bottom:8px; line-height:1.35;">{{ post['title'] }}</h3>
+         <p style="font-size:0.87rem; color:#8492AF; flex-grow:1; margin-bottom:14px; line-height:1.55;">{{ (post['excerpt'] or '')[:120] }}{% if (post['excerpt'] or '')|length > 120 %}…{% endif %}</p>
+         <span style="font-size:0.85rem; font-weight:600; color:#099a97; display:inline-flex; align-items:center; gap:4px;">
+          Lire l'article
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+         </span>
+        </div>
+       </a>
+      </div>
+      {% endfor %}
+     </div>
+     <div class="text-center mt-4" data-aos="fade-up" data-aos-delay="300" data-aos-duration="400" data-aos-once="true">
+      <a href="/blog" class="btn rounded-50 fw-semibold" style="border:2px solid #099a97; color:#099a97; background:transparent; padding:10px 28px;">
+       Voir tous les articles
+      </a>
+     </div>
+    </div>
+   </section>
+   {% endif %}
+   <!--/ Zone A: Blog Teaser -->
+
+   <!-- Zone B: Newsletter Strip -->
+   <div class="py-5" style="background: #077775;">
+    <div class="container">
+     <div class="row justify-content-center align-items-center text-center text-md-start">
+      <div class="col-md-6 mb-4 mb-md-0" data-aos="fade-right" data-aos-duration="500" data-aos-once="true">
+       <h3 class="fw-bold mb-1" style="color:#fff; font-size:1.35rem;">Notre infolettre gratuite</h3>
+       <p style="color:rgba(255,255,255,0.8); font-size:0.92rem; margin:0;">Nouveaux articles &middot; Témoignages clients &middot; Astuces produit — 1&times; par mois.</p>
+      </div>
+      <div class="col-md-5" data-aos="fade-left" data-aos-duration="500" data-aos-delay="100" data-aos-once="true">
+       <div id="newsletter-form-wrap">
+        <form id="newsletter-form" onsubmit="subscribeNewsletter(event)" class="d-flex gap-2 flex-wrap justify-content-center justify-content-md-end">
+         <input type="email" id="newsletter-email" class="form-control" placeholder="ton@courriel.com" required
+                style="border-radius:50px; border:none; max-width:260px; flex:1; padding:10px 18px; font-size:0.92rem;">
+         <button type="submit" id="newsletter-btn" class="btn fw-bold"
+                 style="background:white; color:#077775; border-radius:50px; padding:10px 22px; font-size:0.92rem; white-space:nowrap;">
+          Je m'abonne &rarr;
+         </button>
+        </form>
+       </div>
+       <div id="newsletter-thanks" style="display:none; color:#fff; font-size:0.95rem; text-align:right;" data-aos-once="true">
+        Merci! Tu recevras le prochain Dispatch bientôt. 🎉
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+   <!--/ Zone B: Newsletter Strip -->
+
    <!-- CTA Final Area -->
    <div class="py-5" style="background: linear-gradient(135deg, #099a97 0%, #077775 100%);">
     <div class="container">
@@ -1277,5 +1413,29 @@
 
     timer = setInterval(function(){ goTo(current + 1); }, 6000);
   })();
+</script>
+
+<script>
+function subscribeNewsletter(e) {
+  e.preventDefault();
+  var email = document.getElementById('newsletter-email').value.trim();
+  var btn = document.getElementById('newsletter-btn');
+  btn.disabled = true;
+  btn.textContent = 'En cours...';
+  fetch('/newsletter-subscribe', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({email: email})
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    document.getElementById('newsletter-form-wrap').style.display = 'none';
+    document.getElementById('newsletter-thanks').style.display = 'block';
+  })
+  .catch(function(){
+    btn.disabled = false;
+    btn.textContent = 'Je m\'abonne \u2192';
+  });
+}
 </script>
 {% endblock %}

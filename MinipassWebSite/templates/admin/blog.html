@@ -1,0 +1,114 @@
+{% extends "admin/admin_base.html" %}
+{% block title %}Blog{% endblock %}
+{% block page_title %}Blog — Articles{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <div>
+        <p class="text-sm text-base-content/60 mt-1">{{ posts|length }} article{{ 's' if posts|length != 1 else '' }} au total</p>
+    </div>
+    <a href="{{ url_for('admin_blog_new') }}" class="btn btn-primary btn-sm gap-2">
+        <i data-lucide="plus" class="w-4 h-4"></i>
+        Nouvel article
+    </a>
+</div>
+
+{% if posts %}
+<div class="overflow-x-auto rounded-xl border border-base-300 bg-base-100">
+    <table class="table table-zebra w-full">
+        <thead>
+            <tr class="text-xs uppercase tracking-wider text-base-content/50">
+                <th>Titre</th>
+                <th>Catégorie</th>
+                <th>Auteur</th>
+                <th>Statut</th>
+                <th>Date</th>
+                <th class="text-right">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for post in posts %}
+            <tr>
+                <td>
+                    <div class="font-medium text-sm max-w-xs truncate">{{ post['title'] }}</div>
+                    <div class="text-xs text-base-content/40 font-mono">/blog/{{ post['slug'] }}</div>
+                </td>
+                <td>
+                    {% if post['category'] == 'Stratégie' %}
+                        <span class="badge badge-sm" style="background:rgba(255,114,114,0.15); color:#c0392b; border:none;">{{ post['category'] }}</span>
+                    {% elif post['category'] == 'Tutoriel' %}
+                        <span class="badge badge-sm" style="background:rgba(9,154,151,0.15); color:#077775; border:none;">{{ post['category'] }}</span>
+                    {% else %}
+                        <span class="badge badge-sm badge-ghost">{{ post['category'] }}</span>
+                    {% endif %}
+                </td>
+                <td class="text-sm text-base-content/70">{{ post['author'] }}</td>
+                <td>
+                    {% if post['published'] %}
+                        <span class="badge badge-success badge-sm gap-1">
+                            <i data-lucide="check-circle" class="w-3 h-3"></i>
+                            Publié
+                        </span>
+                    {% else %}
+                        <span class="badge badge-ghost badge-sm gap-1">
+                            <i data-lucide="clock" class="w-3 h-3"></i>
+                            Brouillon
+                        </span>
+                    {% endif %}
+                </td>
+                <td class="text-xs text-base-content/50">
+                    {{ post['created_at'][:10] if post['created_at'] else '—' }}
+                </td>
+                <td class="text-right">
+                    <div class="flex justify-end gap-1">
+                        {% if post['published'] %}
+                        <a href="{{ url_for('blog_detail', slug=post['slug']) }}" target="_blank"
+                           class="btn btn-ghost btn-xs gap-1" title="Voir">
+                            <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                        </a>
+                        {% endif %}
+                        <a href="{{ url_for('admin_blog_edit', post_id=post['id']) }}"
+                           class="btn btn-ghost btn-xs gap-1">
+                            <i data-lucide="edit-2" class="w-3.5 h-3.5"></i>
+                            Modifier
+                        </a>
+                        <form method="POST" action="{{ url_for('admin_blog_toggle', post_id=post['id']) }}" style="display:inline;">
+                            <button type="submit" class="btn btn-ghost btn-xs"
+                                    title="{{ 'Dépublier' if post['published'] else 'Publier' }}">
+                                {% if post['published'] %}
+                                    <i data-lucide="eye-off" class="w-3.5 h-3.5"></i>
+                                {% else %}
+                                    <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+                                {% endif %}
+                            </button>
+                        </form>
+                        <form method="POST" action="{{ url_for('admin_blog_delete', post_id=post['id']) }}"
+                              onsubmit="return confirm('Supprimer «{{ post['title'] }}»? Cette action est irréversible.');"
+                              style="display:inline;">
+                            <button type="submit" class="btn btn-ghost btn-xs text-error">
+                                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="card bg-base-100 border border-base-300">
+    <div class="card-body text-center py-16">
+        <i data-lucide="newspaper" class="w-12 h-12 mx-auto text-base-content/20 mb-4"></i>
+        <h3 class="text-lg font-semibold text-base-content/60">Aucun article pour l'instant</h3>
+        <p class="text-sm text-base-content/40 mt-2 mb-6">Crée ton premier article pour commencer à alimenter le blog.</p>
+        <div>
+            <a href="{{ url_for('admin_blog_new') }}" class="btn btn-primary btn-sm gap-2">
+                <i data-lucide="plus" class="w-4 h-4"></i>
+                Créer un article
+            </a>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
