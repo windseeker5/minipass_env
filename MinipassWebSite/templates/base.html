@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr-CA">
+<html lang="{% block html_lang %}fr-CA{% endblock %}">
   <head>
    
 
@@ -72,6 +72,26 @@
   <!-- Vendor stylesheets  -->
   <link href="{{ url_for('static', filename='css/main.css') }}" rel="stylesheet"/>
   <!-- Custom stylesheet -->
+  <style>
+    .btn-slate {
+      background-color: #64748B; border-color: #64748B; color: #fff;
+      transition: background-color 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+    }
+    .btn-slate:hover { background-color: #7A8FA6; border-color: #7A8FA6; color: #fff; }
+    .btn-slate:focus, .btn-slate:focus-visible {
+      background-color: #7A8FA6; border-color: #7A8FA6; color: #fff;
+      box-shadow: 0 0 0 0.2rem rgba(100, 116, 139, 0.4); outline: none;
+    }
+    .btn-slate:active { background-color: #475569; border-color: #475569; color: #fff; }
+    /* Keep btn-slate white text even when sticky reveal-header overrides anchor color */
+    .reveal-header .btn-slate,
+    .reveal-header .btn-slate:hover,
+    .reveal-header .btn-slate:focus,
+    .reveal-header .btn-slate:active { color: #fff !important; }
+    /* Footer contact icons — dark charcoal default, orange on hover */
+    .footer-contact-icon { color: #262729; transition: color 0.2s ease; }
+    li:hover .footer-contact-icon { color: #F7931E; }
+  </style>
  
     {% block extra_head %}{% endblock %}
   </head>
@@ -131,7 +151,7 @@
        </nav>
       </div>
       <div class="header-btn">
-       <a class="btn btn btn-niagara btn--medium-4 h-45 rounded-50 text-white shadow--niagara-3 ms-auto ms-lg-4 d-none d-sm-flex" href="/#pricing">
+       <a class="btn btn-slate btn--medium-4 h-45 ms-auto ms-lg-4 d-none d-sm-flex" href="/#pricing">
         S'abonner
        </a>
       </div>
@@ -188,11 +208,11 @@
           </h4>
           <ul class="footer-widgets__list footer-widgets__list--l3">
            <li>
-            <i class="fas fa-envelope" style="margin-right: 2px; color: #099a97;"></i>
+            <i class="fas fa-envelope footer-contact-icon" style="margin-right: 2px;"></i>
             <a href="mailto:support@minipass.me">support@minipass.me</a>
            </li>
            <li>
-            <i class="fab fa-discord" style="margin-right: 2px; color: #099a97;"></i>
+            <i class="fab fa-discord footer-contact-icon" style="margin-right: 2px;"></i>
             <a href="https://discord.gg/mfzBs8pT26" target="_blank" rel="noopener noreferrer">Support Discord</a>
            </li>
           </ul>

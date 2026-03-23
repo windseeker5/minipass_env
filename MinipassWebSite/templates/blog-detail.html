@@ -1,102 +1,156 @@
 {% extends "base.html" %}
 
-{% block page_title %}{{ post['title'] }} — Blog minipass{% endblock %}
-{% block meta_desc %}{{ post['excerpt'] or post['title'] }}{% endblock %}
-{% block og_title %}{{ post['title'] }} — Blog minipass{% endblock %}
-{% block og_desc %}{{ post['excerpt'] or '' }}{% endblock %}
+{% block html_lang %}{{ 'en-CA' if post['lang'] == 'en' else 'fr-CA' }}{% endblock %}
+
+{% block page_title %}{{ post['meta_title'] or post['title'] }} — minipass{% endblock %}
+{% block meta_desc %}{{ post['meta_description'] or post['excerpt'] or post['title'] }}{% endblock %}
+{% block og_title %}{{ post['meta_title'] or post['title'] }} — minipass{% endblock %}
+{% block og_desc %}{{ post['meta_description'] or post['excerpt'] or '' }}{% endblock %}
 
 {% block extra_head %}
 <style>
-/* ── Layout ─────────────────────────────────────────────── */
-.article-page {
-    padding-top: 110px;
-    padding-bottom: 96px;
+/* ── Hero header ───────────────────────────────────────── */
+.article-hero {
+    position: relative;
+    padding-top: 120px;
+    padding-bottom: 40px;
+    overflow: hidden;
 }
+.article-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(175deg, rgba(21, 205, 168, 0.2) 0%, rgba(21, 205, 168, 0.05) 50%, #fff 100%);
+    z-index: 0;
+}
+.article-hero .container { position: relative; z-index: 1; }
 
 /* ── Back link ──────────────────────────────────────────── */
 .article-back {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    font-size: 0.82rem;
-    font-weight: 600;
-    letter-spacing: 0.3px;
-    color: #099a97;
+    font-size: 14px;
+    font-weight: 500;
+    color: #17A85A;
     text-decoration: none;
-    text-transform: uppercase;
-    transition: gap 0.2s ease, color 0.2s ease;
-    margin-bottom: 24px;
+    transition: gap 0.25s ease, color 0.2s ease;
+    margin-bottom: 16px;
 }
-.article-back:hover { gap: 10px; color: #077775; text-decoration: none; }
+.article-back:hover { gap: 10px; color: #128f4c; text-decoration: none; }
 .article-back svg { flex-shrink: 0; }
 
 /* ── Category pill ──────────────────────────────────────── */
 .article-cat {
     display: inline-block;
-    padding: 3px 12px;
-    border-radius: 4px;
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 0.6px;
+    padding: 5px 14px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
     text-transform: uppercase;
-    margin-bottom: 20px;
+    margin-bottom: 12px;
 }
-.cat-strategie   { background: oklch(95% 0.04 25);  color: oklch(42% 0.18 25); }
-.cat-tutoriel    { background: oklch(95% 0.04 192); color: oklch(38% 0.12 192); }
-.cat-documentation { background: oklch(94% 0.03 240); color: oklch(38% 0.10 240); }
-.cat-default     { background: oklch(95% 0.01 0);   color: oklch(40% 0.02 0); }
+.cat-strategie     { background: #F7931E; color: #fff; }
+.cat-tutoriel      { background: #17A85A; color: #fff; }
+.cat-documentation { background: #2E3192; color: #fff; }
+.cat-default       { background: #262729; color: #fff; }
 
-/* ── Article title ──────────────────────────────────────── */
+/* ── Article title — uses section-title__heading scale ── */
 .article-title {
-    font-size: clamp(1.75rem, 4.5vw, 2.75rem);
-    font-weight: 800;
-    color: oklch(14% 0.04 265);
-    line-height: 1.2;
-    letter-spacing: -0.02em;
+    font-weight: 500;
+    letter-spacing: -2px;
+    line-height: 1.1;
+    font-size: 35px;
+    color: var(--color-headings, #25373f);
     margin: 0 0 20px;
 }
+@media (min-width: 576px) { .article-title { font-size: 40px; } }
+@media (min-width: 768px) { .article-title { font-size: 46px; } }
 
-/* ── Meta bar ───────────────────────────────────────────── */
-.article-meta {
+/* ── Author bar ────────────────────────────────────────── */
+.article-author-bar {
     display: flex;
     align-items: center;
-    gap: 20px;
-    font-size: 0.82rem;
-    color: oklch(60% 0.03 265);
-    margin-bottom: 40px;
+    gap: 14px;
     flex-wrap: wrap;
 }
-.article-meta-item {
+.article-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+.article-avatar-initials {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #F7931E 0%, #d97706 100%);
     display: flex;
     align-items: center;
-    gap: 6px;
+    justify-content: center;
+    font-size: 15px;
+    font-weight: 700;
+    color: #fff;
+    flex-shrink: 0;
 }
-.article-meta-sep {
+.article-author-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+.article-author-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--color-headings, #25373f);
+}
+.article-author-sep {
     width: 3px;
     height: 3px;
     border-radius: 50%;
-    background: oklch(78% 0.02 265);
+    background: #d0d5dd;
+    flex-shrink: 0;
+}
+.article-author-detail {
+    font-size: 14px;
+    color: #8492AF;
 }
 
-/* ── Divider under meta ─────────────────────────────────── */
-.article-divider {
-    width: 40px;
-    height: 3px;
-    background: oklch(62% 0.12 192); /* brand teal */
-    border-radius: 2px;
-    margin-bottom: 40px;
+/* ── Share link ─────────────────────────────────────────── */
+.article-share-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: #8492AF;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: color 0.2s ease;
+    border: none;
+    background: none;
+    padding: 0;
+}
+.article-share-link:hover { color: #17A85A; }
+.article-share-link.copied { color: #17A85A; }
+
+/* ── Content area ──────────────────────────────────────── */
+.article-content-area {
+    padding-top: 32px;
+    padding-bottom: 96px;
 }
 
 /* ── Body prose ─────────────────────────────────────────── */
 .article-body {
-    font-size: 1.05rem;
+    font-size: 16px;
     line-height: 1.85;
-    color: oklch(28% 0.02 265);
+    color: var(--color-texts-2, #3b4656);
 }
 .article-body h1,
 .article-body h2,
 .article-body h3 {
-    color: oklch(14% 0.04 265);
+    color: var(--color-headings, #25373f);
     font-weight: 700;
     line-height: 1.3;
     margin: 2.5rem 0 0.75rem;
@@ -105,27 +159,35 @@
 .article-body h2 {
     font-size: 1.3rem;
     padding-bottom: 10px;
-    border-bottom: 1px solid oklch(92% 0.01 265);
+    border-bottom: 1px solid #e5e7eb;
 }
 .article-body h3 { font-size: 1.1rem; }
 .article-body p  { margin-bottom: 1.3rem; }
 .article-body ul,
 .article-body ol { margin: 0 0 1.3rem 1.5rem; }
 .article-body li { margin-bottom: 0.5rem; }
-.article-body a  { color: #099a97; text-decoration: underline; text-underline-offset: 3px; }
-.article-body strong { color: oklch(14% 0.04 265); }
+.article-body a  { color: #17A85A; text-decoration: underline; text-underline-offset: 3px; }
+.article-body a:hover { color: #128f4c; }
+.article-body strong { color: var(--color-headings, #25373f); }
+.article-body img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
+    margin: 0.5rem 0 1.6rem;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+}
 .article-body code {
     font-family: 'Courier New', monospace;
-    background: oklch(96% 0.01 265);
+    background: #f3f4f6;
     padding: 2px 7px;
     border-radius: 4px;
     font-size: 0.88em;
-    color: oklch(44% 0.18 25);
-    border: 1px solid oklch(91% 0.01 265);
+    color: #d97706;
+    border: 1px solid #e5e7eb;
 }
 .article-body pre {
-    background: oklch(14% 0.04 265);
-    color: oklch(88% 0.02 265);
+    background: #1a2e45;
+    color: #e2e8f0;
     padding: 22px 24px;
     border-radius: 12px;
     overflow-x: auto;
@@ -135,17 +197,17 @@
 }
 .article-body pre code { background: none; color: inherit; padding: 0; border: none; }
 .article-body table { width: 100%; border-collapse: collapse; margin-bottom: 1.6rem; border-radius: 8px; overflow: hidden; }
-.article-body th { background: oklch(96% 0.01 265); font-weight: 600; color: oklch(14% 0.04 265); padding: 11px 16px; border: 1px solid oklch(91% 0.01 265); text-align: left; font-size: 0.9rem; }
-.article-body td { padding: 10px 16px; border: 1px solid oklch(91% 0.01 265); font-size: 0.95rem; }
-.article-body tr:nth-child(even) td { background: oklch(98% 0.005 265); }
+.article-body th { background: #f3f4f6; font-weight: 600; color: var(--color-headings, #25373f); padding: 11px 16px; border: 1px solid #e5e7eb; text-align: left; font-size: 0.9rem; }
+.article-body td { padding: 10px 16px; border: 1px solid #e5e7eb; font-size: 0.95rem; }
+.article-body tr:nth-child(even) td { background: #f9fafb; }
 .article-body blockquote {
-    border-left: 3px solid oklch(62% 0.12 192);
-    background: oklch(97% 0.01 192);
+    border-left: 3px solid #17A85A;
+    background: rgba(23,168,90,0.04);
     padding: 16px 22px;
     border-radius: 0 8px 8px 0;
     margin: 0 0 1.6rem;
     font-style: italic;
-    color: oklch(38% 0.03 192);
+    color: #3b4656;
 }
 
 /* ── Video embed ────────────────────────────────────────── */
@@ -156,7 +218,7 @@
     overflow: hidden;
     border-radius: 12px;
     margin-bottom: 36px;
-    box-shadow: 0 4px 24px oklch(14% 0.04 265 / 0.12);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.1);
 }
 .article-video iframe {
     position: absolute;
@@ -169,7 +231,7 @@
 .article-footer {
     margin-top: 56px;
     padding-top: 32px;
-    border-top: 1px solid oklch(92% 0.01 265);
+    border-top: 1px solid #e5e7eb;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -183,90 +245,96 @@
     top: 110px;
 }
 
-/* Newsletter widget — minimal, modern */
+/* Newsletter widget */
 .newsletter-widget {
-    border: 1.5px solid oklch(88% 0.02 265);
+    border: 1.5px solid #e5e7eb;
     border-radius: 14px;
     padding: 28px 24px;
     background: #fff;
 }
 .newsletter-widget__eyebrow {
-    font-size: 0.7rem;
-    font-weight: 700;
+    font-size: 12px;
+    font-weight: 600;
     letter-spacing: 0.8px;
     text-transform: uppercase;
-    color: oklch(62% 0.12 192);
+    color: #F7931E;
     margin-bottom: 10px;
 }
 .newsletter-widget__title {
-    font-size: 1.05rem;
+    font-size: 17px;
     font-weight: 700;
-    color: oklch(14% 0.04 265);
+    color: var(--color-headings, #25373f);
     margin-bottom: 8px;
     line-height: 1.35;
 }
 .newsletter-widget__desc {
-    font-size: 0.82rem;
-    color: oklch(55% 0.03 265);
+    font-size: 14px;
+    color: #8492AF;
     line-height: 1.6;
     margin-bottom: 20px;
 }
 .newsletter-widget__input {
     width: 100%;
     padding: 10px 14px;
-    border: 1.5px solid oklch(88% 0.02 265);
+    border: 1.5px solid #e5e7eb;
     border-radius: 8px;
-    font-size: 0.88rem;
-    color: oklch(20% 0.03 265);
-    background: oklch(98% 0.005 265);
+    font-size: 14px;
+    color: var(--color-headings, #25373f);
+    background: #f9fafb;
     outline: none;
-    transition: border-color 0.2s;
+    transition: border-color 0.2s ease;
     margin-bottom: 10px;
     box-sizing: border-box;
 }
 .newsletter-widget__input:focus {
-    border-color: oklch(62% 0.12 192);
+    border-color: #17A85A;
     background: #fff;
 }
-.newsletter-widget__btn {
-    width: 100%;
-    padding: 10px 14px;
-    background: oklch(14% 0.04 265);
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.2s, transform 0.1s;
-    letter-spacing: 0.2px;
-}
-.newsletter-widget__btn:hover {
-    background: oklch(22% 0.05 265);
-    transform: translateY(-1px);
-}
 .newsletter-widget__thanks {
-    font-size: 0.85rem;
-    color: oklch(38% 0.12 192);
+    font-size: 14px;
+    color: #17A85A;
     text-align: center;
     padding: 8px 0;
     font-weight: 500;
+}
+
+/* Copy toast */
+.copy-toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: #25373f;
+    color: #fff;
+    padding: 10px 22px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    z-index: 9999;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+    opacity: 0;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    pointer-events: none;
+}
+.copy-toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
 }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="article-page">
- <div class="container">
-  <div class="row justify-content-center">
 
-   <!-- ── Main content ─────────────────────────────────── -->
+<!-- Hero header -->
+<div class="article-hero">
+ <div class="container">
+  <div class="row">
    <div class="col-lg-8">
 
     <!-- Back -->
     <a href="{{ url_for('blog') }}" class="article-back">
      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
-     Tous les articles
+     {{ 'All articles' if post['lang'] == 'en' else 'Tous les articles' }}
     </a>
 
     <!-- Category -->
@@ -279,23 +347,41 @@
     <!-- Title -->
     <h1 class="article-title">{{ post['title'] }}</h1>
 
-    <!-- Meta -->
-    <div class="article-meta">
-     <span class="article-meta-item">
-      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-      {{ post['author'] }}
-     </span>
-     {% if post['published_at'] %}
-     <span class="article-meta-sep"></span>
-     <span class="article-meta-item">
-      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-      {{ post['published_at'][:10] }}
-     </span>
+    <!-- Author bar + share -->
+    <div class="article-author-bar">
+     {% if gravatar_url %}
+      <img src="{{ gravatar_url }}" alt="{{ post['author'] }}" class="article-avatar" loading="lazy">
+     {% else %}
+      <div class="article-avatar-initials">{{ post['author'][:1]|upper }}</div>
      {% endif %}
+     <div class="article-author-info">
+      <span class="article-author-name">{{ post['author'] }}</span>
+      {% if post['published_at'] %}
+      <span class="article-author-sep"></span>
+      <span class="article-author-detail">{{ post['published_at'][:10] }}</span>
+      {% endif %}
+      <span class="article-author-sep"></span>
+      <span class="article-author-detail">{{ reading_time }} min {{ 'read' if post['lang'] == 'en' else 'de lecture' }}</span>
+      <span class="article-author-sep"></span>
+      <button class="article-share-link" id="shareBtn" onclick="shareArticle()">
+       <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path stroke-linecap="round" stroke-linejoin="round" d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+       <span id="shareBtnText">{{ 'Share' if post['lang'] == 'en' else 'Partager' }}</span>
+      </button>
+     </div>
     </div>
 
-    <!-- Accent divider -->
-    <div class="article-divider"></div>
+   </div>
+  </div>
+ </div>
+</div>
+
+<!-- Content area -->
+<div class="article-content-area">
+ <div class="container">
+  <div class="row">
+
+   <!-- Main content -->
+   <div class="col-lg-8">
 
     <!-- Video (if any) -->
     {% if video_id %}
@@ -314,30 +400,30 @@
     <div class="article-footer">
      <a href="{{ url_for('blog') }}" class="article-back" style="margin-bottom:0;">
       <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
-      Voir tous les articles
+      {{ 'See all articles' if post['lang'] == 'en' else 'Voir tous les articles' }}
      </a>
     </div>
    </div>
 
-   <!-- ── Sidebar ──────────────────────────────────────── -->
+   <!-- Sidebar -->
    <div class="col-lg-3 offset-lg-1 d-none d-lg-block">
     <div class="article-sidebar">
 
      <!-- Newsletter widget -->
      <div class="newsletter-widget">
-      <p class="newsletter-widget__eyebrow">Infolettre</p>
-      <h3 class="newsletter-widget__title">Reste dans la boucle</h3>
-      <p class="newsletter-widget__desc">Nouveaux articles, témoignages et astuces produit — 1x par mois.</p>
+      <p class="newsletter-widget__eyebrow">{{ 'Newsletter' if post['lang'] == 'en' else 'Infolettre' }}</p>
+      <h3 class="newsletter-widget__title">{{ 'Stay in the loop' if post['lang'] == 'en' else 'Reste dans la boucle' }}</h3>
+      <p class="newsletter-widget__desc">{{ 'New articles, tips and product updates — once a month.' if post['lang'] == 'en' else 'Nouveaux articles, astuces produit — 1x par mois.' }}</p>
       <form id="sidebar-newsletter-form" onsubmit="sidebarSubscribe(event)">
        <input type="email" id="sidebar-email"
               class="newsletter-widget__input"
-              placeholder="ton@courriel.com" required>
-       <button type="submit" class="newsletter-widget__btn">
-        S'abonner →
+              placeholder="{{ 'your@email.com' if post['lang'] == 'en' else 'ton@courriel.com' }}" required>
+       <button type="submit" class="btn btn-niagara text-white" style="width:100%; height:42px; font-size:14px; font-weight:500; border-radius:8px;">
+        {{ 'Subscribe' if post['lang'] == 'en' else "S'abonner" }}
        </button>
       </form>
       <div id="sidebar-thanks" class="newsletter-widget__thanks" style="display:none;">
-       Merci ! Tu recevras le prochain numéro.
+       {{ 'Thanks! You will get the next issue.' if post['lang'] == 'en' else 'Merci! Tu recevras le prochain numero.' }}
       </div>
      </div>
 
@@ -348,7 +434,31 @@
  </div>
 </div>
 
+<!-- Copy toast -->
+<div class="copy-toast" id="copyToast">
+ {{ 'Link copied!' if post['lang'] == 'en' else 'Lien copie!' }}
+</div>
+
 <script>
+// Share / copy link
+function shareArticle() {
+  var url = window.location.href;
+  var btn = document.getElementById('shareBtn');
+  var btnText = document.getElementById('shareBtnText');
+  navigator.clipboard.writeText(url).then(function() {
+    btn.classList.add('copied');
+    btnText.textContent = '{{ "Copied!" if post["lang"] == "en" else "Copie!" }}';
+    var toast = document.getElementById('copyToast');
+    toast.classList.add('show');
+    setTimeout(function() {
+      toast.classList.remove('show');
+      btn.classList.remove('copied');
+      btnText.textContent = '{{ "Share" if post["lang"] == "en" else "Partager" }}';
+    }, 2000);
+  });
+}
+
+// Newsletter subscribe
 function sidebarSubscribe(e) {
   e.preventDefault();
   var email = document.getElementById('sidebar-email').value.trim();

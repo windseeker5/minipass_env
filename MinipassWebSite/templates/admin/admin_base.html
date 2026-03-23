@@ -106,6 +106,13 @@
                             Blog
                         </a>
                     </li>
+                    <li>
+                        <a href="{{ url_for('admin_leads') }}"
+                           class="gap-3 rounded-lg {% if request.endpoint == 'admin_leads' %}bg-primary text-primary-content hover:bg-primary{% endif %}">
+                            <i data-lucide="contact" class="w-4 h-4"></i>
+                            Leads
+                        </a>
+                    </li>
                     <li class="menu-title text-xs uppercase tracking-widest text-base-content/40 mt-3 mb-1">Monitoring</li>
                     <li>
                         <a href="{{ url_for('mail_dashboard') }}"

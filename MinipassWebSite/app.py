@@ -85,17 +85,24 @@ def inject_now():
 
 @app.route("/")
 def home():
-    import sqlite3
+    import sqlite3, hashlib
     homepage_posts = []
     try:
         with sqlite3.connect("customers.db") as conn:
             conn.row_factory = sqlite3.Row
             _init_blog_db(conn)
-            homepage_posts = conn.execute("""
+            rows = conn.execute("""
                 SELECT * FROM blog_posts WHERE published=1
                 ORDER BY CASE WHEN category='Documentation' THEN 1 ELSE 0 END ASC,
                          published_at DESC LIMIT 3
             """).fetchall()
+            for row in rows:
+                post = dict(row)
+                vid = _yt_id(post.get('video_url'))
+                post['yt_thumb'] = f"https://img.youtube.com/vi/{vid}/maxresdefault.jpg" if vid else None
+                ae = (post.get('author_email') or '').strip().lower()
+                post['gravatar_url'] = f"https://www.gravatar.com/avatar/{hashlib.md5(ae.encode()).hexdigest()}?s=80&d=mp" if ae else None
+                homepage_posts.append(post)
     except Exception:
         pass
     return render_template("index.html", homepage_posts=homepage_posts)
@@ -197,14 +204,18 @@ def _init_blog_db(conn):
             video_url TEXT
         )
     """)
-    try:
-        conn.execute("ALTER TABLE blog_posts ADD COLUMN video_url TEXT")
-    except Exception:
-        pass  # column already exists
+    for col in ("video_url TEXT", "meta_title TEXT", "meta_description TEXT", "lang TEXT DEFAULT 'fr'", "author_email TEXT"):
+        try:
+            conn.execute(f"ALTER TABLE blog_posts ADD COLUMN {col}")
+        except Exception:
+            pass  # column already exists
 
 
 def _migrate_guides_to_blog(conn):
-    """Import existing static/docs/*.md files + seed data. Idempotent via INSERT OR IGNORE."""
+    """Import existing static/docs/*.md files + seed data. Runs once only."""
+    conn.execute("CREATE TABLE IF NOT EXISTS _blog_meta (key TEXT PRIMARY KEY, value TEXT)")
+    if conn.execute("SELECT 1 FROM _blog_meta WHERE key='seeds_migrated'").fetchone():
+        return  # Already seeded — don't re-insert deleted posts
     docs_dir = os.path.join(app.static_folder, 'docs')
     migrations = [
         ("faq.md", "faq", "Documentation", "Minipass"),
@@ -273,28 +284,35 @@ def _migrate_guides_to_blog(conn):
             VALUES (?, ?, ?, ?, ?, ?, 0)
         """, (title, slug, excerpt, body, category, author))
 
+    conn.execute("INSERT OR REPLACE INTO _blog_meta (key, value) VALUES ('seeds_migrated', '1')")
+
 
 @app.route("/blog")
 def blog():
     import sqlite3
     category = request.args.get('category', '')
+    lang = request.args.get('lang', 'fr')
     with sqlite3.connect("customers.db") as conn:
         conn.row_factory = sqlite3.Row
         _init_blog_db(conn)
         _migrate_guides_to_blog(conn)
+        base_where = "published=1 AND COALESCE(lang,'fr')=?"
+        params = [lang]
         if category:
             posts = conn.execute(
-                "SELECT * FROM blog_posts WHERE published=1 AND category=? ORDER BY published_at DESC",
-                (category,)
+                f"SELECT * FROM blog_posts WHERE {base_where} AND category=? ORDER BY published_at DESC",
+                params + [category]
             ).fetchall()
         else:
             posts = conn.execute(
-                "SELECT * FROM blog_posts WHERE published=1 ORDER BY published_at DESC"
+                f"SELECT * FROM blog_posts WHERE {base_where} ORDER BY published_at DESC",
+                params
             ).fetchall()
         categories = conn.execute(
-            "SELECT DISTINCT category FROM blog_posts WHERE published=1 ORDER BY category"
+            "SELECT DISTINCT category FROM blog_posts WHERE published=1 AND COALESCE(lang,'fr')=? ORDER BY category",
+            (lang,)
         ).fetchall()
-    return render_template("blog.html", posts=posts, categories=categories, active_category=category)
+    return render_template("blog.html", posts=posts, categories=categories, active_category=category, active_lang=lang)
 
 
 def _yt_id(url):
@@ -319,7 +337,19 @@ def blog_detail(slug):
         abort(404)
     html_content = markdown.markdown(post['body'] or '', extensions=['tables', 'fenced_code', 'toc'])
     video_id = _yt_id(post['video_url']) if post['video_url'] else None
-    return render_template("blog-detail.html", post=post, content=html_content, video_id=video_id)
+    # Reading time
+    word_count = len((post['body'] or '').split())
+    reading_time = max(1, round(word_count / 200))
+    # Gravatar
+    import hashlib
+    author_email = (post['author_email'] or '').strip().lower()
+    if author_email:
+        email_hash = hashlib.md5(author_email.encode()).hexdigest()
+        gravatar_url = f"https://www.gravatar.com/avatar/{email_hash}?s=80&d=mp"
+    else:
+        gravatar_url = None
+    return render_template("blog-detail.html", post=post, content=html_content, video_id=video_id,
+                           reading_time=reading_time, gravatar_url=gravatar_url)
 
 
 @app.route("/sitemap.xml")
@@ -1117,14 +1147,18 @@ def admin_blog_create():
     category = request.form.get("category", "Stratégie")
     author = request.form.get("author", "Marie-France").strip()
     video_url = request.form.get("video_url", "").strip() or None
+    meta_title = request.form.get("meta_title", "").strip() or None
+    meta_description = request.form.get("meta_description", "").strip() or None
+    lang = request.form.get("lang", "fr").strip()
+    author_email = request.form.get("author_email", "").strip().lower() or None
     published = 1 if request.form.get("published") else 0
     published_at = datetime.now(timezone.utc).isoformat() if published else None
     with sqlite3.connect("customers.db") as conn:
         _init_blog_db(conn)
         conn.execute("""
-            INSERT INTO blog_posts (title, slug, excerpt, body, category, author, published, published_at, video_url)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, (title, slug, excerpt, body, category, author, published, published_at, video_url))
+            INSERT INTO blog_posts (title, slug, excerpt, body, category, author, published, published_at, video_url, meta_title, meta_description, lang, author_email)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (title, slug, excerpt, body, category, author, published, published_at, video_url, meta_title, meta_description, lang, author_email))
         conn.commit()
     return redirect(url_for('admin_blog'))
 
@@ -1154,6 +1188,10 @@ def admin_blog_update(post_id):
     category = request.form.get("category", "Stratégie")
     author = request.form.get("author", "Marie-France").strip()
     video_url = request.form.get("video_url", "").strip() or None
+    meta_title = request.form.get("meta_title", "").strip() or None
+    meta_description = request.form.get("meta_description", "").strip() or None
+    lang = request.form.get("lang", "fr").strip()
+    author_email = request.form.get("author_email", "").strip().lower() or None
     published = 1 if request.form.get("published") else 0
     with sqlite3.connect("customers.db") as conn:
         old = conn.execute("SELECT published, published_at FROM blog_posts WHERE id=?", (post_id,)).fetchone()
@@ -1162,9 +1200,9 @@ def admin_blog_update(post_id):
             if published and not old[0]:
                 published_at = datetime.now(timezone.utc).isoformat()
             conn.execute("""
-                UPDATE blog_posts SET title=?, slug=?, excerpt=?, body=?, category=?, author=?, published=?, published_at=?, video_url=?
+                UPDATE blog_posts SET title=?, slug=?, excerpt=?, body=?, category=?, author=?, published=?, published_at=?, video_url=?, meta_title=?, meta_description=?, lang=?, author_email=?
                 WHERE id=?
-            """, (title, slug, excerpt, body, category, author, published, published_at, video_url, post_id))
+            """, (title, slug, excerpt, body, category, author, published, published_at, video_url, meta_title, meta_description, lang, author_email, post_id))
             conn.commit()
     return redirect(url_for('admin_blog'))
 
@@ -1204,6 +1242,115 @@ def admin_blog_preview():
     md_text = data.get("markdown", "")
     html = markdown.markdown(md_text, extensions=['tables', 'fenced_code', 'toc'])
     return jsonify({"html": html})
+
+
+@app.route("/admin/blog/upload-image", methods=["POST"])
+def admin_blog_upload_image():
+    if not session.get('admin_authenticated'):
+        return jsonify({"error": "Non autorisé"}), 401
+    file = request.files.get("image")
+    if not file or not file.filename:
+        return jsonify({"error": "Aucun fichier sélectionné"}), 400
+    # Validate extension
+    allowed = {'.jpg', '.jpeg', '.png', '.gif', '.webp'}
+    ext = os.path.splitext(file.filename)[1].lower()
+    if ext not in allowed:
+        return jsonify({"error": "Format non supporté. Utilise JPG, PNG, GIF ou WebP."}), 400
+    # Generate unique filename
+    from PIL import Image
+    import io, time, re
+    base = os.path.splitext(file.filename)[0]
+    base = re.sub(r'[^a-zA-Z0-9_-]', '', base.replace(' ', '-'))[:60]
+    timestamp = int(time.time())
+    save_name = f"{timestamp}-{base}.jpg"
+    blog_dir = os.path.join(app.static_folder, 'blog')
+    os.makedirs(blog_dir, exist_ok=True)
+    save_path = os.path.join(blog_dir, save_name)
+    # Resize and compress
+    img = Image.open(file.stream)
+    if img.mode in ('RGBA', 'P', 'LA'):
+        background = Image.new('RGB', img.size, (255, 255, 255))
+        background.paste(img, mask=img.split()[-1] if img.mode in ('RGBA', 'LA') else None)
+        img = background
+    elif img.mode != 'RGB':
+        img = img.convert('RGB')
+    max_width = 730
+    if img.width > max_width:
+        ratio = max_width / img.width
+        img = img.resize((max_width, int(img.height * ratio)), Image.LANCZOS)
+    img.save(save_path, 'JPEG', quality=80, optimize=True)
+    url = url_for('static', filename=f'blog/{save_name}')
+    return jsonify({"url": url, "markdown": f"![{base}]({url})"})
+
+
+# ============================================================================
+# ADMIN LEADS
+# ============================================================================
+
+@app.route("/admin/leads")
+def admin_leads():
+    if not session.get('admin_authenticated'):
+        return redirect(url_for('admin_login'))
+    import sqlite3
+    q = request.args.get('q', '').strip().lower()
+    with sqlite3.connect("customers.db") as conn:
+        conn.row_factory = sqlite3.Row
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS leads (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                email TEXT NOT NULL UNIQUE,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                source TEXT DEFAULT 'lead_magnet'
+            )
+        """)
+        if q:
+            leads = conn.execute(
+                "SELECT * FROM leads WHERE LOWER(email) LIKE ? ORDER BY created_at DESC",
+                (f'%{q}%',)
+            ).fetchall()
+        else:
+            leads = conn.execute("SELECT * FROM leads ORDER BY created_at DESC").fetchall()
+        stats = conn.execute("""
+            SELECT
+                COUNT(*) as total,
+                SUM(CASE WHEN source='newsletter' THEN 1 ELSE 0 END) as newsletter,
+                SUM(CASE WHEN source='lead_magnet' THEN 1 ELSE 0 END) as lead_magnet,
+                SUM(CASE WHEN DATE(created_at) >= DATE('now', '-7 days') THEN 1 ELSE 0 END) as last_7d
+            FROM leads
+        """).fetchone()
+    return render_template("admin/leads.html", leads=leads, stats=stats, search_query=q)
+
+
+@app.route("/admin/leads/delete/<int:lead_id>", methods=["POST"])
+def admin_leads_delete(lead_id):
+    if not session.get('admin_authenticated'):
+        return redirect(url_for('admin_login'))
+    import sqlite3
+    with sqlite3.connect("customers.db") as conn:
+        conn.execute("DELETE FROM leads WHERE id=?", (lead_id,))
+        conn.commit()
+    return redirect(url_for('admin_leads'))
+
+
+@app.route("/admin/leads/export")
+def admin_leads_export():
+    if not session.get('admin_authenticated'):
+        return redirect(url_for('admin_login'))
+    import sqlite3, csv, io
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(['email', 'source', 'created_at'])
+    with sqlite3.connect("customers.db") as conn:
+        conn.row_factory = sqlite3.Row
+        rows = conn.execute("SELECT email, source, created_at FROM leads ORDER BY created_at DESC").fetchall()
+        for row in rows:
+            writer.writerow([row['email'], row['source'], row['created_at']])
+    from flask import Response
+    return Response(
+        output.getvalue(),
+        mimetype='text/csv',
+        headers={'Content-Disposition': 'attachment; filename=leads.csv'}
+    )
 
 
 # ============================================================================
