@@ -526,17 +526,13 @@ $(document).ready(function() {
             $(target).attr("data-value-active", "monthly");
         }
 
-        // Toggle savings badge text and color based on pricing selection
+        // Show savings badge only on annual, hide on monthly
         var savingsBadge = document.getElementById('pricing-savings-badge');
         if (savingsBadge) {
             if ($(target).attr("data-value-active") == "monthly") {
-                savingsBadge.textContent = 'ÉCONOMISEZ 0%';
-                savingsBadge.classList.remove('bg-half-baked');
-                savingsBadge.style.backgroundColor = '#d3d3d3';
+                savingsBadge.style.display = 'none';
             } else {
-                savingsBadge.textContent = 'ÉCONOMISEZ 50%';
-                savingsBadge.style.backgroundColor = '';
-                savingsBadge.classList.add('bg-half-baked');
+                savingsBadge.style.display = '';
             }
         }
     })

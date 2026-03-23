@@ -19,6 +19,7 @@
         <thead>
             <tr class="text-xs uppercase tracking-wider text-base-content/50">
                 <th>Titre</th>
+                <th>Lang</th>
                 <th>Catégorie</th>
                 <th>Auteur</th>
                 <th>Statut</th>
@@ -32,6 +33,9 @@
                 <td>
                     <div class="font-medium text-sm max-w-xs truncate">{{ post['title'] }}</div>
                     <div class="text-xs text-base-content/40 font-mono">/blog/{{ post['slug'] }}</div>
+                </td>
+                <td>
+                    <span class="badge badge-sm badge-outline font-mono" style="font-size:10px;">{{ (post['lang'] or 'fr')|upper }}</span>
                 </td>
                 <td>
                     {% if post['category'] == 'Stratégie' %}

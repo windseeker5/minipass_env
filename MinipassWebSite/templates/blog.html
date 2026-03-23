@@ -27,7 +27,7 @@
 .filter-btn {
     padding: 10px 22px;
     border: 2px solid #e8e8e8;
-    border-radius: 50px;
+    border-radius: 8px;
     background: #fff;
     color: #2d3748;
     font-size: 14px;
@@ -47,7 +47,7 @@
     width: 100%;
     padding: 14px 20px 14px 50px;
     border: 2px solid #e8e8e8;
-    border-radius: 50px;
+    border-radius: 8px;
     font-size: 15px;
     background: #fff;
     transition: border-color 0.3s, box-shadow 0.3s;
@@ -228,6 +228,16 @@
             <div class="col-lg-8 text-center" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
                 <h6 class="text-uppercase mb-3" style="color:#ff7272; font-weight:600; letter-spacing:2px;">RESSOURCES</h6>
                 <h2 class="fw-bold mb-4" style="color:#0E1A35;">Tous nos guides & articles</h2>
+
+                <!-- Language switcher -->
+                <div class="mb-3" data-aos="fade-up" data-aos-delay="50" data-aos-duration="400" data-aos-once="true">
+                    <a href="{{ url_for('blog', lang='fr') }}"
+                       class="filter-btn{{ ' active' if active_lang == 'fr' else '' }}"
+                       style="padding:7px 18px; font-size:13px;">FR</a>
+                    <a href="{{ url_for('blog', lang='en') }}"
+                       class="filter-btn{{ ' active' if active_lang == 'en' else '' }}"
+                       style="padding:7px 18px; font-size:13px;">EN</a>
+                </div>
 
                 <!-- Filters -->
                 <div class="filter-buttons mb-4" data-aos="fade-up" data-aos-delay="100" data-aos-duration="400" data-aos-once="true">

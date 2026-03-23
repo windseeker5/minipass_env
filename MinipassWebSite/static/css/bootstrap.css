@@ -42,9 +42,9 @@
   --bs-shark: #262729;
   --bs-torch-red: #ff1e38;
   --bs-watermelon: #fd5284;
-  --bs-niagara: #099a97;
-  --bs-bittersweet: #ff7272;
-  --bs-lavender: #be79df;
+  --bs-niagara: #17A85A;
+  --bs-bittersweet: #F7931E;
+  --bs-lavender: #2E3192;
   --bs-cod-gray: #161616;
   --bs-half-baked: #82c4c3;
   --bs-primary: #ff5722;
@@ -11410,11 +11410,15 @@ fieldset:disabled .btn {
 }
 
 .bg-bittersweet {
-  background-color: #ff7272 !important;
+  background-color: #F7931E !important;
 }
 
 .bg-niagara {
-  background-color: #099a97 !important;
+  background-color: #17A85A !important;
+}
+
+.bg-lavender {
+  background-color: #2E3192 !important;
 }
 
 .bg-torch-red {
@@ -11510,7 +11514,7 @@ fieldset:disabled .btn {
 }
 
 .text-bittersweet {
-  color: #ff7272 !important;
+  color: #F7931E !important;
 }
 
 .text-yellow {
@@ -11522,11 +11526,11 @@ fieldset:disabled .btn {
 }
 
 .text-niagara {
-  color: #099a97 !important;
+  color: #17A85A !important;
 }
 
 .text-lavender {
-  color: #be79df !important;
+  color: #2E3192 !important;
 }
 
 .text-royal-blue {
