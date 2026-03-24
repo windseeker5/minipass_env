@@ -175,7 +175,7 @@
            À propos de nous
           </a>
          </li>
-         <li class="nav-item{% if request.path.startswith('/guides') %} active{% endif %}">
+         <li class="nav-item{% if request.path.startswith('/guides') or request.path.startswith('/blog') %} active{% endif %}">
           <a class="nav-link-item" href="/guides">
            Guides
           </a>
