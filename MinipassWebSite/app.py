@@ -93,8 +93,7 @@ def home():
             _init_blog_db(conn)
             rows = conn.execute("""
                 SELECT * FROM blog_posts WHERE published=1
-                ORDER BY CASE WHEN category='Documentation' THEN 1 ELSE 0 END ASC,
-                         published_at DESC LIMIT 3
+                ORDER BY COALESCE(updated_at, published_at) DESC LIMIT 3
             """).fetchall()
             for row in rows:
                 post = dict(row)
@@ -205,11 +204,13 @@ def _init_blog_db(conn):
             video_url TEXT
         )
     """)
-    for col in ("video_url TEXT", "meta_title TEXT", "meta_description TEXT", "lang TEXT DEFAULT 'fr'", "author_email TEXT"):
+    for col in ("video_url TEXT", "meta_title TEXT", "meta_description TEXT", "lang TEXT DEFAULT 'fr'", "author_email TEXT", "updated_at DATETIME"):
         try:
             conn.execute(f"ALTER TABLE blog_posts ADD COLUMN {col}")
         except Exception:
             pass  # column already exists
+    # Backfill updated_at for existing rows
+    conn.execute("UPDATE blog_posts SET updated_at = COALESCE(published_at, created_at) WHERE updated_at IS NULL")
 
 
 def _migrate_guides_to_blog(conn):
@@ -290,9 +291,13 @@ def _migrate_guides_to_blog(conn):
 
 @app.route("/blog")
 def blog():
-    import sqlite3
+    import sqlite3, hashlib
     category = request.args.get('category', '')
     lang = request.args.get('lang', 'fr')
+    page = request.args.get('page', 1, type=int)
+    per_page = 9
+    if page < 1:
+        page = 1
     with sqlite3.connect("customers.db") as conn:
         conn.row_factory = sqlite3.Row
         _init_blog_db(conn)
@@ -300,23 +305,40 @@ def blog():
         base_where = "published=1 AND COALESCE(lang,'fr')=?"
         params = [lang]
         if category:
-            posts = conn.execute(
-                f"SELECT * FROM blog_posts WHERE {base_where} AND category=? ORDER BY published_at DESC",
+            total = conn.execute(
+                f"SELECT COUNT(*) FROM blog_posts WHERE {base_where} AND category=?",
                 params + [category]
+            ).fetchone()[0]
+            posts = conn.execute(
+                f"SELECT * FROM blog_posts WHERE {base_where} AND category=? ORDER BY published_at DESC LIMIT ? OFFSET ?",
+                params + [category, per_page, (page - 1) * per_page]
             ).fetchall()
         else:
-            posts = conn.execute(
-                f"SELECT * FROM blog_posts WHERE {base_where} ORDER BY published_at DESC",
+            total = conn.execute(
+                f"SELECT COUNT(*) FROM blog_posts WHERE {base_where}",
                 params
+            ).fetchone()[0]
+            posts = conn.execute(
+                f"SELECT * FROM blog_posts WHERE {base_where} ORDER BY published_at DESC LIMIT ? OFFSET ?",
+                params + [per_page, (page - 1) * per_page]
             ).fetchall()
         categories = conn.execute(
             "SELECT DISTINCT category FROM blog_posts WHERE published=1 AND COALESCE(lang,'fr')=? ORDER BY category",
             (lang,)
         ).fetchall()
+        total_pages = max(1, (total + per_page - 1) // per_page)
+        if page > total_pages:
+            page = total_pages
         posts = [dict(p) for p in posts]
         for p in posts:
             p['excerpt'] = p.get('meta_description') or p.get('excerpt') or _strip_md(p.get('body', ''))[:200]
-    return render_template("blog.html", posts=posts, categories=categories, active_category=category, active_lang=lang)
+            vid = _yt_id(p.get('video_url'))
+            p['yt_thumb'] = f"https://img.youtube.com/vi/{vid}/maxresdefault.jpg" if vid else None
+            ae = (p.get('author_email') or '').strip().lower()
+            p['gravatar_url'] = f"https://www.gravatar.com/avatar/{hashlib.md5(ae.encode()).hexdigest()}?s=80&d=mp" if ae else None
+    return render_template("blog.html", posts=posts, categories=categories,
+                           active_category=category, active_lang=lang,
+                           page=page, total_pages=total_pages, total_count=total)
 
 
 def _yt_id(url):
@@ -1127,7 +1149,7 @@ def admin_blog():
         _init_blog_db(conn)
         _migrate_guides_to_blog(conn)
         posts = conn.execute(
-            "SELECT * FROM blog_posts ORDER BY created_at DESC"
+            "SELECT * FROM blog_posts ORDER BY COALESCE(updated_at, published_at, created_at) DESC"
         ).fetchall()
     return render_template("admin/blog.html", posts=posts)
 
@@ -1155,14 +1177,15 @@ def admin_blog_create():
     lang = request.form.get("lang", "fr").strip()
     author_email = request.form.get("author_email", "").strip().lower() or None
     published = 1 if request.form.get("published") else 0
-    published_at = datetime.now(timezone.utc).isoformat() if published else None
+    now = datetime.now(timezone.utc).isoformat()
+    published_at = now if published else None
     excerpt = (meta_description or _strip_md(body)[:200]).strip()
     with sqlite3.connect("customers.db") as conn:
         _init_blog_db(conn)
         conn.execute("""
-            INSERT INTO blog_posts (title, slug, excerpt, body, category, author, published, published_at, video_url, meta_title, meta_description, lang, author_email)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, (title, slug, excerpt, body, category, author, published, published_at, video_url, meta_title, meta_description, lang, author_email))
+            INSERT INTO blog_posts (title, slug, excerpt, body, category, author, published, published_at, video_url, meta_title, meta_description, lang, author_email, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (title, slug, excerpt, body, category, author, published, published_at, video_url, meta_title, meta_description, lang, author_email, now))
         conn.commit()
     return redirect(url_for('admin_blog'))
 
@@ -1197,16 +1220,17 @@ def admin_blog_update(post_id):
     author_email = request.form.get("author_email", "").strip().lower() or None
     published = 1 if request.form.get("published") else 0
     excerpt = (meta_description or _strip_md(body)[:200]).strip()
+    now = datetime.now(timezone.utc).isoformat()
     with sqlite3.connect("customers.db") as conn:
         old = conn.execute("SELECT published, published_at FROM blog_posts WHERE id=?", (post_id,)).fetchone()
         if old:
             published_at = old[1]
             if published and not old[0]:
-                published_at = datetime.now(timezone.utc).isoformat()
+                published_at = now
             conn.execute("""
-                UPDATE blog_posts SET title=?, slug=?, excerpt=?, body=?, category=?, author=?, published=?, published_at=?, video_url=?, meta_title=?, meta_description=?, lang=?, author_email=?
+                UPDATE blog_posts SET title=?, slug=?, excerpt=?, body=?, category=?, author=?, published=?, published_at=?, video_url=?, meta_title=?, meta_description=?, lang=?, author_email=?, updated_at=?
                 WHERE id=?
-            """, (title, slug, excerpt, body, category, author, published, published_at, video_url, meta_title, meta_description, lang, author_email, post_id))
+            """, (title, slug, excerpt, body, category, author, published, published_at, video_url, meta_title, meta_description, lang, author_email, now, post_id))
             conn.commit()
     return redirect(url_for('admin_blog'))
 

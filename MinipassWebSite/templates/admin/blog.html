@@ -23,7 +23,7 @@
                 <th>Catégorie</th>
                 <th>Auteur</th>
                 <th>Statut</th>
-                <th>Date</th>
+                <th>Modifie</th>
                 <th class="text-right">Actions</th>
             </tr>
         </thead>
@@ -61,7 +61,8 @@
                     {% endif %}
                 </td>
                 <td class="text-xs text-base-content/50">
-                    {{ post['created_at'][:10] if post['created_at'] else '—' }}
+                    {% set display_date = post['updated_at'] or post['published_at'] or post['created_at'] %}
+                    {{ display_date[:10] if display_date else '---' }}
                 </td>
                 <td class="text-right">
                     <div class="flex justify-end gap-1">

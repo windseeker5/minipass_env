@@ -6,127 +6,180 @@
 {% block extra_head %}
 <style>
 /* ======================================================
-   BLOG / GUIDES PAGE  — matches the guides.html design
+   BLOG / GUIDES PAGE — Redesigned with brand colors
+   Burnt Sienna #E8794E  |  Voodoo #483550
    ====================================================== */
 
-/* Hero */
-.blog-hero-section {
-    background-color: rgba(21, 205, 168, 0.15);
+/* ── Hero ── uses framework classes: section-title__sub-heading, section-title__heading */
+.blog-hero {
     margin-top: 80px;
-    padding: 60px 0 50px;
+    padding: 56px 0 0;
+    background: linear-gradient(168deg, rgba(232,121,78,0.07) 0%, rgba(72,53,80,0.05) 100%);
+}
+.blog-hero .welcome-content--l8__descriptions {
+    max-width: 520px;
 }
 
-/* Cards section */
-.guides-cards-section {
-    background-color: #f2f5fb;
-    padding: 60px 0 80px;
-}
-
-/* ---- Filter buttons ---- */
-.filter-buttons { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
-.filter-btn {
-    padding: 10px 22px;
-    border: 2px solid #e8e8e8;
-    border-radius: 8px;
+/* ── Toolbar (filters + search) ── */
+.blog-toolbar {
     background: #fff;
-    color: #2d3748;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.25s;
+    border-bottom: 1px solid #e5e7eb;
+    padding: 20px 0;
+    position: sticky;
+    top: 70px;
+    z-index: 90;
+}
+
+/* Language pills */
+.lang-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    border: 2px solid #e2e5ea;
+    background: #fff;
+    color: #6b7280;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+.lang-pill:hover {
+    border-color: #E8794E;
+    color: #E8794E;
+    text-decoration: none;
+}
+.lang-pill.active {
+    background: #483550;
+    border-color: #483550;
+    color: #fff;
+}
+.lang-pill.active:hover { color: #fff; text-decoration: none; }
+
+/* Category filter pills */
+.cat-pill {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-}
-.filter-btn:hover { border-color: #099a97; color: #099a97; }
-.filter-btn.active { border-color: #099a97; background: #099a97; color: #fff; }
-
-/* ---- Search ---- */
-.guides-search-container { position: relative; max-width: 520px; margin: 0 auto; }
-.guides-search-input {
-    width: 100%;
-    padding: 14px 20px 14px 50px;
-    border: 2px solid #e8e8e8;
+    padding: 8px 20px;
     border-radius: 8px;
-    font-size: 15px;
+    font-size: 14px;
+    font-weight: 500;
+    border: 2px solid #e2e5ea;
     background: #fff;
-    transition: border-color 0.3s, box-shadow 0.3s;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%238492AF' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'%3E%3C/circle%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'%3E%3C/line%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: 18px center;
+    color: #2d3748;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    white-space: nowrap;
 }
-.guides-search-input:focus {
+.cat-pill:hover {
+    border-color: #E8794E;
+    color: #E8794E;
+    text-decoration: none;
+}
+.cat-pill.active {
+    background: #E8794E;
+    border-color: #E8794E;
+    color: #fff;
+}
+.cat-pill.active:hover { color: #fff; text-decoration: none; }
+
+/* Search */
+.blog-search {
+    width: 100%;
+    max-width: 320px;
+    padding: 10px 16px 10px 42px;
+    border: 2px solid #e2e5ea;
+    border-radius: 8px;
+    font-size: 14px;
+    background: #fff;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'%3E%3C/circle%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'%3E%3C/line%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: 14px center;
+}
+.blog-search:focus {
     outline: none;
-    border-color: #099a97;
-    box-shadow: 0 0 0 4px rgba(9,154,151,0.1);
+    border-color: #E8794E;
+    box-shadow: 0 0 0 3px rgba(232,121,78,0.12);
 }
 
-/* ---- Cards ---- */
-.guide-card {
+/* ── Cards Section ── */
+.blog-cards-section {
+    background: #F8F9FA;
+    padding: 48px 0 64px;
+    min-height: 400px;
+}
+
+/* Card grid — 3 columns desktop */
+.blog-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 28px;
+}
+@media (max-width: 991px) {
+    .blog-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 575px) {
+    .blog-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Blog Card (matching index.html) ── */
+.blog-card {
     background: #fff;
-    border-radius: 14px;
+    border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    cursor: pointer;
+    border: 1px solid #e2e5ea;
     display: flex;
     flex-direction: column;
-    height: 100%;
     text-decoration: none;
     color: inherit;
-    position: relative;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
-.guide-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+.blog-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
     text-decoration: none;
     color: inherit;
 }
-
-/* Thumb — video */
-.guide-thumb {
-    position: relative;
+.blog-card__thumb {
     height: 200px;
+    position: relative;
     overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
-.guide-thumb img {
+.blog-card__thumb img {
     width: 100%;
     height: 100%;
     object-fit: cover;
     transition: transform 0.4s ease;
 }
-.guide-card:hover .guide-thumb img { transform: scale(1.04); }
-
-/* Thumb — document gradient covers */
-.guide-thumb-doc {
-    height: 200px;
+.blog-card:hover .blog-card__thumb img { transform: scale(1.04); }
+.blog-card__thumb--grad {
     display: flex;
     align-items: center;
     justify-content: center;
-    position: relative;
 }
-.guide-thumb-doc-strategie  { background: linear-gradient(135deg, #c0392b 0%, #ff7272 100%); }
-.guide-thumb-doc-tutoriel   { background: linear-gradient(135deg, #077775 0%, #099a97 100%); }
-.guide-thumb-doc-documentation { background: linear-gradient(135deg, #2c5282 0%, #4a6fa5 100%); }
-.guide-thumb-doc-default    { background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%); }
-.guide-doc-cover {
-    font-size: 52px;
-    opacity: 0.35;
-    color: #fff;
-}
+.blog-card__thumb--strategie    { background: linear-gradient(45deg, #E8820A 0%, #F7931E 55%, #F9A535 100%); }
+.blog-card__thumb--tutoriel     { background: linear-gradient(45deg, #128C49 0%, #17A85A 55%, #1DBF68 100%); }
+.blog-card__thumb--documentation{ background: linear-gradient(45deg, #2E3192 0%, #3845C5 55%, #4460D0 100%); }
+.blog-card__thumb--default      { background: linear-gradient(45deg, #2E3192 0%, #3845C5 55%, #4460D0 100%); }
+.blog-card__thumb-icon { font-size: 66px; opacity: 0.3; color: #fff; transform: rotate(-15deg); }
 
-/* Play overlay */
-.guide-play-overlay {
+/* Play overlay for video cards */
+.blog-card__play {
     position: absolute;
     inset: 0;
-    background: rgba(14, 26, 53, 0.45);
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.3s;
+    background: rgba(14,26,53,0.35);
+    transition: background 0.3s ease;
 }
-.guide-card:hover .guide-play-overlay { background: rgba(14, 26, 53, 0.3); }
-.guide-play-btn {
+.blog-card:hover .blog-card__play { background: rgba(14,26,53,0.2); }
+.blog-card__play-btn {
     width: 54px;
     height: 54px;
     border-radius: 50%;
@@ -134,260 +187,473 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 20px;
-    color: #ff7272;
-    transition: transform 0.2s;
+    transition: transform 0.2s ease;
 }
-.guide-card:hover .guide-play-btn { transform: scale(1.12); }
+.blog-card__play-btn i { color: #E8794E; font-size: 20px; margin-left: 3px; }
+.blog-card:hover .blog-card__play-btn { transform: scale(1.12); }
 
-/* Badges */
-.guide-badge {
-    position: absolute;
-    top: 12px;
-    left: 12px;
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 11px;
-    font-weight: 600;
+/* Badge */
+.blog-card__badge {
+    position: absolute; top: 12px; left: 12px;
+    padding: 4px 12px; border-radius: 20px;
+    font-size: 11px; font-weight: 600; color: #fff;
     backdrop-filter: blur(6px);
-    color: #fff;
-    z-index: 1;
 }
-.guide-badge-video { background: rgba(255, 114, 114, 0.9); }
-.guide-badge-doc   { background: rgba(9, 154, 151, 0.9); }
-.guide-badge-strat { background: rgba(192, 57, 43, 0.85); }
-.guide-badge-other { background: rgba(74, 111, 165, 0.85); }
+.blog-card__badge--tutoriel      { background: rgba(23,168,90,0.9); }
+.blog-card__badge--strategie     { background: rgba(232,130,10,0.9); }
+.blog-card__badge--documentation { background: rgba(46,49,146,0.9); }
+.blog-card__badge--default       { background: rgba(46,49,146,0.9); }
 
-/* Share button */
-.guide-share-btn {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: rgba(255,255,255,0.9);
-    border: none;
+/* Body */
+.blog-card__body {
+    padding: 20px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+.blog-card__title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1A1A2E;
+    margin-bottom: 8px;
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.blog-card__excerpt {
+    font-size: 0.87rem;
+    color: #6b7280;
+    line-height: 1.55;
+    flex-grow: 1;
+    margin-bottom: 16px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.blog-card__footer {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-top: 12px;
+    border-top: 1px solid #f0f0f0;
+}
+.blog-card__avatar {
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
-    width: 34px;
-    height: 34px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+.blog-card__avatar-placeholder {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #E8794E 0%, #c75f30 100%);
     display: flex;
     align-items: center;
     justify-content: center;
-    opacity: 0;
-    transition: opacity 0.2s;
-    cursor: pointer;
-    color: #2d3748;
+    color: #fff;
     font-size: 13px;
-    z-index: 2;
+    font-weight: 700;
+    flex-shrink: 0;
 }
-.guide-card:hover .guide-share-btn { opacity: 1; }
-.guide-share-btn:hover { background: #fff; color: #099a97; }
+.blog-card__meta {
+    display: flex;
+    flex-direction: column;
+    font-size: 0.8rem;
+    line-height: 1.3;
+}
+.blog-card__author { font-weight: 600; color: #1A1A2E; }
+.blog-card__date { color: #9ca3af; }
 
-/* Content area */
-.guide-content { padding: 18px 20px 20px; flex-grow: 1; display: flex; flex-direction: column; }
-.guide-content h5 { font-size: 1rem; font-weight: 700; color: #0E1A35; margin-bottom: 8px; line-height: 1.35; }
-.guide-description { font-size: 0.88rem; color: #8492AF; flex-grow: 1; margin-bottom: 0; line-height: 1.55; }
+/* ── Pagination ── */
+.blog-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    margin-top: 48px;
+}
+.blog-pagination__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    height: 40px;
+    padding: 0 12px;
+    border-radius: 8px;
+    border: 2px solid #e2e5ea;
+    background: #fff;
+    color: #483550;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+.blog-pagination__btn:hover {
+    border-color: #E8794E;
+    color: #E8794E;
+    text-decoration: none;
+}
+.blog-pagination__btn.active {
+    background: #E8794E;
+    border-color: #E8794E;
+    color: #fff;
+}
+.blog-pagination__btn.active:hover { color: #fff; text-decoration: none; }
+.blog-pagination__btn.disabled {
+    opacity: 0.4;
+    pointer-events: none;
+}
+.blog-pagination__ellipsis {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    color: #9ca3af;
+    font-size: 14px;
+}
 
-/* No results */
-.no-results { display: none; text-align: center; padding: 60px 0; color: #8492AF; }
+/* ── No results ── */
+.blog-empty {
+    text-align: center;
+    padding: 80px 20px;
+    color: #9ca3af;
+    display: none;
+}
+.blog-empty.show { display: block; }
+.blog-empty i { font-size: 48px; margin-bottom: 16px; color: #d1d5db; }
+.blog-empty h4 { font-size: 18px; color: #483550; margin-bottom: 8px; }
 
-/* Card col spacing */
-#guidesContainer > [class*="col-"] { margin-bottom: 28px; }
+/* ── Voodoo button (same as index.html) ── */
+.btn-slate {
+    background-color: #483550;
+    border-color: #483550;
+    color: #fff;
+    transition: background-color 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+.btn-slate:hover {
+    background-color: #5a4363;
+    border-color: #5a4363;
+    color: #fff;
+}
+.btn-slate:focus, .btn-slate:focus-visible {
+    background-color: #5a4363;
+    border-color: #5a4363;
+    color: #fff;
+    box-shadow: 0 0 0 0.2rem rgba(72, 53, 80, 0.4);
+    outline: none;
+}
+.btn-slate:active {
+    background-color: #372841;
+    border-color: #372841;
+    color: #fff;
+}
+
+/* ── CTA ── */
+.blog-cta {
+    padding: 72px 0;
+    background: linear-gradient(168deg, rgba(232,121,78,0.06) 0%, rgba(72,53,80,0.04) 100%);
+}
+
+/* ── Toast ── */
+.blog-toast {
+    display: none;
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1A1A2E;
+    color: #fff;
+    padding: 10px 22px;
+    border-radius: 8px;
+    font-size: 13px;
+    z-index: 9999;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+    .blog-hero { padding: 40px 0 0; }
+    .blog-toolbar { position: static; }
+    .blog-search { max-width: 100%; }
+    .blog-cards-section { padding: 32px 0 48px; }
+}
 </style>
 {% endblock %}
 
 {% block content %}
 
-<!-- Hero -->
-<section class="blog-hero-section">
+<!-- ═══════════════════════════════════════
+     HERO — merged intro + section header
+     Uses same typography classes as index.html
+     ═══════════════════════════════════════ -->
+<section class="blog-hero">
     <div class="container">
         <div class="row align-items-center">
-            <div class="col-lg-6 order-2 order-lg-1" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
-                <h6 class="text-uppercase mb-3" style="color:#ff7272; font-weight:600; letter-spacing:2px;">
-                    GUIDES ET RESSOURCES
-                </h6>
-                <h1 class="display-4 fw-bold mb-4" style="color:#0E1A35; font-size:clamp(2rem,5vw,2.8rem);">
-                    Besoin d'aide?
-                </h1>
-                <p style="font-size:16px; font-weight:400; line-height:1.7; color:#2d3748;">
-                    Tutoriels vidéo, guides pratiques et articles pour maîtriser minipass et gérer ta ligue sportive sans stress. Que tu sois débutant ou utilisateur avancé, tout est ici.
+            <!-- Text -->
+            <div class="col-lg-7 order-2 order-lg-1" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
+                <div class="section-title section-title--l8">
+                    <h6 class="section-title__sub-heading text-bittersweet text-uppercase" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
+                        GUIDES ET RESSOURCES
+                    </h6>
+                    <h2 class="section-title__heading" data-aos="fade-up" data-aos-delay="300" data-aos-duration="500" data-aos-once="true">
+                        Tout ce qu'il faut pour maîtriser minipass
+                    </h2>
+                </div>
+                <p class="welcome-content--l8__descriptions" data-aos="fade-up" data-aos-delay="500" data-aos-duration="500" data-aos-once="true">
+                    <span style="font-size: 18px;">
+                        Tutoriels vidéo, guides pratiques et articles pour gérer ta ligue sportive sans stress. Que tu sois débutant ou utilisateur avancé, tout est ici.
+                    </span>
                 </p>
             </div>
-            <div class="col-lg-6 order-1 order-lg-2 mb-4 mb-lg-0 text-center" data-aos="fade-up" data-aos-delay="200" data-aos-duration="500" data-aos-once="true">
+            <!-- Mascot -->
+            <div class="col-lg-5 order-1 order-lg-2 mb-4 mb-lg-0 text-center" data-aos="fade-up" data-aos-delay="200" data-aos-duration="500" data-aos-once="true">
                 <img src="{{ url_for('static', filename='image/guides-hero.png') }}"
                      alt="Guides minipass"
                      class="img-fluid"
-                     style="max-height:280px; width:auto;">
+                     style="max-height:260px; width:auto;">
             </div>
         </div>
     </div>
 </section>
 
-<!-- Cards -->
-<section class="guides-cards-section">
+<!-- ═══════════════════════════════════════
+     TOOLBAR — lang + filters + search
+     ═══════════════════════════════════════ -->
+<div class="blog-toolbar">
     <div class="container">
-        <div class="row justify-content-center mb-4">
-            <div class="col-lg-8 text-center" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
-                <h6 class="text-uppercase mb-3" style="color:#ff7272; font-weight:600; letter-spacing:2px;">RESSOURCES</h6>
-                <h2 class="fw-bold mb-4" style="color:#0E1A35;">Tous nos guides & articles</h2>
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+            <!-- Left: lang + category filters -->
+            <div class="d-flex flex-wrap align-items-center gap-2">
+                <!-- Language -->
+                <a href="{{ url_for('blog', lang='fr', category=active_category) }}"
+                   class="lang-pill{{ ' active' if active_lang == 'fr' else '' }}">FR</a>
+                <a href="{{ url_for('blog', lang='en', category=active_category) }}"
+                   class="lang-pill{{ ' active' if active_lang == 'en' else '' }}">EN</a>
 
-                <!-- Language switcher -->
-                <div class="mb-3" data-aos="fade-up" data-aos-delay="50" data-aos-duration="400" data-aos-once="true">
-                    <a href="{{ url_for('blog', lang='fr') }}"
-                       class="filter-btn{{ ' active' if active_lang == 'fr' else '' }}"
-                       style="padding:7px 18px; font-size:13px;">FR</a>
-                    <a href="{{ url_for('blog', lang='en') }}"
-                       class="filter-btn{{ ' active' if active_lang == 'en' else '' }}"
-                       style="padding:7px 18px; font-size:13px;">EN</a>
-                </div>
+                <span style="width:1px; height:28px; background:#e2e5ea; margin:0 8px;"></span>
 
-                <!-- Filters -->
-                <div class="filter-buttons mb-4" data-aos="fade-up" data-aos-delay="100" data-aos-duration="400" data-aos-once="true">
-                    <button class="filter-btn active" data-filter="all">
-                        <i class="fas fa-th-large"></i> Tous
-                    </button>
-                    <button class="filter-btn" data-filter="video">
-                        <i class="fas fa-play-circle"></i> Vidéos
-                    </button>
-                    <button class="filter-btn" data-filter="article">
-                        <i class="fas fa-pen-nib"></i> Articles
-                    </button>
-                    <button class="filter-btn" data-filter="document">
-                        <i class="fas fa-file-alt"></i> Guides
-                    </button>
-                </div>
-
-                <!-- Search -->
-                <div class="guides-search-container mb-5" data-aos="fade-up" data-aos-delay="150" data-aos-duration="400" data-aos-once="true">
-                    <input type="text" id="blogSearch" class="guides-search-input" placeholder="Rechercher un guide ou article..." autocomplete="off">
-                </div>
-            </div>
-        </div>
-
-        <!-- Cards Grid -->
-        <div class="row" id="guidesContainer">
-            {% for post in posts %}
-            {% set vid_id = post['video_url'] | default('') %}
-            {% set is_video = post['video_url'] is not none and post['video_url'] != '' %}
-            {% set cat_lower = post['category'] | lower | replace('é','e') | replace('è','e') | replace('ê','e') %}
-            {% set filter_type = 'video' if is_video else ('article' if cat_lower in ('strategie','stratégie') else 'document') %}
-
-            <div class="col-lg-4 col-md-6 guide-card-col"
-                 data-type="{{ filter_type }}"
-                 data-title="{{ post['title'] | lower }}"
-                 data-desc="{{ (post['excerpt'] or '') | lower }}"
-                 data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
-                <a href="{{ url_for('blog_detail', slug=post['slug']) }}" class="guide-card d-flex">
-                    {% if is_video %}
-                    {# Video card #}
-                    {% set yt_id = post['video_url'] | replace('https://www.youtube.com/watch?v=', '') | replace('https://youtu.be/', '') | truncate(11, True, '') %}
-                    <div class="guide-thumb">
-                        <img src="https://img.youtube.com/vi/{{ yt_id }}/maxresdefault.jpg"
-                             onerror="this.src='https://img.youtube.com/vi/{{ yt_id }}/hqdefault.jpg'"
-                             alt="{{ post['title'] }}" loading="lazy">
-                        <div class="guide-play-overlay">
-                            <div class="guide-play-btn"><i class="fas fa-play"></i></div>
-                        </div>
-                        <span class="guide-badge guide-badge-video"><i class="fas fa-play me-1"></i>Vidéo</span>
-                        <button class="guide-share-btn" onclick="copyLink(event, '{{ post['slug'] }}')" title="Copier le lien">
-                            <i class="fas fa-link"></i>
-                        </button>
-                    </div>
-                    {% else %}
-                    {# Document / article card #}
-                    <div class="guide-thumb-doc guide-thumb-doc-{{ cat_lower }}">
-                        <div class="guide-doc-cover">
-                            {% if cat_lower in ('strategie', 'stratégie') %}
-                                <i class="fas fa-lightbulb"></i>
-                            {% elif cat_lower == 'tutoriel' %}
-                                <i class="fas fa-graduation-cap"></i>
-                            {% else %}
-                                <i class="fas fa-file-alt"></i>
-                            {% endif %}
-                        </div>
-                        <span class="guide-badge
-                            {% if cat_lower in ('strategie','stratégie') %}guide-badge-strat
-                            {% elif cat_lower == 'tutoriel' %}guide-badge-doc
-                            {% else %}guide-badge-other{% endif %}">
-                            {% if cat_lower in ('strategie','stratégie') %}
-                                <i class="fas fa-lightbulb me-1"></i>Stratégie
-                            {% elif cat_lower == 'tutoriel' %}
-                                <i class="fas fa-graduation-cap me-1"></i>Tutoriel
-                            {% else %}
-                                <i class="fas fa-file-alt me-1"></i>Guide
-                            {% endif %}
-                        </span>
-                        <button class="guide-share-btn" onclick="copyLink(event, '{{ post['slug'] }}')" title="Copier le lien">
-                            <i class="fas fa-link"></i>
-                        </button>
-                    </div>
-                    {% endif %}
-
-                    <div class="guide-content">
-                        <h5>{{ post['title'] }}</h5>
-                        <p class="guide-description">{{ post['excerpt'] or '' }}</p>
-                    </div>
+                <!-- Categories -->
+                <a href="{{ url_for('blog', lang=active_lang) }}"
+                   class="cat-pill{{ ' active' if not active_category else '' }}">
+                    <i class="fas fa-th-large"></i> Tous
                 </a>
+                {% for cat in categories %}
+                <a href="{{ url_for('blog', lang=active_lang, category=cat['category']) }}"
+                   class="cat-pill{{ ' active' if active_category == cat['category'] else '' }}">
+                    {% if cat['category']|lower in ('strategie','stratégie') %}<i class="fas fa-lightbulb"></i>
+                    {% elif cat['category']|lower == 'tutoriel' %}<i class="fas fa-graduation-cap"></i>
+                    {% elif cat['category']|lower == 'documentation' %}<i class="fas fa-file-alt"></i>
+                    {% else %}<i class="fas fa-tag"></i>{% endif %}
+                    {{ cat['category'] }}
+                </a>
+                {% endfor %}
             </div>
-            {% else %}
-            <div class="col-12 text-center py-5" style="color:#8492AF;">
-                <p style="font-size:1.1rem;">Aucun contenu publié pour l'instant.</p>
-            </div>
+
+            <!-- Right: search -->
+            <input type="text" id="blogSearch" class="blog-search"
+                   placeholder="Rechercher..." autocomplete="off">
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     CARDS GRID
+     ═══════════════════════════════════════ -->
+<section class="blog-cards-section">
+    <div class="container">
+
+        {% if posts %}
+        <div class="blog-grid" id="blogGrid">
+            {% for post in posts %}
+            {% set cat_lower = (post['category'] or '')|lower|replace('é','e')|replace('è','e')|replace('ê','e') %}
+            {% set cat_class = cat_lower if cat_lower in ('strategie','tutoriel','documentation') else 'default' %}
+
+            <a href="{{ url_for('blog_detail', slug=post['slug']) }}"
+               class="blog-card"
+               data-title="{{ post['title']|lower }}"
+               data-desc="{{ (post['excerpt'] or '')|lower }}"
+               data-aos="fade-up"
+               data-aos-delay="{{ loop.index0 % 3 * 80 }}"
+               data-aos-duration="500"
+               data-aos-once="true">
+
+                <!-- Thumbnail -->
+                <div class="blog-card__thumb {% if not post.get('yt_thumb') %}blog-card__thumb--grad blog-card__thumb--{{ cat_class }}{% endif %}">
+                    {% if post.get('yt_thumb') %}
+                        <img src="{{ post['yt_thumb'] }}" alt="{{ post['title'] }}" loading="lazy" width="400" height="200">
+                        <div class="blog-card__play">
+                            <div class="blog-card__play-btn"><i class="fas fa-play"></i></div>
+                        </div>
+                    {% else %}
+                        <span class="blog-card__thumb-icon">
+                            {% if cat_lower in ('strategie','stratégie') %}<i class="fas fa-lightbulb"></i>
+                            {% elif cat_lower == 'tutoriel' %}<i class="fas fa-graduation-cap"></i>
+                            {% else %}<i class="fas fa-file-alt"></i>{% endif %}
+                        </span>
+                    {% endif %}
+                    <span class="blog-card__badge blog-card__badge--{{ cat_class }}">{{ post['category'] }}</span>
+                </div>
+
+                <!-- Body -->
+                <div class="blog-card__body">
+                    <h3 class="blog-card__title">{{ post['title'] }}</h3>
+                    <p class="blog-card__excerpt">{{ (post['excerpt'] or '')[:140] }}{% if (post['excerpt'] or '')|length > 140 %}...{% endif %}</p>
+                    <div class="blog-card__footer">
+                        {% if post.get('gravatar_url') %}
+                            <img class="blog-card__avatar" src="{{ post['gravatar_url'] }}" alt="{{ post['author'] }}" width="32" height="32" loading="lazy">
+                        {% else %}
+                            <span class="blog-card__avatar-placeholder">{{ (post['author'] or 'M')[0]|upper }}</span>
+                        {% endif %}
+                        <div class="blog-card__meta">
+                            <span class="blog-card__author">{{ post['author'] or 'Minipass' }}</span>
+                            {% set card_date = post.get('updated_at') or post.get('published_at') %}
+                            {% if card_date %}<span class="blog-card__date">{{ card_date[:10] }}</span>{% endif %}
+                        </div>
+                    </div>
+                </div>
+            </a>
             {% endfor %}
         </div>
 
-        <div class="no-results" id="noResults">
-            <p style="font-size:1.1rem; color:#8492AF;">Aucun résultat pour ta recherche.</p>
+        <!-- No search results (client-side) -->
+        <div class="blog-empty" id="noResults">
+            <i class="fas fa-search"></i>
+            <h4>Aucun résultat</h4>
+            <p>Essaie de modifier ta recherche</p>
         </div>
+
+        <!-- Pagination -->
+        {% if total_pages > 1 %}
+        <nav class="blog-pagination" aria-label="Pagination">
+            {# Previous #}
+            {% if page > 1 %}
+            <a href="{{ url_for('blog', lang=active_lang, category=active_category, page=page-1) }}"
+               class="blog-pagination__btn" aria-label="Page précédente">
+                <i class="fas fa-chevron-left"></i>
+            </a>
+            {% else %}
+            <span class="blog-pagination__btn disabled"><i class="fas fa-chevron-left"></i></span>
+            {% endif %}
+
+            {# Page numbers #}
+            {% set window = 2 %}
+            {% set start_page = [1, page - window]|max %}
+            {% set end_page = [total_pages, page + window]|min %}
+
+            {% if start_page > 1 %}
+            <a href="{{ url_for('blog', lang=active_lang, category=active_category, page=1) }}"
+               class="blog-pagination__btn">1</a>
+            {% if start_page > 2 %}
+            <span class="blog-pagination__ellipsis">...</span>
+            {% endif %}
+            {% endif %}
+
+            {% for p in range(start_page, end_page + 1) %}
+            {% if p == page %}
+            <span class="blog-pagination__btn active">{{ p }}</span>
+            {% else %}
+            <a href="{{ url_for('blog', lang=active_lang, category=active_category, page=p) }}"
+               class="blog-pagination__btn">{{ p }}</a>
+            {% endif %}
+            {% endfor %}
+
+            {% if end_page < total_pages %}
+            {% if end_page < total_pages - 1 %}
+            <span class="blog-pagination__ellipsis">...</span>
+            {% endif %}
+            <a href="{{ url_for('blog', lang=active_lang, category=active_category, page=total_pages) }}"
+               class="blog-pagination__btn">{{ total_pages }}</a>
+            {% endif %}
+
+            {# Next #}
+            {% if page < total_pages %}
+            <a href="{{ url_for('blog', lang=active_lang, category=active_category, page=page+1) }}"
+               class="blog-pagination__btn" aria-label="Page suivante">
+                <i class="fas fa-chevron-right"></i>
+            </a>
+            {% else %}
+            <span class="blog-pagination__btn disabled"><i class="fas fa-chevron-right"></i></span>
+            {% endif %}
+        </nav>
+        {% endif %}
+
+        {% else %}
+        <!-- No posts at all -->
+        <div class="text-center py-5" style="color:#9ca3af;">
+            <i class="fas fa-pen-nib" style="font-size:48px; margin-bottom:16px; display:block; color:#d1d5db;"></i>
+            <p style="font-size:1.1rem;">Aucun contenu publié pour l'instant.</p>
+        </div>
+        {% endif %}
 
     </div>
 </section>
 
-<div id="copyToast" style="display:none; position:fixed; bottom:24px; left:50%; transform:translateX(-50%);
-     background:#0E1A35; color:#fff; padding:10px 20px; border-radius:50px; font-size:13px; z-index:9999;
-     box-shadow:0 4px 12px rgba(0,0,0,0.25);">
-    Lien copié! 🔗
-</div>
+<!-- ═══════════════════════════════════════
+     CTA
+     ═══════════════════════════════════════ -->
+<section class="blog-cta">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-7 text-center" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
+                <h6 class="section-title__sub-heading text-bittersweet text-uppercase mb-3">
+                    BESOIN D'AIDE?
+                </h6>
+                <p class="mb-2" style="font-size: 26px; font-weight: 500; letter-spacing: -0.5px; line-height: 1.3;">
+                    Tu ne trouves pas ce que tu cherches?
+                </p>
+                <p class="mb-4" style="font-size: 16px; color: #6b7280;">
+                    Notre équipe est là pour t'aider
+                </p>
+                <a href="mailto:support@minipass.me"
+                   class="btn btn--lg-2 btn-slate text-white"
+                   style="font-weight:600; min-width:180px;">
+                    Nous contacter
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
 
+<!-- Toast -->
+<div class="blog-toast" id="copyToast">Lien copié!</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
 <script>
-// Filter
-document.querySelectorAll('.filter-btn').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-        document.querySelectorAll('.filter-btn').forEach(function(b) { b.classList.remove('active'); });
-        btn.classList.add('active');
-        var filter = btn.dataset.filter;
-        filterCards(filter, document.getElementById('blogSearch').value);
-    });
-});
+(function() {
+    'use strict';
 
-// Search
-document.getElementById('blogSearch').addEventListener('input', function() {
-    var active = document.querySelector('.filter-btn.active');
-    filterCards(active ? active.dataset.filter : 'all', this.value);
-});
+    var searchInput = document.getElementById('blogSearch');
+    var grid = document.getElementById('blogGrid');
+    var noResults = document.getElementById('noResults');
 
-function filterCards(filter, query) {
-    var q = (query || '').toLowerCase().trim();
-    var cards = document.querySelectorAll('.guide-card-col');
-    var visible = 0;
-    cards.forEach(function(card) {
-        var typeMatch = filter === 'all' || card.dataset.type === filter;
-        var textMatch = !q || card.dataset.title.includes(q) || card.dataset.desc.includes(q);
-        var show = typeMatch && textMatch;
-        card.style.display = show ? '' : 'none';
-        if (show) visible++;
-    });
-    document.getElementById('noResults').style.display = visible === 0 ? 'block' : 'none';
-}
+    if (!searchInput || !grid) return;
 
-// Copy link
-function copyLink(e, slug) {
-    e.preventDefault();
-    e.stopPropagation();
-    navigator.clipboard.writeText(window.location.origin + '/blog/' + slug).then(function() {
-        var toast = document.getElementById('copyToast');
-        toast.style.display = 'block';
-        setTimeout(function() { toast.style.display = 'none'; }, 2000);
+    var cards = grid.querySelectorAll('.blog-card');
+
+    searchInput.addEventListener('input', function() {
+        var q = this.value.toLowerCase().trim();
+        var visible = 0;
+
+        cards.forEach(function(card) {
+            var title = card.dataset.title || '';
+            var desc = card.dataset.desc || '';
+            var match = !q || title.includes(q) || desc.includes(q);
+            card.style.display = match ? '' : 'none';
+            if (match) visible++;
+        });
+
+        if (noResults) {
+            noResults.classList.toggle('show', visible === 0);
+        }
     });
-}
+})();
 </script>
-
 {% endblock %}
