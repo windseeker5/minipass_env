@@ -102,6 +102,7 @@ def home():
                 post['yt_thumb'] = f"https://img.youtube.com/vi/{vid}/maxresdefault.jpg" if vid else None
                 ae = (post.get('author_email') or '').strip().lower()
                 post['gravatar_url'] = f"https://www.gravatar.com/avatar/{hashlib.md5(ae.encode()).hexdigest()}?s=80&d=mp" if ae else None
+                post['excerpt'] = post.get('meta_description') or post.get('excerpt') or _strip_md(post.get('body', ''))[:200]
                 homepage_posts.append(post)
     except Exception:
         pass
@@ -312,6 +313,9 @@ def blog():
             "SELECT DISTINCT category FROM blog_posts WHERE published=1 AND COALESCE(lang,'fr')=? ORDER BY category",
             (lang,)
         ).fetchall()
+        posts = [dict(p) for p in posts]
+        for p in posts:
+            p['excerpt'] = p.get('meta_description') or p.get('excerpt') or _strip_md(p.get('body', ''))[:200]
     return render_template("blog.html", posts=posts, categories=categories, active_category=category, active_lang=lang)
 
 
@@ -1142,7 +1146,6 @@ def admin_blog_create():
     import sqlite3
     title = request.form.get("title", "").strip()
     slug = request.form.get("slug", "").strip() or _slug_from_title(title)
-    excerpt = request.form.get("excerpt", "").strip()[:300]
     body = request.form.get("body", "")
     category = request.form.get("category", "Stratégie")
     author = request.form.get("author", "Marie-France").strip()
@@ -1153,6 +1156,7 @@ def admin_blog_create():
     author_email = request.form.get("author_email", "").strip().lower() or None
     published = 1 if request.form.get("published") else 0
     published_at = datetime.now(timezone.utc).isoformat() if published else None
+    excerpt = (meta_description or _strip_md(body)[:200]).strip()
     with sqlite3.connect("customers.db") as conn:
         _init_blog_db(conn)
         conn.execute("""
@@ -1183,7 +1187,6 @@ def admin_blog_update(post_id):
     import sqlite3
     title = request.form.get("title", "").strip()
     slug = request.form.get("slug", "").strip() or _slug_from_title(title)
-    excerpt = request.form.get("excerpt", "").strip()[:300]
     body = request.form.get("body", "")
     category = request.form.get("category", "Stratégie")
     author = request.form.get("author", "Marie-France").strip()
@@ -1193,6 +1196,7 @@ def admin_blog_update(post_id):
     lang = request.form.get("lang", "fr").strip()
     author_email = request.form.get("author_email", "").strip().lower() or None
     published = 1 if request.form.get("published") else 0
+    excerpt = (meta_description or _strip_md(body)[:200]).strip()
     with sqlite3.connect("customers.db") as conn:
         old = conn.execute("SELECT published, published_at FROM blog_posts WHERE id=?", (post_id,)).fetchone()
         if old:
@@ -1313,9 +1317,8 @@ def admin_leads():
         stats = conn.execute("""
             SELECT
                 COUNT(*) as total,
-                SUM(CASE WHEN source='newsletter' THEN 1 ELSE 0 END) as newsletter,
-                SUM(CASE WHEN source='lead_magnet' THEN 1 ELSE 0 END) as lead_magnet,
-                SUM(CASE WHEN DATE(created_at) >= DATE('now', '-7 days') THEN 1 ELSE 0 END) as last_7d
+                SUM(CASE WHEN DATE(created_at) >= DATE('now', '-7 days') THEN 1 ELSE 0 END) as last_7d,
+                SUM(CASE WHEN DATE(created_at) >= DATE('now', '-30 days') THEN 1 ELSE 0 END) as last_30d
             FROM leads
         """).fetchone()
     return render_template("admin/leads.html", leads=leads, stats=stats, search_query=q)

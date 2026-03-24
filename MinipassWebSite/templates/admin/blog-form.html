@@ -169,20 +169,6 @@
                 </div>
             </div>
 
-            <!-- Excerpt -->
-            <div class="card bg-base-100 border border-base-300 shadow-sm">
-                <div class="card-body p-5">
-                    <div class="form-control">
-                        <label class="label pb-1">
-                            <span class="label-text font-semibold">Extrait (résumé)</span>
-                            <span class="label-text-alt text-base-content/40">Affiché dans les listes et cartes — max 300 chars</span>
-                        </label>
-                        <textarea name="excerpt" class="textarea textarea-bordered" rows="3" maxlength="300"
-                                  placeholder="Un résumé accrocheur de l'article en 1-2 phrases.">{{ post['excerpt'] if post else '' }}</textarea>
-                    </div>
-                </div>
-            </div>
-
             <!-- SEO -->
             <div class="card bg-base-100 border border-base-300 shadow-sm">
                 <div class="card-body p-5">
@@ -190,7 +176,7 @@
                         <i data-lucide="search" class="w-4 h-4 text-base-content/50"></i>
                         <h3 class="font-semibold">SEO — Référencement</h3>
                     </div>
-                    <p class="text-xs text-base-content/40 mb-4">Ces champs contrôlent ce que Google affiche dans les résultats de recherche. Si laissés vides, le titre et l'extrait seront utilisés.</p>
+                    <p class="text-xs text-base-content/40 mb-4">Ces champs contrôlent ce que Google affiche dans les résultats de recherche. La meta description est aussi utilisée comme résumé sur les cartes du blog.</p>
 
                     <div class="form-control mb-4">
                         <label class="label pb-1">
@@ -222,7 +208,7 @@
                         <div style="font-family: Arial, sans-serif;">
                             <div id="seo-preview-title" style="color: #1a0dab; font-size: 18px; line-height: 1.3; margin-bottom: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ post['title'] if post else 'Titre de l\'article' }}</div>
                             <div id="seo-preview-url" style="color: #006621; font-size: 13px; margin-bottom: 3px;">minipass.me/blog/<span id="seo-preview-slug">{{ post['slug'] if post else 'mon-article' }}</span></div>
-                            <div id="seo-preview-desc" style="color: #545454; font-size: 13px; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">{{ post['excerpt'] if post else 'Description de l\'article...' }}</div>
+                            <div id="seo-preview-desc" style="color: #545454; font-size: 13px; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">{{ post['meta_description'] or post['excerpt'] if post else 'Description de l\'article...' }}</div>
                         </div>
                     </div>
                 </div>
@@ -459,17 +445,15 @@ function updateSeoPreview() {
     var metaTitle = document.getElementById('seo-title-input').value.trim();
     var title = document.getElementById('title-input').value.trim();
     var metaDesc = document.getElementById('seo-desc-input').value.trim();
-    var excerpt = document.querySelector('textarea[name="excerpt"]').value.trim();
     var slug = document.getElementById('slug-input').value.trim();
 
     document.getElementById('seo-preview-title').textContent = metaTitle || title || 'Titre de l\'article';
-    document.getElementById('seo-preview-desc').textContent = metaDesc || excerpt || 'Description de l\'article...';
+    document.getElementById('seo-preview-desc').textContent = metaDesc || 'Description de l\'article...';
     document.getElementById('seo-preview-slug').textContent = slug || 'mon-article';
 }
 
-// Wire up title/excerpt/slug changes to also update SEO preview
+// Wire up title/slug changes to also update SEO preview
 document.getElementById('title-input').addEventListener('input', updateSeoPreview);
-document.querySelector('textarea[name="excerpt"]').addEventListener('input', updateSeoPreview);
 document.getElementById('slug-input').addEventListener('input', updateSeoPreview);
 
 // Init counts on load
