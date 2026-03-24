@@ -6333,7 +6333,7 @@ ________________________________ */
   min-width: 34px;
   min-height: 34px;
   border-radius: 500px;
-  color: var(--color-headings-2);
+  color: #483550;
   font-size: 15px;
   display: inline-flex;
   align-items: center;
@@ -6342,8 +6342,8 @@ ________________________________ */
 }
 
 .footer-social-share--rounded a:hover {
-  box-shadow: 0 10px 20px rgba(253, 52, 110, 0.25);
-  background-color: #ff5722;
+  box-shadow: 0 10px 20px rgba(232, 121, 78, 0.25);
+  background-color: #E8794E;
   color: #fff;
 }
 

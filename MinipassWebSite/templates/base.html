@@ -73,24 +73,57 @@
   <link href="{{ url_for('static', filename='css/main.css') }}" rel="stylesheet"/>
   <!-- Custom stylesheet -->
   <style>
-    .btn-slate {
-      background-color: #64748B; border-color: #64748B; color: #fff;
-      transition: background-color 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+    /* Keep btn-bittersweet white text even when sticky reveal-header overrides anchor color */
+    .reveal-header .btn-bittersweet,
+    .reveal-header .btn-bittersweet:hover,
+    .reveal-header .btn-bittersweet:focus,
+    .reveal-header .btn-bittersweet:active { color: #fff !important; }
+    /* Footer contact icons — Voodoo default, Burnt Sienna on hover */
+    .footer-contact-icon { color: #483550; transition: color 0.2s ease; }
+    li:hover .footer-contact-icon { color: #E8794E; }
+
+    /* ── Nav link hover & active: color shift + animated underline ── */
+    @media (min-width: 992px) {
+      .site-menu-main .nav-link-item {
+        color: #7a7189 !important;
+        transition: color 0.3s ease;
+      }
+      .site-menu-main .nav-link-item::after {
+        content: '';
+        position: absolute;
+        bottom: 18px;
+        left: 50%;
+        width: 0;
+        height: 2px;
+        background: #E8794E;
+        transition: width 0.3s ease, left 0.3s ease;
+      }
+      /* Hover state — text darkens to Voodoo, underline in Burnt Sienna */
+      .site-menu-main .nav-link-item:hover {
+        color: #483550 !important;
+      }
+      .site-menu-main .nav-link-item:hover::after {
+        width: calc(100% - 48px);
+        left: 24px;
+      }
+      /* Active page state — Voodoo text + Burnt Sienna underline */
+      .site-menu-main .nav-item.active .nav-link-item {
+        color: #483550 !important;
+        font-weight: 600;
+      }
+      .site-menu-main .nav-item.active .nav-link-item::after {
+        width: calc(100% - 48px);
+        left: 24px;
+      }
+      /* Sticky header — same behavior */
+      .reveal-header .nav-link-item {
+        color: #7a7189 !important;
+      }
+      .reveal-header .nav-item.active .nav-link-item,
+      .reveal-header .nav-link-item:hover {
+        color: #483550 !important;
+      }
     }
-    .btn-slate:hover { background-color: #7A8FA6; border-color: #7A8FA6; color: #fff; }
-    .btn-slate:focus, .btn-slate:focus-visible {
-      background-color: #7A8FA6; border-color: #7A8FA6; color: #fff;
-      box-shadow: 0 0 0 0.2rem rgba(100, 116, 139, 0.4); outline: none;
-    }
-    .btn-slate:active { background-color: #475569; border-color: #475569; color: #fff; }
-    /* Keep btn-slate white text even when sticky reveal-header overrides anchor color */
-    .reveal-header .btn-slate,
-    .reveal-header .btn-slate:hover,
-    .reveal-header .btn-slate:focus,
-    .reveal-header .btn-slate:active { color: #fff !important; }
-    /* Footer contact icons — dark charcoal default, orange on hover */
-    .footer-contact-icon { color: #262729; transition: color 0.2s ease; }
-    li:hover .footer-contact-icon { color: #F7931E; }
   </style>
  
     {% block extra_head %}{% endblock %}
@@ -127,22 +160,22 @@
          </div>
         </div>
         <ul class="site-menu-main">
-         <li class="nav-item">
+         <li class="nav-item{% if request.path == '/' %} active{% endif %}">
           <a class="nav-link-item" href="/">
            Accueil
           </a>
          </li>
-         <li class="nav-item">
+         <li class="nav-item{% if request.path == '/' and request.url.endswith('#services') %} active{% endif %}">
           <a class="nav-link-item" href="/#services">
            Fonctionnalités
           </a>
          </li>
-         <li class="nav-item">
+         <li class="nav-item{% if request.path == '/about' %} active{% endif %}">
           <a class="nav-link-item" href="/about">
            À propos de nous
           </a>
          </li>
-         <li class="nav-item">
+         <li class="nav-item{% if request.path.startswith('/guides') %} active{% endif %}">
           <a class="nav-link-item" href="/guides">
            Guides
           </a>
@@ -151,7 +184,7 @@
        </nav>
       </div>
       <div class="header-btn">
-       <a class="btn btn-slate btn--medium-4 h-45 ms-auto ms-lg-4 d-none d-sm-flex" href="/#pricing">
+       <a class="btn btn-bittersweet btn--medium-4 h-45 ms-auto ms-lg-4 d-none d-sm-flex text-white" href="/#pricing">
         S'abonner
        </a>
       </div>

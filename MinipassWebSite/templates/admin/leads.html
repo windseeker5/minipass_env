@@ -1,13 +1,13 @@
 {% extends "admin/admin_base.html" %}
 {% block title %}Leads{% endblock %}
-{% block page_title %}Leads — Prospects{% endblock %}
+{% block page_title %}Leads — Newsletter{% endblock %}
 
 {% block content %}
 <!-- Stats cards -->
-<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+<div class="grid grid-cols-3 gap-4 mb-6">
     <div class="card bg-base-100 border border-base-300 shadow-sm">
         <div class="card-body p-4">
-            <div class="text-xs uppercase tracking-wider text-base-content/40 font-semibold">Total</div>
+            <div class="text-xs uppercase tracking-wider text-base-content/40 font-semibold">Total leads</div>
             <div class="text-2xl font-bold mt-1">{{ stats['total'] or 0 }}</div>
         </div>
     </div>
@@ -19,14 +19,8 @@
     </div>
     <div class="card bg-base-100 border border-base-300 shadow-sm">
         <div class="card-body p-4">
-            <div class="text-xs uppercase tracking-wider text-base-content/40 font-semibold">Newsletter</div>
-            <div class="text-2xl font-bold mt-1">{{ stats['newsletter'] or 0 }}</div>
-        </div>
-    </div>
-    <div class="card bg-base-100 border border-base-300 shadow-sm">
-        <div class="card-body p-4">
-            <div class="text-xs uppercase tracking-wider text-base-content/40 font-semibold">Lead magnet</div>
-            <div class="text-2xl font-bold mt-1">{{ stats['lead_magnet'] or 0 }}</div>
+            <div class="text-xs uppercase tracking-wider text-base-content/40 font-semibold">30 derniers jours</div>
+            <div class="text-2xl font-bold mt-1">{{ stats['last_30d'] or 0 }}</div>
         </div>
     </div>
 </div>
@@ -59,7 +53,6 @@
         <thead>
             <tr class="text-xs uppercase tracking-wider text-base-content/50">
                 <th>Email</th>
-                <th>Source</th>
                 <th>Date</th>
                 <th class="text-right">Actions</th>
             </tr>
@@ -68,13 +61,6 @@
             {% for lead in leads %}
             <tr>
                 <td class="font-medium text-sm">{{ lead['email'] }}</td>
-                <td>
-                    {% if lead['source'] == 'newsletter' %}
-                        <span class="badge badge-sm" style="background:rgba(9,154,151,0.15); color:#077775; border:none;">Newsletter</span>
-                    {% else %}
-                        <span class="badge badge-sm" style="background:rgba(255,114,114,0.15); color:#c0392b; border:none;">Lead magnet</span>
-                    {% endif %}
-                </td>
                 <td class="text-xs text-base-content/50">
                     {{ lead['created_at'][:10] if lead['created_at'] else '' }}
                 </td>
@@ -92,13 +78,13 @@
         </tbody>
     </table>
 </div>
-<p class="text-xs text-base-content/40 mt-3">{{ leads|length }} resultat{{ 's' if leads|length != 1 else '' }}{{ ' pour "' + search_query + '"' if search_query else '' }}</p>
+<p class="text-xs text-base-content/40 mt-3">{{ leads|length }} lead{{ 's' if leads|length != 1 else '' }}{{ ' pour "' + search_query + '"' if search_query else '' }}</p>
 {% else %}
 <div class="card bg-base-100 border border-base-300">
     <div class="card-body text-center py-16">
         <i data-lucide="contact" class="w-12 h-12 mx-auto text-base-content/20 mb-4"></i>
         <h3 class="text-lg font-semibold text-base-content/60">Aucun lead pour l'instant</h3>
-        <p class="text-sm text-base-content/40 mt-2">Les emails collectes via le blog et le lead magnet apparaitront ici.</p>
+        <p class="text-sm text-base-content/40 mt-2">Les emails collectes via la newsletter apparaitront ici.</p>
     </div>
 </div>
 {% endif %}
