@@ -420,26 +420,15 @@
       overflow: visible;
     }
     #services .features-grid .phone-cell::before {
-      content: '01101001 10110010 10110011 01001101 01100101 10100110 10110010 10110100 11010110 01011010 01100101 10100110 10110010 10110100 01011001 10011010 01101011 00101011 01001101 01100101 10100110 10110010 11010110 01011010 10010110 10011010 11001010 11010011 01011001 01101001 10110010 10110011 01001101 01100101';
+      content: '';
       position: absolute;
       top: calc(50% - 105px);
       left: 50%;
       transform: translate(-50%, -50%) rotate(-12deg);
       width: 480px;
       height: 460px;
-      border-radius: 48px;
-      overflow: hidden;
-      background: linear-gradient(135deg, rgba(72,53,80,0.15), rgba(232,121,78,0.15));
-      color: rgba(255,255,255,0.35);
-      font-family: 'Courier New', Courier, monospace;
-      font-size: 31px;
-      font-weight: 700;
-      line-height: 1.2;
-      letter-spacing: 4px;
-      word-break: break-all;
-      padding: 24px;
-      box-sizing: border-box;
       z-index: 0;
+      background: url("/static/image/qr-bg-pattern.svg") center/contain no-repeat;
     }
     #services .features-grid .phone-cell img.phone-img {
       position: absolute;
@@ -550,8 +539,8 @@
 
       <!-- Row 1 right -->
       <div class="widgets widgets--about-l6 d-flex feat-right">
-       <div class="card--services-l6__icon bg-op1__lavender feature-icon">
-        <i class="text-lavender fas fa-envelope-open-text"></i>
+       <div class="card--services-l6__icon bg-op1__bittersweet feature-icon">
+        <i class="text-bittersweet fas fa-envelope-open-text"></i>
        </div>
        <div class="widgets__content">
         <h5 class="widgets__title">Courriels et rappels automatiques</h5>
@@ -561,8 +550,8 @@
 
       <!-- Row 2 left -->
       <div class="widgets widgets--about-l6 d-flex feat-left">
-       <div class="card--services-l6__icon bg-op1__niagara feature-icon">
-        <i class="text-niagara fas fa-clipboard-list"></i>
+       <div class="card--services-l6__icon bg-op1__bittersweet feature-icon">
+        <i class="text-bittersweet fas fa-clipboard-list"></i>
        </div>
        <div class="widgets__content">
         <h5 class="widgets__title">Inscriptions en ligne simplifiées</h5>
@@ -583,8 +572,8 @@
 
       <!-- Row 3 left -->
       <div class="widgets widgets--about-l6 d-flex feat-left">
-       <div class="card--services-l6__icon bg-op1__lavender feature-icon">
-        <i class="text-lavender fas fa-qrcode"></i>
+       <div class="card--services-l6__icon bg-op1__bittersweet feature-icon">
+        <i class="text-bittersweet fas fa-qrcode"></i>
        </div>
        <div class="widgets__content">
         <h5 class="widgets__title">Passeports numériques QR</h5>
@@ -594,8 +583,8 @@
 
       <!-- Row 3 right -->
       <div class="widgets widgets--about-l6 d-flex feat-right">
-       <div class="card--services-l6__icon bg-op1__niagara feature-icon">
-        <i class="text-niagara fas fa-map-marker-alt"></i>
+       <div class="card--services-l6__icon bg-op1__bittersweet feature-icon">
+        <i class="text-bittersweet fas fa-map-marker-alt"></i>
        </div>
        <div class="widgets__content">
         <h5 class="widgets__title">Conçu au Canada, pour Interac</h5>
@@ -1638,11 +1627,11 @@
       dot.addEventListener('click', function() {
         clearInterval(timer);
         goTo(parseInt(this.getAttribute('data-slide')));
-        timer = setInterval(function(){ goTo(current + 1); }, 6000);
+        timer = setInterval(function(){ goTo(current + 1); }, 12000);
       });
     });
 
-    timer = setInterval(function(){ goTo(current + 1); }, 6000);
+    timer = setInterval(function(){ goTo(current + 1); }, 12000);
   })();
 </script>
 
