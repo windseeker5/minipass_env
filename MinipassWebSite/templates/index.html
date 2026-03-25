@@ -1007,19 +1007,7 @@
       </div>
       <div class="blog-card__body">
        <h3 class="blog-card__title">{{ post['title'] }}</h3>
-       <p class="blog-card__excerpt">{{ (post['excerpt'] or '')[:120] }}{% if (post['excerpt'] or '')|length > 120 %}…{% endif %}</p>
-       <div class="blog-card__footer">
-        {% if post.get('gravatar_url') %}
-         <img class="blog-card__avatar" src="{{ post['gravatar_url'] }}" alt="{{ post['author'] }}" width="32" height="32" loading="lazy">
-        {% else %}
-         <span class="blog-card__avatar-placeholder">{{ (post['author'] or 'M')[0] | upper }}</span>
-        {% endif %}
-        <div class="blog-card__meta">
-         <span class="blog-card__author">{{ post['author'] or 'Minipass' }}</span>
-         {% set card_date = post.get('updated_at') or post.get('published_at') %}
-         {% if card_date %}<span class="blog-card__date">{{ card_date[:10] }}</span>{% endif %}
-        </div>
-       </div>
+       <p class="blog-card__excerpt">{{ (post['excerpt'] or '')[:140] }}{% if (post['excerpt'] or '')|length > 140 %}...{% endif %}</p>
       </div>
      </a>
      {% endfor %}

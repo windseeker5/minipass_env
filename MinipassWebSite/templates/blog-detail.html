@@ -41,8 +41,9 @@
 }
 .article-breadcrumb a:hover { color: #483550; text-decoration: none; }
 .article-breadcrumb__sep {
-    color: #d0d5dd;
-    font-size: 12px;
+    color: #483550;
+    font-size: 13px;
+    font-weight: 700;
 }
 .article-breadcrumb__current {
     color: #6B7280;
@@ -388,7 +389,7 @@
      <div class="newsletter-widget">
       <p class="newsletter-widget__eyebrow">{{ 'Newsletter' if post['lang'] == 'en' else 'Infolettre' }}</p>
       <h3 class="newsletter-widget__title">{{ 'Stay in the loop' if post['lang'] == 'en' else 'Reste dans la boucle' }}</h3>
-      <p class="newsletter-widget__desc">{{ 'New articles, tips and product updates — once a month.' if post['lang'] == 'en' else 'Nouveaux articles, astuces produit — 1x par mois.' }}</p>
+      <p class="newsletter-widget__desc">{{ 'Be the first to discover our new guides and product tips.' if post['lang'] == 'en' else 'Sois le premier à découvrir nos nouveaux guides et astuces produit.' }}</p>
       <form id="sidebar-newsletter-form" onsubmit="sidebarSubscribe(event)">
        <input type="email" id="sidebar-email"
               class="newsletter-widget__input"
@@ -397,9 +398,6 @@
         {{ 'Subscribe' if post['lang'] == 'en' else "S'abonner" }}
        </button>
       </form>
-      <div id="sidebar-thanks" class="newsletter-widget__thanks" style="display:none;">
-       {{ 'Thanks! You will get the next issue.' if post['lang'] == 'en' else 'Merci! Tu recevras le prochain numero.' }}
-      </div>
      </div>
 
     </div>
@@ -416,6 +414,9 @@
 
 <script>
 // Share / copy link
+var _lang = '{{ post["lang"] }}';
+var _subscribeLabel = _lang === 'en' ? 'Subscribe' : "S'abonner";
+
 function shareArticle() {
   var url = window.location.href;
   var btn = document.getElementById('shareBtn');
@@ -433,19 +434,72 @@ function shareArticle() {
   });
 }
 
+// kdShowAlert toast helper
+if (!window.kdDismissAlert) {
+  window.kdDismissAlert = function(el) {
+    el.style.opacity = '0';
+    el.style.transform = 'translateX(20px)';
+    setTimeout(function() { el.remove(); }, 300);
+  };
+}
+if (!window.kdShowAlert) {
+  window.kdShowAlert = function(type, message, opts) {
+    opts = opts || {};
+    var duration = (opts.duration !== undefined) ? opts.duration : 4000;
+    var position = opts.position || 'top-right';
+    var colors = {success:'#2ECC71', error:'#e74c3c', warning:'#f39c12', info:'#3498db'};
+    var icons = {
+      success:'<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" style="width:22px;height:22px;flex-shrink:0;stroke:currentColor;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>',
+      error:'<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" style="width:22px;height:22px;flex-shrink:0;stroke:currentColor;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>',
+      warning:'<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" style="width:22px;height:22px;flex-shrink:0;stroke:currentColor;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>',
+      info:'<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" style="width:22px;height:22px;flex-shrink:0;stroke:currentColor;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>'
+    };
+    var posStyles = {
+      'top-right':'top:16px;right:16px;','top-left':'top:16px;left:16px;',
+      'top-center':'top:16px;left:0;right:0;margin:0 auto;max-width:400px;',
+      'bottom-right':'bottom:16px;right:16px;','bottom-left':'bottom:16px;left:16px;',
+      'bottom-center':'bottom:16px;left:0;right:0;margin:0 auto;max-width:400px;'
+    };
+    var cid = 'kd-toast-container-' + position;
+    var container = document.getElementById(cid);
+    if (!container) {
+      container = document.createElement('div');
+      container.id = cid;
+      container.style.cssText = 'position:fixed;z-index:9999;pointer-events:none;display:flex;flex-direction:column;gap:8px;width:360px;' + (posStyles[position] || posStyles['top-right']);
+      document.body.appendChild(container);
+    }
+    var alert = document.createElement('div');
+    alert.style.cssText = 'pointer-events:auto;opacity:0;transform:translateX(20px);transition:opacity 300ms ease,transform 300ms ease;border-radius:6px;padding:14px 18px;display:flex;align-items:center;gap:10px;color:#fff;font-size:0.93rem;font-weight:600;box-shadow:0 4px 12px rgba(0,0,0,0.15);background:' + (colors[type] || colors.info) + ';';
+    alert.innerHTML = (icons[type] || icons.info) + '<span style="flex:1">' + message + '</span><button onclick="kdDismissAlert(this.parentElement)" style="background:none;border:none;color:#fff;cursor:pointer;font-size:1.25rem;opacity:0.7;line-height:1;" aria-label="Close">&times;</button>';
+    container.appendChild(alert);
+    requestAnimationFrame(function(){requestAnimationFrame(function(){alert.style.opacity='1';alert.style.transform='translateX(0)';});});
+    if (duration > 0) setTimeout(function(){window.kdDismissAlert(alert);}, duration);
+  };
+}
+
 // Newsletter subscribe
 function sidebarSubscribe(e) {
   e.preventDefault();
   var email = document.getElementById('sidebar-email').value.trim();
+  var btn = document.querySelector('#sidebar-newsletter-form button[type="submit"]');
+  btn.disabled = true;
+  btn.textContent = 'En cours...';
   fetch('/newsletter-subscribe', {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
     body: JSON.stringify({email: email})
-  }).then(function(r){ return r.json(); }).then(function(d){
-    if (d.success) {
-      document.getElementById('sidebar-newsletter-form').style.display = 'none';
-      document.getElementById('sidebar-thanks').style.display = 'block';
-    }
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    kdShowAlert('success', '{{ "You are now subscribed!" if post["lang"] == "en" else "Tu es maintenant inscrit!" }}', {duration: 5000, position: 'top-right'});
+    document.getElementById('sidebar-email').value = '';
+    btn.disabled = false;
+    btn.textContent = _subscribeLabel;
+  })
+  .catch(function(){
+    kdShowAlert('error', '{{ "An error occurred. Try again." if post["lang"] == "en" else "Une erreur est survenue. Essaie de nouveau." }}', {duration: 5000, position: 'top-right'});
+    btn.disabled = false;
+    btn.textContent = _subscribeLabel;
   });
 }
 </script>
