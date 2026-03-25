@@ -25,31 +25,27 @@
 }
 .article-hero .container { position: relative; z-index: 1; }
 
-/* ── Back link ──────────────────────────────────────────── */
-.article-back {
-    display: inline-flex;
+/* ── Breadcrumb ─────────────────────────────────────────── */
+.article-breadcrumb {
+    display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     font-size: 14px;
     font-weight: 500;
-    color: #E8794E;
-    text-decoration: none;
-    transition: gap 0.25s ease, color 0.2s ease;
-    margin-bottom: 16px;
+    margin-bottom: 18px;
 }
-.article-back:hover { gap: 10px; color: #c9623a; text-decoration: none; }
-.article-back svg { flex-shrink: 0; }
-
-/* ── Category label — matches H6 section label from design guide ── */
-.article-cat {
-    display: block;
-    font-size: 18px;
-    font-weight: 500;
-    letter-spacing: normal;
-    text-transform: uppercase;
-    margin-bottom: 14px;
-    line-height: 1;
-    color: #E8794E;
+.article-breadcrumb a {
+    color: #6B7280;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+.article-breadcrumb a:hover { color: #483550; text-decoration: none; }
+.article-breadcrumb__sep {
+    color: #d0d5dd;
+    font-size: 12px;
+}
+.article-breadcrumb__current {
+    color: #6B7280;
 }
 
 /* ── Article title — matches H1 from design guide ── */
@@ -224,16 +220,9 @@
     border: 0;
 }
 
-/* ── Footer nav ─────────────────────────────────────────── */
+/* ── Footer spacing (no divider) ───────────────────────── */
 .article-footer {
-    margin-top: 56px;
-    padding-top: 32px;
-    border-top: 1px solid #e5e7eb;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    flex-wrap: wrap;
+    margin-top: 80px;
 }
 
 /* ── Sidebar ────────────────────────────────────────────── */
@@ -328,18 +317,12 @@
   <div class="row">
    <div class="col-lg-8">
 
-    <!-- Back -->
-    <a href="{{ url_for('blog') }}" class="article-back">
-     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
-     {{ 'All articles' if post['lang'] == 'en' else 'Tous les articles' }}
-    </a>
-
-    <!-- Category -->
-    <div>
-     <span class="article-cat cat-{{ post['category']|lower|replace('é','e')|replace('è','e')|replace('ê','e')|replace(' ','-') }} cat-default">
-      {{ post['category'] }}
-     </span>
-    </div>
+    <!-- Breadcrumb -->
+    <nav class="article-breadcrumb">
+     <a href="{{ url_for('blog') }}">{{ 'Guides' if post['lang'] == 'fr' else 'Guides' }}</a>
+     <span class="article-breadcrumb__sep">/</span>
+     <span class="article-breadcrumb__current">{{ post['category'] }}</span>
+    </nav>
 
     <!-- Title -->
     <h1 class="article-title">{{ post['title'] }}</h1>
@@ -393,13 +376,8 @@
      {{ content|safe }}
     </div>
 
-    <!-- Footer nav -->
-    <div class="article-footer">
-     <a href="{{ url_for('blog') }}" class="article-back" style="margin-bottom:0;">
-      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
-      {{ 'See all articles' if post['lang'] == 'en' else 'Voir tous les articles' }}
-     </a>
-    </div>
+    <!-- Footer spacing -->
+    <div class="article-footer"></div>
    </div>
 
    <!-- Sidebar -->
