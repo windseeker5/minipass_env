@@ -20,7 +20,7 @@
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(175deg, rgba(21, 205, 168, 0.2) 0%, rgba(21, 205, 168, 0.05) 50%, #fff 100%);
+    background: rgba(21, 205, 168, 0.2);
     z-index: 0;
 }
 .article-hero .container { position: relative; z-index: 1; }
@@ -40,34 +40,30 @@
 .article-back:hover { gap: 10px; color: #c9623a; text-decoration: none; }
 .article-back svg { flex-shrink: 0; }
 
-/* ── Category pill ──────────────────────────────────────── */
+/* ── Category label — matches H6 section label from design guide ── */
 .article-cat {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 1px;
+    display: block;
+    font-size: 18px;
+    font-weight: 500;
+    letter-spacing: normal;
     text-transform: uppercase;
     margin-bottom: 14px;
     line-height: 1;
-    background: #E8794E;
-    color: #483550;
+    color: #E8794E;
 }
 
-/* ── Article title — uses section-title__heading scale ── */
+/* ── Article title — matches H1 from design guide ── */
 .article-title {
     font-weight: 500;
-    letter-spacing: -2px;
-    line-height: 1.1;
-    font-size: 35px;
-    color: #483550;
+    letter-spacing: -1px;
+    line-height: 1.075;
+    font-size: 36px;
+    color: #262729;
     margin: 0 0 20px;
 }
-@media (min-width: 576px) { .article-title { font-size: 40px; } }
-@media (min-width: 768px) { .article-title { font-size: 46px; } }
+@media (min-width: 480px) { .article-title { font-size: 42px; } }
+@media (min-width: 768px) { .article-title { font-size: 50px; } }
+@media (min-width: 992px) { .article-title { font-size: 60px; } }
 
 /* ── Author bar ────────────────────────────────────────── */
 .article-author-bar {
@@ -105,7 +101,7 @@
 .article-author-name {
     font-size: 15px;
     font-weight: 600;
-    color: #483550;
+    color: #262729;
 }
 .article-author-sep {
     width: 3px;
@@ -151,7 +147,7 @@
 .article-body h1,
 .article-body h2,
 .article-body h3 {
-    color: #483550;
+    color: #262729;
     font-weight: 700;
     line-height: 1.3;
     margin: 2.5rem 0 0.75rem;
@@ -169,7 +165,7 @@
 .article-body li { margin-bottom: 0.5rem; }
 .article-body a  { color: #E8794E; text-decoration: underline; text-underline-offset: 3px; }
 .article-body a:hover { color: #c9623a; }
-.article-body strong { color: #483550; }
+.article-body strong { color: #262729; }
 .article-body img {
     max-width: 100%;
     height: auto;
@@ -264,7 +260,7 @@
 .newsletter-widget__title {
     font-size: 17px;
     font-weight: 700;
-    color: #483550;
+    color: #262729;
     margin-bottom: 8px;
     line-height: 1.35;
 }
