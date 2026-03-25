@@ -310,7 +310,7 @@ def blog():
                 params + [category]
             ).fetchone()[0]
             posts = conn.execute(
-                f"SELECT * FROM blog_posts WHERE {base_where} AND category=? ORDER BY published_at DESC LIMIT ? OFFSET ?",
+                f"SELECT * FROM blog_posts WHERE {base_where} AND category=? ORDER BY COALESCE(updated_at, published_at) DESC LIMIT ? OFFSET ?",
                 params + [category, per_page, (page - 1) * per_page]
             ).fetchall()
         else:
@@ -319,7 +319,7 @@ def blog():
                 params
             ).fetchone()[0]
             posts = conn.execute(
-                f"SELECT * FROM blog_posts WHERE {base_where} ORDER BY published_at DESC LIMIT ? OFFSET ?",
+                f"SELECT * FROM blog_posts WHERE {base_where} ORDER BY COALESCE(updated_at, published_at) DESC LIMIT ? OFFSET ?",
                 params + [per_page, (page - 1) * per_page]
             ).fetchall()
         categories = conn.execute(
