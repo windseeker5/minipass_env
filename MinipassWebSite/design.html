@@ -384,6 +384,56 @@
 Pattern: mint -> gray-blue -> white -> gray-blue -> white -> voodoo gradient -> white</div>
   </section>
 
+  <hr>
+
+  <!-- ============ 10. HEADER BEHAVIOR ============ -->
+  <section>
+    <div class="section-label">10. Header / Navbar Behavior</div>
+    <table class="spec-table">
+      <tr><th>Property</th><th>Value</th></tr>
+      <tr><td>Position</td><td>Absolute, floating over first section</td></tr>
+      <tr><td>Background (initial)</td><td>Transparent -- inherits first section bg</td></tr>
+      <tr><td>Background (sticky)</td><td><code>#ffffff</code> with subtle shadow</td></tr>
+      <tr><td>Nav link color</td><td><code>#7a7189</code> (idle), <code>#483550</code> (hover/active)</td></tr>
+      <tr><td>Active indicator</td><td>2px underline in <code>#E8794E</code></td></tr>
+      <tr><td>CTA button</td><td><code>btn-bittersweet btn--medium-4</code></td></tr>
+    </table>
+    <div class="code-block">&lt;header class="site-header site-header--menu-right dynamic-sticky-bg
+               site-header--absolute site-header--sticky"&gt;</div>
+    <p class="class-ref">Rule: the first section of every page must extend its background behind the header. Use <code>padding-top: ~140px</code> to clear the nav. Never use <code>margin-top</code> to push content below the header.</p>
+  </section>
+
+  <hr>
+
+  <!-- ============ 11. INNER PAGE HERO ============ -->
+  <section>
+    <div class="section-label">11. Inner Page Hero Pattern</div>
+    <table class="spec-table">
+      <tr><th>Property</th><th>Value</th></tr>
+      <tr><td>Background</td><td><code>rgba(21, 205, 168, 0.2)</code> -- flat, no gradient</td></tr>
+      <tr><td>Padding top</td><td>~140px (clears the absolute header)</td></tr>
+      <tr><td>Section label</td><td>H6: <code>section-title__sub-heading text-bittersweet text-uppercase</code></td></tr>
+      <tr><td>Title</td><td>H1 or H2: <code>section-title__heading</code></td></tr>
+    </table>
+    <div class="preview" style="border-radius:10px; overflow:hidden;">
+      <div style="background:rgba(21,205,168,0.2); padding:60px 32px 32px;">
+        <h6 style="font-family:Rubik,sans-serif; font-weight:500; font-size:18px; color:#E8794E; text-transform:uppercase; margin-bottom:8px;">A PROPOS DE NOUS</h6>
+        <h1 style="font-family:Rubik,sans-serif; font-weight:500; font-size:40px; color:#262729; letter-spacing:-1px; line-height:1.075;">La petite histoire de minipass</h1>
+      </div>
+    </div>
+    <div class="code-block">&lt;section style="background-color: rgba(21, 205, 168, 0.2); padding: 140px 0 20px 0;"&gt;
+  &lt;div class="container"&gt;
+    &lt;h6 class="section-title__sub-heading text-bittersweet text-uppercase mb-2"&gt;
+      A PROPOS DE NOUS
+    &lt;/h6&gt;
+    &lt;h1 class="section-title__heading"&gt;
+      La petite histoire de minipass
+    &lt;/h1&gt;
+  &lt;/div&gt;
+&lt;/section&gt;</div>
+    <p class="class-ref">Rule: all inner pages (About, Blog, Guides, etc.) use the same flat mint hero. No gradients. The header floats transparently on top.</p>
+  </section>
+
 </div>
 
 </body>
