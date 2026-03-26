@@ -47,6 +47,7 @@ class DMARCReportFetcher:
         "noreply@dmarc.yahoo.com",
         "dmarc@messaging.microsoft.com",
         "postmaster@yahoo.com",
+        "postmaster@amazonses.com",  # Added missing Amazon SES sender
     ]
 
     def __init__(
@@ -138,7 +139,7 @@ class DMARCReportFetcher:
             return decoded_filename
         return None
 
-    def fetch_dmarc_reports(self, mailbox: str = "INBOX", mark_as_read: bool = True, limit: int = None):
+    def fetch_dmarc_reports(self, mailbox: str = "INBOX", mark_as_read: bool = True, limit: int = None, include_read: bool = False):
         """
         Fetch DMARC reports from specified mailbox.
 
@@ -146,6 +147,7 @@ class DMARCReportFetcher:
             mailbox: IMAP mailbox to search (default: INBOX)
             mark_as_read: Mark processed emails as read
             limit: Maximum number of reports to download (None = no limit)
+            include_read: Include already read emails in search (default: False)
 
         Returns:
             List of downloaded file paths
@@ -169,8 +171,12 @@ class DMARCReportFetcher:
             self.stats['total_searched'] += 1
 
             try:
-                # Search for unread emails from this sender
-                status, data = self.mail.search(None, f'(FROM "{sender}" UNSEEN)')
+                # Search for emails from this sender (include read emails if requested)
+                search_criteria = f'(FROM "{sender}")'
+                if not include_read:
+                    search_criteria = f'(FROM "{sender}" UNSEEN)'
+
+                status, data = self.mail.search(None, search_criteria)
 
                 if status != 'OK':
                     print(f"      ⚠️  Search failed for {sender}")
@@ -379,6 +385,11 @@ Environment Variables:
         action='store_true',
         help='Do not mark emails as read after downloading'
     )
+    parser.add_argument(
+        '--include-read',
+        action='store_true',
+        help='Include already read emails in search (useful for recovery)'
+    )
 
     args = parser.parse_args()
 
@@ -410,7 +421,8 @@ Environment Variables:
         downloaded_files = fetcher.fetch_dmarc_reports(
             mailbox=args.mailbox,
             mark_as_read=not args.no_mark_read,
-            limit=args.limit
+            limit=args.limit,
+            include_read=args.include_read
         )
 
         fetcher.print_summary()
