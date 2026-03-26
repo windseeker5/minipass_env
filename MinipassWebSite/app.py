@@ -34,6 +34,7 @@ def render_markdown_safe(md_text):
     raw_html = markdown.markdown(md_text or '', extensions=['tables', 'fenced_code', 'toc'])
     return bleach.clean(raw_html, tags=BLEACH_ALLOWED_TAGS, attributes=BLEACH_ALLOWED_ATTRS)
 
+from translations import TRANSLATIONS
 from utils.deploy_helpers import insert_admin_user
 from utils.email_helpers import init_mail, send_user_deployment_email, send_support_error_email
 from utils.mail import mail
@@ -94,6 +95,19 @@ limiter = Limiter(get_remote_address, app=app, default_limits=["200 per minute"]
                   storage_uri="memory://")
 
 
+# ── Language context processor ──
+@app.context_processor
+def inject_lang():
+    lang = 'en' if request.path.startswith('/en') else 'fr'
+    prefix = '/en' if lang == 'en' else ''
+    t = TRANSLATIONS[lang]
+    if lang == 'en':
+        alt_url = request.path.replace('/en', '', 1) or '/'
+    else:
+        alt_url = '/en' + request.path
+    return {'lang': lang, 'lang_prefix': prefix, 't': t, 'alt_lang_url': alt_url}
+
+
 # ✅ Stripe setup
 stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
 STRIPE_PUBLISHABLE_KEY = os.getenv("STRIPE_PUBLISHABLE_KEY")
@@ -135,17 +149,19 @@ def inject_now():
 
 
 @app.route("/")
+@app.route("/en/")
 def home():
     import sqlite3, hashlib
     homepage_posts = []
+    page_lang = 'en' if request.path.startswith('/en') else 'fr'
     try:
         with sqlite3.connect("customers.db") as conn:
             conn.row_factory = sqlite3.Row
             _init_blog_db(conn)
             rows = conn.execute("""
-                SELECT * FROM blog_posts WHERE published=1
+                SELECT * FROM blog_posts WHERE published=1 AND COALESCE(lang,'fr')=?
                 ORDER BY COALESCE(updated_at, published_at) DESC LIMIT 3
-            """).fetchall()
+            """, (page_lang,)).fetchall()
             for row in rows:
                 post = dict(row)
                 vid = _yt_id(post.get('video_url'))
@@ -160,21 +176,25 @@ def home():
 
 
 @app.route("/about")
+@app.route("/en/about")
 def about():
     return render_template("about.html")
 
 
 @app.route("/guides")
+@app.route("/en/guides")
 def guides():
     return redirect(url_for('blog'), 301)
 
 
 @app.route("/guides/<slug>")
+@app.route("/en/guides/<slug>")
 def guide_detail(slug):
     return redirect(url_for('blog_detail', slug=slug), 301)
 
 
 @app.route("/politiques")
+@app.route("/en/policies")
 def politiques():
     return render_template("politiques.html")
 
@@ -343,10 +363,12 @@ def _migrate_guides_to_blog(conn):
 
 
 @app.route("/blog")
+@app.route("/en/blog")
 def blog():
     import sqlite3, hashlib
     category = request.args.get('category', '')
-    lang = request.args.get('lang', 'fr')
+    default_lang = 'en' if request.path.startswith('/en') else 'fr'
+    lang = request.args.get('lang', default_lang)
     page = request.args.get('page', 1, type=int)
     per_page = 9
     if page < 1:
@@ -404,6 +426,7 @@ def _yt_id(url):
 
 
 @app.route("/blog/<slug>")
+@app.route("/en/blog/<slug>")
 def blog_detail(slug):
     import sqlite3
     with sqlite3.connect("customers.db") as conn:
@@ -463,6 +486,11 @@ def sitemap():
         ("/blog", "weekly", "0.9"),
         ("/guides", "weekly", "0.9"),
         ("/politiques", "monthly", "0.5"),
+        ("/en/", "weekly", "1.0"),
+        ("/en/about", "monthly", "0.8"),
+        ("/en/blog", "weekly", "0.9"),
+        ("/en/guides", "weekly", "0.9"),
+        ("/en/policies", "monthly", "0.5"),
     ]
 
     docs_dir = os.path.join(app.static_folder, "docs")

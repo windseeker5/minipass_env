@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
-{% block page_title %}Guides & Ressources — minipass{% endblock %}
-{% block meta_desc %}Tutoriels vidéo, articles et guides pour maîtriser minipass et gérer ta ligue sportive sans stress.{% endblock %}
+{% block page_title %}{{ t.blog.meta_title }}{% endblock %}
+{% block meta_desc %}{{ t.blog.meta_desc }}{% endblock %}
 
 {% block extra_head %}
 <style>
@@ -387,14 +387,14 @@
             <div class="col-lg-7 order-2 order-lg-1" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
                 <div class="section-title section-title--l8">
                     <h6 class="section-title__sub-heading text-bittersweet text-uppercase mb-2" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
-                        RESSOURCES
+                        {{ t.blog.hero_label }}
                     </h6>
                     <h2 class="section-title__heading" data-aos="fade-up" data-aos-delay="300" data-aos-duration="500" data-aos-once="true">
-                        Apprenez en quelques minutes
+                        {{ t.blog.hero_title }}
                     </h2>
                 </div>
                 <p class="welcome-content--l8__descriptions" data-aos="fade-up" data-aos-delay="500" data-aos-duration="500" data-aos-once="true">
-                    Tutoriels et guides pour maîtriser minipass et gérer tes ligues, cours et événements sans stress.
+                    {{ t.blog.hero_desc }}
                 </p>
             </div>
             <!-- Mascot -->
@@ -416,7 +416,7 @@
         <!-- Search bar (centered) -->
         <div class="mb-4">
             <input type="text" id="blogSearch" class="blog-search"
-                   placeholder="Rechercher un guide..." autocomplete="off"
+                   placeholder="{{ t.blog.search_placeholder }}" autocomplete="off"
                    style="margin: 0 auto; display: block;">
         </div>
 
@@ -433,7 +433,7 @@
             <!-- Categories -->
             <a href="{{ url_for('blog', lang=active_lang) }}"
                class="cat-pill{{ ' active' if not active_category else '' }}">
-                <i class="fas fa-th-large"></i> Tous
+                <i class="fas fa-th-large"></i> {{ t.blog.filter_all }}
             </a>
             {% for cat in categories %}
             <a href="{{ url_for('blog', lang=active_lang, category=cat['category']) }}"
@@ -499,8 +499,8 @@
         <!-- No search results (client-side) -->
         <div class="blog-empty" id="noResults">
             <i class="fas fa-search"></i>
-            <h4>Aucun résultat</h4>
-            <p>Essaie de modifier ta recherche</p>
+            <h4>{{ t.blog.no_results_title }}</h4>
+            <p>{{ t.blog.no_results_text }}</p>
         </div>
 
         <!-- Pagination -->
@@ -509,7 +509,7 @@
             {# Previous #}
             {% if page > 1 %}
             <a href="{{ url_for('blog', lang=active_lang, category=active_category, page=page-1) }}"
-               class="blog-pagination__btn" aria-label="Page précédente">
+               class="blog-pagination__btn" aria-label="{{ t.blog.prev_page }}">
                 <i class="fas fa-chevron-left"></i>
             </a>
             {% else %}
@@ -549,7 +549,7 @@
             {# Next #}
             {% if page < total_pages %}
             <a href="{{ url_for('blog', lang=active_lang, category=active_category, page=page+1) }}"
-               class="blog-pagination__btn" aria-label="Page suivante">
+               class="blog-pagination__btn" aria-label="{{ t.blog.next_page }}">
                 <i class="fas fa-chevron-right"></i>
             </a>
             {% else %}
@@ -562,7 +562,7 @@
         <!-- No posts at all -->
         <div class="text-center py-5" style="color:#9ca3af;">
             <i class="fas fa-pen-nib" style="font-size:48px; margin-bottom:16px; display:block; color:#d1d5db;"></i>
-            <p style="font-size:1.1rem;">Aucun contenu publié pour l'instant.</p>
+            <p style="font-size:1.1rem;">{{ t.blog.no_content }}</p>
         </div>
         {% endif %}
 
@@ -575,9 +575,9 @@
 <section class="blog-cta">
     <div class="container">
         <div class="text-center" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
-            <h6 class="section-title__sub-heading text-bittersweet text-uppercase mb-2">SUPPORT</h6>
+            <h6 class="section-title__sub-heading text-bittersweet text-uppercase mb-2">{{ t.blog.cta_label }}</h6>
             <h2 class="section-title__heading mb-4" style="color: #fff;">
-                Besoin d'aide?
+                {{ t.blog.cta_title }}
             </h2>
             <div class="blog-cta__icons">
                 <a href="mailto:support@minipass.me" class="blog-cta__icon" title="support@minipass.me">
@@ -592,7 +592,7 @@
 </section>
 
 <!-- Toast -->
-<div class="blog-toast" id="copyToast">Lien copié!</div>
+<div class="blog-toast" id="copyToast">{{ t.blog.toast_copied }}</div>
 
 {% endblock %}
 
