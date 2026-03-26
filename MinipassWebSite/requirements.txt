@@ -8,4 +8,6 @@ pyfiglet
 instaloader
 Pillow
 markdown
+bleach
+flask-limiter
 simple-term-menu
