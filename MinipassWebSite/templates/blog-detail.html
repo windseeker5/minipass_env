@@ -8,6 +8,26 @@
 {% block og_desc %}{{ post['meta_description'] or post['excerpt'] or '' }}{% endblock %}
 
 {% block extra_head %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": {{ (post['meta_title'] or post['title'])|tojson }},
+  "description": {{ (post['meta_description'] or post['excerpt'] or '')|tojson }},
+  "author": {
+    "@type": "Person",
+    "name": {{ (post['author'] or 'minipass')|tojson }}
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "minipass",
+    "url": "https://minipass.me"
+  },
+  "datePublished": {{ (post['published_at'] or '')|tojson }},
+  "mainEntityOfPage": "https://minipass.me/blog/{{ post['slug'] }}",
+  "inLanguage": "{{ 'en-CA' if post['lang'] == 'en' else 'fr-CA' }}"
+}
+</script>
 <style>
 /* ── Hero header ───────────────────────────────────────── */
 .article-hero {
