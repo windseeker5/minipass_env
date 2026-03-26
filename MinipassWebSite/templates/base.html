@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{% block html_lang %}fr-CA{% endblock %}">
+<html lang="{% block html_lang %}{{ t.lang_code }}{% endblock %}">
   <head>
    
 
@@ -35,17 +35,24 @@
   <meta charset="utf-8"/>
   <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
   <meta content="ie=edge" http-equiv="X-UA-Compatible"/>
-  <title>{% block page_title %}minipass — Gestion de ligues et d'activités avec Interac | Canada{% endblock %}</title>
-  <meta name="description" content="{% block meta_desc %}minipass automatise les inscriptions, paiements Interac, passeports numériques et comptabilité pour vos ligues sportives et cours. Fait au Canada. Dès 10$/mois.{% endblock %}">
+  <title>{% block page_title %}{{ t.meta.title }}{% endblock %}</title>
+  <meta name="description" content="{% block meta_desc %}{{ t.meta.description }}{% endblock %}">
   <link rel="canonical" href="https://minipass.me{{ request.path }}">
 
+  <!-- hreflang — tells Google these pages are translations of each other -->
+  {% set fr_path = request.path.replace('/en', '', 1) if request.path.startswith('/en') else request.path %}
+  {% set fr_path = fr_path if fr_path else '/' %}
+  <link rel="alternate" hreflang="fr-CA" href="https://minipass.me{{ fr_path }}">
+  <link rel="alternate" hreflang="en-CA" href="https://minipass.me/en{{ fr_path }}">
+  <link rel="alternate" hreflang="x-default" href="https://minipass.me{{ fr_path }}">
+
   <!-- Open Graph — controls Facebook / LinkedIn / WhatsApp link previews -->
-  <meta property="og:title" content="{% block og_title %}minipass — Gestion de ligues avec Interac{% endblock %}">
-  <meta property="og:description" content="{% block og_desc %}Automatisez inscriptions, paiements Interac et passeports numériques. Logiciel canadien. Dès 10$/mois.{% endblock %}">
+  <meta property="og:title" content="{% block og_title %}{{ t.meta.og_title }}{% endblock %}">
+  <meta property="og:description" content="{% block og_desc %}{{ t.meta.og_desc }}{% endblock %}">
   <meta property="og:image" content="https://minipass.me/static/image/favicon-512x512.png">
   <meta property="og:url" content="https://minipass.me{{ request.path }}">
   <meta property="og:type" content="website">
-  <meta property="og:locale" content="fr_CA">
+  <meta property="og:locale" content="{{ t.og_locale }}">
   <meta property="og:site_name" content="minipass">
 
   <!-- Twitter Card -->
@@ -151,7 +158,7 @@
 
       <!-- Brand Logo-->
       <div class="brand-logo">
-        <a href="/">
+        <a href="{{ lang_prefix }}/">
           <img
             src="{{ url_for('static', filename='image/mp-logo-regular.png') }}"
             alt="minipass Logo"
@@ -176,32 +183,33 @@
          </div>
         </div>
         <ul class="site-menu-main">
-         <li class="nav-item{% if request.path == '/' %} active{% endif %}">
-          <a class="nav-link-item" href="/">
-           Accueil
+         <li class="nav-item{% if request.path == '/' or request.path == '/en/' %} active{% endif %}">
+          <a class="nav-link-item" href="{{ lang_prefix }}/">
+           {{ t.nav.home }}
           </a>
          </li>
-         <li class="nav-item{% if request.path == '/' and request.url.endswith('#services') %} active{% endif %}">
-          <a class="nav-link-item" href="/#services">
-           Fonctionnalités
+         <li class="nav-item">
+          <a class="nav-link-item" href="{{ lang_prefix }}/#services">
+           {{ t.nav.features }}
           </a>
          </li>
-         <li class="nav-item{% if request.path == '/about' %} active{% endif %}">
-          <a class="nav-link-item" href="/about">
-           À propos de nous
+         <li class="nav-item{% if request.path in ('/about', '/en/about') %} active{% endif %}">
+          <a class="nav-link-item" href="{{ lang_prefix }}/about">
+           {{ t.nav.about }}
           </a>
          </li>
-         <li class="nav-item{% if request.path.startswith('/guides') or request.path.startswith('/blog') %} active{% endif %}">
-          <a class="nav-link-item" href="/guides">
-           Guides
+         <li class="nav-item{% if '/guides' in request.path or '/blog' in request.path %} active{% endif %}">
+          <a class="nav-link-item" href="{{ lang_prefix }}/guides">
+           {{ t.nav.guides }}
           </a>
          </li>
         </ul>
        </nav>
       </div>
-      <div class="header-btn">
-       <a class="btn btn-bittersweet btn--medium-4 h-45 ms-auto ms-lg-4 d-none d-sm-flex text-white" href="/#pricing">
-        S'abonner
+      <div class="header-btn d-flex align-items-center">
+       <a href="{{ alt_lang_url }}" class="me-3 d-none d-sm-flex" style="font-size:0.85rem; font-weight:600; color:#483550; text-decoration:none; border:1px solid #d0d5dd; border-radius:6px; padding:4px 10px; transition:all 0.2s ease;" onmouseover="this.style.borderColor='#E8794E';this.style.color='#E8794E';" onmouseout="this.style.borderColor='#d0d5dd';this.style.color='#483550';">{{ t.alt_lang_label }}</a>
+       <a class="btn btn-bittersweet btn--medium-4 h-45 ms-auto ms-lg-0 d-none d-sm-flex text-white" href="{{ lang_prefix }}/#pricing">
+        {{ t.nav.subscribe }}
        </a>
       </div>
       <!-- mobile menu trigger -->
@@ -232,7 +240,7 @@
 
         <!-- Brand Logo -->
         <div class="brand-logo">
-          <a href="/">
+          <a href="{{ lang_prefix }}/">
             <img
               src="{{ url_for('static', filename='image/mp-logo-regular.png') }}"
               alt="minipass Logo"
@@ -244,7 +252,7 @@
 
 
         <p class="footer-brand-block--l3__text">
-         La gestion d'activités repensée. Simple. Automatisé. Sécurisé.
+         {{ t.footer.tagline }}
         </p>
        </div>
       </div>
@@ -270,22 +278,22 @@
         <div class="col-xxl-3 col-xl-3 col-lg-3 col-md-3 col-sm-6 col-xs-6">
          <div class="footer-list-block footer-list-block--3 mb-5">
           <h4 class="footer-block-title">
-           Quick Links
+           {{ t.footer.quick_links }}
           </h4>
           <ul class="footer-widgets__list footer-widgets__list--l3">
            <li>
-            <a href="/">
-             Accueil
+            <a href="{{ lang_prefix }}/">
+             {{ t.nav.home }}
             </a>
            </li>
            <li>
-            <a href="/about">
-             À propos de nous
+            <a href="{{ lang_prefix }}/about">
+             {{ t.nav.about }}
             </a>
            </li>
            <li>
-            <a href="/guides">
-             Guides
+            <a href="{{ lang_prefix }}/guides">
+             {{ t.nav.guides }}
             </a>
            </li>
           </ul>
@@ -325,7 +333,7 @@
       <div class="row text-center align-items-center">
        <div class="col-xs-6 text-sm-start">
         <p class="copyright-text--l3">
-         © 2025 minipass.me, fait avec ❤️ au Canada
+         {{ t.footer.copyright }}
         </p>
        </div>
        <div class="col-xs-6 text-sm-end">

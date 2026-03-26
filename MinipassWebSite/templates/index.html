@@ -1,9 +1,9 @@
 {% extends "base.html" %}
 
-{% block page_title %}minipass — Jumelage automatique des virements Interac pour ligues et coachs{% endblock %}
-{% block meta_desc %}La seule plateforme canadienne qui jumèle automatiquement tes virements Interac aux inscriptions. Cours, ligues, événements. À partir de 10$/mois. Sans contrat.{% endblock %}
-{% block og_title %}minipass — Jumelage automatique des virements Interac pour ligues et coachs{% endblock %}
-{% block og_desc %}La seule plateforme canadienne qui jumèle automatiquement tes virements Interac aux inscriptions. Cours, ligues, événements. À partir de 10$/mois. Sans contrat.{% endblock %}
+{% block page_title %}{{ t.home.meta_title }}{% endblock %}
+{% block meta_desc %}{{ t.home.meta_desc }}{% endblock %}
+{% block og_title %}{{ t.home.meta_title }}{% endblock %}
+{% block og_desc %}{{ t.home.meta_desc }}{% endblock %}
 
 {% block content %}
 
@@ -193,21 +193,21 @@
       <div class="col-xxl-6 col-lg-7 col-md-9 col-xs-11 order-2 order-lg-1">
        <div class="welcome-content welcome-content--l8">
         <h3 class="welcome-content--l8__sub-title" style="color: #6B7280;" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
-         Tu crées. Tout s'automatise.
+         {{ t.home.hero_subtitle }}
         </h3>
         <h1 class="welcome-content__title section-title__heading">
-         Automatise la gestion de tes <span class="word-anim word-anim--1">cours</span>, <span class="word-anim word-anim--2">ligues</span> et <span class="word-anim word-anim--3">événements</span>
+         {{ t.home.hero_title_prefix }}<span class="word-anim word-anim--1">{{ t.home.hero_word1 }}</span>, <span class="word-anim word-anim--2">{{ t.home.hero_word2 }}</span> {{ t.home.hero_and }} <span class="word-anim word-anim--3">{{ t.home.hero_word3 }}</span>
         </h1>
         <p class="welcome-content--l8__descriptions" data-aos="fade-up" data-aos-delay="500" data-aos-duration="500" data-aos-once="true">
-          Inscriptions. Paiements Interac automatiques. Passeports numériques. Courriels. Finances. Tout en un.
+          {{ t.home.hero_desc }}
         </p>
         
         <div class="welcome-btn-group--l8">
-         <a class="btn btn--lg-2 btn-bittersweet me-3 text-white popup-btn" data-aos="fade-up" data-aos-delay="700" data-aos-duration="500" data-aos-once="true" href="https://www.youtube.com/watch?v=eftLJ7hTPPs">
-          Découvrir <i class="fab fa-youtube ms-2" style="font-size: 1.5em;"></i>
+         <a class="btn btn--lg-2 btn-bittersweet me-3 text-white popup-btn" data-aos="fade-up" data-aos-delay="700" data-aos-duration="500" data-aos-once="true" href="{{ t.home.hero_video_url }}">
+          {{ t.home.hero_btn_discover }} <i class="fab fa-youtube ms-2" style="font-size: 1.5em;"></i>
          </a>
-         <a class="btn btn--lg-2 btn-slate me-3" data-aos="fade-up" data-aos-delay="900" data-aos-duration="500" data-aos-once="true" href="/#pricing">
-         Voir les forfaits
+         <a class="btn btn--lg-2 btn-slate me-3" data-aos="fade-up" data-aos-delay="900" data-aos-duration="500" data-aos-once="true" href="{{ lang_prefix }}/#pricing">
+         {{ t.home.hero_btn_plans }}
          </a>
         </div>
        </div>
@@ -239,7 +239,7 @@
       <div class="col-lg-8 col-xl-7">
        <div class="section-title section-title--l8 text-center" style="padding-bottom: 16px; margin-bottom: 0;">
         <h6 class="section-title__sub-heading text-bittersweet text-uppercase mb-0" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
-         ILS NOUS FONT CONFIANCE
+         {{ t.home.social_proof_label }}
         </h6>
        </div>
       </div>
@@ -260,14 +260,14 @@
               <img alt="Jean-François Goulet" src="{{ url_for('static', filename='image/home-3/jfg-circle-1.png') }}"/>
              </div>
              <div class="card-body__user mr-3">
-              <h3 class="card-title">Jean-François Goulet</h3>
-              <p class="card-text--ext">Co-administrateur de la FLHGI</p>
+              <h3 class="card-title">{{ t.home.testimonial1_name }}</h3>
+              <p class="card-text--ext">{{ t.home.testimonial1_role }}</p>
              </div>
             </div>
             <div class="card-icon"><i class="fa fa-quote-left"></i></div>
            </div>
            <p class="card-description">
-            Avec minipass, nous avons enfin un outil qui nous permet de nous concentrer sur nos résultats plutôt que sur la paperasse. Son intuitivité et ses tableaux de bord budgétaires ont simplifié nos suivis de <strong>75 %</strong>. C'est devenu l'allié indispensable pour la coordination rapide et simple de toutes les activités de financement de notre Fondation.
+            {{ t.home.testimonial1_text|safe }}
            </p>
           </div>
          </div>
@@ -281,14 +281,14 @@
             <div class="d-flex flex-wrap align-items-center">
              <div class="card-image" style="background:#e8f4f0; display:flex; align-items:center; justify-content:center; font-size:20px; font-weight:700; color:#40c2a0;">M</div>
              <div class="card-body__user mr-3">
-              <h3 class="card-title">Marc Tremblay</h3>
-              <p class="card-text--ext">Entraîneur hockey, Académie Tremblay</p>
+              <h3 class="card-title">{{ t.home.testimonial2_name }}</h3>
+              <p class="card-text--ext">{{ t.home.testimonial2_role }}</p>
              </div>
             </div>
             <div class="card-icon"><i class="fa fa-quote-left"></i></div>
            </div>
            <p class="card-description">
-            Avant minipass, je passais mes fins de semaine à vérifier les virements Interac un par un. Maintenant, tout est jumelé automatiquement. Mes parents reçoivent leur passeport QR par courriel et je me concentre sur la glace, pas sur les chiffriers.
+            {{ t.home.testimonial2_text }}
            </p>
           </div>
          </div>
@@ -302,14 +302,14 @@
             <div class="d-flex flex-wrap align-items-center">
              <div class="card-image" style="background:#fef3e8; display:flex; align-items:center; justify-content:center; font-size:20px; font-weight:700; color:#E8794E;">S</div>
              <div class="card-body__user mr-3">
-              <h3 class="card-title">Sophie Lavoie</h3>
-              <p class="card-text--ext">Instructrice yoga, Studio Lumière</p>
+              <h3 class="card-title">{{ t.home.testimonial3_name }}</h3>
+              <p class="card-text--ext">{{ t.home.testimonial3_role }}</p>
              </div>
             </div>
             <div class="card-icon"><i class="fa fa-quote-left"></i></div>
            </div>
            <p class="card-description">
-            J'avais essayé trois autres outils avant minipass. Aucun comprenait Interac. Mes clientes s'inscrivent en 2 minutes depuis leur téléphone et je reçois la confirmation automatiquement. La gestion de mes cours n'a jamais été aussi simple.
+            {{ t.home.testimonial3_text }}
            </p>
           </div>
          </div>
@@ -346,10 +346,10 @@
       <div class="col-xl-8">
        <div class="section-title section-title--l8 text-center" style="margin-bottom: 30px;">
         <h6 class="section-title__sub-heading text-bittersweet text-uppercase mb-2" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
-         SIMPLE COMME BONJOUR
+         {{ t.home.how_label }}
         </h6>
         <h2 class="section-title__heading" data-aos="fade-up" data-aos-delay="300" data-aos-duration="500" data-aos-once="true">
-         Comment ça marche
+         {{ t.home.how_title }}
         </h2>
        </div>
       </div>
@@ -362,10 +362,10 @@
          <span style="font-size: 1.6rem; font-weight: 700; color: #64748B; line-height: 1;">1</span>
         </div>
         <h3 class="card--services-l6__heading">
-         Crée ton activité
+         {{ t.home.step1_title }}
         </h3>
         <p class="card--services-l6__content">
-         Configure ta ligue, ton cours ou ton service en 4 minutes. Tu définis les séances, le prix et les limites de capacité. Ton formulaire d'inscription est généré automatiquement — en ligne, prêt à recevoir tes paiements.
+         {{ t.home.step1_text }}
         </p>
        </div>
       </div>
@@ -377,10 +377,10 @@
          <span style="font-size: 1.6rem; font-weight: 700; color: #E8794E; line-height: 1;">2</span>
         </div>
         <h3 class="card--services-l6__heading">
-         Partage ton lien
+         {{ t.home.step2_title }}
         </h3>
         <p class="card--services-l6__content">
-         Tes participants s'inscrivent depuis leur téléphone ou ordinateur. Ils paient par virement Interac ou par carte de crédit — au choix.
+         {{ t.home.step2_text }}
         </p>
        </div>
       </div>
@@ -392,10 +392,10 @@
          <span style="font-size: 1.6rem; font-weight: 700; color: #2E3192; line-height: 1;">3</span>
         </div>
         <h3 class="card--services-l6__heading">
-         Pilote automatique
+         {{ t.home.step3_title }}
         </h3>
         <p class="card--services-l6__content">
-         Chaque paiement reçu est jumelé au bon participant. Confirmation de paiement, participations et passeport numérique sont envoyés automatiquement par courriel. Ta comptabilité est toujours à jour — sans que tu touches à rien.
+         {{ t.home.step3_text }}
         </p>
        </div>
       </div>
@@ -511,10 +511,10 @@
        <!-- Section Title -->
        <div class="section-title section-title--l8 mt-4 mt-md-0 text-center">
         <h6 class="section-title__sub-heading text-bittersweet text-uppercase mb-2" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
-         FONCTIONNALITÉS CLÉS
+         {{ t.home.features_label }}
         </h6>
         <h2 class="section-title__heading" data-aos="fade-up" data-aos-delay="300" data-aos-duration="500" data-aos-once="true">
-         Tout ce dont tu as besoin pour gérer ta saison
+         {{ t.home.features_title }}
         </h2>
        </div>
        <!--/ .Section Title -->
@@ -533,8 +533,8 @@
         <i class="text-bittersweet fas fa-bolt"></i>
        </div>
        <div class="widgets__content">
-        <h5 class="widgets__title">Jumelage automatique de paiement</h5>
-        <p class="widgets__text">Tes participants font leur virement comme d’habitude — pas d’application à télécharger. minipass jumèle chaque paiement automatiquement. Fini les heures par semaine à vérifier manuellement.</p>
+        <h5 class="widgets__title">{{ t.home.feat1_title }}</h5>
+        <p class="widgets__text">{{ t.home.feat1_text }}</p>
        </div>
       </div>
 
@@ -544,8 +544,8 @@
         <i class="text-bittersweet fas fa-envelope-open-text"></i>
        </div>
        <div class="widgets__content">
-        <h5 class="widgets__title">Courriels et rappels automatiques</h5>
-        <p class="widgets__text">Confirmation d’inscription, rappel de paiement, rédemption de passeport — tout est automatisé. Tes participants reçoivent les bonnes informations au bon moment, sans effort de ta part.</p>
+        <h5 class="widgets__title">{{ t.home.feat2_title }}</h5>
+        <p class="widgets__text">{{ t.home.feat2_text }}</p>
        </div>
       </div>
 
@@ -555,8 +555,8 @@
         <i class="text-bittersweet fas fa-clipboard-list"></i>
        </div>
        <div class="widgets__content">
-        <h5 class="widgets__title">Inscriptions en ligne simplifiées</h5>
-        <p class="widgets__text">Crée ton activité, partage le lien, et minipass gère les inscriptions et les paiements à ta place. Tes participants s’inscrivent en quelques clics.</p>
+        <h5 class="widgets__title">{{ t.home.feat3_title }}</h5>
+        <p class="widgets__text">{{ t.home.feat3_text }}</p>
        </div>
       </div>
 
@@ -566,8 +566,8 @@
         <i class="text-bittersweet fas fa-chart-line"></i>
        </div>
        <div class="widgets__content">
-        <h5 class="widgets__title">Gestion financière intégrée</h5>
-        <p class="widgets__text">Tableaux financiers complets : revenus, dépenses, soldes en attente. Export direct vers QuickBooks, Wave et Xero. Fini les fins de mois à rattraper.</p>
+        <h5 class="widgets__title">{{ t.home.feat4_title }}</h5>
+        <p class="widgets__text">{{ t.home.feat4_text }}</p>
        </div>
       </div>
 
@@ -577,8 +577,8 @@
         <i class="text-bittersweet fas fa-qrcode"></i>
        </div>
        <div class="widgets__content">
-        <h5 class="widgets__title">Passeports numériques QR</h5>
-        <p class="widgets__text">Chaque participant reçoit son passeport numérique avec code QR par courriel. Tu scannes à l’entrée, le solde se met à jour automatiquement.</p>
+        <h5 class="widgets__title">{{ t.home.feat5_title }}</h5>
+        <p class="widgets__text">{{ t.home.feat5_text }}</p>
        </div>
       </div>
 
@@ -588,8 +588,8 @@
         <i class="text-bittersweet fas fa-map-marker-alt"></i>
        </div>
        <div class="widgets__content">
-        <h5 class="widgets__title">Conçu au Canada, pour Interac</h5>
-        <p class="widgets__text">Aucun outil américain ne comprend Interac natif. minipass oui. Support en français. Données hébergées au Canada.</p>
+        <h5 class="widgets__title">{{ t.home.feat6_title }}</h5>
+        <p class="widgets__text">{{ t.home.feat6_text }}</p>
        </div>
       </div>
 
@@ -669,29 +669,24 @@
      <div class="table-section-top">
       <div class="section-title section-title--l6 text-center" data-aos="fade-top" data-aos-duration="500" data-aos-once="true">
        <h6 class="section-title__sub-heading text-bittersweet text-uppercase mb-2" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
-        NOS FORFAITS
+        {{ t.home.pricing_label }}
        </h6>
        <h2 class="section-title__heading mb-4" data-aos="fade-up" data-aos-delay="300" data-aos-duration="500" data-aos-once="true">
-        Simples, clairs, sans surprise
-
+        {{ t.home.pricing_title }}
        </h2>
       </div>
       <div class="pricing-btn d-flex align-items-center justify-content-center flex-wrap" data-aos="fade-up" data-aos-delay="500" data-aos-duration="500" data-aos-once="true">
        <label class="mb-3 mb-lg-0">
-        
-        Mensuel
-
+        {{ t.home.pricing_monthly }}
        </label>
        <div class="toggle-btn form-check form-switch">
         <input checked="" class="form-check-input btn-toggle price-deck-trigger mb-2 mb-lg-0" data-pricing-trigger="" data-target="#table-price-value" id="flexSwitchCheckDefault" type="checkbox"/>
        </div>
        <label class="mb-3 mb-lg-0">
-        
-        Annuel
-
+        {{ t.home.pricing_annual }}
        </label>
        <h3 id="pricing-savings-badge" class="badge mb-3 mb-lg-0" style="background: rgba(232,121,78,0.1); color: #E8794E; border: 1px solid rgba(232,121,78,0.35); font-weight: 600; font-size: 0.75rem;">
-        ÉCONOMISEZ 50%
+        {{ t.home.pricing_save }}
        </h3>
       </div>
      </div>
@@ -700,12 +695,12 @@
        <div class="card card--table-single border--bittersweet text-center">
         <div class="table-top bg-bittersweet">
          <h5 class="table-top__title">
-          Solo
+          {{ t.home.solo_name }}
          </h5>
          <p class="table-top__text" style="font-size: 0.82rem; opacity: 0.88; margin-bottom: 4px;">
-          Coach hockey, instructeur yoga, 1 programme actif
+          {{ t.home.solo_desc }}
          </p>
-         <p class="table-top__text dynamic-value" data-active="Forfait annuel" data-monthly="Forfait mensuel" data-yearly="Forfait annuel">
+         <p class="table-top__text dynamic-value" data-active="{{ t.home.pricing_annual_plan }}" data-monthly="{{ t.home.pricing_monthly_plan }}" data-yearly="{{ t.home.pricing_annual_plan }}">
          </p>
          <div class="card--price">
           <span class="card--price__currency align-self-start">
@@ -714,37 +709,37 @@
           <h1 class="card--price__price dynamic-value" data-active="10" data-monthly="20" data-yearly="10">
           </h1>
           <span class="card--price__price-time">
-           / mois
+           {{ t.home.pricing_per_month }}
           </span>
          </div>
         </div>
         <ul class="card--table-single__list list-unstyled list-checked list-checked--niagara">
          <li>
-         1 <span class="activite-tooltip" tabindex="0">activité
-          <span class="activite-tooltip__box">1 activité = 1 ligue, cours ou service complet, sessions illimitées incluses.<br><em>Ex : ligue de hockey 20 semaines, 2 parties/semaine = 1 activité.</em></span>
-         </span> <span style="font-size: 0.72em;">(ligue, cours ou service)</span>
+         {{ t.home.solo_activity }} <span class="activite-tooltip" tabindex="0">{{ t.home.solo_activity_label }}
+          <span class="activite-tooltip__box">{{ t.home.plan_tooltip }}<br><em>{{ t.home.plan_tooltip_example }}</em></span>
+         </span> <span style="font-size: 0.72em;">{{ t.home.plan_activity_suffix }}</span>
          </li>
          <li>
-         Participants & passeports QR illimités
+         {{ t.home.plan_feat_participants }}
          </li>
          <li>
-         Inscriptions et paiements
+         {{ t.home.plan_feat_registrations }}
          </li>
          <li>
-         Présences et rappels automatiques
+         {{ t.home.plan_feat_attendance }}
          </li>
          <li>
-         Rapports suivis financiers
+         {{ t.home.plan_feat_finance }}
          </li>
          <li class="feature-unavailable">
-         Sondage d'expérience participants
+         {{ t.home.plan_feat_survey }}
          </li>
          <li class="feature-unavailable">
-         Co-pilot & Intelligence artificielle de vos données
+         {{ t.home.plan_feat_ai }}
          </li>
         </ul>
         <button class="btn btn-bittersweet btn--lg-2 text-white w-100" onclick="openSignupModal('basic')">
-         M'abonner
+         {{ t.home.plan_btn }}
         </button>
        </div>
       </div>
@@ -754,12 +749,12 @@
        <div class="card card--table-single border--niagara text-center">
         <div class="table-top bg-niagara">
          <h5 class="table-top__title">
-          Club
+          {{ t.home.club_name }}
          </h5>
          <p class="table-top__text" style="font-size: 0.82rem; opacity: 0.88; margin-bottom: 4px;">
-          Ligue avec divisions, école de danse, multi-cours
+          {{ t.home.club_desc }}
          </p>
-         <p class="table-top__text dynamic-value" data-active="Forfait annuel" data-monthly="Forfait mensuel" data-yearly="Forfait annuel">
+         <p class="table-top__text dynamic-value" data-active="{{ t.home.pricing_annual_plan }}" data-monthly="{{ t.home.pricing_monthly_plan }}" data-yearly="{{ t.home.pricing_annual_plan }}">
          </p>
          <div class="card--price">
           <span class="card--price__currency align-self-start">
@@ -768,37 +763,37 @@
           <h1 class="card--price__price dynamic-value" data-active="25" data-monthly="50" data-yearly="25">
           </h1>
           <span class="card--price__price-time">
-           / mois
+           {{ t.home.pricing_per_month }}
           </span>
          </div>
         </div>
         <ul class="card--table-single__list list-unstyled list-checked list-checked--niagara">
          <li>
-         15 <span class="activite-tooltip" tabindex="0">activités
-          <span class="activite-tooltip__box">1 activité = 1 ligue, cours ou service complet, sessions illimitées incluses.<br><em>Ex : ligue de hockey 20 semaines, 2 parties/semaine = 1 activité.</em></span>
-         </span> <span style="font-size: 0.72em;">(ligue, cours ou service)</span>
+         {{ t.home.club_activity }} <span class="activite-tooltip" tabindex="0">{{ t.home.club_activity_label }}
+          <span class="activite-tooltip__box">{{ t.home.plan_tooltip }}<br><em>{{ t.home.plan_tooltip_example }}</em></span>
+         </span> <span style="font-size: 0.72em;">{{ t.home.plan_activity_suffix }}</span>
          </li>
          <li>
-         Participants & passeports QR illimités
+         {{ t.home.plan_feat_participants }}
          </li>
          <li>
-         Inscriptions et paiements
+         {{ t.home.plan_feat_registrations }}
          </li>
          <li>
-         Présences et rappels automatiques
+         {{ t.home.plan_feat_attendance }}
          </li>
          <li>
-         Rapports suivis financiers
+         {{ t.home.plan_feat_finance }}
          </li>
          <li>
-         Sondage d'expérience participants
+         {{ t.home.plan_feat_survey }}
          </li>
          <li>
-         Co-pilot & Intelligence artificielle de vos données
+         {{ t.home.plan_feat_ai }}
          </li>
         </ul>
         <button class="btn btn-bittersweet btn--lg-2 text-white w-100" onclick="openSignupModal('pro')">
-         M'abonner
+         {{ t.home.plan_btn }}
         </button>
        </div>
       </div>
@@ -806,12 +801,12 @@
        <div class="card card--table-single border--lavender text-center">
         <div class="table-top bg-lavender">
          <h5 class="table-top__title">
-          Organisation
+          {{ t.home.org_name }}
          </h5>
          <p class="table-top__text" style="font-size: 0.82rem; opacity: 0.88; margin-bottom: 4px;">
-          Fondation, organisme, réseau de programmes
+          {{ t.home.org_desc }}
          </p>
-         <p class="table-top__text dynamic-value" data-active="Forfait annuel" data-monthly="Forfait mensuel" data-yearly="Forfait annuel">
+         <p class="table-top__text dynamic-value" data-active="{{ t.home.pricing_annual_plan }}" data-monthly="{{ t.home.pricing_monthly_plan }}" data-yearly="{{ t.home.pricing_annual_plan }}">
          </p>
          <div class="card--price">
           <span class="card--price__currency align-self-start">
@@ -820,37 +815,37 @@
           <h1 class="card--price__price dynamic-value" data-active="60" data-monthly="120" data-yearly="60">
           </h1>
           <span class="card--price__price-time">
-           / mois
+           {{ t.home.pricing_per_month }}
           </span>
          </div>
         </div>
         <ul class="card--table-single__list list-unstyled list-checked list-checked--niagara">
          <li>
-         100 <span class="activite-tooltip" tabindex="0">activités
-          <span class="activite-tooltip__box">1 activité = 1 ligue, cours ou service complet, sessions illimitées incluses.<br><em>Ex : ligue de hockey 20 semaines, 2 parties/semaine = 1 activité.</em></span>
-         </span> <span style="font-size: 0.72em;">(ligue, cours ou service)</span>
+         {{ t.home.org_activity }} <span class="activite-tooltip" tabindex="0">{{ t.home.org_activity_label }}
+          <span class="activite-tooltip__box">{{ t.home.plan_tooltip }}<br><em>{{ t.home.plan_tooltip_example }}</em></span>
+         </span> <span style="font-size: 0.72em;">{{ t.home.plan_activity_suffix }}</span>
          </li>
          <li>
-         Participants & passeports QR illimités
+         {{ t.home.plan_feat_participants }}
          </li>
          <li>
-         Inscriptions et paiements
+         {{ t.home.plan_feat_registrations }}
          </li>
          <li>
-         Présences et rappels automatiques
+         {{ t.home.plan_feat_attendance }}
          </li>
          <li>
-         Rapports suivis financiers
+         {{ t.home.plan_feat_finance }}
          </li>
          <li>
-         Sondage d'expérience participants
+         {{ t.home.plan_feat_survey }}
          </li>
          <li>
-         Co-pilot & Intelligence artificielle de vos données
+         {{ t.home.plan_feat_ai }}
          </li>
         </ul>
         <button class="btn btn-bittersweet btn--lg-2 text-white w-100" onclick="openSignupModal('ultimate')">
-         M'abonner
+         {{ t.home.plan_btn }}
         </button>
        </div>
       </div>
@@ -859,7 +854,7 @@
      <div class="row justify-content-center mt-4" data-aos="fade-up" data-aos-delay="300" data-aos-duration="500" data-aos-once="true">
       <div class="col-lg-10 col-xl-8 text-center">
        <p class="text-muted" style="font-size: 0.85rem; font-weight: 400;">
-        Pas de contrat. Annule en tout temps.
+        {{ t.home.pricing_no_contract }}
        </p>
       </div>
      </div>
@@ -954,21 +949,21 @@
    <div class="container">
     <div class="row justify-content-center">
      <div class="col-lg-6 col-md-8 col-11 text-center" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
-      <h6 class="section-title__sub-heading text-bittersweet text-uppercase mb-2">INFOLETTRE GRATUITE</h6>
+      <h6 class="section-title__sub-heading text-bittersweet text-uppercase mb-2">{{ t.home.newsletter_label }}</h6>
       <h2 class="section-title__heading newsletter-heading mb-4" style="color:#fff;">
-       Sois le premier inform&eacute;&nbsp;!
+       {{ t.home.newsletter_title }}
       </h2>
       <form id="newsletter-form" onsubmit="subscribeNewsletter(event)">
        <div class="newsletter-input-wrap">
         <input type="email" id="newsletter-email"
-               placeholder="ton@courriel.com" required
+               placeholder="{{ t.home.newsletter_placeholder }}" required
                style="flex:1; padding:14px 18px; background:transparent;
                       border:none; color:#fff; font-size:0.93rem; outline:none;">
         <button type="submit" id="newsletter-btn"
                 class="btn btn-bittersweet text-white"
                 style="margin:5px; border-radius:6px; flex-shrink:0;
                        padding:10px 20px; font-size:0.93rem; white-space:nowrap;">
-         Je m'abonne
+         {{ t.home.newsletter_btn }}
         </button>
        </div>
       </form>
@@ -984,8 +979,8 @@
    <div class="container">
 
     <div class="text-center mb-5" data-aos="fade-up" data-aos-duration="400" data-aos-once="true">
-     <h6 class="section-title__sub-heading text-bittersweet text-uppercase mb-2">NOTRE BLOG</h6>
-     <h2 class="section-title__heading mb-4">Nos derniers articles</h2>
+     <h6 class="section-title__sub-heading text-bittersweet text-uppercase mb-2">{{ t.home.blog_label }}</h6>
+     <h2 class="section-title__heading mb-4">{{ t.home.blog_title }}</h2>
     </div>
 
     <div class="blog-slider" data-aos="fade-up" data-aos-delay="100" data-aos-duration="500" data-aos-once="true">
@@ -1014,12 +1009,12 @@
     </div>
 
     <div class="text-center mt-5" data-aos="fade-up" data-aos-delay="200" data-aos-duration="400" data-aos-once="true">
-     <a href="/blog" class="btn fw-semibold"
+     <a href="{{ lang_prefix }}/blog" class="btn fw-semibold"
         style="border:2px solid #483550; color:#483550; background:transparent;
                padding:10px 28px; border-radius:8px; transition: background 0.2s ease, color 0.2s ease;"
         onmouseover="this.style.background='#483550';this.style.color='#fff';"
         onmouseout="this.style.background='transparent';this.style.color='#483550';">
-      Voir tous les articles
+      {{ t.home.blog_see_all }}
      </a>
     </div>
 
@@ -1300,7 +1295,7 @@
       <!-- Price Header Section -->
       <div class="modal-price-header">
         <div class="modal-price-left">
-          <div class="modal-plan-name" id="modal-plan-display">Forfait Basic</div>
+          <div class="modal-plan-name" id="modal-plan-display">{{ t.home.modal_forfait_solo }}</div>
 
           <div class="modal-price-display">
             <span class="currency">$</span>
@@ -1308,10 +1303,10 @@
             <span class="period">/ mois</span>
           </div>
 
-          <div class="modal-billing-info" id="modal-billing-text">Facturation annuelle</div>
+          <div class="modal-billing-info" id="modal-billing-text">{{ t.home.modal_billing_annual }}</div>
 
           <div class="modal-savings-badge" id="modal-savings-badge" style="display: none;">
-            Économisez 50%
+            {{ t.home.modal_savings }}
           </div>
         </div>
 
@@ -1323,17 +1318,17 @@
 
       <!-- Form Body -->
       <div class="modal-body">
-        <h5>Complétez votre abonnement</h5>
+        <h5>{{ t.home.modal_complete }}</h5>
 
         <!-- App Name Field -->
         <div class="form-field-group">
           <label class="form-label-with-icon">
             <i class="fas fa-globe"></i>
-            <span>Saisissez le nom souhaité pour votre application</span>
+            <span>{{ t.home.modal_app_name_label }}</span>
           </label>
-          <input class="form-control" id="app_name" name="app_name" required type="text" placeholder="monprojet" />
+          <input class="form-control" id="app_name" name="app_name" required type="text" placeholder="{{ t.home.modal_app_name_placeholder }}" />
           <div class="field-description" id="subdomain-feedback">
-            Votre nom souhaité: <strong>votre-nom.minipass.me</strong>
+            {{ t.home.modal_app_name_desc }} <strong>votre-nom.minipass.me</strong>
           </div>
         </div>
 
@@ -1341,11 +1336,11 @@
         <div class="form-field-group">
           <label class="form-label-with-icon">
             <i class="fas fa-building"></i>
-            <span>Saisissez le nom de votre organisation</span>
+            <span>{{ t.home.modal_org_label }}</span>
           </label>
-          <input class="form-control" name="organization_name" required type="text" placeholder="Mon Entreprise ex:Fondation XYZ" />
+          <input class="form-control" name="organization_name" required type="text" placeholder="{{ t.home.modal_org_placeholder }}" />
           <div class="field-description">
-            Cette information apparaîtra dans votre application et les communications à vos participants
+            {{ t.home.modal_org_desc }}
           </div>
         </div>
 
@@ -1353,25 +1348,25 @@
         <div class="form-field-group">
           <label class="form-label-with-icon">
             <i class="fas fa-envelope"></i>
-            <span>Saisissez l’adresse courriel à utiliser pour administrer votre minipass.</span>
+            <span>{{ t.home.modal_email_label }}</span>
           </label>
-          <input class="form-control" name="admin_email" required type="email" placeholder="admin@monentreprise.com" />
+          <input class="form-control" name="admin_email" required type="email" placeholder="{{ t.home.modal_email_placeholder }}" />
           <div class="field-description">
-            Cette adresse courriel est importante. Elle sera votre identifiant administrateur de votre minipass.
+            {{ t.home.modal_email_desc }}
           </div>
         </div>
 
         <!-- Promo Code Section -->
         <div class="mt-2">
           <a href="#" class="text-muted small" id="promo-toggle" style="text-decoration:none; font-size:0.85rem;">
-            Vous avez un code promotionnel ?
+            {{ t.home.modal_promo_toggle }}
           </a>
           <div id="promo-collapse" style="display:none; margin-top:8px;">
             <div class="d-flex gap-2 align-items-center">
               <input type="text" id="promo-code-input" class="form-control form-control-sm"
                      placeholder="CODE PROMO" style="text-transform:uppercase; max-width:160px;" />
               <button type="button" class="btn btn-sm btn-outline-secondary" id="promo-apply-btn">
-                Appliquer
+                {{ t.home.modal_promo_apply }}
               </button>
             </div>
             <div id="promo-feedback" class="mt-1 small"></div>
@@ -1383,10 +1378,10 @@
       <!-- Footer with Submit Button -->
       <div class="modal-footer">
         <button type="submit" class="btn btn-bittersweet text-white" id="submit-btn">
-          Procéder au paiement →
+          {{ t.home.modal_submit }} →
         </button>
         <div class="modal-policy-link">
-          Consultez notre <a href="/politiques" target="_blank">politique d'abonnement</a>
+          {{ t.home.modal_policy }} <a href="{{ lang_prefix }}/politiques" target="_blank">{{ t.home.modal_policy_link }}</a>
         </div>
       </div>
     </form>
@@ -1406,9 +1401,9 @@
   <script>
    // Pricing configuration mapping
    const PRICING_CONFIG = {
-     basic: { annual: 10, monthly: 20, name: 'Forfait Solo' },
-     pro: { annual: 25, monthly: 50, name: 'Forfait Club' },
-     ultimate: { annual: 60, monthly: 120, name: 'Forfait Organisation' }
+     basic: { annual: 10, monthly: 20, name: '{{ t.home.modal_forfait_solo }}' },
+     pro: { annual: 25, monthly: 50, name: '{{ t.home.modal_forfait_club }}' },
+     ultimate: { annual: 60, monthly: 120, name: '{{ t.home.modal_forfait_org }}' }
    };
 
    function openSignupModal(plan) {
@@ -1435,9 +1430,9 @@
     const billingTextElement = document.getElementById('modal-billing-text');
     if (isAnnual) {
       const totalAnnual = price * 12;
-      billingTextElement.textContent = `Facturation annuelle ($${totalAnnual} total)`;
+      billingTextElement.textContent = `{{ t.home.modal_billing_annual }} ($${totalAnnual} {{ t.home.modal_billing_total }})`;
     } else {
-      billingTextElement.textContent = 'Facturation mensuelle';
+      billingTextElement.textContent = '{{ t.home.modal_billing_monthly }}';
     }
 
     // Show/hide savings badge
@@ -1475,10 +1470,10 @@
     const form = document.getElementById('signup-form');
     if (!btn || !form) return;
     if (promoValidated) {
-      btn.textContent = 'Activer mon code';
+      btn.textContent = '{{ t.home.modal_submit_promo }}';
       form.action = '/redeem-promo';
     } else {
-      btn.textContent = 'Procéder au paiement';
+      btn.textContent = '{{ t.home.modal_submit }}';
       form.action = '/start-checkout';
     }
   }
@@ -1673,7 +1668,7 @@ function subscribeNewsletter(e) {
   var email = document.getElementById('newsletter-email').value.trim();
   var btn = document.getElementById('newsletter-btn');
   btn.disabled = true;
-  btn.textContent = 'En cours...';
+  btn.textContent = '{{ "En cours..." if lang == "fr" else "Loading..." }}';
   fetch('/newsletter-subscribe', {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
@@ -1681,15 +1676,15 @@ function subscribeNewsletter(e) {
   })
   .then(function(r){ return r.json(); })
   .then(function(d){
-    kdShowAlert('success', 'Tu es maintenant inscrit! Tu recevras le prochain article bientot.', {duration: 5000, position: 'top-right'});
+    kdShowAlert('success', '{{ t.home.newsletter_success }}', {duration: 5000, position: 'top-right'});
     document.getElementById('newsletter-email').value = '';
     btn.disabled = false;
-    btn.textContent = 'Je m\'abonne';
+    btn.textContent = '{{ t.home.newsletter_btn }}';
   })
   .catch(function(){
-    kdShowAlert('error', 'Une erreur est survenue. Essaie de nouveau.', {duration: 5000, position: 'top-right'});
+    kdShowAlert('error', '{{ t.home.newsletter_error }}', {duration: 5000, position: 'top-right'});
     btn.disabled = false;
-    btn.textContent = 'Je m\'abonne';
+    btn.textContent = '{{ t.home.newsletter_btn }}';
   });
 }
 </script>
