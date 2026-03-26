@@ -14,8 +14,7 @@
 /* Hero Section (merged with intro) */
 .guides-hero {
     background-color: rgba(21, 205, 168, 0.2);
-    margin-top: 80px;
-    padding: 40px 0 50px 0;
+    padding: 140px 0 50px 0;
 }
 
 .guides-intro-image {
@@ -39,7 +38,7 @@
     width: 100%;
     padding: 15px 20px 15px 50px;
     border: 2px solid #e8e8e8;
-    border-radius: 50px;
+    border-radius: 8px;
     font-size: 16px;
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%238492AF' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'%3E%3C/circle%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'%3E%3C/line%3E%3C/svg%3E");
@@ -68,7 +67,7 @@
 .filter-btn {
     padding: 10px 24px;
     border: 2px solid #e8e8e8;
-    border-radius: 50px;
+    border-radius: 8px;
     background: #fff;
     color: #2d3748;
     font-size: 14px;
@@ -97,7 +96,7 @@
 
 /* Guide Cards Section */
 .guides-cards-section {
-    background-color: #f2f5fb;
+    background-color: #f7f8fc;
     padding: 80px 0;
 }
 
@@ -300,13 +299,13 @@
 /* CTA Section */
 .guides-cta {
     padding: 80px 0;
-    background-color: rgba(21, 205, 168, 0.2);
+    background: linear-gradient(145deg, #2d1f35 0%, #483550 40%, #5a4365 100%);
 }
 
 /* Responsive Adjustments */
 @media (max-width: 768px) {
     .guides-hero {
-        padding: 40px 0 15px 0;
+        padding: 100px 0 15px 0;
     }
 
     .guides-intro {
@@ -341,13 +340,13 @@
         <div class="row align-items-start">
             <!-- Text Column -->
             <div class="col-lg-6 order-2 order-lg-1" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
-                <h6 class="text-uppercase mb-3" style="color: #ff7272; font-weight: 600; letter-spacing: 2px;">
+                <h6 class="section-title__sub-heading text-bittersweet text-uppercase mb-2">
                     GUIDES ET TUTORIELS
                 </h6>
-                <h1 class="display-4 fw-bold mb-4" style="color: #0E1A35;">
+                <h1 class="welcome-content__title section-title__heading mb-4">
                     Besoin d'aide?
                 </h1>
-                <p style="font-size: 16px; font-weight: 400; line-height: 1.7; color: #2d3748;">
+                <p class="welcome-content--l8__descriptions">
                     Découvrez nos tutoriels vidéo et guides pour maîtriser minipass en quelques minutes. Que vous soyez débutant ou utilisateur avancé, vous trouverez ici toutes les ressources nécessaires pour tirer le maximum de votre plateforme.
                 </p>
             </div>
@@ -368,14 +367,9 @@
 <!-- SECTION 4: Guide Cards Grid -->
 <section class="guides-cards-section">
     <div class="container">
-        <!-- Section Header -->
+        <!-- Filters & Search -->
         <div class="row justify-content-center mb-4">
             <div class="col-lg-8 text-center" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
-                <h6 class="text-uppercase mb-3" style="color: #ff7272; font-weight: 600; letter-spacing: 2px;">
-                    TUTORIELS
-                </h6>
-                <h2 class="fw-bold mb-4" style="color: #0E1A35;">Tous nos guides</h2>
-
                 <!-- Filter Buttons -->
                 <div class="filter-buttons mb-4" data-aos="fade-up" data-aos-delay="100" data-aos-duration="500" data-aos-once="true">
                     <button class="filter-btn active" data-filter="all">
@@ -532,13 +526,13 @@
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-lg-8 text-center" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
-                <p class="mb-2" style="font-size: 26px; font-weight: 600; color: #2d3748; line-height: 1.4;">
+                <p class="mb-2" style="font-size: 26px; font-weight: 600; color: #ffffff; line-height: 1.4;">
                     Vous ne trouvez pas ce que vous cherchez?
                 </p>
-                <p class="mb-4" style="font-size: 16px; color: #8492AF;">
+                <p class="mb-4" style="font-size: 16px; color: rgba(255,255,255,0.7);">
                     Notre équipe est là pour vous aider
                 </p>
-                <a href="mailto:support@minipass.me" class="btn btn--lg-2 btn-niagara rounded-50 text-white" style="font-weight: 600; min-width: 180px;">
+                <a href="mailto:support@minipass.me" class="btn btn--lg-2 btn-bittersweet text-white">
                     Nous contacter
                 </a>
             </div>

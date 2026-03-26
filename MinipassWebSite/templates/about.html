@@ -1,9 +1,9 @@
 {% extends "base.html" %}
 
-{% block page_title %}À propos de minipass — Logiciel canadien de gestion d'activités{% endblock %}
-{% block meta_desc %}Découvrez l'équipe derrière minipass, la plateforme canadienne qui automatise la gestion des ligues sportives, paiements Interac et inscriptions en ligne.{% endblock %}
-{% block og_title %}À propos de minipass — Logiciel canadien de gestion d'activités{% endblock %}
-{% block og_desc %}Découvrez l'équipe derrière minipass, la plateforme canadienne qui automatise la gestion des ligues sportives et paiements Interac.{% endblock %}
+{% block page_title %}{{ t.about.meta_title }}{% endblock %}
+{% block meta_desc %}{{ t.about.meta_desc }}{% endblock %}
+{% block og_title %}{{ t.about.meta_title }}{% endblock %}
+{% block og_desc %}{{ t.about.meta_desc }}{% endblock %}
 
 {% block extra_head %}
 <!-- SignFlow animations CSS only -->
@@ -127,15 +127,15 @@
     padding: 15px;
     margin: 0;
     background: transparent;
-    color: #8492AF;
+    color: #483550;
     font-size: 17px;
     cursor: pointer;
     border-radius: 0;
-    transition: color 0.3s ease;
+    transition: color 0.2s ease;
 }
 
 .niche-box-team .content-box .social-group a:hover {
-    color: #099a97;
+    color: #E8794E;
 }
 
 /* Hero image container */
@@ -167,7 +167,7 @@ html {
 
 .btn-cta:hover {
     transform: scale(1.05);
-    box-shadow: 0 8px 20px rgba(9, 154, 151, 0.4) !important;
+    box-shadow: 0 8px 20px rgba(232, 121, 78, 0.4) !important;
 }
 
 /* Arrow connector styling */
@@ -201,36 +201,23 @@ html {
 }
 </style>
 
-<!-- Hero Title Section -->
-<section style="background-color: rgba(21, 205, 168, 0.2); margin-top: 80px; padding: 60px 0 20px 0;">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-10 text-start" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
-                <h6 class="text-uppercase mb-3" style="color: #ff7272; font-weight: 600; letter-spacing: 2px;">
-                    À PROPOS DE NOUS
-                </h6>
-                <h1 class="display-4 fw-bold mb-0" style="color: #0E1A35;">
-                    La petite histoire de minipass
-                </h1>
-            </div>
-        </div>
-    </div>
-</section>
-
 <!-- Section 1: Le 20$ qui a tout déclenché -->
-<section class="section-spacing" style="background-color: rgba(21, 205, 168, 0.2); padding: 40px 0 80px 0;">
+<section class="section-spacing" style="background-color: rgba(21, 205, 168, 0.2); padding: 140px 0 80px 0;">
     <div class="container">
         <div class="row align-items-center">
             <!-- Text Column - LEFT -->
             <div class="col-lg-6 order-2 order-lg-1" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
-                <h2 class="fw-bold mb-4" style="color: #ff7272; font-size: 28px;">
-                    Le 20$ qui a tout déclenché
+                <h6 class="section-title__sub-heading text-bittersweet text-uppercase mb-2">
+                    {{ t.about.s1_label }}
+                </h6>
+                <h2 class="section-title__heading mb-4">
+                    {{ t.about.s1_title }}
                 </h2>
-                <p style="font-size: 16px; font-weight: 400; line-height: 1.7; color: #2d3748;">
-                    Un dimanche matin, en comptant ses billets de remplaçants au hockey, Ken réalise qu'il manque vingt dollars et que la petite caisse ne balance toujours pas. Entre les passes de saison, les paiements en cash et par Interac, la gestion financière était devenue chaotique. Convaincu qu'une application simple devait exister pour régler ce problème, il découvre rapidement que les options disponibles sont soit trop complexes, soit trop coûteuses, soit mal conçues... ou les trois à la fois!
+                <p style="font-size:16px; line-height:1.7; color:#2d3748;">
+                    {{ t.about.s1_p1 }}
                 </p>
-                <p style="font-size: 16px; font-weight: 400; line-height: 1.7; color: #2d3748;">
-                    Le geek techno se réveille alors en lui. Une ébauche prend forme. Intéressant. Pourquoi ne pas voir plus grand?
+                <p style="font-size:16px; line-height:1.7; color:#2d3748;">
+                    {{ t.about.s1_p2 }}
                 </p>
             </div>
 
@@ -253,14 +240,17 @@ html {
 
             <!-- Text Column - RIGHT -->
             <div class="col-lg-7 order-2 order-lg-2" data-aos="fade-up" data-aos-delay="300" data-aos-duration="500" data-aos-once="true">
-                <h2 class="fw-bold mb-4" style="color: #ff7272; font-size: 28px;">
-                    Un projet familial formateur
+                <h6 class="section-title__sub-heading text-bittersweet text-uppercase mb-2">
+                    {{ t.about.s2_label }}
+                </h6>
+                <h2 class="section-title__heading mb-4">
+                    {{ t.about.s2_title }}
                 </h2>
-                <p style="font-size: 16px; font-weight: 400; line-height: 1.7; color: #2d3748;">
-                    Au-delà du produit, une opportunité encore plus précieuse s'est présentée: montrer à nos jeunes futurs entrepreneurs comment ça marche pour vrai, un démarrage d'entreprise. Tous les processus, de la conception au code, du marketing aux ventes, de la gestion des clients aux finances, des médias sociaux au service après-vente.
+                <p style="font-size:16px; line-height:1.7; color:#2d3748;">
+                    {{ t.about.s2_p1 }}
                 </p>
-                <p style="font-size: 16px; font-weight: 400; line-height: 1.7; color: #2d3748;">
-                    Pas dans un livre. Pas dans un cours théorique. Dans le vrai monde, avec de vrais clients, de vraies factures, de vrais défis. <strong>C'est ça, notre vraie mission familiale.</strong>
+                <p style="font-size:16px; line-height:1.7; color:#2d3748;">
+                    {{ t.about.s2_p2|safe }}
                 </p>
             </div>
         </div>
@@ -268,14 +258,14 @@ html {
 </section>
 
 <!-- Section 3: La persévérance qui encourage la persévérance -->
-<section class="section-spacing foundation-section" style="background-color: #f2f5fb; padding: 80px 0;">
+<section class="section-spacing foundation-section" style="background-color: #f7f8fc; padding: 80px 0;">
     <style>
         @keyframes pulse-glow {
             0%, 100% {
-                filter: drop-shadow(0 0 15px rgba(255, 114, 114, 0.4));
+                filter: drop-shadow(0 0 15px rgba(232, 121, 78, 0.4));
             }
             50% {
-                filter: drop-shadow(0 0 25px rgba(255, 114, 114, 0.7));
+                filter: drop-shadow(0 0 25px rgba(232, 121, 78, 0.7));
             }
         }
 
@@ -319,11 +309,14 @@ html {
         <div class="row align-items-center">
             <!-- Text Column - LEFT -->
             <div class="col-lg-7 order-2 order-lg-1" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
-                <h2 class="fw-bold mb-4" style="color: #ff7272; font-size: 28px;">
-                    La persévérance qui encourage la persévérance
+                <h6 class="section-title__sub-heading text-bittersweet text-uppercase mb-2">
+                    {{ t.about.s3_label }}
+                </h6>
+                <h2 class="section-title__heading mb-4">
+                    {{ t.about.s3_title }}
                 </h2>
-                <p style="font-size: 16px; font-weight: 400; line-height: 1.7; color: #2d3748;">
-                    Cette valeur nous tient à cœur. C'est pourquoi minipass s'engage à remettre annuellement 2% de son chiffre d'affaires à la Fondation de la ligue de hockey Gagnon Image qui reconnaît la persévérance et l'engagement des jeunes athlètes faisant face à l'adversité avec courage.
+                <p style="font-size:16px; line-height:1.7; color:#2d3748;">
+                    {{ t.about.s3_text|safe }}
                 </p>
             </div>
 
@@ -332,7 +325,7 @@ html {
                 <div class="foundation-content">
                     <span class="donation-badge">2%</span>
                     <a href="https://www.facebook.com/p/Fondation-de-la-ligue-de-hockey-Gagnon-Image-61554658763800/" target="_blank" rel="noopener noreferrer">
-                        <img src="{{ url_for('static', filename='image/flhgi.png') }}" alt="Fondation de la ligue de hockey Gagnon Image" class="img-fluid foundation-logo">
+                        <img src="{{ url_for('static', filename='image/flhgi-logo-kd.png') }}" alt="Fondation de la ligue de hockey Gagnon Image" class="img-fluid foundation-logo">
                     </a>
                 </div>
             </div>
@@ -365,11 +358,11 @@ html {
         <!-- Section Title -->
         <div class="row justify-content-center mb-5">
             <div class="col-lg-8 text-center" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
-                <h6 class="text-uppercase mb-3" style="color: #ff7272; font-weight: 600; letter-spacing: 2px;">
-                    L'équipe
+                <h6 class="section-title__sub-heading text-bittersweet text-uppercase mb-2">
+                    {{ t.about.team_label }}
                 </h6>
-                <h2 class="fw-bold mb-3">Rencontrez l'équipe</h2>
-                <p class="text-muted fs-5">Une aventure familiale où chacun apporte sa passion</p>
+                <h2 class="section-title__heading mb-3">{{ t.about.team_title }}</h2>
+                <p class="text-muted fs-5">{{ t.about.team_subtitle }}</p>
             </div>
         </div>
 
@@ -382,14 +375,14 @@ html {
                         </a>
                         <div class="content-box">
                             <h2>Ken Dresdell</h2>
-                            <h4>Co-fondateur, Chef du développement technologique</h4>
+                            <h4>{{ t.about.ken_role }}</h4>
                             <hr class="e" />
                             <div class="btn-group social-group">
                                 <a target="_blank" href="https://www.facebook.com/kdresdell"><i class="fab fa-facebook-f"></i></a>
                                 <a target="_blank" href="https://discord.gg/UakbWpSJ"><i class="fab fa-discord"></i></a>
                                 <a href="mailto:kdresdell@minipass.me"><i class="fas fa-envelope"></i></a>
                             </div>
-                            <p>Chef du développement technologique, amateur de kitesurf et innovateur passionné.</p>
+                            <p>{{ t.about.ken_desc }}</p>
                         </div>
                     </div>
                 </div>
@@ -400,14 +393,14 @@ html {
                         </a>
                         <div class="content-box">
                             <h2>Marie-France</h2>
-                            <h4>Co-fondatrice, Directrice Générale & Finances</h4>
+                            <h4>{{ t.about.mf_role }}</h4>
                             <hr class="e" />
                             <div class="btn-group social-group">
                                 <a target="_blank" href="https://www.facebook.com/mariefrance.decoste"><i class="fab fa-facebook-f"></i></a>
                                 <a target="_blank" href="https://www.instagram.com/mariefrancedecoste/"><i class="fab fa-instagram"></i></a>
                                 <a href="mailto:marie@minipass.me"><i class="fas fa-envelope"></i></a>
                             </div>
-                            <p>Responsable des opérations et finances. Amoureuse de la nature et de voyages.</p>
+                            <p>{{ t.about.mf_desc }}</p>
                         </div>
                     </div>
                 </div>
@@ -418,14 +411,14 @@ html {
                         </a>
                         <div class="content-box">
                             <h2>Elizabeth Dresdell</h2>
-                            <h4>Co-fondatrice, Médias Sociaux & Développement</h4>
+                            <h4>{{ t.about.eli_role }}</h4>
                             <hr class="e" />
                             <div class="btn-group social-group">
                                 <a target="_blank" href="https://www.facebook.com/elizabeth.dresdell"><i class="fab fa-facebook-f"></i></a>
                                 <a style="opacity: 0.3; cursor: default;"><i class="fab fa-instagram"></i></a>
                                 <a href="mailto:eli@minipass.me"><i class="fas fa-envelope"></i></a>
                             </div>
-                            <p>Étudiante à l'Université Laval, responsable médias sociaux. Fait des vrilles et explore ses passions.</p>
+                            <p>{{ t.about.eli_desc }}</p>
                         </div>
                     </div>
                 </div>
@@ -436,14 +429,14 @@ html {
                         </a>
                         <div class="content-box">
                             <h2>Philippe Dresdell</h2>
-                            <h4>Co-fondateur, Marketing & Développement</h4>
+                            <h4>{{ t.about.phil_role }}</h4>
                             <hr class="e" />
                             <div class="btn-group social-group">
                                 <a target="_blank" href="https://www.facebook.com/phil.dresdell"><i class="fab fa-facebook-f"></i></a>
                                 <a target="_blank" href="https://www.instagram.com/phil_dresdell/"><i class="fab fa-instagram"></i></a>
                                 <a href="mailto:phil@minipass.me"><i class="fas fa-envelope"></i></a>
                             </div>
-                            <p>Étudiant à l'Université Laval, entrepreneur dans l'âme. Snowboarder, boxer, toujours en mouvement.</p>
+                            <p>{{ t.about.phil_desc }}</p>
                         </div>
                     </div>
                 </div>
@@ -452,17 +445,17 @@ html {
 </section>
 
 <!-- CTA Section -->
-<section style="padding: 80px 0; background-color: rgba(21, 205, 168, 0.2);">
+<section style="padding: 80px 0; background: linear-gradient(145deg, #2d1f35 0%, #483550 40%, #5a4365 100%);">
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-lg-8 text-center" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
                 <!-- Main question -->
-                <p class="mb-4" style="font-size: 26px; font-weight: 600; color: #2d3748; line-height: 1.4; letter-spacing: -0.5px;">
-                    Envie de simplifier la gestion de vos activités comme on l'a fait?
+                <p class="mb-4" style="font-size: 26px; font-weight: 600; color: #ffffff; line-height: 1.4; letter-spacing: -0.5px;">
+                    {{ t.about.cta_text }}
                 </p>
                 <!-- CTA Button -->
-                <a href="/#pricing" class="btn btn--lg-2 btn-bittersweet rounded-50 text-white" style="font-weight: 600; min-width: 180px;">
-                    S'abonner
+                <a href="{{ lang_prefix }}/#pricing" class="btn btn--lg-2 btn-bittersweet text-white">
+                    {{ t.about.cta_btn }}
                 </a>
             </div>
         </div>

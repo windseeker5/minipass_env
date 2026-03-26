@@ -1,0 +1,526 @@
+{% extends "base.html" %}
+
+{% block html_lang %}{{ 'en-CA' if post['lang'] == 'en' else 'fr-CA' }}{% endblock %}
+
+{% block page_title %}{{ post['meta_title'] or post['title'] }} — minipass{% endblock %}
+{% block meta_desc %}{{ post['meta_description'] or post['excerpt'] or post['title'] }}{% endblock %}
+{% block og_title %}{{ post['meta_title'] or post['title'] }} — minipass{% endblock %}
+{% block og_desc %}{{ post['meta_description'] or post['excerpt'] or '' }}{% endblock %}
+
+{% block extra_head %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": {{ (post['meta_title'] or post['title'])|tojson }},
+  "description": {{ (post['meta_description'] or post['excerpt'] or '')|tojson }},
+  "author": {
+    "@type": "Person",
+    "name": {{ (post['author'] or 'minipass')|tojson }}
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "minipass",
+    "url": "https://minipass.me"
+  },
+  "datePublished": {{ (post['published_at'] or '')|tojson }},
+  "mainEntityOfPage": "https://minipass.me/blog/{{ post['slug'] }}",
+  "inLanguage": "{{ 'en-CA' if post['lang'] == 'en' else 'fr-CA' }}"
+}
+</script>
+<style>
+/* ── Hero header ───────────────────────────────────────── */
+.article-hero {
+    position: relative;
+    padding-top: 120px;
+    padding-bottom: 40px;
+    overflow: hidden;
+}
+.article-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(21, 205, 168, 0.2);
+    z-index: 0;
+}
+.article-hero .container { position: relative; z-index: 1; }
+
+/* ── Breadcrumb ─────────────────────────────────────────── */
+.article-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 18px;
+}
+.article-breadcrumb a {
+    color: #6B7280;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+.article-breadcrumb a:hover { color: #483550; text-decoration: none; }
+.article-breadcrumb__sep {
+    color: #483550;
+    font-size: 13px;
+    font-weight: 700;
+}
+.article-breadcrumb__current {
+    color: #6B7280;
+}
+
+/* ── Article title — matches H1 from design guide ── */
+.article-title {
+    font-weight: 500;
+    letter-spacing: -1px;
+    line-height: 1.075;
+    font-size: 36px;
+    color: #262729;
+    margin: 0 0 20px;
+}
+@media (min-width: 480px) { .article-title { font-size: 42px; } }
+@media (min-width: 768px) { .article-title { font-size: 50px; } }
+@media (min-width: 992px) { .article-title { font-size: 60px; } }
+
+/* ── Author bar ────────────────────────────────────────── */
+.article-author-bar {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+.article-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+.article-avatar-initials {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #E8794E 0%, #c9623a 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    font-weight: 700;
+    color: #fff;
+    flex-shrink: 0;
+}
+.article-author-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+.article-author-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: #262729;
+}
+.article-author-sep {
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: #d0d5dd;
+    flex-shrink: 0;
+}
+.article-author-detail {
+    font-size: 14px;
+    color: #8492AF;
+}
+
+/* ── Share link ─────────────────────────────────────────── */
+.article-share-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: #8492AF;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: color 0.2s ease;
+    border: none;
+    background: none;
+    padding: 0;
+}
+.article-share-link:hover { color: #E8794E; }
+.article-share-link.copied { color: #E8794E; }
+
+/* ── Content area ──────────────────────────────────────── */
+.article-content-area {
+    padding-top: 32px;
+    padding-bottom: 96px;
+}
+
+/* ── Body prose ─────────────────────────────────────────── */
+.article-body {
+    font-size: 16px;
+    line-height: 1.85;
+    color: var(--color-texts-2, #3b4656);
+}
+.article-body h1,
+.article-body h2,
+.article-body h3 {
+    color: #262729;
+    font-weight: 700;
+    line-height: 1.3;
+    margin: 2.5rem 0 0.75rem;
+}
+.article-body h1 { font-size: 1.8rem; }
+.article-body h2 {
+    font-size: 1.3rem;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e5e7eb;
+}
+.article-body h3 { font-size: 1.1rem; }
+.article-body p  { margin-bottom: 1.3rem; }
+.article-body ul,
+.article-body ol { margin: 0 0 1.3rem 1.5rem; }
+.article-body li { margin-bottom: 0.5rem; }
+.article-body a  { color: #E8794E; text-decoration: underline; text-underline-offset: 3px; }
+.article-body a:hover { color: #c9623a; }
+.article-body strong { color: #262729; }
+.article-body img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 14px;
+    margin: 0.5rem 0 1.6rem;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+}
+.article-body code {
+    font-family: 'Courier New', monospace;
+    background: #f3f4f6;
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-size: 0.88em;
+    color: #E8794E;
+    border: 1px solid #e5e7eb;
+}
+.article-body pre {
+    background: #483550;
+    color: #e2e8f0;
+    padding: 22px 24px;
+    border-radius: 12px;
+    overflow-x: auto;
+    margin-bottom: 1.6rem;
+    font-size: 0.88rem;
+    line-height: 1.7;
+}
+.article-body pre code { background: none; color: inherit; padding: 0; border: none; }
+.article-body table { width: 100%; border-collapse: collapse; margin-bottom: 1.6rem; border-radius: 8px; overflow: hidden; }
+.article-body th { background: #f3f4f6; font-weight: 600; color: #483550; padding: 11px 16px; border: 1px solid #e5e7eb; text-align: left; font-size: 0.9rem; }
+.article-body td { padding: 10px 16px; border: 1px solid #e5e7eb; font-size: 0.95rem; }
+.article-body tr:nth-child(even) td { background: #f9fafb; }
+.article-body blockquote {
+    border-left: 3px solid #E8794E;
+    background: rgba(232,121,78,0.04);
+    padding: 16px 22px;
+    border-radius: 0 8px 8px 0;
+    margin: 0 0 1.6rem;
+    font-style: italic;
+    color: #3b4656;
+}
+
+/* ── Video embed ────────────────────────────────────────── */
+.article-video {
+    position: relative;
+    padding-bottom: 56.25%;
+    height: 0;
+    overflow: hidden;
+    border-radius: 12px;
+    margin-bottom: 36px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.1);
+}
+.article-video iframe {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    border: 0;
+}
+
+/* ── Footer spacing (no divider) ───────────────────────── */
+.article-footer {
+    margin-top: 80px;
+}
+
+/* ── Sidebar ────────────────────────────────────────────── */
+.article-sidebar {
+    position: sticky;
+    top: 110px;
+}
+
+/* Newsletter widget */
+.newsletter-widget {
+    border: 1.5px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 28px 24px;
+    background: #fff;
+}
+.newsletter-widget__eyebrow {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: #E8794E;
+    margin-bottom: 10px;
+}
+.newsletter-widget__title {
+    font-size: 17px;
+    font-weight: 700;
+    color: #262729;
+    margin-bottom: 8px;
+    line-height: 1.35;
+}
+.newsletter-widget__desc {
+    font-size: 14px;
+    color: #8492AF;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+.newsletter-widget__input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #483550;
+    background: #f9fafb;
+    outline: none;
+    transition: border-color 0.2s ease;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+}
+.newsletter-widget__input:focus {
+    border-color: #E8794E;
+    background: #fff;
+}
+.newsletter-widget__thanks {
+    font-size: 14px;
+    color: #E8794E;
+    text-align: center;
+    padding: 8px 0;
+    font-weight: 500;
+}
+
+/* Copy toast */
+.copy-toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: #483550;
+    color: #fff;
+    padding: 10px 22px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    z-index: 9999;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+    opacity: 0;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    pointer-events: none;
+}
+.copy-toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Hero header -->
+<div class="article-hero">
+ <div class="container">
+  <div class="row">
+   <div class="col-lg-8">
+
+    <!-- Breadcrumb -->
+    <nav class="article-breadcrumb">
+     <a href="{{ url_for('blog') }}">{{ 'Guides' if post['lang'] == 'fr' else 'Guides' }}</a>
+     <span class="article-breadcrumb__sep">/</span>
+     <span class="article-breadcrumb__current">{{ post['category'] }}</span>
+    </nav>
+
+    <!-- Title -->
+    <h1 class="article-title">{{ post['title'] }}</h1>
+
+    <!-- Author bar + share -->
+    <div class="article-author-bar">
+     {% if gravatar_url %}
+      <img src="{{ gravatar_url }}" alt="{{ post['author'] }}" class="article-avatar" loading="lazy">
+     {% else %}
+      <div class="article-avatar-initials">{{ post['author'][:1]|upper }}</div>
+     {% endif %}
+     <div class="article-author-info">
+      <span class="article-author-name">{{ post['author'] }}</span>
+      {% if post['published_at'] %}
+      <span class="article-author-sep"></span>
+      <span class="article-author-detail">{{ post['published_at'][:10] }}</span>
+      {% endif %}
+      <span class="article-author-sep"></span>
+      <span class="article-author-detail">{{ reading_time }} min {{ 'read' if post['lang'] == 'en' else 'de lecture' }}</span>
+      <span class="article-author-sep"></span>
+      <button class="article-share-link" id="shareBtn" onclick="shareArticle()">
+       <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path stroke-linecap="round" stroke-linejoin="round" d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+       <span id="shareBtnText">{{ 'Share' if post['lang'] == 'en' else 'Partager' }}</span>
+      </button>
+     </div>
+    </div>
+
+   </div>
+  </div>
+ </div>
+</div>
+
+<!-- Content area -->
+<div class="article-content-area">
+ <div class="container">
+  <div class="row">
+
+   <!-- Main content -->
+   <div class="col-lg-8">
+
+    <!-- Video (if any) -->
+    {% if video_id %}
+    <div class="article-video">
+     <iframe src="https://www.youtube.com/embed/{{ video_id }}"
+             allowfullscreen loading="lazy" title="{{ post['title'] }}"></iframe>
+    </div>
+    {% endif %}
+
+    <!-- Body -->
+    <div class="article-body">
+     {{ content|safe }}
+    </div>
+
+    <!-- Footer spacing -->
+    <div class="article-footer"></div>
+   </div>
+
+   <!-- Sidebar -->
+   <div class="col-lg-3 offset-lg-1 d-none d-lg-block">
+    <div class="article-sidebar">
+
+     <!-- Newsletter widget -->
+     <div class="newsletter-widget">
+      <p class="newsletter-widget__eyebrow">{{ 'Newsletter' if post['lang'] == 'en' else 'Infolettre' }}</p>
+      <h3 class="newsletter-widget__title">{{ 'Stay in the loop' if post['lang'] == 'en' else 'Reste dans la boucle' }}</h3>
+      <p class="newsletter-widget__desc">{{ 'Be the first to discover our new guides and product tips.' if post['lang'] == 'en' else 'Sois le premier à découvrir nos nouveaux guides et astuces produit.' }}</p>
+      <form id="sidebar-newsletter-form" onsubmit="sidebarSubscribe(event)">
+       <input type="email" id="sidebar-email"
+              class="newsletter-widget__input"
+              placeholder="{{ 'your@email.com' if post['lang'] == 'en' else 'ton@courriel.com' }}" required>
+       <button type="submit" class="btn text-white" style="width:100%; height:42px; font-size:14px; font-weight:500; border-radius:8px; background:#E8794E; border-color:#E8794E; transition:all 0.2s ease;" onmouseover="this.style.background='#c9623a';this.style.borderColor='#c9623a';this.style.boxShadow='0 4px 16px rgba(232,121,78,0.35)'" onmouseout="this.style.background='#E8794E';this.style.borderColor='#E8794E';this.style.boxShadow='none'">
+        {{ 'Subscribe' if post['lang'] == 'en' else "S'abonner" }}
+       </button>
+      </form>
+     </div>
+
+    </div>
+   </div>
+
+  </div>
+ </div>
+</div>
+
+<!-- Copy toast -->
+<div class="copy-toast" id="copyToast">
+ {{ 'Link copied!' if post['lang'] == 'en' else 'Lien copie!' }}
+</div>
+
+<script>
+// Share / copy link
+var _lang = '{{ post["lang"] }}';
+var _subscribeLabel = _lang === 'en' ? 'Subscribe' : "S'abonner";
+
+function shareArticle() {
+  var url = window.location.href;
+  var btn = document.getElementById('shareBtn');
+  var btnText = document.getElementById('shareBtnText');
+  navigator.clipboard.writeText(url).then(function() {
+    btn.classList.add('copied');
+    btnText.textContent = '{{ "Copied!" if post["lang"] == "en" else "Copie!" }}';
+    var toast = document.getElementById('copyToast');
+    toast.classList.add('show');
+    setTimeout(function() {
+      toast.classList.remove('show');
+      btn.classList.remove('copied');
+      btnText.textContent = '{{ "Share" if post["lang"] == "en" else "Partager" }}';
+    }, 2000);
+  });
+}
+
+// kdShowAlert toast helper
+if (!window.kdDismissAlert) {
+  window.kdDismissAlert = function(el) {
+    el.style.opacity = '0';
+    el.style.transform = 'translateX(20px)';
+    setTimeout(function() { el.remove(); }, 300);
+  };
+}
+if (!window.kdShowAlert) {
+  window.kdShowAlert = function(type, message, opts) {
+    opts = opts || {};
+    var duration = (opts.duration !== undefined) ? opts.duration : 4000;
+    var position = opts.position || 'top-right';
+    var colors = {success:'#2ECC71', error:'#e74c3c', warning:'#f39c12', info:'#3498db'};
+    var icons = {
+      success:'<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" style="width:22px;height:22px;flex-shrink:0;stroke:currentColor;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>',
+      error:'<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" style="width:22px;height:22px;flex-shrink:0;stroke:currentColor;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>',
+      warning:'<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" style="width:22px;height:22px;flex-shrink:0;stroke:currentColor;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>',
+      info:'<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" style="width:22px;height:22px;flex-shrink:0;stroke:currentColor;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>'
+    };
+    var posStyles = {
+      'top-right':'top:16px;right:16px;','top-left':'top:16px;left:16px;',
+      'top-center':'top:16px;left:0;right:0;margin:0 auto;max-width:400px;',
+      'bottom-right':'bottom:16px;right:16px;','bottom-left':'bottom:16px;left:16px;',
+      'bottom-center':'bottom:16px;left:0;right:0;margin:0 auto;max-width:400px;'
+    };
+    var cid = 'kd-toast-container-' + position;
+    var container = document.getElementById(cid);
+    if (!container) {
+      container = document.createElement('div');
+      container.id = cid;
+      container.style.cssText = 'position:fixed;z-index:9999;pointer-events:none;display:flex;flex-direction:column;gap:8px;width:360px;' + (posStyles[position] || posStyles['top-right']);
+      document.body.appendChild(container);
+    }
+    var alert = document.createElement('div');
+    alert.style.cssText = 'pointer-events:auto;opacity:0;transform:translateX(20px);transition:opacity 300ms ease,transform 300ms ease;border-radius:6px;padding:14px 18px;display:flex;align-items:center;gap:10px;color:#fff;font-size:0.93rem;font-weight:600;box-shadow:0 4px 12px rgba(0,0,0,0.15);background:' + (colors[type] || colors.info) + ';';
+    alert.innerHTML = (icons[type] || icons.info) + '<span style="flex:1">' + message + '</span><button onclick="kdDismissAlert(this.parentElement)" style="background:none;border:none;color:#fff;cursor:pointer;font-size:1.25rem;opacity:0.7;line-height:1;" aria-label="Close">&times;</button>';
+    container.appendChild(alert);
+    requestAnimationFrame(function(){requestAnimationFrame(function(){alert.style.opacity='1';alert.style.transform='translateX(0)';});});
+    if (duration > 0) setTimeout(function(){window.kdDismissAlert(alert);}, duration);
+  };
+}
+
+// Newsletter subscribe
+function sidebarSubscribe(e) {
+  e.preventDefault();
+  var email = document.getElementById('sidebar-email').value.trim();
+  var btn = document.querySelector('#sidebar-newsletter-form button[type="submit"]');
+  btn.disabled = true;
+  btn.textContent = 'En cours...';
+  fetch('/newsletter-subscribe', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({email: email})
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    kdShowAlert('success', '{{ "You are now subscribed!" if post["lang"] == "en" else "Tu es maintenant inscrit!" }}', {duration: 5000, position: 'top-right'});
+    document.getElementById('sidebar-email').value = '';
+    btn.disabled = false;
+    btn.textContent = _subscribeLabel;
+  })
+  .catch(function(){
+    kdShowAlert('error', '{{ "An error occurred. Try again." if post["lang"] == "en" else "Une erreur est survenue. Essaie de nouveau." }}', {duration: 5000, position: 'top-right'});
+    btn.disabled = false;
+    btn.textContent = _subscribeLabel;
+  });
+}
+</script>
+{% endblock %}

@@ -1,13 +1,173 @@
 {% extends "base.html" %}
 
-{% block page_title %}minipass — Gérez votre ligue sportive avec matching Interac automatique{% endblock %}
-{% block meta_desc %}Inscriptions en ligne, matching automatique des virements Interac, passeports QR et comptabilité. Le seul logiciel canadien pour ligues sportives et activités. Dès 10$/mois.{% endblock %}
-{% block og_title %}minipass — Gérez votre ligue sportive avec matching Interac automatique{% endblock %}
-{% block og_desc %}Inscriptions en ligne, matching automatique des virements Interac, passeports QR et comptabilité. Le seul logiciel canadien pour ligues sportives. Dès 10$/mois.{% endblock %}
+{% block page_title %}{{ t.home.meta_title }}{% endblock %}
+{% block meta_desc %}{{ t.home.meta_desc }}{% endblock %}
+{% block og_title %}{{ t.home.meta_title }}{% endblock %}
+{% block og_desc %}{{ t.home.meta_desc }}{% endblock %}
 
 {% block content %}
 
+<style>
+/* ── Blog cards ─────────────────── */
+.blog-slider {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+}
+@media (max-width: 991px) {
+    .blog-slider {
+        grid-template-columns: 1fr;
+        display: flex;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+        gap: 16px;
+        padding-bottom: 8px;
+    }
+    .blog-slider::-webkit-scrollbar { display: none; }
+    .blog-card { min-width: 85vw; scroll-snap-align: start; }
+}
+.blog-card {
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #e2e5ea;
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.blog-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+    text-decoration: none;
+    color: inherit;
+}
+.blog-card__thumb {
+    height: 200px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.blog-card__thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.blog-card__thumb--grad {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.blog-card__thumb--strategie    { background: linear-gradient(45deg, #E8820A 0%, #F7931E 55%, #F9A535 100%); }
+.blog-card__thumb--tutoriel     { background: linear-gradient(45deg, #128C49 0%, #17A85A 55%, #1DBF68 100%); }
+.blog-card__thumb--documentation{ background: linear-gradient(45deg, #2E3192 0%, #3845C5 55%, #4460D0 100%); }
+.blog-card__thumb--default      { background: linear-gradient(45deg, #2E3192 0%, #3845C5 55%, #4460D0 100%); }
+.blog-card__thumb-icon { font-size: 66px; opacity: 0.3; color: #fff; transform: rotate(-15deg); }
+.blog-card__badge {
+    position: absolute; top: 12px; left: 12px;
+    padding: 4px 12px; border-radius: 20px;
+    font-size: 11px; font-weight: 600; color: #fff;
+    backdrop-filter: blur(6px);
+}
+.blog-card__badge--tutoriel      { background: rgba(23,168,90,0.9); }
+.blog-card__badge--strategie     { background: rgba(232,130,10,0.9); }
+.blog-card__badge--documentation { background: rgba(46,49,146,0.9); }
+.blog-card__badge--default       { background: rgba(46,49,146,0.9); }
+.blog-card__body {
+    padding: 20px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+.blog-card__title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1A1A2E;
+    margin-bottom: 8px;
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.blog-card__excerpt {
+    font-size: 0.87rem;
+    color: #6b7280;
+    line-height: 1.55;
+    flex-grow: 1;
+    margin-bottom: 16px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.blog-card__footer {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-top: 12px;
+    border-top: 1px solid #f0f0f0;
+}
+.blog-card__avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+.blog-card__avatar-placeholder {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #17A85A 0%, #128C49 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+.blog-card__meta {
+    display: flex;
+    flex-direction: column;
+    font-size: 0.8rem;
+    line-height: 1.3;
+}
+.blog-card__author { font-weight: 600; color: #1A1A2E; }
+.blog-card__date { color: #9ca3af; }
 
+@keyframes wordGlow {
+  0%, 100%   { color: inherit; }
+  15%, 50%   { color: #E8794E; }
+  65%        { color: inherit; }
+}
+.word-anim { display: inline; }
+.word-anim--1 { animation: wordGlow 6s ease-in-out infinite; animation-delay: 0s; }
+.word-anim--2 { animation: wordGlow 6s ease-in-out infinite; animation-delay: 2s; }
+.word-anim--3 { animation: wordGlow 6s ease-in-out infinite; animation-delay: 4s; }
+
+
+/* Orange card header: dark text (orange can't carry white — WCAG) */
+.bg-bittersweet .table-top__title,
+.bg-bittersweet .table-top__text,
+.bg-bittersweet .card--price__currency,
+.bg-bittersweet .card--price__price,
+.bg-bittersweet .card--price__price-time { color: #1A1A2E !important; }
+
+/* Reduce excessive section top padding globally */
+@media (min-width: 992px) {
+  .content-section--8     { padding-top: 60px !important; }
+  .table-section--l6,
+  .table-section--l8      { padding-top: 60px !important; }
+  .cta-section--l1        { padding-top: 60px !important; }
+  .service-area--l8       { padding-top: 40px !important; padding-bottom: 40px !important; }
+}
+</style>
 
 <div class="site-wrapper overflow-hidden">
    <div id="loading">
@@ -32,33 +192,22 @@
       <!-- Welcome content Area -->
       <div class="col-xxl-6 col-lg-7 col-md-9 col-xs-11 order-2 order-lg-1">
        <div class="welcome-content welcome-content--l8">
-        <h3 class="welcome-content--l8__sub-title text-bittersweet" data-aos="fade-up" data-aos-duration="500" data-aos-once="true" style="font-size: 24px;">
-        Faciliter
+        <h3 class="welcome-content--l8__sub-title" style="color: #6B7280;" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
+         {{ t.home.hero_subtitle }}
         </h3>
-        <h1 class="welcome-content__title">
-
-         La gestion d'activités
-
-         <br/>
-         <span class="text-highlight highlight-text d-inline-block">
-         </span>
+        <h1 class="welcome-content__title section-title__heading">
+         {{ t.home.hero_title_prefix }}<span class="word-anim word-anim--1">{{ t.home.hero_word1 }}</span>, <span class="word-anim word-anim--2">{{ t.home.hero_word2 }}</span> {{ t.home.hero_and }} <span class="word-anim word-anim--3">{{ t.home.hero_word3 }}</span>
         </h1>
         <p class="welcome-content--l8__descriptions" data-aos="fade-up" data-aos-delay="500" data-aos-duration="500" data-aos-once="true">
-         <span style="font-size: 22px;">
-         minipass centralise inscriptions, paiements, passeports et suivis.
-         </span>
-         <br><br>
-         <span style="font-size: 22px; font-weight: 600; color: #2d3748;">
-         Simple. Automatisé. Sécurisé.
-         </span>
+          {{ t.home.hero_desc }}
         </p>
         
         <div class="welcome-btn-group--l8">
-         <a class="btn btn--lg-2 btn-bittersweet me-3 text-white rounded-50 me-3 popup-btn" data-aos="fade-up" data-aos-delay="700" data-aos-duration="500" data-aos-once="true" href="https://www.youtube.com/watch?v=eftLJ7hTPPs">
-          Découvrir <i class="fab fa-youtube ms-2" style="font-size: 1.5em;"></i>
+         <a class="btn btn--lg-2 btn-bittersweet me-3 text-white popup-btn" data-aos="fade-up" data-aos-delay="700" data-aos-duration="500" data-aos-once="true" href="{{ t.home.hero_video_url }}">
+          {{ t.home.hero_btn_discover }} <i class="fab fa-youtube ms-2" style="font-size: 1.5em;"></i>
          </a>
-         <a class="btn btn--lg-2 btn-niagara rounded-50 me-3 text-white" data-aos="fade-up" data-aos-delay="900" data-aos-duration="500" data-aos-once="true" href="/#pricing">
-         S'abonner
+         <a class="btn btn--lg-2 btn-slate me-3" data-aos="fade-up" data-aos-delay="900" data-aos-duration="500" data-aos-once="true" href="{{ lang_prefix }}/#pricing">
+         {{ t.home.hero_btn_plans }}
          </a>
         </div>
        </div>
@@ -82,323 +231,372 @@
     </div>
    </div>
    <!--/ .Hero Area -->
-   <!-- Services Area -->
-   <div id="services" class="service-area service-area--l8 bg-default">
+
+   <!-- Testimonial / Social Proof Area -->
+   <div class="testimonial-section testimonial-section--l8 bg-default-5" style="padding-top: 40px; padding-bottom: 40px; border:none;">
     <div class="container">
      <div class="row justify-content-center">
-      <div class="col-xl-8">
-       <!-- Section Title -->
-       <div class="section-title section-title--l8 text-center">
-        <h6 class="section-title__sub-heading text-bittersweet" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
-         Fonctionnalités
-
+      <div class="col-lg-8 col-xl-7">
+       <div class="section-title section-title--l8 text-center" style="padding-bottom: 16px; margin-bottom: 0;">
+        <h6 class="section-title__sub-heading text-bittersweet text-uppercase mb-0" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
+         {{ t.home.social_proof_label }}
         </h6>
-        <h2 class="section-title__heading" data-aos="fade-up" data-aos-delay="300" data-aos-duration="500" data-aos-once="true">
-         Expérience intégrée unique
-        </h2>
        </div>
-       <!--/ .Section Title -->
       </div>
      </div>
      <div class="row justify-content-center" data-aos="fade-up" data-aos-delay="500" data-aos-duration="500" data-aos-once="true">
-      <!-- Single Services -->
-      <div class="col-xl-3 col-lg-4 col-md-6 col-xs-8">
-       <div class="card card--services-l6 text-center card-hover__bittersweet">
-        <div class="card--services-l6__icon bg-op1__bittersweet mx-auto">
-         <i class="text-bittersweet fas fa-bell">
-         </i>
+      <div class="col-lg-7 col-md-9 col-12">
+
+       <!-- Custom fade slider — no Slick -->
+       <div class="mp-tslider" style="position:relative; min-height: 220px;">
+
+        <!-- Slide 1 — FLHGI (réel) -->
+        <div class="mp-tslide mp-tslide--active">
+         <div class="card card-testimonial--l4">
+          <div class="card-body">
+           <div class="card-body__top d-flex align-items-center justify-content-between">
+            <div class="d-flex flex-wrap align-items-center">
+             <div class="card-image">
+              <img alt="Jean-François Goulet" src="{{ url_for('static', filename='image/home-3/jfg-circle-1.png') }}"/>
+             </div>
+             <div class="card-body__user mr-3">
+              <h3 class="card-title">{{ t.home.testimonial1_name }}</h3>
+              <p class="card-text--ext">{{ t.home.testimonial1_role }}</p>
+             </div>
+            </div>
+            <div class="card-icon"><i class="fa fa-quote-left"></i></div>
+           </div>
+           <p class="card-description">
+            {{ t.home.testimonial1_text|safe }}
+           </p>
+          </div>
+         </div>
         </div>
-        <h3 class="card--services-l6__heading">
 
-         Expérience mobile intuitive 
+        <!-- Slide 2 — Coach hockey -->
+        <div class="mp-tslide">
+         <div class="card card-testimonial--l4">
+          <div class="card-body">
+           <div class="card-body__top d-flex align-items-center justify-content-between">
+            <div class="d-flex flex-wrap align-items-center">
+             <div class="card-image" style="background:#e8f4f0; display:flex; align-items:center; justify-content:center; font-size:20px; font-weight:700; color:#40c2a0;">M</div>
+             <div class="card-body__user mr-3">
+              <h3 class="card-title">{{ t.home.testimonial2_name }}</h3>
+              <p class="card-text--ext">{{ t.home.testimonial2_role }}</p>
+             </div>
+            </div>
+            <div class="card-icon"><i class="fa fa-quote-left"></i></div>
+           </div>
+           <p class="card-description">
+            {{ t.home.testimonial2_text }}
+           </p>
+          </div>
+         </div>
+        </div>
 
-        </h3>
-        <p class="card--services-l6__content">
-        Gérez numériquement : inscriptions, paiements et présences par code QR. Simple, rapide, sans papier.
+        <!-- Slide 3 — Yoga/fitness -->
+        <div class="mp-tslide">
+         <div class="card card-testimonial--l4">
+          <div class="card-body">
+           <div class="card-body__top d-flex align-items-center justify-content-between">
+            <div class="d-flex flex-wrap align-items-center">
+             <div class="card-image" style="background:#fef3e8; display:flex; align-items:center; justify-content:center; font-size:20px; font-weight:700; color:#E8794E;">S</div>
+             <div class="card-body__user mr-3">
+              <h3 class="card-title">{{ t.home.testimonial3_name }}</h3>
+              <p class="card-text--ext">{{ t.home.testimonial3_role }}</p>
+             </div>
+            </div>
+            <div class="card-icon"><i class="fa fa-quote-left"></i></div>
+           </div>
+           <p class="card-description">
+            {{ t.home.testimonial3_text }}
+           </p>
+          </div>
+         </div>
+        </div>
 
-         <br class="d-none d-xs-block"/>
+       </div><!-- /.mp-tslider -->
 
-         <br class="d-none d-xs-block"/>
+       <!-- Custom dots -->
+       <div class="mp-tdots text-center mt-3">
+        <span class="mp-tdot mp-tdot--active" data-slide="0"></span>
+        <span class="mp-tdot" data-slide="1"></span>
+        <span class="mp-tdot" data-slide="2"></span>
+       </div>
 
-        </p>
+      </div>
+     </div>
 
+     <style>
+      .mp-tslide { display: none; }
+      .mp-tslide--active { display: block; animation: mpFadeIn .5s ease; }
+      @keyframes mpFadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+      .mp-tdot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #d0d5dd; margin: 0 5px; cursor: pointer; transition: background .3s; }
+      .mp-tdot--active { background: #64748B; transform: scale(1.2); }
+
+     </style>
+    </div>
+   </div>
+   <!--/ .Testimonial / Social Proof Area -->
+
+   <!-- Comment ça marche Area -->
+   <div class="service-area service-area--l8 bg-default" id="comment-ca-marche" style="padding-top: 20px; padding-bottom: 50px;">
+    <div class="container">
+     <div class="row justify-content-center">
+      <div class="col-xl-8">
+       <div class="section-title section-title--l8 text-center" style="margin-bottom: 30px;">
+        <h6 class="section-title__sub-heading text-bittersweet text-uppercase mb-2" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
+         {{ t.home.how_label }}
+        </h6>
+        <h2 class="section-title__heading" data-aos="fade-up" data-aos-delay="300" data-aos-duration="500" data-aos-once="true">
+         {{ t.home.how_title }}
+        </h2>
        </div>
       </div>
-      <!--/ .Single Services -->
-      <!-- Single Services -->
+     </div>
+     <div class="row justify-content-center" data-aos="fade-up" data-aos-delay="500" data-aos-duration="500" data-aos-once="true">
+      <!-- Étape 1 -->
       <div class="col-xl-3 col-lg-4 col-md-6 col-xs-8">
-       <div class="card card--services-l6 text-center card-hover__niagara">
-        <div class="card--services-l6__icon bg-op1__niagara mx-auto">
-         <i class="text-niagara fas fa-layer-group">
-         </i>
+       <div class="card card--services-l6 text-center card-hover__niagara h-100">
+        <div class="card--services-l6__icon bg-op1__niagara mx-auto d-flex align-items-center justify-content-center">
+         <span style="font-size: 1.6rem; font-weight: 700; color: #64748B; line-height: 1;">1</span>
         </div>
         <h3 class="card--services-l6__heading">
-
-         Communications simplifiées
-
+         {{ t.home.step1_title }}
         </h3>
         <p class="card--services-l6__content">
-        Automatisez vos rappels de paiement, lancez des sondages express et partagez facilement sur vos réseaux sociaux.
-
-         <br class="d-none d-xs-block"/>
-
-         <br class="d-none d-xs-block"/>
-
-
+         {{ t.home.step1_text }}
         </p>
        </div>
       </div>
-      <!--/ .Single Services -->
-      <!-- Single Services -->
+      <!--/ Étape 1 -->
+      <!-- Étape 2 -->
       <div class="col-xl-3 col-lg-4 col-md-6 col-xs-8">
-       <div class="card card--services-l6 text-center card-hover__coral">
-        <div class="card--services-l6__icon bg-op1__coral mx-auto">
-         <i class="text-coral fas fa-envelope">
-         </i>
+       <div class="card card--services-l6 text-center card-hover__bittersweet h-100">
+        <div class="card--services-l6__icon bg-op1__bittersweet mx-auto d-flex align-items-center justify-content-center">
+         <span style="font-size: 1.6rem; font-weight: 700; color: #E8794E; line-height: 1;">2</span>
         </div>
         <h3 class="card--services-l6__heading">
-
-        Suivi de performance
-
+         {{ t.home.step2_title }}
         </h3>
         <p class="card--services-l6__content">
-
-        Visualisez vos ventes, paiements et objectifs en un coup d'œil. Rapports financiers prêts en un clic.
-
-         <br class="d-none d-xs-block"/>
-
-
-         <br class="d-none d-xs-block"/>
-
+         {{ t.home.step2_text }}
         </p>
        </div>
       </div>
-      <!--/ .Single Services -->
-      <!-- Single Services -->
+      <!--/ Étape 2 -->
+      <!-- Étape 3 -->
       <div class="col-xl-3 col-lg-4 col-md-6 col-xs-8">
-       <div class="card card--services-l6 text-center card-hover__lavender">
-        <div class="card--services-l6__icon bg-op1__lavender mx-auto">
-         <i class="text-lavender fas fa-chart-pie">
-         </i>
+       <div class="card card--services-l6 text-center card-hover__lavender h-100">
+        <div class="card--services-l6__icon bg-op1__lavender mx-auto d-flex align-items-center justify-content-center">
+         <span style="font-size: 1.6rem; font-weight: 700; color: #2E3192; line-height: 1;">3</span>
         </div>
         <h3 class="card--services-l6__heading">
- 
-        Données intelligentes 
-
+         {{ t.home.step3_title }}
         </h3>
         <p class="card--services-l6__content">
-
-         Posez vos questions à l'assistant IA intégré en langage naturel, obtenez vos réponses instantanément.
-
-
-         <br class="d-none d-xs-block"/>
-
-         <br class="d-none d-xs-block"/>
-
+         {{ t.home.step3_text }}
         </p>
        </div>
       </div>
-      <!--/ .Single Services -->
+      <!--/ Étape 3 -->
      </div>
     </div>
    </div>
-   <!--/ .Services Area -->
-   <!-- About Us Area -->
-   <div class="content-section content-section--8 bg-default-5 border-bottom border-default-color-3">
+   <!--/ .Comment ça marche Area -->
+
+   <!-- Features Area -->
+   <style>
+    /* Features CSS Grid — desktop: 3-col with phone center */
+    #services .features-grid {
+      display: grid;
+      grid-template-columns: 1fr 500px 1fr;
+      grid-template-rows: repeat(3, auto);
+      margin-top: 40px;
+    }
+    #services .features-grid .phone-cell {
+      grid-column: 2;
+      grid-row: 1 / 4;
+      position: relative;
+      overflow: visible;
+    }
+    #services .features-grid .phone-cell::before {
+      content: '';
+      position: absolute;
+      top: calc(50% - 105px);
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(-12deg);
+      width: 480px;
+      height: 460px;
+      z-index: 0;
+      background: url("/static/image/qr-bg-pattern.svg") center/contain no-repeat;
+    }
+    #services .features-grid .phone-cell img.phone-img {
+      position: absolute;
+      top: calc(5% - 60px);
+      left: calc(50% - 48px);
+      transform: translateX(-50%);
+      width: 567px;
+      max-width: none;
+      z-index: 1;
+    }
+    #services .features-grid .feat-left {
+      grid-column: 1;
+      padding: 0 20px 35px 0;
+    }
+    #services .features-grid .feat-right {
+      grid-column: 3;
+      padding: 0 0 35px 20px;
+    }
+    #services .features-grid .feature-icon {
+      margin-bottom: 0;
+      flex-shrink: 0;
+    }
+    #services .features-grid .feat-left .feature-icon { order: 2; margin-left: 15px; }
+    #services .features-grid .feat-left .widgets__content { order: 1; text-align: right; }
+    #services .features-grid .feat-right .feature-icon { order: 1; margin-right: 15px; }
+    #services .features-grid .feat-right .widgets__content { order: 2; }
+
+    /* ── Mobile: stack features, hide phone image ── */
+    @media (max-width: 991px) {
+      #services .features-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        margin-top: 24px;
+      }
+      #services .features-grid .phone-cell {
+        display: none;
+      }
+      #services .features-grid .feat-left,
+      #services .features-grid .feat-right {
+        padding: 0;
+      }
+      #services .features-grid .feat-left .feature-icon {
+        order: 1;
+        margin-left: 0;
+        margin-right: 15px;
+      }
+      #services .features-grid .feat-left .widgets__content {
+        order: 2;
+        text-align: left;
+      }
+    }
+
+    /* ── Newsletter form mobile ── */
+    @media (max-width: 480px) {
+      #newsletter-form div[style] {
+        flex-wrap: wrap !important;
+        border: none !important;
+        background: transparent !important;
+        gap: 12px;
+      }
+      #newsletter-form input[type="email"] {
+        width: 100% !important;
+        border-radius: 8px !important;
+        border: 1px solid rgba(255,255,255,0.18) !important;
+        background: rgba(255,255,255,0.07) !important;
+      }
+      #newsletter-form button[type="submit"] {
+        width: 100% !important;
+        margin: 4px 0 0 0 !important;
+        border-radius: 8px !important;
+      }
+    }
+   </style>
+   <div id="services" class="content-section content-section--8 bg-default-5">
     <div class="container">
      <div class="row justify-content-center">
       <div class="col-xl-6 col-lg-8 col-md-9 col-xs-10">
        <!-- Section Title -->
        <div class="section-title section-title--l8 mt-4 mt-md-0 text-center">
-        <h6 class="section-title__sub-heading text-bittersweet" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
-         
-         Avantages minipass
-
+        <h6 class="section-title__sub-heading text-bittersweet text-uppercase mb-2" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
+         {{ t.home.features_label }}
         </h6>
         <h2 class="section-title__heading" data-aos="fade-up" data-aos-delay="300" data-aos-duration="500" data-aos-once="true">
-
-         Solution complète, unique et intuitive
-
+         {{ t.home.features_title }}
         </h2>
        </div>
        <!--/ .Section Title -->
       </div>
      </div>
-     <div class="row align-items-center justify-content-center" data-aos="fade-up" data-aos-delay="300" data-aos-duration="500" data-aos-once="true">
-      <div class="col-xxl-3 col-lg-4 col-md-6 col-sm-8 col-xs-9 order-2 order-lg-1">
-       <div class="widget widget--about widgets-align-right">
-        <!-- Single Services -->
-        <div class="widgets widgets--about-l6 d-flex">
-         <div class="widgets__icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block;">
-           <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
-           <path d="M6 21v-2a4 4 0 0 1 4 -4h3" />
-           <path d="M21 15h-2.5a1.5 1.5 0 0 0 0 3h1a1.5 1.5 0 0 1 0 3h-2.5" />
-           <path d="M19 21v1m0 -8v1" />
-          </svg>
-         </div>
-         <div class="widgets__content">
-          <h5 class="widgets__title">
+     <div class="features-grid" data-aos="fade-up" data-aos-delay="300" data-aos-duration="500" data-aos-once="true">
 
-           Abonnements et paiements faciles
-           
-          </h5>
-          <p class="widgets__text">
- 
-          Connectez vos médias sociaux, gérez inscriptions et paiements en quelques clics.
+      <!-- Phone image — spans all 3 rows -->
+      <div class="phone-cell">
+       <img class="phone-img" alt="" src="{{ url_for("static", filename="image/home-7/about-mobile-img.png") }}"/>
+      </div>
 
-
-          </p>
-         </div>
-        </div>
-        <!--/ .Single Services -->
-        <!-- Single Services -->
-        <div class="widgets widgets--about-l6 d-flex">
-         <div class="widgets__icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block;">
-           <path d="M4 4m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" />
-           <path d="M7 17l0 .01" />
-           <path d="M14 4m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" />
-           <path d="M7 7l0 .01" />
-           <path d="M4 14m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" />
-           <path d="M17 7l0 .01" />
-           <path d="M14 14l3 0" />
-           <path d="M20 14l0 .01" />
-           <path d="M14 14l0 3" />
-           <path d="M14 20l3 0" />
-           <path d="M17 17l3 0" />
-           <path d="M20 17l0 3" />
-          </svg>
-         </div>
-         <div class="widgets__content">
-          <h5 class="widgets__title">
-
-           Passeports automatiques
-
-          </h5>
-          <p class="widgets__text">
-
-          Créez, envoyez et suivez les présences par passeports sans effort.
-
-           </p>
-         </div>
-        </div>
-        <!--/ .Single Services -->
-        <!-- Single Services -->
-        <div class="widgets widgets--about-l6 d-flex">
-         <div class="widgets__icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block;">
-           <path d="M3 20l1.3 -3.9a9 8 0 1 1 3.4 2.9l-4.7 1" />
-           <path d="M8 13l3 -2l2 2l3 -2" />
-          </svg>
-         </div>
-         <div class="widgets__content">
-          <h5 class="widgets__title">
-
-           Communications simplifiées
-
-          </h5>
-          <p class="widgets__text">
-
-           Centralisez vos messages, rappels et sondages au même endroit.
-
-          </p>
-         </div>
-        </div>
-        <!--/ .Single Services -->
+      <!-- Row 1 left -->
+      <div class="widgets widgets--about-l6 d-flex feat-left">
+       <div class="card--services-l6__icon bg-op1__bittersweet feature-icon">
+        <i class="text-bittersweet fas fa-bolt"></i>
+       </div>
+       <div class="widgets__content">
+        <h5 class="widgets__title">{{ t.home.feat1_title }}</h5>
+        <p class="widgets__text">{{ t.home.feat1_text }}</p>
        </div>
       </div>
-      <div class="col-xxl-6 col-lg-4 col-md-8 col-xs-9 order-1 order-lg-2" data-aos="fade-up" data-aos-delay="300" data-aos-duration="500" data-aos-once="true">
-       <div class="content-img content-img--l7-group-img text-center">
-        <img alt="" class="w-100" src="{{ url_for('static', filename='image/home-7/about-mobile-img.png') }}"/>
-        <div class="shape">
-         <img alt="" src="{{ url_for('static', filename='image/home-7/green-shape.png') }}"/>
-        </div>
+
+      <!-- Row 1 right -->
+      <div class="widgets widgets--about-l6 d-flex feat-right">
+       <div class="card--services-l6__icon bg-op1__bittersweet feature-icon">
+        <i class="text-bittersweet fas fa-envelope-open-text"></i>
+       </div>
+       <div class="widgets__content">
+        <h5 class="widgets__title">{{ t.home.feat2_title }}</h5>
+        <p class="widgets__text">{{ t.home.feat2_text }}</p>
        </div>
       </div>
-      <div class="col-xxl-3 col-lg-4 col-md-6 col-sm-8 col-xs-9 order-3" data-aos="fade-up" data-aos-delay="300" data-aos-duration="500" data-aos-once="true">
-       <div class="widget widget--about">
-        <!-- Single Services -->
-        <div class="widgets widgets--about-l6 d-flex">
-         <div class="widgets__icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block;">
-           <path d="M16 6m-5 0a5 3 0 1 0 10 0a5 3 0 1 0 -10 0" />
-           <path d="M11 6v4c0 1.657 2.239 3 5 3s5 -1.343 5 -3v-4" />
-           <path d="M11 10v4c0 1.657 2.239 3 5 3s5 -1.343 5 -3v-4" />
-           <path d="M11 14v4c0 1.657 2.239 3 5 3s5 -1.343 5 -3v-4" />
-           <path d="M7 9h-2.5a1.5 1.5 0 0 0 0 3h1a1.5 1.5 0 0 1 0 3h-2.5" />
-           <path d="M5 15v1m0 -8v1" />
-          </svg>
-         </div>
-         <div class="widgets__content">
-          <h5 class="widgets__title">
 
-           Suivi intelligent
-
-          </h5>
-          <p class="widgets__text">
-        
-            Suivez ventes et présences, posez vos questions à l’assistant intelligent.
-
-          </p>
-         </div>
-        </div>
-        <!--/ .Single Services -->
-        <!-- Single Services -->
-        <div class="widgets widgets--about-l6 d-flex">
-         <div class="widgets__icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block;">
-           <path d="M9.173 14.83a4 4 0 1 1 5.657 -5.657" />
-           <path d="M11.294 12.707l.174 .247a7.5 7.5 0 0 0 8.845 2.492a9 9 0 0 1 -14.671 2.914" />
-           <path d="M3 12h1" />
-           <path d="M12 3v1" />
-           <path d="M5.6 5.6l.7 .7" />
-           <path d="M3 21l18 -18" />
-          </svg>
-         </div>
-         <div class="widgets__content">
-          <h5 class="widgets__title">
-
-           Disponible partout, tout le temps
-
-          </h5>
-          <p class="widgets__text">
-
-            Accédez à minipass depuis votre téléphone ou ordinateur, 24/7
-
-          </p>
-         </div>
-        </div>
-        <!--/ .Single Services -->
-        <!-- Single Services -->
-        <div class="widgets widgets--about-l6 d-flex">
-         <div class="widgets__icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block;">
-           <path d="M16 18a2 2 0 0 1 2 2a2 2 0 0 1 2 -2a2 2 0 0 1 -2 -2a2 2 0 0 1 -2 2zm0 -12a2 2 0 0 1 2 2a2 2 0 0 1 2 -2a2 2 0 0 1 -2 -2a2 2 0 0 1 -2 2zm-7 12a6 6 0 0 1 6 -6a6 6 0 0 1 -6 -6a6 6 0 0 1 -6 6a6 6 0 0 1 6 6z" />
-          </svg>
-         </div>
-         <div class="widgets__content">
-          <h5 class="widgets__title">
-
-           Facile et intuitive
-
-
-          </h5>
-          <p class="widgets__text">
-
-          Interface claire, aucune formation requise
-
-
-          </p>
-         </div>
-        </div>
-        <!--/ .Single Services -->
+      <!-- Row 2 left -->
+      <div class="widgets widgets--about-l6 d-flex feat-left">
+       <div class="card--services-l6__icon bg-op1__bittersweet feature-icon">
+        <i class="text-bittersweet fas fa-clipboard-list"></i>
+       </div>
+       <div class="widgets__content">
+        <h5 class="widgets__title">{{ t.home.feat3_title }}</h5>
+        <p class="widgets__text">{{ t.home.feat3_text }}</p>
        </div>
       </div>
+
+      <!-- Row 2 right -->
+      <div class="widgets widgets--about-l6 d-flex feat-right">
+       <div class="card--services-l6__icon bg-op1__bittersweet feature-icon">
+        <i class="text-bittersweet fas fa-chart-line"></i>
+       </div>
+       <div class="widgets__content">
+        <h5 class="widgets__title">{{ t.home.feat4_title }}</h5>
+        <p class="widgets__text">{{ t.home.feat4_text }}</p>
+       </div>
+      </div>
+
+      <!-- Row 3 left -->
+      <div class="widgets widgets--about-l6 d-flex feat-left">
+       <div class="card--services-l6__icon bg-op1__bittersweet feature-icon">
+        <i class="text-bittersweet fas fa-qrcode"></i>
+       </div>
+       <div class="widgets__content">
+        <h5 class="widgets__title">{{ t.home.feat5_title }}</h5>
+        <p class="widgets__text">{{ t.home.feat5_text }}</p>
+       </div>
+      </div>
+
+      <!-- Row 3 right -->
+      <div class="widgets widgets--about-l6 d-flex feat-right">
+       <div class="card--services-l6__icon bg-op1__bittersweet feature-icon">
+        <i class="text-bittersweet fas fa-map-marker-alt"></i>
+       </div>
+       <div class="widgets__content">
+        <h5 class="widgets__title">{{ t.home.feat6_title }}</h5>
+        <p class="widgets__text">{{ t.home.feat6_text }}</p>
+       </div>
+      </div>
+
      </div>
     </div>
    </div>
-   <!--/ .About Us Area -->
+   <!--/ .Features Area -->
 
 
 
@@ -412,49 +610,97 @@
 
 
 
-   <div id="pricing" class="table-section table-section--l6 table-section--l8 bg-default border-bottom border-default-color-3">
+   <style>
+   .activite-tooltip {
+    position: relative;
+    display: inline;
+    border-bottom: 1px dotted currentColor;
+    cursor: help;
+   }
+   .activite-tooltip__box {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    width: 260px;
+    background: #fff;
+    color: #444;
+    font-size: 0.82rem;
+    font-weight: 400;
+    line-height: 1.5;
+    padding: 10px 14px;
+    border-radius: 8px;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.13);
+    border: 1px solid #e5e5e5;
+    z-index: 100;
+    text-align: left;
+    pointer-events: none;
+    white-space: normal;
+   }
+   .activite-tooltip__box::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: #fff;
+   }
+   .activite-tooltip:hover .activite-tooltip__box,
+   .activite-tooltip:focus .activite-tooltip__box {
+    display: block;
+   }
+   /* Pricing toggle: clean gray when ON */
+   #pricing .toggle-btn .form-check-input:checked,
+   #pricing .form-check-input:checked {
+    background-color: #9ca3af !important;
+    border-color: #9ca3af !important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e") !important;
+   }
+   #pricing .toggle-btn .form-check-input:focus {
+    box-shadow: none !important;
+    border-color: #9ca3af !important;
+   }
+  </style>
+
+  <div id="pricing" class="table-section table-section--l6 table-section--l8 bg-default">
     <div class="container">
      <div class="table-section-top">
       <div class="section-title section-title--l6 text-center" data-aos="fade-top" data-aos-duration="500" data-aos-once="true">
-       <h6 class="section-title__sub-heading text-bittersweet mb-5" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
-
-        Nos forfaits
-
-      </h6>
+       <h6 class="section-title__sub-heading text-bittersweet text-uppercase mb-2" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
+        {{ t.home.pricing_label }}
+       </h6>
        <h2 class="section-title__heading mb-4" data-aos="fade-up" data-aos-delay="300" data-aos-duration="500" data-aos-once="true">
-
-        Simples et adaptés à vos besoins 
-
+        {{ t.home.pricing_title }}
        </h2>
       </div>
       <div class="pricing-btn d-flex align-items-center justify-content-center flex-wrap" data-aos="fade-up" data-aos-delay="500" data-aos-duration="500" data-aos-once="true">
        <label class="mb-3 mb-lg-0">
-        
-        Mensuel
-
+        {{ t.home.pricing_monthly }}
        </label>
        <div class="toggle-btn form-check form-switch">
         <input checked="" class="form-check-input btn-toggle price-deck-trigger mb-2 mb-lg-0" data-pricing-trigger="" data-target="#table-price-value" id="flexSwitchCheckDefault" type="checkbox"/>
        </div>
        <label class="mb-3 mb-lg-0">
-        
-        Annuel
-
+        {{ t.home.pricing_annual }}
        </label>
-       <h3 id="pricing-savings-badge" class="badge bg-half-baked mb-3 mb-lg-0">
-        ÉCONOMISEZ 50%
+       <h3 id="pricing-savings-badge" class="badge mb-3 mb-lg-0" style="background: rgba(232,121,78,0.1); color: #E8794E; border: 1px solid rgba(232,121,78,0.35); font-weight: 600; font-size: 0.75rem;">
+        {{ t.home.pricing_save }}
        </h3>
       </div>
      </div>
      <div class="row justify-content-center" data-pricing-dynamic="" data-value-active="yearly" id="table-price-value">
       <div class="col-lg-4 col-md-6 col-sm-9 col-xs-10" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
-       <div class="card card--table-single border--niagara text-center">
-        <div class="table-top bg-niagara">
+       <div class="card card--table-single border--bittersweet text-center">
+        <div class="table-top bg-bittersweet">
          <h5 class="table-top__title">
-
-          1 Activité
+          {{ t.home.solo_name }}
          </h5>
-         <p class="table-top__text dynamic-value" data-active="Forfait annuel" data-monthly="Forfait mensuel" data-yearly="Forfait annuel">
+         <p class="table-top__text" style="font-size: 0.82rem; opacity: 0.88; margin-bottom: 4px;">
+          {{ t.home.solo_desc }}
+         </p>
+         <p class="table-top__text dynamic-value" data-active="{{ t.home.pricing_annual_plan }}" data-monthly="{{ t.home.pricing_monthly_plan }}" data-yearly="{{ t.home.pricing_annual_plan }}">
          </p>
          <div class="card--price">
           <span class="card--price__currency align-self-start">
@@ -463,49 +709,52 @@
           <h1 class="card--price__price dynamic-value" data-active="10" data-monthly="20" data-yearly="10">
           </h1>
           <span class="card--price__price-time">
-           / mois
+           {{ t.home.pricing_per_month }}
           </span>
          </div>
         </div>
         <ul class="card--table-single__list list-unstyled list-checked list-checked--niagara">
          <li>
-         Droit à 1 activité
+         {{ t.home.solo_activity }} <span class="activite-tooltip" tabindex="0">{{ t.home.solo_activity_label }}
+          <span class="activite-tooltip__box">{{ t.home.plan_tooltip }}<br><em>{{ t.home.plan_tooltip_example }}</em></span>
+         </span> <span style="font-size: 0.72em;">{{ t.home.plan_activity_suffix }}</span>
          </li>
          <li>
-         Participants & passeports QR illimités
+         {{ t.home.plan_feat_participants }}
          </li>
          <li>
-         Inscriptions et paiements
+         {{ t.home.plan_feat_registrations }}
          </li>
          <li>
-         Présences et rappels automatiques
+         {{ t.home.plan_feat_attendance }}
          </li>
          <li>
-         Rapports suivis financiers
+         {{ t.home.plan_feat_finance }}
          </li>
          <li class="feature-unavailable">
-         Sondage d'expérience participants
+         {{ t.home.plan_feat_survey }}
          </li>
          <li class="feature-unavailable">
-         Co-pilot & Intelligence artificielle de vos données
+         {{ t.home.plan_feat_ai }}
          </li>
         </ul>
-        <button class="btn btn-niagara shadow--niagara btn--lg-2 text-white w-100" onclick="openSignupModal('basic')">
-         M'abonner
+        <button class="btn btn-bittersweet btn--lg-2 text-white w-100" onclick="openSignupModal('basic')">
+         {{ t.home.plan_btn }}
         </button>
        </div>
       </div>
 
 
       <div class="col-lg-4 col-md-6 col-sm-9 col-xs-10" data-aos="fade-up" data-aos-delay="300" data-aos-duration="500" data-aos-once="true">
-       <div class="card card--table-single border--bittersweet text-center">
-        <div class="table-top bg-bittersweet">
+       <div class="card card--table-single border--niagara text-center">
+        <div class="table-top bg-niagara">
          <h5 class="table-top__title">
-          15 Activités
-
-
+          {{ t.home.club_name }}
          </h5>
-         <p class="table-top__text dynamic-value" data-active="Forfait annuel" data-monthly="Forfait mensuel" data-yearly="Forfait annuel">
+         <p class="table-top__text" style="font-size: 0.82rem; opacity: 0.88; margin-bottom: 4px;">
+          {{ t.home.club_desc }}
+         </p>
+         <p class="table-top__text dynamic-value" data-active="{{ t.home.pricing_annual_plan }}" data-monthly="{{ t.home.pricing_monthly_plan }}" data-yearly="{{ t.home.pricing_annual_plan }}">
          </p>
          <div class="card--price">
           <span class="card--price__currency align-self-start">
@@ -514,47 +763,50 @@
           <h1 class="card--price__price dynamic-value" data-active="25" data-monthly="50" data-yearly="25">
           </h1>
           <span class="card--price__price-time">
-           / mois
+           {{ t.home.pricing_per_month }}
           </span>
          </div>
         </div>
-        <ul class="card--table-single__list list-unstyled list-checked list-checked--bittersweet">
+        <ul class="card--table-single__list list-unstyled list-checked list-checked--niagara">
          <li>
-         Droit à 15 activités
+         {{ t.home.club_activity }} <span class="activite-tooltip" tabindex="0">{{ t.home.club_activity_label }}
+          <span class="activite-tooltip__box">{{ t.home.plan_tooltip }}<br><em>{{ t.home.plan_tooltip_example }}</em></span>
+         </span> <span style="font-size: 0.72em;">{{ t.home.plan_activity_suffix }}</span>
          </li>
          <li>
-         Participants & passeports QR illimités
+         {{ t.home.plan_feat_participants }}
          </li>
          <li>
-         Inscriptions et paiements
+         {{ t.home.plan_feat_registrations }}
          </li>
          <li>
-         Présences et rappels automatiques
+         {{ t.home.plan_feat_attendance }}
          </li>
          <li>
-         Rapports suivis financiers
+         {{ t.home.plan_feat_finance }}
          </li>
          <li>
-         Sondage d'expérience participants
+         {{ t.home.plan_feat_survey }}
          </li>
          <li>
-         Co-pilot & Intelligence artificielle de vos données
+         {{ t.home.plan_feat_ai }}
          </li>
         </ul>
-        <button class="btn btn-bittersweet shadow--bittersweet btn--lg-2 text-white w-100" onclick="openSignupModal('pro')">
-         M'abonner
+        <button class="btn btn-bittersweet btn--lg-2 text-white w-100" onclick="openSignupModal('pro')">
+         {{ t.home.plan_btn }}
         </button>
        </div>
       </div>
       <div class="col-lg-4 col-md-6 col-sm-9 col-xs-10" data-aos="fade-up" data-aos-delay="500" data-aos-duration="500" data-aos-once="true">
-       <div class="card card--table-single border--niagara text-center">
-        <div class="table-top bg-niagara">
+       <div class="card card--table-single border--lavender text-center">
+        <div class="table-top bg-lavender">
          <h5 class="table-top__title">
-
-         100 Activités
-
+          {{ t.home.org_name }}
          </h5>
-         <p class="table-top__text dynamic-value" data-active="Forfait annuel" data-monthly="Forfait mensuel" data-yearly="Forfait annuel">
+         <p class="table-top__text" style="font-size: 0.82rem; opacity: 0.88; margin-bottom: 4px;">
+          {{ t.home.org_desc }}
+         </p>
+         <p class="table-top__text dynamic-value" data-active="{{ t.home.pricing_annual_plan }}" data-monthly="{{ t.home.pricing_monthly_plan }}" data-yearly="{{ t.home.pricing_annual_plan }}">
          </p>
          <div class="card--price">
           <span class="card--price__currency align-self-start">
@@ -563,111 +815,217 @@
           <h1 class="card--price__price dynamic-value" data-active="60" data-monthly="120" data-yearly="60">
           </h1>
           <span class="card--price__price-time">
-           / mois
+           {{ t.home.pricing_per_month }}
           </span>
          </div>
         </div>
         <ul class="card--table-single__list list-unstyled list-checked list-checked--niagara">
          <li>
-         Droit à 100 activités
+         {{ t.home.org_activity }} <span class="activite-tooltip" tabindex="0">{{ t.home.org_activity_label }}
+          <span class="activite-tooltip__box">{{ t.home.plan_tooltip }}<br><em>{{ t.home.plan_tooltip_example }}</em></span>
+         </span> <span style="font-size: 0.72em;">{{ t.home.plan_activity_suffix }}</span>
          </li>
          <li>
-         Participants & passeports QR illimités
+         {{ t.home.plan_feat_participants }}
          </li>
          <li>
-         Inscriptions et paiements
+         {{ t.home.plan_feat_registrations }}
          </li>
          <li>
-         Présences et rappels automatiques
+         {{ t.home.plan_feat_attendance }}
          </li>
          <li>
-         Rapports suivis financiers
+         {{ t.home.plan_feat_finance }}
          </li>
          <li>
-         Sondage d'expérience participants
+         {{ t.home.plan_feat_survey }}
          </li>
          <li>
-         Co-pilot & Intelligence artificielle de vos données
+         {{ t.home.plan_feat_ai }}
          </li>
         </ul>
-        <button class="btn btn-niagara shadow--niagara btn--lg-2 text-white w-100" onclick="openSignupModal('ultimate')">
-         M'abonner
+        <button class="btn btn-bittersweet btn--lg-2 text-white w-100" onclick="openSignupModal('ultimate')">
+         {{ t.home.plan_btn }}
         </button>
        </div>
       </div>
      </div>
-    </div>
-   </div>
-   <div class="testimonial-section testimonial-section--l8 bg-default-5">
-    <div class="container">
-     <div class="row justify-content-center">
-      <div class="col-lg-8 col-xl-7">
-       <div class="section-title section-title--l8 text-center">
-        <h6 class="section-title__sub-heading text-bittersweet" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
-         Témoignage
-        </h6>
-        <h2 class="section-title__heading mb-0" data-aos="fade-up" data-aos-delay="300" data-aos-duration="500" data-aos-once="true">
-         Ils nous font confiance
-        </h2>
-       </div>
+     <!-- Sans contrat -->
+     <div class="row justify-content-center mt-4" data-aos="fade-up" data-aos-delay="300" data-aos-duration="500" data-aos-once="true">
+      <div class="col-lg-10 col-xl-8 text-center">
+       <p class="text-muted" style="font-size: 0.85rem; font-weight: 400;">
+        {{ t.home.pricing_no_contract }}
+       </p>
       </div>
      </div>
-     <div class="row justify-content-center" data-aos="fade-up" data-aos-delay="500" data-aos-duration="500" data-aos-once="true">
-      <div class="col-lg-6 col-md-8">
-       <div class="card card-testimonial--l4">
-        <div class="card-body">
-         <div class="card-body__top d-flex align-items-center justify-content-between">
-          <div class="d-flex flex-wrap align-items-center">
-           <div class="card-image">
-            <img alt="Jean-François Goulet" src="{{ url_for('static', filename='image/home-3/jfg-circle-1.png') }}"/>
-           </div>
-           <div class="card-body__user mr-3">
-            <h3 class="card-title">
-             Jean-François Goulet
-            </h3>
-            <p class="card-text--ext">
-             Co-administrateur de la FLHGI
-            </p>
-           </div>
-          </div>
-          <div class="card-icon">
-           <i class="fa fa-quote-left">
-           </i>
-          </div>
-         </div>
-         <p class="card-description">
-          Avec minipass, nous avons enfin un outil qui nous permet de nous concentrer sur nos résultats plutôt que sur la paperasse. Son intuitivité et ses tableaux de bord budgétaires ont simplifié nos suivis de 75 %. C'est devenu l'allié indispensable pour la coordination rapide et simple de toutes les activités de financement de notre Fondation.
-         </p>
-        </div>
+     <!--/ Note définition activité -->
+    </div>
+   </div>
+  <!-- Section A: Newsletter (Voodoo + QR pattern) -->
+  <style>
+    .newsletter-section {
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(145deg, #2d1f35 0%, #483550 40%, #5a4365 100%);
+      padding: 80px 0;
+    }
+    /* Radial Burnt Sienna glow behind the form */
+    .newsletter-section::before {
+      content: '';
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 600px; height: 600px;
+      transform: translate(-50%, -50%);
+      background: radial-gradient(circle, rgba(232,121,78,0.15) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    /* QR-code pattern overlay — realistic QR with finder patterns */
+    .newsletter-qr-pattern {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      opacity: 0.06;
+      background-image: url("/static/image/qr-pattern.svg");
+      background-size: 210px 210px;
+    }
+    /* Perspective tilt on left and right edges */
+    .newsletter-qr-left,
+    .newsletter-qr-right {
+      position: absolute;
+      top: -20%; bottom: -20%;
+      width: 35%;
+      z-index: 0;
+      opacity: 0.04;
+      background-image: url("/static/image/qr-pattern.svg");
+      background-size: 160px 160px;
+    }
+    .newsletter-qr-left {
+      left: -5%;
+      transform: perspective(400px) rotateY(25deg);
+    }
+    .newsletter-qr-right {
+      right: -5%;
+      transform: perspective(400px) rotateY(-25deg);
+    }
+    /* Top/bottom edge fade so pattern doesn't clip hard */
+    .newsletter-section::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      background:
+        linear-gradient(to bottom, rgba(45,31,53,0.9) 0%, transparent 15%, transparent 85%, rgba(45,31,53,0.9) 100%);
+      pointer-events: none;
+    }
+    .newsletter-section .container { position: relative; z-index: 1; }
+    .newsletter-input-wrap {
+      display: flex;
+      max-width: 480px;
+      margin: 0 auto;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.08);
+      backdrop-filter: blur(8px);
+      overflow: hidden;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    .newsletter-input-wrap:focus-within {
+      border-color: rgba(232,121,78,0.5);
+      box-shadow: 0 0 20px rgba(232,121,78,0.12);
+    }
+    .newsletter-heading { white-space: nowrap; }
+    @media (max-width: 576px) {
+      .newsletter-heading { white-space: normal; font-size: 1.6rem; }
+      .newsletter-input-wrap { flex-direction: column; }
+      .newsletter-input-wrap input { text-align: center; }
+      .newsletter-input-wrap button { margin: 0 5px 5px !important; }
+    }
+  </style>
+  <section class="newsletter-section">
+    <div class="newsletter-qr-pattern"></div>
+    <div class="newsletter-qr-left"></div>
+    <div class="newsletter-qr-right"></div>
+   <div class="container">
+    <div class="row justify-content-center">
+     <div class="col-lg-6 col-md-8 col-11 text-center" data-aos="fade-up" data-aos-duration="500" data-aos-once="true">
+      <h6 class="section-title__sub-heading text-bittersweet text-uppercase mb-2">{{ t.home.newsletter_label }}</h6>
+      <h2 class="section-title__heading newsletter-heading mb-4" style="color:#fff;">
+       {{ t.home.newsletter_title }}
+      </h2>
+      <form id="newsletter-form" onsubmit="subscribeNewsletter(event)">
+       <div class="newsletter-input-wrap">
+        <input type="email" id="newsletter-email"
+               placeholder="{{ t.home.newsletter_placeholder }}" required
+               style="flex:1; padding:14px 18px; background:transparent;
+                      border:none; color:#fff; font-size:0.93rem; outline:none;">
+        <button type="submit" id="newsletter-btn"
+                class="btn btn-bittersweet text-white"
+                style="margin:5px; border-radius:6px; flex-shrink:0;
+                       padding:10px 20px; font-size:0.93rem; white-space:nowrap;">
+         {{ t.home.newsletter_btn }}
+        </button>
        </div>
-      </div>
+      </form>
      </div>
     </div>
    </div>
-   <!--/ .Testimonial Area -->
-   <!-- promo Area -->
-   <!--/ .promo Area -->
-   <!-- CTA Area -->
-   <!--/ .CTA Area -->
+  </section>
+  <!-- /Section A: Newsletter -->
+
+  <!-- Section B: Blog articles -->
+  {% if homepage_posts is defined and homepage_posts %}
+  <section style="background:#F8F9FA; padding:72px 0;">
+   <div class="container">
+
+    <div class="text-center mb-5" data-aos="fade-up" data-aos-duration="400" data-aos-once="true">
+     <h6 class="section-title__sub-heading text-bittersweet text-uppercase mb-2">{{ t.home.blog_label }}</h6>
+     <h2 class="section-title__heading mb-4">{{ t.home.blog_title }}</h2>
+    </div>
+
+    <div class="blog-slider" data-aos="fade-up" data-aos-delay="100" data-aos-duration="500" data-aos-once="true">
+     {% for post in homepage_posts %}
+     {% set cat_lower = post['category'] | lower | replace('é','e') | replace('è','e') | replace('ê','e') %}
+     {% set cat_class = cat_lower if cat_lower in ('strategie','tutoriel','documentation') else 'default' %}
+     <a href="/blog/{{ post['slug'] }}" class="blog-card">
+      <div class="blog-card__thumb {% if not post.get('yt_thumb') %}blog-card__thumb--grad blog-card__thumb--{{ cat_class }}{% endif %}">
+       {% if post.get('yt_thumb') %}
+        <img src="{{ post['yt_thumb'] }}" alt="{{ post['title'] }}" loading="lazy" width="400" height="200">
+       {% else %}
+        <span class="blog-card__thumb-icon">
+         {% if cat_lower in ('strategie','stratégie') %}<i class="fas fa-lightbulb"></i>
+         {% elif cat_lower == 'tutoriel' %}<i class="fas fa-graduation-cap"></i>
+         {% else %}<i class="fas fa-file-alt"></i>{% endif %}
+        </span>
+       {% endif %}
+       <span class="blog-card__badge blog-card__badge--{{ cat_class }}">{{ post['category'] }}</span>
+      </div>
+      <div class="blog-card__body">
+       <h3 class="blog-card__title">{{ post['title'] }}</h3>
+       <p class="blog-card__excerpt">{{ (post['excerpt'] or '')[:140] }}{% if (post['excerpt'] or '')|length > 140 %}...{% endif %}</p>
+      </div>
+     </a>
+     {% endfor %}
+    </div>
+
+    <div class="text-center mt-5" data-aos="fade-up" data-aos-delay="200" data-aos-duration="400" data-aos-once="true">
+     <a href="{{ lang_prefix }}/blog" class="btn fw-semibold"
+        style="border:2px solid #483550; color:#483550; background:transparent;
+               padding:10px 28px; border-radius:8px; transition: background 0.2s ease, color 0.2s ease;"
+        onmouseover="this.style.background='#483550';this.style.color='#fff';"
+        onmouseout="this.style.background='transparent';this.style.color='#483550';">
+      {{ t.home.blog_see_all }}
+     </a>
+    </div>
+
+   </div>
+  </section>
+  {% endif %}
+  <!-- /Section B: Blog articles -->
    <!-- Footer Area -->
    
    <!--/ .Footer Area -->
   </div>
-  <!-- Typed.js Animation Script (other scripts loaded in base.html) -->
-  <script src="{{ url_for('static', filename='plugins/type-js/typed.min.js') }}">
-  </script>
-
-  <script>
-   var typed = new Typed('.highlight-text', {
-    strings: ["repensée", "minipass"],
-    typeSpeed: 80,
-    backSpeed: 80,
-    cursorChar: '',
-    shuffle: true,
-    smartBackspace: false,
-    loop: true
-  });
-  </script>
 
 
 
@@ -739,22 +1097,11 @@
     color: white;
     padding: 1.25rem 2rem;
     border-radius: 16px 16px 0 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 2rem;
     overflow: hidden;
   }
 
   .modal-price-left {
     flex: 0 0 auto;
-  }
-
-  .modal-benefits-right {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    align-items: flex-end;
   }
 
   .modal-plan-name {
@@ -820,19 +1167,6 @@
     color: #2c3e50;
   }
 
-  /* Tagline in Header */
-  .modal-tagline {
-    font-size: 1.15rem;
-    font-weight: 600;
-    color: #2c3e50;
-    text-align: right;
-    line-height: 1.6;
-    letter-spacing: 0.3px;
-    background: linear-gradient(104deg, rgba(255, 235, 59, 0) 0.9%, rgba(255, 235, 59, 0.8) 2.4%, rgba(255, 235, 59, 0.5) 5.8%, rgba(255, 235, 59, 0.4) 93%, rgba(255, 235, 59, 0.5) 96%, rgba(255, 235, 59, 0) 98%), linear-gradient(183deg, rgba(255, 235, 59, 0) 0%, rgba(255, 235, 59, 0.3) 7.9%, rgba(255, 235, 59, 0) 15%);
-    padding: 8px 12px;
-    border-radius: 3px;
-    display: inline-block;
-  }
 
   /* Form Fields with Icons */
   .form-field-group {
@@ -849,8 +1183,8 @@
   }
 
   .form-label-with-icon i {
-    color: #099a97;
-    font-size: 1.1rem;
+    color: #64748b;
+    font-size: 1rem;
   }
 
   .form-control {
@@ -863,8 +1197,8 @@
   }
 
   .form-control:focus {
-    border-color: #099a97;
-    box-shadow: 0 0 0 3px rgba(9, 154, 151, 0.1);
+    border-color: #17A85A;
+    box-shadow: 0 0 0 3px rgba(23, 168, 90, 0.1);
     outline: none;
   }
 
@@ -877,7 +1211,7 @@
 
   .field-description i {
     margin-right: 5px;
-    color: #099a97;
+    color: #17A85A;
   }
 
   /* Modal Footer */
@@ -895,7 +1229,7 @@
   }
 
   .modal-policy-link a {
-    color: #099a97;
+    color: #17A85A;
     text-decoration: none;
   }
 
@@ -905,23 +1239,22 @@
 
   .modal-footer .btn {
     width: 100%;
-    font-weight: 600;
-    font-size: 1.1rem;
-    padding: 14px;
+    font-weight: 500;
+    font-size: 1rem;
+    padding: 12px;
     border-radius: 8px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.3px;
     transition: all 0.2s ease;
-    background-color: #099a97;
-    border-color: #099a97;
+    background-color: #10b981;
+    border-color: #10b981;
     color: white;
   }
 
   .modal-footer .btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(9, 154, 151, 0.4);
-    background-color: #077775;
-    border-color: #077775;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+    background-color: #059669;
+    border-color: #059669;
   }
 
   @media (max-width: 768px) {
@@ -932,10 +1265,6 @@
 
     .modal-price-header {
       padding: 1rem 1.25rem;
-    }
-
-    .modal-benefits-right {
-      display: none;
     }
 
     .modal-body {
@@ -966,7 +1295,7 @@
       <!-- Price Header Section -->
       <div class="modal-price-header">
         <div class="modal-price-left">
-          <div class="modal-plan-name" id="modal-plan-display">Forfait Basic</div>
+          <div class="modal-plan-name" id="modal-plan-display">{{ t.home.modal_forfait_solo }}</div>
 
           <div class="modal-price-display">
             <span class="currency">$</span>
@@ -974,18 +1303,13 @@
             <span class="period">/ mois</span>
           </div>
 
-          <div class="modal-billing-info" id="modal-billing-text">Facturation annuelle</div>
+          <div class="modal-billing-info" id="modal-billing-text">{{ t.home.modal_billing_annual }}</div>
 
           <div class="modal-savings-badge" id="modal-savings-badge" style="display: none;">
-            Économisez 50%
+            {{ t.home.modal_savings }}
           </div>
         </div>
 
-        <div class="modal-benefits-right">
-          <div class="modal-tagline">
-            Récupérez votre temps et<br>maximisez vos revenus !
-          </div>
-        </div>
       </div>
 
       <!-- Hidden Form Fields -->
@@ -994,17 +1318,17 @@
 
       <!-- Form Body -->
       <div class="modal-body">
-        <h5>Complétez votre abonnement</h5>
+        <h5>{{ t.home.modal_complete }}</h5>
 
         <!-- App Name Field -->
         <div class="form-field-group">
           <label class="form-label-with-icon">
             <i class="fas fa-globe"></i>
-            <span>Saisissez le nom souhaité pour votre application</span>
+            <span>{{ t.home.modal_app_name_label }}</span>
           </label>
-          <input class="form-control" id="app_name" name="app_name" required type="text" placeholder="monprojet" />
+          <input class="form-control" id="app_name" name="app_name" required type="text" placeholder="{{ t.home.modal_app_name_placeholder }}" />
           <div class="field-description" id="subdomain-feedback">
-            Votre nom souhaité: <strong>votre-nom.minipass.me</strong>
+            {{ t.home.modal_app_name_desc }} <strong>votre-nom.minipass.me</strong>
           </div>
         </div>
 
@@ -1012,11 +1336,11 @@
         <div class="form-field-group">
           <label class="form-label-with-icon">
             <i class="fas fa-building"></i>
-            <span>Saisissez le nom de votre organisation</span>
+            <span>{{ t.home.modal_org_label }}</span>
           </label>
-          <input class="form-control" name="organization_name" required type="text" placeholder="Mon Entreprise ex:Fondation XYZ" />
+          <input class="form-control" name="organization_name" required type="text" placeholder="{{ t.home.modal_org_placeholder }}" />
           <div class="field-description">
-            Cette information apparaîtra dans votre application et les communications à vos participants
+            {{ t.home.modal_org_desc }}
           </div>
         </div>
 
@@ -1024,25 +1348,25 @@
         <div class="form-field-group">
           <label class="form-label-with-icon">
             <i class="fas fa-envelope"></i>
-            <span>Saisissez l’adresse courriel à utiliser pour administrer votre minipass.</span>
+            <span>{{ t.home.modal_email_label }}</span>
           </label>
-          <input class="form-control" name="admin_email" required type="email" placeholder="admin@monentreprise.com" />
+          <input class="form-control" name="admin_email" required type="email" placeholder="{{ t.home.modal_email_placeholder }}" />
           <div class="field-description">
-            Cette adresse courriel est importante. Elle sera votre identifiant administrateur de votre minipass.
+            {{ t.home.modal_email_desc }}
           </div>
         </div>
 
         <!-- Promo Code Section -->
         <div class="mt-2">
           <a href="#" class="text-muted small" id="promo-toggle" style="text-decoration:none; font-size:0.85rem;">
-            Vous avez un code promotionnel ?
+            {{ t.home.modal_promo_toggle }}
           </a>
           <div id="promo-collapse" style="display:none; margin-top:8px;">
             <div class="d-flex gap-2 align-items-center">
               <input type="text" id="promo-code-input" class="form-control form-control-sm"
                      placeholder="CODE PROMO" style="text-transform:uppercase; max-width:160px;" />
               <button type="button" class="btn btn-sm btn-outline-secondary" id="promo-apply-btn">
-                Appliquer
+                {{ t.home.modal_promo_apply }}
               </button>
             </div>
             <div id="promo-feedback" class="mt-1 small"></div>
@@ -1053,11 +1377,11 @@
 
       <!-- Footer with Submit Button -->
       <div class="modal-footer">
-        <button type="submit" class="btn btn-primary" id="submit-btn">
-          Procéder au paiement
+        <button type="submit" class="btn btn-bittersweet text-white" id="submit-btn">
+          {{ t.home.modal_submit }} →
         </button>
         <div class="modal-policy-link">
-          Consultez notre <a href="/politiques" target="_blank">politique d'abonnement</a>
+          {{ t.home.modal_policy }} <a href="{{ lang_prefix }}/politiques" target="_blank">{{ t.home.modal_policy_link }}</a>
         </div>
       </div>
     </form>
@@ -1077,9 +1401,9 @@
   <script>
    // Pricing configuration mapping
    const PRICING_CONFIG = {
-     basic: { annual: 10, monthly: 20, name: 'Forfait Basic' },
-     pro: { annual: 25, monthly: 50, name: 'Forfait Pro' },
-     ultimate: { annual: 60, monthly: 120, name: 'Forfait Ultimate' }
+     basic: { annual: 10, monthly: 20, name: '{{ t.home.modal_forfait_solo }}' },
+     pro: { annual: 25, monthly: 50, name: '{{ t.home.modal_forfait_club }}' },
+     ultimate: { annual: 60, monthly: 120, name: '{{ t.home.modal_forfait_org }}' }
    };
 
    function openSignupModal(plan) {
@@ -1106,9 +1430,9 @@
     const billingTextElement = document.getElementById('modal-billing-text');
     if (isAnnual) {
       const totalAnnual = price * 12;
-      billingTextElement.textContent = `Facturation annuelle ($${totalAnnual} total)`;
+      billingTextElement.textContent = `{{ t.home.modal_billing_annual }} ($${totalAnnual} {{ t.home.modal_billing_total }})`;
     } else {
-      billingTextElement.textContent = 'Facturation mensuelle';
+      billingTextElement.textContent = '{{ t.home.modal_billing_monthly }}';
     }
 
     // Show/hide savings badge
@@ -1146,10 +1470,10 @@
     const form = document.getElementById('signup-form');
     if (!btn || !form) return;
     if (promoValidated) {
-      btn.textContent = 'Activer mon code';
+      btn.textContent = '{{ t.home.modal_submit_promo }}';
       form.action = '/redeem-promo';
     } else {
-      btn.textContent = 'Procéder au paiement';
+      btn.textContent = '{{ t.home.modal_submit }}';
       form.action = '/start-checkout';
     }
   }
@@ -1265,4 +1589,103 @@
 
 
 
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  (function(){
+    var slides = document.querySelectorAll('.mp-tslide');
+    var dots   = document.querySelectorAll('.mp-tdot');
+    var current = 0;
+    var timer;
+
+    function goTo(n) {
+      slides[current].classList.remove('mp-tslide--active');
+      dots[current].classList.remove('mp-tdot--active');
+      current = (n + slides.length) % slides.length;
+      slides[current].classList.add('mp-tslide--active');
+      dots[current].classList.add('mp-tdot--active');
+    }
+
+    dots.forEach(function(dot) {
+      dot.addEventListener('click', function() {
+        clearInterval(timer);
+        goTo(parseInt(this.getAttribute('data-slide')));
+        timer = setInterval(function(){ goTo(current + 1); }, 12000);
+      });
+    });
+
+    timer = setInterval(function(){ goTo(current + 1); }, 12000);
+  })();
+</script>
+
+<script>
+/* ── kdShowAlert toast helper (kd-ui) ── */
+if (!window.kdDismissAlert) {
+  window.kdDismissAlert = function(el) {
+    el.style.opacity = '0';
+    el.style.transform = 'translateX(20px)';
+    setTimeout(function() { el.remove(); }, 300);
+  };
+}
+if (!window.kdShowAlert) {
+  window.kdShowAlert = function(type, message, opts) {
+    opts = opts || {};
+    var duration = (opts.duration !== undefined) ? opts.duration : 4000;
+    var position = opts.position || 'top-right';
+    var colors = {success:'#2ECC71', error:'#e74c3c', warning:'#f39c12', info:'#3498db'};
+    var icons = {
+      success:'<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" style="width:22px;height:22px;flex-shrink:0;stroke:currentColor;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>',
+      error:'<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" style="width:22px;height:22px;flex-shrink:0;stroke:currentColor;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>',
+      warning:'<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" style="width:22px;height:22px;flex-shrink:0;stroke:currentColor;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>',
+      info:'<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" style="width:22px;height:22px;flex-shrink:0;stroke:currentColor;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>'
+    };
+    var posStyles = {
+      'top-right':'top:16px;right:16px;','top-left':'top:16px;left:16px;',
+      'top-center':'top:16px;left:0;right:0;margin:0 auto;max-width:400px;',
+      'bottom-right':'bottom:16px;right:16px;','bottom-left':'bottom:16px;left:16px;',
+      'bottom-center':'bottom:16px;left:0;right:0;margin:0 auto;max-width:400px;'
+    };
+    var cid = 'kd-toast-container-' + position;
+    var container = document.getElementById(cid);
+    if (!container) {
+      container = document.createElement('div');
+      container.id = cid;
+      container.style.cssText = 'position:fixed;z-index:9999;pointer-events:none;display:flex;flex-direction:column;gap:8px;width:360px;' + (posStyles[position] || posStyles['top-right']);
+      document.body.appendChild(container);
+    }
+    var alert = document.createElement('div');
+    alert.style.cssText = 'pointer-events:auto;opacity:0;transform:translateX(20px);transition:opacity 300ms ease,transform 300ms ease;border-radius:6px;padding:14px 18px;display:flex;align-items:center;gap:10px;color:#fff;font-size:0.93rem;font-weight:600;box-shadow:0 4px 12px rgba(0,0,0,0.15);background:' + (colors[type] || colors.info) + ';';
+    alert.innerHTML = (icons[type] || icons.info) + '<span style="flex:1">' + message + '</span><button onclick="kdDismissAlert(this.parentElement)" style="background:none;border:none;color:#fff;cursor:pointer;font-size:1.25rem;opacity:0.7;line-height:1;" aria-label="Close">&times;</button>';
+    container.appendChild(alert);
+    requestAnimationFrame(function(){requestAnimationFrame(function(){alert.style.opacity='1';alert.style.transform='translateX(0)';});});
+    if (duration > 0) setTimeout(function(){window.kdDismissAlert(alert);}, duration);
+  };
+}
+
+function subscribeNewsletter(e) {
+  e.preventDefault();
+  var email = document.getElementById('newsletter-email').value.trim();
+  var btn = document.getElementById('newsletter-btn');
+  btn.disabled = true;
+  btn.textContent = '{{ "En cours..." if lang == "fr" else "Loading..." }}';
+  fetch('/newsletter-subscribe', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({email: email})
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    kdShowAlert('success', '{{ t.home.newsletter_success }}', {duration: 5000, position: 'top-right'});
+    document.getElementById('newsletter-email').value = '';
+    btn.disabled = false;
+    btn.textContent = '{{ t.home.newsletter_btn }}';
+  })
+  .catch(function(){
+    kdShowAlert('error', '{{ t.home.newsletter_error }}', {duration: 5000, position: 'top-right'});
+    btn.disabled = false;
+    btn.textContent = '{{ t.home.newsletter_btn }}';
+  });
+}
+</script>
 {% endblock %}

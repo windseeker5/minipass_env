@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "skills": {
+    "marketing-skills": {
+      "source": "alirezarezvani/claude-skills",
+      "sourceType": "github",
+      "computedHash": "73445ac9a349baba58ec52dbe6c76e065d7609d7197bf347add2dfda62f00d1e"
+    },
+    "marketing-strategist": {
+      "source": "ncklrs/startup-os-skills",
+      "sourceType": "github",
+      "computedHash": "35887adfce794b8b03f78e3e76463b1b61f96b51f1d32fd65fbb328c6ea5d012"
+    },
+    "web-design-expert": {
+      "source": "erichowens/some_claude_skills",
+      "sourceType": "github",
+      "computedHash": "f02f812312080d408450a97d9be9f7c9c348855c1aa26c1c6fd0bbf5684fac30"
+    },
+    "web-design-guidelines": {
+      "source": "vercel-labs/agent-skills",
+      "sourceType": "github",
+      "computedHash": "a6a44d5498f7e8f68289902f3dedfc6f38ae0cee1e96527c80724cf27f727c2a"
+    }
+  }
+}

@@ -10,8 +10,31 @@ from subprocess import run
 from shutil import copytree
 import threading
 import markdown
+import bleach
 from functools import wraps
 
+# Allowed HTML tags/attributes for sanitized markdown output
+BLEACH_ALLOWED_TAGS = [
+    'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+    'ul', 'ol', 'li', 'a', 'img', 'strong', 'em', 'b', 'i', 'u',
+    'code', 'pre', 'blockquote', 'hr', 'br', 'div', 'span',
+    'table', 'thead', 'tbody', 'tr', 'th', 'td',
+    'dl', 'dt', 'dd', 'abbr', 'sup', 'sub',
+]
+BLEACH_ALLOWED_ATTRS = {
+    'a': ['href', 'title', 'target', 'rel'],
+    'img': ['src', 'alt', 'title', 'width', 'height'],
+    'th': ['align'], 'td': ['align'],
+    'code': ['class'], 'div': ['class'], 'span': ['class'],
+}
+
+
+def render_markdown_safe(md_text):
+    """Convert markdown to HTML and sanitize to prevent XSS."""
+    raw_html = markdown.markdown(md_text or '', extensions=['tables', 'fenced_code', 'toc'])
+    return bleach.clean(raw_html, tags=BLEACH_ALLOWED_TAGS, attributes=BLEACH_ALLOWED_ATTRS)
+
+from translations import TRANSLATIONS
 from utils.deploy_helpers import insert_admin_user
 from utils.email_helpers import init_mail, send_user_deployment_email, send_support_error_email
 from utils.mail import mail
@@ -42,6 +65,48 @@ app.config.update(
     SESSION_COOKIE_HTTPONLY=True,  # No JavaScript access
     SESSION_COOKIE_SAMESITE='Lax', # CSRF protection
 )
+
+
+@app.after_request
+def set_security_headers(response):
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'DENY'
+    response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+    response.headers['Permissions-Policy'] = 'geolocation=(), camera=(), microphone=()'
+    response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+    response.headers['Content-Security-Policy'] = (
+        "default-src 'self'; "
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://unpkg.com https://cdn.jsdelivr.net https://js.stripe.com https://www.googletagmanager.com https://connect.facebook.net; "
+        "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com https://cdnjs.cloudflare.com; "
+        "font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net https://finestwp.co https://cdnjs.cloudflare.com; "
+        "img-src 'self' data: https://www.gravatar.com https://*.stripe.com https://img.youtube.com https://*.ytimg.com https://www.facebook.com; "
+        "frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com https://js.stripe.com; "
+        "connect-src 'self' https://api.stripe.com https://www.google-analytics.com https://*.facebook.com https://*.facebook.net; "
+        "object-src 'none'; "
+        "base-uri 'self'"
+    )
+    return response
+
+
+# Rate limiting
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+limiter = Limiter(get_remote_address, app=app, default_limits=["200 per minute"],
+                  storage_uri="memory://")
+
+
+# ── Language context processor ──
+@app.context_processor
+def inject_lang():
+    lang = 'en' if request.path.startswith('/en') else 'fr'
+    prefix = '/en' if lang == 'en' else ''
+    t = TRANSLATIONS[lang]
+    if lang == 'en':
+        alt_url = request.path.replace('/en', '', 1) or '/'
+    else:
+        alt_url = '/en' + request.path
+    return {'lang': lang, 'lang_prefix': prefix, 't': t, 'alt_lang_url': alt_url}
+
 
 # ✅ Stripe setup
 stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
@@ -84,40 +149,327 @@ def inject_now():
 
 
 @app.route("/")
+@app.route("/en/")
 def home():
-    return render_template("index.html")
+    import sqlite3, hashlib
+    homepage_posts = []
+    page_lang = 'en' if request.path.startswith('/en') else 'fr'
+    try:
+        with sqlite3.connect("customers.db") as conn:
+            conn.row_factory = sqlite3.Row
+            _init_blog_db(conn)
+            rows = conn.execute("""
+                SELECT * FROM blog_posts WHERE published=1 AND COALESCE(lang,'fr')=?
+                ORDER BY COALESCE(updated_at, published_at) DESC LIMIT 3
+            """, (page_lang,)).fetchall()
+            for row in rows:
+                post = dict(row)
+                vid = _yt_id(post.get('video_url'))
+                post['yt_thumb'] = f"https://img.youtube.com/vi/{vid}/maxresdefault.jpg" if vid else None
+                ae = (post.get('author_email') or '').strip().lower()
+                post['gravatar_url'] = f"https://www.gravatar.com/avatar/{hashlib.md5(ae.encode()).hexdigest()}?s=80&d=mp" if ae else None
+                post['excerpt'] = post.get('meta_description') or post.get('excerpt') or _strip_md(post.get('body', ''))[:200]
+                homepage_posts.append(post)
+    except Exception:
+        pass
+    return render_template("index.html", homepage_posts=homepage_posts)
 
 
 @app.route("/about")
+@app.route("/en/about")
 def about():
     return render_template("about.html")
 
 
 @app.route("/guides")
+@app.route("/en/guides")
 def guides():
-    return render_template("guides.html")
+    return redirect(url_for('blog'), 301)
 
 
 @app.route("/guides/<slug>")
+@app.route("/en/guides/<slug>")
 def guide_detail(slug):
-    # Path to markdown file
-    doc_path = os.path.join(app.static_folder, 'docs', f'{slug}.md')
-
-    if not os.path.exists(doc_path):
-        abort(404)
-
-    # Read and convert markdown to HTML
-    with open(doc_path, 'r', encoding='utf-8') as f:
-        content = f.read()
-
-    html_content = markdown.markdown(content, extensions=['tables', 'fenced_code', 'toc'])
-
-    return render_template('guide-detail.html', content=html_content, slug=slug)
+    return redirect(url_for('blog_detail', slug=slug), 301)
 
 
 @app.route("/politiques")
+@app.route("/en/policies")
 def politiques():
     return render_template("politiques.html")
+
+
+@app.route("/lead-magnet", methods=["POST"])
+@limiter.limit("10 per minute")
+def lead_magnet():
+    import sqlite3
+    email = request.json.get("email", "").strip().lower() if request.is_json else request.form.get("email", "").strip().lower()
+    if not email or not re.match(r'^[^@\s]+@[^@\s]+\.[^@\s]+$', email):
+        return jsonify({"success": False, "error": "Adresse courriel invalide."}), 400
+
+    with sqlite3.connect("customers.db") as conn:
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS leads (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                email TEXT NOT NULL UNIQUE,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                source TEXT DEFAULT 'lead_magnet'
+            )
+        """)
+        conn.execute("INSERT OR IGNORE INTO leads (email) VALUES (?)", (email,))
+        conn.commit()
+
+    return jsonify({"success": True, "download_url": "/static/guides/guide-minipass.pdf"})
+
+
+@app.route("/newsletter-subscribe", methods=["POST"])
+@limiter.limit("10 per minute")
+def newsletter_subscribe():
+    import sqlite3
+    data = request.get_json(silent=True) or {}
+    email = data.get("email", "").strip().lower() or request.form.get("email", "").strip().lower()
+    if not email or not re.match(r'^[^@\s]+@[^@\s]+\.[^@\s]+$', email):
+        return jsonify({"success": False, "error": "Adresse courriel invalide."}), 400
+    with sqlite3.connect("customers.db") as conn:
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS leads (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                email TEXT NOT NULL UNIQUE,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                source TEXT DEFAULT 'lead_magnet'
+            )
+        """)
+        conn.execute("INSERT OR IGNORE INTO leads (email, source) VALUES (?, 'newsletter')", (email,))
+        conn.commit()
+    return jsonify({"success": True})
+
+
+# ============================================================================
+# BLOG
+# ============================================================================
+
+def _strip_md(text):
+    """Strip common markdown syntax for plain text excerpt."""
+    import re as _re
+    text = _re.sub(r'^\s*#{1,6}\s+', '', text, flags=_re.MULTILINE)
+    text = _re.sub(r'\*{1,3}([^*]+)\*{1,3}', r'\1', text)
+    text = _re.sub(r'`{1,3}[^`]*`{1,3}', '', text)
+    text = _re.sub(r'!?\[([^\]]*)\]\([^)]*\)', r'\1', text)
+    text = _re.sub(r'^\s*[-*>|]+\s*', '', text, flags=_re.MULTILINE)
+    text = _re.sub(r'\s+', ' ', text).strip()
+    return text
+
+
+def _init_blog_db(conn):
+    """Create blog_posts table and add any missing columns."""
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS blog_posts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            slug TEXT NOT NULL UNIQUE,
+            excerpt TEXT,
+            body TEXT,
+            category TEXT DEFAULT 'Stratégie',
+            author TEXT DEFAULT 'Marie-France',
+            published INTEGER DEFAULT 0,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            published_at DATETIME,
+            video_url TEXT
+        )
+    """)
+    for col in ("video_url TEXT", "meta_title TEXT", "meta_description TEXT", "lang TEXT DEFAULT 'fr'", "author_email TEXT", "updated_at DATETIME"):
+        try:
+            conn.execute(f"ALTER TABLE blog_posts ADD COLUMN {col}")
+        except Exception:
+            pass  # column already exists
+    # Backfill updated_at for existing rows
+    conn.execute("UPDATE blog_posts SET updated_at = COALESCE(published_at, created_at) WHERE updated_at IS NULL")
+
+
+def _migrate_guides_to_blog(conn):
+    """Import existing static/docs/*.md files + seed data. Runs once only."""
+    conn.execute("CREATE TABLE IF NOT EXISTS _blog_meta (key TEXT PRIMARY KEY, value TEXT)")
+    if conn.execute("SELECT 1 FROM _blog_meta WHERE key='seeds_migrated'").fetchone():
+        return  # Already seeded — don't re-insert deleted posts
+    docs_dir = os.path.join(app.static_folder, 'docs')
+    migrations = [
+        ("faq.md", "faq", "Documentation", "Minipass"),
+        ("guide-demarrage.md", "guide-demarrage", "Documentation", "Minipass"),
+        ("installation-app-fr.md", "installation-app-fr", "Documentation", "Minipass"),
+        ("installation-app-en.md", "installation-app-en", "Documentation", "Minipass"),
+        ("setup-stripe-fr.md", "setup-stripe-fr", "Tutoriel", "Minipass"),
+        ("plan-changes-and-proration.md", "plan-changes-and-proration", "Documentation", "Minipass"),
+        ("architecture-and-data-flow.md", "architecture-and-data-flow", "Documentation", "Minipass"),
+    ]
+    for filename, slug, category, author in migrations:
+        fpath = os.path.join(docs_dir, filename)
+        if not os.path.exists(fpath):
+            continue
+        with open(fpath, 'r', encoding='utf-8') as f:
+            body = f.read()
+        lines = [l.strip() for l in body.splitlines() if l.strip()]
+        title = _strip_md(lines[0]) if lines else slug
+        excerpt_lines = [l for l in lines[1:] if not l.startswith('#') and len(l) > 20]
+        excerpt = _strip_md(excerpt_lines[0])[:200] if excerpt_lines else ""
+        conn.execute("""
+            INSERT OR IGNORE INTO blog_posts (title, slug, excerpt, body, category, author, published, published_at)
+            VALUES (?, ?, ?, ?, ?, ?, 1, CURRENT_TIMESTAMP)
+        """, (title, slug, excerpt, body, category, author))
+        # Fix any existing records with raw markdown excerpts
+        conn.execute("""
+            UPDATE blog_posts SET title=?, excerpt=? WHERE slug=? AND (
+                excerpt LIKE '%**%' OR excerpt LIKE '%*Last%' OR excerpt LIKE '%*Derni%' OR title LIKE '%**%'
+            )
+        """, (title, excerpt, slug))
+
+    # YouTube video: Démarrage rapide
+    conn.execute("""
+        INSERT OR IGNORE INTO blog_posts (title, slug, excerpt, body, category, author, published, published_at, video_url)
+        VALUES (?, ?, ?, ?, ?, ?, 1, CURRENT_TIMESTAMP, ?)
+    """, (
+        "Démarrage rapide avec minipass",
+        "demarrage-rapide-video",
+        "Apprenez à configurer votre compte et créer votre première activité en moins de 5 minutes.",
+        "# Démarrage rapide avec minipass\n\nRegarde cette vidéo pour configurer ton compte et créer ta première activité en moins de 5 minutes.",
+        "Tutoriel", "Minipass",
+        "https://www.youtube.com/watch?v=71_fjztO0dM"
+    ))
+
+    # Seed 3 draft SEO articles
+    seed_articles = [
+        ("Guide complet : gérer une ligue de hockey amateur en 2026",
+         "gerer-ligue-hockey-amateur",
+         "Tout ce que tu dois savoir pour gérer ta ligue de hockey amateur sans stress, des inscriptions aux paiements.",
+         "# Guide complet : gérer une ligue de hockey amateur en 2026\n\n*Contenu à venir — rédige cet article et publie-le pour qu'il apparaisse sur le site.*",
+         "Stratégie", "Marie-France"),
+        ("Automatiser le suivi des virements Interac pour votre ligue",
+         "automatiser-virements-interac",
+         "Comment ne plus jamais perdre un paiement Interac et automatiser le suivi pour ta ligue sportive.",
+         "# Automatiser le suivi des virements Interac\n\n*Contenu à venir — rédige cet article et publie-le pour qu'il apparaisse sur le site.*",
+         "Stratégie", "Marie-France"),
+        ("Créer un formulaire d'inscription en 5 minutes",
+         "formulaire-inscription-5-minutes",
+         "Un tutoriel pas-à-pas pour créer ton premier formulaire d'inscription en ligne avec minipass.",
+         "# Créer un formulaire d'inscription en 5 minutes\n\n*Contenu à venir — rédige cet article et publie-le pour qu'il apparaisse sur le site.*",
+         "Tutoriel", "Marie-France"),
+    ]
+    for title, slug, excerpt, body, category, author in seed_articles:
+        conn.execute("""
+            INSERT OR IGNORE INTO blog_posts (title, slug, excerpt, body, category, author, published)
+            VALUES (?, ?, ?, ?, ?, ?, 0)
+        """, (title, slug, excerpt, body, category, author))
+
+    conn.execute("INSERT OR REPLACE INTO _blog_meta (key, value) VALUES ('seeds_migrated', '1')")
+
+
+@app.route("/blog")
+@app.route("/en/blog")
+def blog():
+    import sqlite3, hashlib
+    category = request.args.get('category', '')
+    default_lang = 'en' if request.path.startswith('/en') else 'fr'
+    lang = request.args.get('lang', default_lang)
+    page = request.args.get('page', 1, type=int)
+    per_page = 9
+    if page < 1:
+        page = 1
+    with sqlite3.connect("customers.db") as conn:
+        conn.row_factory = sqlite3.Row
+        _init_blog_db(conn)
+        _migrate_guides_to_blog(conn)
+        base_where = "published=1 AND COALESCE(lang,'fr')=?"
+        params = [lang]
+        if category:
+            total = conn.execute(
+                f"SELECT COUNT(*) FROM blog_posts WHERE {base_where} AND category=?",
+                params + [category]
+            ).fetchone()[0]
+            posts = conn.execute(
+                f"SELECT * FROM blog_posts WHERE {base_where} AND category=? ORDER BY COALESCE(updated_at, published_at) DESC LIMIT ? OFFSET ?",
+                params + [category, per_page, (page - 1) * per_page]
+            ).fetchall()
+        else:
+            total = conn.execute(
+                f"SELECT COUNT(*) FROM blog_posts WHERE {base_where}",
+                params
+            ).fetchone()[0]
+            posts = conn.execute(
+                f"SELECT * FROM blog_posts WHERE {base_where} ORDER BY COALESCE(updated_at, published_at) DESC LIMIT ? OFFSET ?",
+                params + [per_page, (page - 1) * per_page]
+            ).fetchall()
+        categories = conn.execute(
+            "SELECT DISTINCT category FROM blog_posts WHERE published=1 AND COALESCE(lang,'fr')=? ORDER BY category",
+            (lang,)
+        ).fetchall()
+        total_pages = max(1, (total + per_page - 1) // per_page)
+        if page > total_pages:
+            page = total_pages
+        posts = [dict(p) for p in posts]
+        for p in posts:
+            p['excerpt'] = p.get('meta_description') or p.get('excerpt') or _strip_md(p.get('body', ''))[:200]
+            vid = _yt_id(p.get('video_url'))
+            p['yt_thumb'] = f"https://img.youtube.com/vi/{vid}/maxresdefault.jpg" if vid else None
+            ae = (p.get('author_email') or '').strip().lower()
+            p['gravatar_url'] = f"https://www.gravatar.com/avatar/{hashlib.md5(ae.encode()).hexdigest()}?s=80&d=mp" if ae else None
+    return render_template("blog.html", posts=posts, categories=categories,
+                           active_category=category, active_lang=lang,
+                           page=page, total_pages=total_pages, total_count=total)
+
+
+def _yt_id(url):
+    """Extract YouTube video ID from URL."""
+    if not url:
+        return None
+    import re as _re
+    m = _re.search(r'(?:v=|youtu\.be/|embed/)([A-Za-z0-9_-]{11})', url)
+    return m.group(1) if m else None
+
+
+@app.route("/blog/<slug>")
+@app.route("/en/blog/<slug>")
+def blog_detail(slug):
+    import sqlite3
+    with sqlite3.connect("customers.db") as conn:
+        conn.row_factory = sqlite3.Row
+        _init_blog_db(conn)
+        post = conn.execute(
+            "SELECT * FROM blog_posts WHERE slug=? AND published=1", (slug,)
+        ).fetchone()
+    if not post:
+        abort(404)
+    html_content = render_markdown_safe(post['body'])
+    video_id = _yt_id(post['video_url']) if post['video_url'] else None
+    # Reading time
+    word_count = len((post['body'] or '').split())
+    reading_time = max(1, round(word_count / 200))
+    # Gravatar
+    import hashlib
+    author_email = (post['author_email'] or '').strip().lower()
+    if author_email:
+        email_hash = hashlib.md5(author_email.encode()).hexdigest()
+        gravatar_url = f"https://www.gravatar.com/avatar/{email_hash}?s=80&d=mp"
+    else:
+        gravatar_url = None
+    return render_template("blog-detail.html", post=post, content=html_content, video_id=video_id,
+                           reading_time=reading_time, gravatar_url=gravatar_url)
+
+
+@app.route("/robots.txt")
+def robots_txt():
+    from flask import Response
+    txt = (
+        "User-agent: *\n"
+        "Allow: /\n"
+        "Disallow: /admin/\n"
+        "Disallow: /api/\n"
+        "Disallow: /webhook\n"
+        "Disallow: /start-checkout\n"
+        "Disallow: /redeem-promo\n"
+        "Disallow: /deployment-in-progress\n"
+        "\n"
+        "Sitemap: https://minipass.me/sitemap.xml\n"
+    )
+    return Response(txt, mimetype="text/plain")
 
 
 @app.route("/sitemap.xml")
@@ -131,8 +483,14 @@ def sitemap():
     static_pages = [
         ("", "weekly", "1.0"),
         ("/about", "monthly", "0.8"),
+        ("/blog", "weekly", "0.9"),
         ("/guides", "weekly", "0.9"),
         ("/politiques", "monthly", "0.5"),
+        ("/en/", "weekly", "1.0"),
+        ("/en/about", "monthly", "0.8"),
+        ("/en/blog", "weekly", "0.9"),
+        ("/en/guides", "weekly", "0.9"),
+        ("/en/policies", "monthly", "0.5"),
     ]
 
     docs_dir = os.path.join(app.static_folder, "docs")
@@ -140,6 +498,19 @@ def sitemap():
         os.path.splitext(os.path.basename(f))[0]
         for f in _glob.glob(os.path.join(docs_dir, "*.md"))
     ]
+
+    # Published blog post slugs
+    import sqlite3 as _sqlite3
+    blog_posts = []
+    try:
+        with _sqlite3.connect("customers.db") as conn:
+            conn.row_factory = _sqlite3.Row
+            _init_blog_db(conn)
+            blog_posts = conn.execute(
+                "SELECT slug, published_at FROM blog_posts WHERE published=1 ORDER BY published_at DESC"
+            ).fetchall()
+    except Exception:
+        pass
 
     urls = []
     for path, changefreq, priority in static_pages:
@@ -160,6 +531,16 @@ def sitemap():
             f"    <priority>0.7</priority>\n"
             f"  </url>"
         )
+    for post in blog_posts:
+        post_date = (post['published_at'] or today)[:10]
+        urls.append(
+            f"  <url>\n"
+            f"    <loc>{base_url}/blog/{post['slug']}</loc>\n"
+            f"    <lastmod>{post_date}</lastmod>\n"
+            f"    <changefreq>monthly</changefreq>\n"
+            f"    <priority>0.7</priority>\n"
+            f"  </url>"
+        )
 
     xml = (
         '<?xml version="1.0" encoding="UTF-8"?>\n'
@@ -171,6 +552,7 @@ def sitemap():
 
 
 @app.route("/check-subdomain", methods=["POST"])
+@limiter.limit("15 per minute")
 def check_subdomain():
     data = request.get_json()
     name = data.get("subdomain", "").strip().lower()
@@ -282,6 +664,7 @@ def create_checkout_session():
 
 # ✅ Promo code validation (AJAX, read-only)
 @app.route("/validate-promo-code", methods=["POST"])
+@limiter.limit("10 per minute")
 def validate_promo_code_route():
     from utils.customer_helpers import init_customers_db, validate_promo_code
     init_customers_db()
@@ -295,6 +678,7 @@ def validate_promo_code_route():
 
 # ✅ Promo code redemption (full Stripe bypass)
 @app.route("/redeem-promo", methods=["POST"])
+@limiter.limit("5 per minute")
 def redeem_promo():
     from utils.customer_helpers import (
         init_customers_db, validate_promo_code, redeem_promo_code,
@@ -382,16 +766,6 @@ def deployment_in_progress():
     subdomain = customer.get('subdomain', 'votre application') if customer else 'votre application'
 
     return render_template("deployment_progress.html", session_id=session_id, subdomain=subdomain)
-
-
-# ✅ TEST PAGE - Deployment progress with mock data
-@app.route("/test-deployment-progress")
-def test_deployment_progress():
-    """
-    Test page for deployment progress UI without requiring real deployment.
-    Uses mock log data and allows quick iteration on styling/animations.
-    """
-    return render_template("deployment_progress_test.html")
 
 
 # ✅ API endpoint for deployment logs
@@ -533,6 +907,7 @@ def process_deployment_async(app_name, admin_email, admin_password, plan_key, po
 
 # ✅ Webhook listener
 @app.route("/webhook", methods=["POST"])
+@limiter.exempt
 def stripe_webhook():
     import stripe
     import os
@@ -867,10 +1242,6 @@ def stripe_webhook():
     return "OK", 200
 
 
-# ============================================================================
-# ADMIN TOOLS
-# ============================================================================
-
 def require_admin(f):
     """Decorator to require admin authentication for routes."""
     @wraps(f)
@@ -881,7 +1252,263 @@ def require_admin(f):
     return decorated_function
 
 
+# ============================================================================
+# ADMIN BLOG
+# ============================================================================
+
+def _slug_from_title(title):
+    """Generate URL-safe slug from title."""
+    import unicodedata
+    slug = unicodedata.normalize('NFKD', title).encode('ascii', 'ignore').decode('ascii')
+    slug = re.sub(r'[^\w\s-]', '', slug).strip().lower()
+    slug = re.sub(r'[-\s]+', '-', slug)
+    return slug[:80]
+
+
+@app.route("/admin/blog")
+def admin_blog():
+    import sqlite3
+    require_admin_check = session.get('admin_authenticated')
+    if not require_admin_check:
+        return redirect(url_for('admin_login'))
+    with sqlite3.connect("customers.db") as conn:
+        conn.row_factory = sqlite3.Row
+        _init_blog_db(conn)
+        _migrate_guides_to_blog(conn)
+        posts = conn.execute(
+            "SELECT * FROM blog_posts ORDER BY COALESCE(updated_at, published_at, created_at) DESC"
+        ).fetchall()
+    return render_template("admin/blog.html", posts=posts)
+
+
+@app.route("/admin/blog/new")
+def admin_blog_new():
+    if not session.get('admin_authenticated'):
+        return redirect(url_for('admin_login'))
+    return render_template("admin/blog-form.html", post=None, action=url_for('admin_blog_create'))
+
+
+@app.route("/admin/blog/create", methods=["POST"])
+def admin_blog_create():
+    if not session.get('admin_authenticated'):
+        return redirect(url_for('admin_login'))
+    import sqlite3
+    title = request.form.get("title", "").strip()
+    slug = request.form.get("slug", "").strip() or _slug_from_title(title)
+    body = request.form.get("body", "")
+    category = request.form.get("category", "Stratégie")
+    author = request.form.get("author", "Marie-France").strip()
+    video_url = request.form.get("video_url", "").strip() or None
+    meta_title = request.form.get("meta_title", "").strip() or None
+    meta_description = request.form.get("meta_description", "").strip() or None
+    lang = request.form.get("lang", "fr").strip()
+    author_email = request.form.get("author_email", "").strip().lower() or None
+    published = 1 if request.form.get("published") else 0
+    now = datetime.now(timezone.utc).isoformat()
+    published_at = now if published else None
+    excerpt = (meta_description or _strip_md(body)[:200]).strip()
+    with sqlite3.connect("customers.db") as conn:
+        _init_blog_db(conn)
+        conn.execute("""
+            INSERT INTO blog_posts (title, slug, excerpt, body, category, author, published, published_at, video_url, meta_title, meta_description, lang, author_email, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (title, slug, excerpt, body, category, author, published, published_at, video_url, meta_title, meta_description, lang, author_email, now))
+        conn.commit()
+    return redirect(url_for('admin_blog'))
+
+
+@app.route("/admin/blog/edit/<int:post_id>")
+def admin_blog_edit(post_id):
+    if not session.get('admin_authenticated'):
+        return redirect(url_for('admin_login'))
+    import sqlite3
+    with sqlite3.connect("customers.db") as conn:
+        conn.row_factory = sqlite3.Row
+        post = conn.execute("SELECT * FROM blog_posts WHERE id=?", (post_id,)).fetchone()
+    if not post:
+        abort(404)
+    return render_template("admin/blog-form.html", post=post, action=url_for('admin_blog_update', post_id=post_id))
+
+
+@app.route("/admin/blog/update/<int:post_id>", methods=["POST"])
+def admin_blog_update(post_id):
+    if not session.get('admin_authenticated'):
+        return redirect(url_for('admin_login'))
+    import sqlite3
+    title = request.form.get("title", "").strip()
+    slug = request.form.get("slug", "").strip() or _slug_from_title(title)
+    body = request.form.get("body", "")
+    category = request.form.get("category", "Stratégie")
+    author = request.form.get("author", "Marie-France").strip()
+    video_url = request.form.get("video_url", "").strip() or None
+    meta_title = request.form.get("meta_title", "").strip() or None
+    meta_description = request.form.get("meta_description", "").strip() or None
+    lang = request.form.get("lang", "fr").strip()
+    author_email = request.form.get("author_email", "").strip().lower() or None
+    published = 1 if request.form.get("published") else 0
+    excerpt = (meta_description or _strip_md(body)[:200]).strip()
+    now = datetime.now(timezone.utc).isoformat()
+    with sqlite3.connect("customers.db") as conn:
+        old = conn.execute("SELECT published, published_at FROM blog_posts WHERE id=?", (post_id,)).fetchone()
+        if old:
+            published_at = old[1]
+            if published and not old[0]:
+                published_at = now
+            conn.execute("""
+                UPDATE blog_posts SET title=?, slug=?, excerpt=?, body=?, category=?, author=?, published=?, published_at=?, video_url=?, meta_title=?, meta_description=?, lang=?, author_email=?, updated_at=?
+                WHERE id=?
+            """, (title, slug, excerpt, body, category, author, published, published_at, video_url, meta_title, meta_description, lang, author_email, now, post_id))
+            conn.commit()
+    return redirect(url_for('admin_blog'))
+
+
+@app.route("/admin/blog/toggle/<int:post_id>", methods=["POST"])
+@require_admin
+def admin_blog_toggle(post_id):
+    import sqlite3
+    with sqlite3.connect("customers.db") as conn:
+        row = conn.execute("SELECT published FROM blog_posts WHERE id=?", (post_id,)).fetchone()
+        if row:
+            new_val = 0 if row[0] else 1
+            published_at = datetime.now(timezone.utc).isoformat() if new_val else None
+            conn.execute("UPDATE blog_posts SET published=?, published_at=? WHERE id=?",
+                         (new_val, published_at, post_id))
+            conn.commit()
+    return redirect(url_for('admin_blog'))
+
+
+@app.route("/admin/blog/delete/<int:post_id>", methods=["POST"])
+@require_admin
+def admin_blog_delete(post_id):
+    import sqlite3
+    with sqlite3.connect("customers.db") as conn:
+        conn.execute("DELETE FROM blog_posts WHERE id=?", (post_id,))
+        conn.commit()
+    return redirect(url_for('admin_blog'))
+
+
+@app.route("/admin/blog/preview", methods=["POST"])
+@require_admin
+def admin_blog_preview():
+    data = request.get_json(silent=True) or {}
+    md_text = data.get("markdown", "")
+    html = render_markdown_safe(md_text)
+    return jsonify({"html": html})
+
+
+@app.route("/admin/blog/upload-image", methods=["POST"])
+@require_admin
+def admin_blog_upload_image():
+    file = request.files.get("image")
+    if not file or not file.filename:
+        return jsonify({"error": "Aucun fichier sélectionné"}), 400
+    # Validate extension
+    allowed = {'.jpg', '.jpeg', '.png', '.gif', '.webp'}
+    ext = os.path.splitext(file.filename)[1].lower()
+    if ext not in allowed:
+        return jsonify({"error": "Format non supporté. Utilise JPG, PNG, GIF ou WebP."}), 400
+    # Generate unique filename
+    from PIL import Image
+    import io, time, re
+    base = os.path.splitext(file.filename)[0]
+    base = re.sub(r'[^a-zA-Z0-9_-]', '', base.replace(' ', '-'))[:60]
+    timestamp = int(time.time())
+    save_name = f"{timestamp}-{base}.jpg"
+    blog_dir = os.path.join(app.static_folder, 'blog')
+    os.makedirs(blog_dir, exist_ok=True)
+    save_path = os.path.join(blog_dir, save_name)
+    # Resize and compress
+    img = Image.open(file.stream)
+    if img.mode in ('RGBA', 'P', 'LA'):
+        background = Image.new('RGB', img.size, (255, 255, 255))
+        background.paste(img, mask=img.split()[-1] if img.mode in ('RGBA', 'LA') else None)
+        img = background
+    elif img.mode != 'RGB':
+        img = img.convert('RGB')
+    max_width = 730
+    if img.width > max_width:
+        ratio = max_width / img.width
+        img = img.resize((max_width, int(img.height * ratio)), Image.LANCZOS)
+    img.save(save_path, 'JPEG', quality=80, optimize=True)
+    url = url_for('static', filename=f'blog/{save_name}')
+    return jsonify({"url": url, "markdown": f"![{base}]({url})"})
+
+
+# ============================================================================
+# ADMIN LEADS
+# ============================================================================
+
+@app.route("/admin/leads")
+def admin_leads():
+    if not session.get('admin_authenticated'):
+        return redirect(url_for('admin_login'))
+    import sqlite3
+    q = request.args.get('q', '').strip().lower()
+    with sqlite3.connect("customers.db") as conn:
+        conn.row_factory = sqlite3.Row
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS leads (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                email TEXT NOT NULL UNIQUE,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                source TEXT DEFAULT 'lead_magnet'
+            )
+        """)
+        if q:
+            leads = conn.execute(
+                "SELECT * FROM leads WHERE LOWER(email) LIKE ? ORDER BY created_at DESC",
+                (f'%{q}%',)
+            ).fetchall()
+        else:
+            leads = conn.execute("SELECT * FROM leads ORDER BY created_at DESC").fetchall()
+        stats = conn.execute("""
+            SELECT
+                COUNT(*) as total,
+                SUM(CASE WHEN DATE(created_at) >= DATE('now', '-7 days') THEN 1 ELSE 0 END) as last_7d,
+                SUM(CASE WHEN DATE(created_at) >= DATE('now', '-30 days') THEN 1 ELSE 0 END) as last_30d
+            FROM leads
+        """).fetchone()
+    return render_template("admin/leads.html", leads=leads, stats=stats, search_query=q)
+
+
+@app.route("/admin/leads/delete/<int:lead_id>", methods=["POST"])
+def admin_leads_delete(lead_id):
+    if not session.get('admin_authenticated'):
+        return redirect(url_for('admin_login'))
+    import sqlite3
+    with sqlite3.connect("customers.db") as conn:
+        conn.execute("DELETE FROM leads WHERE id=?", (lead_id,))
+        conn.commit()
+    return redirect(url_for('admin_leads'))
+
+
+@app.route("/admin/leads/export")
+def admin_leads_export():
+    if not session.get('admin_authenticated'):
+        return redirect(url_for('admin_login'))
+    import sqlite3, csv, io
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(['email', 'source', 'created_at'])
+    with sqlite3.connect("customers.db") as conn:
+        conn.row_factory = sqlite3.Row
+        rows = conn.execute("SELECT email, source, created_at FROM leads ORDER BY created_at DESC").fetchall()
+        for row in rows:
+            writer.writerow([row['email'], row['source'], row['created_at']])
+    from flask import Response
+    return Response(
+        output.getvalue(),
+        mimetype='text/csv',
+        headers={'Content-Disposition': 'attachment; filename=leads.csv'}
+    )
+
+
+# ============================================================================
+# ADMIN TOOLS
+# ============================================================================
+
 @app.route("/admin/login", methods=["GET", "POST"])
+@limiter.limit("5 per minute")
 def admin_login():
     """Admin login page."""
     if request.method == "POST":
