@@ -12,7 +12,7 @@ TRANSLATIONS = {
             'title': 'minipass \u2014 Gestion de ligues et d\u2019activit\u00e9s avec Interac | Canada',
             'description': 'minipass automatise les inscriptions, paiements Interac, passeports num\u00e9riques et comptabilit\u00e9 pour vos ligues sportives et cours. Fait au Canada. D\u00e8s 10$/mois.',
             'og_title': 'minipass \u2014 Gestion de ligues avec Interac',
-            'og_desc': 'Automatisez inscriptions, paiements Interac et passeports num\u00e9riques. Logiciel canadien. D\u00e8s 10$/mois.',
+            'og_desc': 'Automatisez inscriptions, jumelage de virements Interac et passeports num\u00e9riques. Plateforme canadienne. D\u00e8s 10$/mois.',
         },
 
         # ── Navigation ──
@@ -53,13 +53,13 @@ TRANSLATIONS = {
             'social_proof_label': 'ILS NOUS FONT CONFIANCE',
             'testimonial1_name': 'Jean-Fran\u00e7ois Goulet',
             'testimonial1_role': 'Co-administrateur de la FLHGI',
-            'testimonial1_text': 'Avec minipass, nous avons enfin un outil qui nous permet de nous concentrer sur nos r\u00e9sultats plut\u00f4t que sur la paperasse. Son intuitivit\u00e9 et ses tableaux de bord budg\u00e9taires ont simplifi\u00e9 nos suivis de <strong>75 %</strong>. C\u2019est devenu l\u2019alli\u00e9 indispensable pour la coordination rapide et simple de toutes les activit\u00e9s de financement de notre Fondation.',
+            'testimonial1_text': 'Avec minipass, nous avons enfin une plateforme qui nous permet de nous concentrer sur nos r\u00e9sultats plut\u00f4t que sur la paperasse. Son intuitivit\u00e9 et ses tableaux de bord budg\u00e9taires ont simplifi\u00e9 nos suivis de <strong>75 %</strong>. C\u2019est devenu l\u2019alli\u00e9 indispensable pour la coordination rapide et simple de tous les programmes de financement de notre Fondation.',
             'testimonial2_name': 'Marc Tremblay',
             'testimonial2_role': 'Entra\u00eeneur hockey, Acad\u00e9mie Tremblay',
             'testimonial2_text': 'Avant minipass, je passais mes fins de semaine \u00e0 v\u00e9rifier les virements Interac un par un. Maintenant, tout est jumel\u00e9 automatiquement. Mes parents re\u00e7oivent leur passeport QR par courriel et je me concentre sur la glace, pas sur les chiffriers.',
             'testimonial3_name': 'Sophie Lavoie',
             'testimonial3_role': 'Instructrice yoga, Studio Lumi\u00e8re',
-            'testimonial3_text': 'J\u2019avais essay\u00e9 trois autres outils avant minipass. Aucun comprenait Interac. Mes clientes s\u2019inscrivent en 2 minutes depuis leur t\u00e9l\u00e9phone et je re\u00e7ois la confirmation automatiquement. La gestion de mes cours n\u2019a jamais \u00e9t\u00e9 aussi simple.',
+            'testimonial3_text': 'J\u2019avais essay\u00e9 trois autres plateformes avant minipass. Aucune comprenait Interac. Mes clientes s\u2019inscrivent en 2 minutes depuis leur t\u00e9l\u00e9phone et je re\u00e7ois la confirmation automatiquement. La gestion de mes cours n\u2019a jamais \u00e9t\u00e9 aussi simple.',
 
             # How it works
             'how_label': 'SIMPLE COMME BONJOUR',
@@ -85,7 +85,7 @@ TRANSLATIONS = {
             'feat5_title': 'Passeports num\u00e9riques QR',
             'feat5_text': 'Chaque participant re\u00e7oit son passeport num\u00e9rique avec code QR par courriel. Tu scannes \u00e0 l\u2019entr\u00e9e, le solde se met \u00e0 jour automatiquement.',
             'feat6_title': 'Con\u00e7u au Canada, pour Interac',
-            'feat6_text': 'Aucun outil am\u00e9ricain ne comprend Interac natif. minipass oui. Support en fran\u00e7ais. Donn\u00e9es h\u00e9berg\u00e9es au Canada.',
+            'feat6_text': 'Aucune plateforme am\u00e9ricaine ne comprend Interac natif. minipass oui. Support en fran\u00e7ais. Entreprise canadienne, conforme PIPEDA.',
 
             # Pricing
             'pricing_label': 'NOS FORFAITS',
@@ -178,7 +178,7 @@ TRANSLATIONS = {
 
         # ── About page ──
         'about': {
-            'meta_title': '\u00c0 propos de minipass \u2014 Logiciel canadien de gestion d\u2019activit\u00e9s',
+            'meta_title': '\u00c0 propos de minipass \u2014 Plateforme canadienne de gestion de ligues et cours',
             'meta_desc': 'D\u00e9couvrez l\u2019\u00e9quipe derri\u00e8re minipass, la plateforme canadienne qui automatise la gestion des ligues sportives, paiements Interac et inscriptions en ligne.',
 
             # Section 1
@@ -240,7 +240,7 @@ TRANSLATIONS = {
         'policies': {
             'title': 'Politiques d\u2019abonnement',
             'meta_title': 'Politiques d\u2019abonnement \u2014 minipass',
-            'meta_desc': 'Consultez les politiques d\u2019abonnement de minipass : conditions d\u2019utilisation, remboursements, annulations et confidentialit\u00e9 pour notre logiciel de gestion de ligues sportives.',
+            'meta_desc': 'Consultez les politiques d\u2019abonnement de minipass : conditions d\u2019utilisation, remboursements, annulations et confidentialit\u00e9 pour notre plateforme de gestion de ligues sportives.',
             'subtitle': 'Conditions g\u00e9n\u00e9rales de renouvellement et d\u2019annulation',
             'close': 'Fermer',
 
@@ -278,7 +278,7 @@ TRANSLATIONS = {
             'title': 'minipass \u2014 Automatic Interac e-Transfer Matching for Leagues & Coaches | Canada',
             'description': 'minipass automates registrations, Interac e-transfer payments, digital passes and accounting for your sports leagues and courses. Canadian-built. Starting at $10/month.',
             'og_title': 'minipass \u2014 Automatic Interac e-Transfer Matching for Leagues',
-            'og_desc': 'Automate registrations, Interac payments and digital passes. Canadian-built software. Starting at $10/month.',
+            'og_desc': 'Automate registrations, Interac e-transfer matching and digital passes. Canadian-built platform. Starting at $10/month.',
         },
 
         # ── Navigation ──
@@ -292,7 +292,7 @@ TRANSLATIONS = {
 
         # ── Footer ──
         'footer': {
-            'tagline': 'Activity management reimagined. Simple. Automated. Secure.',
+            'tagline': 'League and course management reimagined. Simple. Automated. Secure.',
             'contact': 'Contact',
             'quick_links': 'Quick Links',
             'copyright': '\u00a9 2025 minipass.me, made with \u2764\ufe0f in Canada',
@@ -310,7 +310,7 @@ TRANSLATIONS = {
             'hero_word2': 'leagues',
             'hero_word3': 'events',
             'hero_and': 'and',
-            'hero_desc': 'Registrations. Automatic Interac payments. Digital passes. Emails. Finances. All in one.',
+            'hero_desc': 'Registrations. Automatic Interac e-transfer matching. Digital passes. Emails. Finances. All in one.',
             'hero_video_url': 'https://www.youtube.com/watch?v=eftLJ7hTPPs',
             'hero_btn_discover': 'Discover',
             'hero_btn_plans': 'See plans',
@@ -319,18 +319,18 @@ TRANSLATIONS = {
             'social_proof_label': 'THEY TRUST US',
             'testimonial1_name': 'Jean-Fran\u00e7ois Goulet',
             'testimonial1_role': 'Co-administrator of the FLHGI',
-            'testimonial1_text': 'With minipass, we finally have a tool that lets us focus on our results rather than paperwork. Its intuitive design and budget dashboards have simplified our tracking by <strong>75%</strong>. It has become an indispensable ally for the fast and simple coordination of all our Foundation\u2019s fundraising activities.',
+            'testimonial1_text': 'With minipass, we finally have a platform that lets us focus on our results rather than paperwork. Its intuitive design and budget dashboards have simplified our tracking by <strong>75%</strong>. It has become an indispensable ally for the fast and simple coordination of all our Foundation\u2019s fundraising programs.',
             'testimonial2_name': 'Marc Tremblay',
             'testimonial2_role': 'Hockey Coach, Tremblay Academy',
             'testimonial2_text': 'Before minipass, I spent my weekends checking Interac e-transfers one by one. Now everything is matched automatically. Parents receive their QR pass by email and I focus on the ice, not on spreadsheets.',
             'testimonial3_name': 'Sophie Lavoie',
             'testimonial3_role': 'Yoga Instructor, Studio Lumi\u00e8re',
-            'testimonial3_text': 'I tried three other tools before minipass. None of them understood Interac. My clients register in 2 minutes from their phone and I get the confirmation automatically. Managing my classes has never been this easy.',
+            'testimonial3_text': 'I tried three other platforms before minipass. None of them understood Interac. My clients register in 2 minutes from their phone and I get the confirmation automatically. Managing my classes has never been this easy.',
 
             # How it works
             'how_label': 'EASY AS 1-2-3',
             'how_title': 'How it works',
-            'step1_title': 'Create your activity',
+            'step1_title': 'Create your program',
             'step1_text': 'Set up your league, course or service in 4 minutes. Define sessions, pricing and capacity limits. Your registration form is generated automatically \u2014 online, ready to receive payments.',
             'step2_title': 'Share your link',
             'step2_text': 'Your participants register from their phone or computer. They pay by Interac e-transfer or credit card \u2014 their choice.',
@@ -340,18 +340,18 @@ TRANSLATIONS = {
             # Features
             'features_label': 'KEY FEATURES',
             'features_title': 'Everything you need to manage your season',
-            'feat1_title': 'Automatic payment matching',
-            'feat1_text': 'Your participants send their e-transfer as usual \u2014 no app to download. minipass matches each payment automatically. No more hours per week checking manually.',
+            'feat1_title': 'Automatic Interac e-transfer matching',
+            'feat1_text': 'Your participants send their Interac e-transfer as usual \u2014 no app to download. minipass matches each payment automatically. No more hours per week checking manually.',
             'feat2_title': 'Automatic emails and reminders',
             'feat2_text': 'Registration confirmation, payment reminder, pass redemption \u2014 everything is automated. Your participants get the right information at the right time, with no effort on your part.',
             'feat3_title': 'Simplified online registrations',
-            'feat3_text': 'Create your activity, share the link, and minipass handles registrations and payments for you. Your participants register in a few clicks.',
+            'feat3_text': 'Create your league, course or event, share the link, and minipass handles registrations and payments for you. Your participants register in a few clicks.',
             'feat4_title': 'Integrated financial management',
             'feat4_text': 'Complete financial dashboards: revenue, expenses, pending balances. Direct export to QuickBooks, Wave and Xero. No more month-end catch-up.',
             'feat5_title': 'Digital QR passes',
             'feat5_text': 'Each participant receives their digital pass with QR code by email. You scan at the door, the balance updates automatically.',
             'feat6_title': 'Built in Canada, for Interac',
-            'feat6_text': 'No American tool supports native Interac. minipass does. French support. Data hosted in Canada.',
+            'feat6_text': 'No American platform supports native Interac. minipass does. French support. Canadian company, PIPEDA compliant.',
 
             # Pricing
             'pricing_label': 'OUR PLANS',
@@ -404,8 +404,8 @@ TRANSLATIONS = {
 
             # Blog section
             'blog_label': 'OUR BLOG',
-            'blog_title': 'Latest articles',
-            'blog_see_all': 'See all articles',
+            'blog_title': 'Latest posts',
+            'blog_see_all': 'See all posts',
 
             # Modal
             'modal_complete': 'Complete your subscription',
@@ -444,13 +444,13 @@ TRANSLATIONS = {
 
         # ── About page ──
         'about': {
-            'meta_title': 'About minipass \u2014 Canadian Activity Management Software',
+            'meta_title': 'About minipass \u2014 Canadian League & Course Management Platform',
             'meta_desc': 'Meet the team behind minipass, the Canadian platform that automates sports league management, Interac payments and online registrations.',
 
             # Section 1
             's1_label': 'The backstory',
             's1_title': 'The $20 that started it all',
-            's1_p1': 'One Sunday morning, while counting substitute player fees at hockey, Ken realized he was missing twenty dollars and the petty cash still didn\u2019t balance. Between season passes, cash payments and Interac transfers, financial management had become chaotic. Convinced that a simple app should exist to fix this, he quickly discovered that available options were either too complex, too expensive, poorly designed... or all three at once!',
+            's1_p1': 'One Sunday morning, while counting substitute player fees at hockey, Ken realized he was missing twenty dollars and the petty cash still didn\u2019t balance. Between season passes, cash payments and Interac e-transfers, financial management had become chaotic. Convinced that a simple platform should exist to fix this, he quickly discovered that available options were either too complex, too expensive, poorly designed... or all three at once!',
             's1_p2': 'The tech geek in him woke up. A prototype took shape. Interesting. Why not think bigger?',
 
             # Section 2
