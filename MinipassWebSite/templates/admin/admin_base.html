@@ -11,6 +11,33 @@
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <!-- Brand color overrides for DaisyUI theme -->
+    <style>
+        [data-theme="light"] {
+            --p: 0.668 0.152 47;
+            --pc: 1 0 0;
+        }
+        [data-theme="dark"] {
+            --p: 0.668 0.152 47;
+            --pc: 1 0 0;
+        }
+        /* Sidebar active state: neutral gray instead of primary */
+        .nav-active {
+            background-color: #f0f0f0;
+            color: #262729;
+            font-weight: 500;
+        }
+        .nav-active:hover {
+            background-color: #e5e5e5;
+        }
+        [data-theme="dark"] .nav-active {
+            background-color: #2a2a2a;
+            color: #e5e5e5;
+        }
+        [data-theme="dark"] .nav-active:hover {
+            background-color: #333;
+        }
+    </style>
     {% block head %}{% endblock %}
 </head>
 <body class="bg-base-200 min-h-screen">
@@ -73,10 +100,10 @@
             <!-- Logo -->
             <div class="px-6 border-b border-base-300 flex flex-col items-center justify-center h-[60px]">
                 <img src="{{ url_for('static', filename='image/mp-logo-regular.png') }}"
-                     alt="Minipass"
+                     alt="minipass"
                      class="h-5 w-auto theme-icon-light">
                 <img src="{{ url_for('static', filename='image/mp-logo-white.png') }}"
-                     alt="Minipass"
+                     alt="minipass"
                      class="h-5 w-auto theme-icon-dark hidden">
                 <div class="text-xs text-base-content/50 mt-1 leading-none">Admin Panel</div>
             </div>
@@ -87,29 +114,43 @@
                     <li class="menu-title text-xs uppercase tracking-widest text-base-content/40 mb-1">Management</li>
                     <li>
                         <a href="{{ url_for('admin_tools') }}"
-                           class="gap-3 rounded-lg {% if request.endpoint == 'admin_tools' %}bg-primary text-primary-content hover:bg-primary{% endif %}">
+                           class="gap-3 rounded-lg {% if request.endpoint == 'admin_tools' %}nav-active{% endif %}">
                             <i data-lucide="users" class="w-4 h-4"></i>
                             Customers
                         </a>
                     </li>
                     <li>
                         <a href="{{ url_for('admin_promo_codes') }}"
-                           class="gap-3 rounded-lg {% if request.endpoint == 'admin_promo_codes' %}bg-primary text-primary-content hover:bg-primary{% endif %}">
+                           class="gap-3 rounded-lg {% if request.endpoint == 'admin_promo_codes' %}nav-active{% endif %}">
                             <i data-lucide="tag" class="w-4 h-4"></i>
                             Promo Codes
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('admin_blog') }}"
+                           class="gap-3 rounded-lg {% if request.endpoint in ('admin_blog','admin_blog_new','admin_blog_edit') %}nav-active{% endif %}">
+                            <i data-lucide="newspaper" class="w-4 h-4"></i>
+                            Blog
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('admin_leads') }}"
+                           class="gap-3 rounded-lg {% if request.endpoint == 'admin_leads' %}nav-active{% endif %}">
+                            <i data-lucide="contact" class="w-4 h-4"></i>
+                            Leads
                         </a>
                     </li>
                     <li class="menu-title text-xs uppercase tracking-widest text-base-content/40 mt-3 mb-1">Monitoring</li>
                     <li>
                         <a href="{{ url_for('mail_dashboard') }}"
-                           class="gap-3 rounded-lg {% if request.endpoint == 'mail_dashboard' %}bg-primary text-primary-content hover:bg-primary{% endif %}">
+                           class="gap-3 rounded-lg {% if request.endpoint == 'mail_dashboard' %}nav-active{% endif %}">
                             <i data-lucide="mail" class="w-4 h-4"></i>
                             Email Analytics
                         </a>
                     </li>
                     <li>
                         <a href="{{ url_for('dmarc_dashboard') }}"
-                           class="gap-3 rounded-lg {% if request.endpoint == 'dmarc_dashboard' %}bg-primary text-primary-content hover:bg-primary{% endif %}">
+                           class="gap-3 rounded-lg {% if request.endpoint == 'dmarc_dashboard' %}nav-active{% endif %}">
                             <i data-lucide="shield-check" class="w-4 h-4"></i>
                             DMARC Analysis
                         </a>

@@ -1,0 +1,463 @@
+{% extends "admin/admin_base.html" %}
+{% block title %}{{ 'Modifier' if post else 'Nouvel article' }} — Blog{% endblock %}
+{% block page_title %}{{ 'Modifier l\'article' if post else 'Nouvel article' }}{% endblock %}
+
+{% block head %}
+<style>
+.markdown-editor-wrap {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    height: 520px;
+    border: 1px solid oklch(var(--b3));
+    border-radius: 0.75rem;
+    overflow: hidden;
+}
+.markdown-pane {
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid oklch(var(--b3));
+}
+.markdown-pane label {
+    padding: 10px 14px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    background: oklch(var(--b2));
+    border-bottom: 1px solid oklch(var(--b3));
+    color: oklch(var(--bc)/0.5);
+    user-select: none;
+}
+#body-input {
+    flex: 1;
+    resize: none;
+    border: none;
+    outline: none;
+    padding: 16px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.88rem;
+    line-height: 1.7;
+    background: oklch(var(--b1));
+    color: oklch(var(--bc));
+}
+.preview-pane {
+    display: flex;
+    flex-direction: column;
+    background: oklch(var(--b1));
+    overflow-y: auto;
+}
+.preview-pane label {
+    padding: 10px 14px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    background: oklch(var(--b2));
+    border-bottom: 1px solid oklch(var(--b3));
+    color: oklch(var(--bc)/0.5);
+    user-select: none;
+    position: sticky;
+    top: 0;
+}
+#preview-content {
+    padding: 16px;
+    font-size: 0.9rem;
+    line-height: 1.7;
+    color: oklch(var(--bc));
+}
+#preview-content h1, #preview-content h2, #preview-content h3 {
+    font-weight: 700; margin: 1.2rem 0 0.5rem; line-height: 1.3;
+}
+#preview-content h2 { font-size: 1.2rem; border-bottom: 1px solid oklch(var(--b3)); padding-bottom: 6px; }
+#preview-content p { margin-bottom: 0.9rem; }
+#preview-content code {
+    background: oklch(var(--b2)); padding: 1px 5px; border-radius: 4px;
+    font-family: monospace; font-size: 0.87em;
+}
+#preview-content pre { background: oklch(var(--b3)); padding: 14px; border-radius: 8px; overflow-x: auto; margin-bottom: 1rem; }
+#preview-content ul, #preview-content ol { margin: 0 0 0.9rem 1.4rem; }
+#preview-content table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; font-size: 0.85rem; }
+#preview-content th, #preview-content td { padding: 7px 10px; border: 1px solid oklch(var(--b3)); }
+#preview-content th { background: oklch(var(--b2)); font-weight: 600; }
+#preview-content blockquote { border-left: 3px solid #099a97; padding: 8px 14px; background: rgba(9,154,151,0.05); border-radius: 0 6px 6px 0; margin-bottom: 1rem; }
+
+.preview-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: oklch(var(--bc)/0.25);
+    font-size: 0.85rem;
+    font-style: italic;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="mb-5">
+    <a href="{{ url_for('admin_blog') }}" class="btn btn-ghost btn-sm gap-2">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        Retour aux articles
+    </a>
+</div>
+
+<form method="POST" action="{{ action }}">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- Main column -->
+        <div class="lg:col-span-2 flex flex-col gap-5">
+
+            <!-- Title -->
+            <div class="card bg-base-100 border border-base-300 shadow-sm">
+                <div class="card-body p-5">
+                    <div class="form-control">
+                        <label class="label pb-1">
+                            <span class="label-text font-semibold">Titre de l'article</span>
+                        </label>
+                        <input type="text" name="title" id="title-input"
+                               value="{{ post['title'] if post else '' }}"
+                               class="input input-bordered w-full text-lg font-semibold"
+                               placeholder="Ex: Guide complet pour gérer une ligue de hockey"
+                               required oninput="autoSlug(this.value)">
+                    </div>
+                    <div class="form-control mt-3">
+                        <label class="label pb-1">
+                            <span class="label-text text-sm text-base-content/60">Slug (URL)</span>
+                        </label>
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm text-base-content/40 font-mono">/blog/</span>
+                            <input type="text" name="slug" id="slug-input"
+                                   value="{{ post['slug'] if post else '' }}"
+                                   class="input input-bordered input-sm flex-1 font-mono text-sm"
+                                   placeholder="mon-article-slug">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Body editor -->
+            <div class="card bg-base-100 border border-base-300 shadow-sm">
+                <div class="card-body p-5">
+                    <div class="label pb-2">
+                        <span class="label-text font-semibold">Contenu de l'article</span>
+                        <span class="label-text-alt text-base-content/40">Markdown supporté</span>
+                    </div>
+                    <!-- Toolbar -->
+                    <div class="flex items-center gap-1 mb-2 p-2 rounded-lg" style="background: oklch(var(--b2));">
+                        <button type="button" onclick="document.getElementById('image-upload').click()"
+                                class="btn btn-ghost btn-xs gap-1" title="Insérer une image">
+                            <i data-lucide="image-plus" class="w-4 h-4"></i>
+                            Image
+                        </button>
+                        <span id="upload-status" class="text-xs text-base-content/40 ml-2"></span>
+                        <input type="file" id="image-upload" accept="image/*" class="hidden" onchange="uploadImage(this)">
+                    </div>
+                    <div class="markdown-editor-wrap">
+                        <div class="markdown-pane">
+                            <label>Ecrire</label>
+                            <textarea id="body-input" name="body"
+                                      placeholder="# Mon titre&#10;&#10;Commence à écrire ton article ici...&#10;&#10;**Gras**, *italique*, ## Sous-titre">{{ post['body'] if post else '' }}</textarea>
+                        </div>
+                        <div class="preview-pane">
+                            <label>Apercu</label>
+                            <div id="preview-content">
+                                <div class="preview-placeholder">L'aperçu apparaît ici...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SEO -->
+            <div class="card bg-base-100 border border-base-300 shadow-sm">
+                <div class="card-body p-5">
+                    <div class="flex items-center gap-2 mb-4">
+                        <i data-lucide="search" class="w-4 h-4 text-base-content/50"></i>
+                        <h3 class="font-semibold">SEO — Référencement</h3>
+                    </div>
+                    <p class="text-xs text-base-content/40 mb-4">Ces champs contrôlent ce que Google affiche dans les résultats de recherche. La meta description est aussi utilisée comme résumé sur les cartes du blog.</p>
+
+                    <div class="form-control mb-4">
+                        <label class="label pb-1">
+                            <span class="label-text text-sm">Meta titre</span>
+                            <span class="label-text-alt text-base-content/40" id="seo-title-count">0 / 60</span>
+                        </label>
+                        <input type="text" name="meta_title" id="seo-title-input"
+                               value="{{ post['meta_title'] if post and post['meta_title'] else '' }}"
+                               class="input input-bordered input-sm w-full"
+                               placeholder="Ex: Gérer une ligue de hockey amateur en 2026 | minipass"
+                               maxlength="70"
+                               oninput="updateSeoCount('seo-title-input','seo-title-count',60)">
+                    </div>
+
+                    <div class="form-control">
+                        <label class="label pb-1">
+                            <span class="label-text text-sm">Meta description</span>
+                            <span class="label-text-alt text-base-content/40" id="seo-desc-count">0 / 155</span>
+                        </label>
+                        <textarea name="meta_description" id="seo-desc-input"
+                                  class="textarea textarea-bordered text-sm" rows="3" maxlength="200"
+                                  placeholder="Ex: Découvrez comment minipass simplifie la gestion de votre ligue de hockey : inscriptions, paiements Interac et passeports numériques."
+                                  oninput="updateSeoCount('seo-desc-input','seo-desc-count',155)">{{ post['meta_description'] if post and post['meta_description'] else '' }}</textarea>
+                    </div>
+
+                    <!-- Google preview -->
+                    <div class="mt-4 p-3 rounded-lg" style="background: oklch(var(--b2));">
+                        <p class="text-xs text-base-content/40 mb-2 font-semibold uppercase" style="letter-spacing:0.05em;">Aperçu Google</p>
+                        <div style="font-family: Arial, sans-serif;">
+                            <div id="seo-preview-title" style="color: #1a0dab; font-size: 18px; line-height: 1.3; margin-bottom: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ post['title'] if post else 'Titre de l\'article' }}</div>
+                            <div id="seo-preview-url" style="color: #006621; font-size: 13px; margin-bottom: 3px;">minipass.me/blog/<span id="seo-preview-slug">{{ post['slug'] if post else 'mon-article' }}</span></div>
+                            <div id="seo-preview-desc" style="color: #545454; font-size: 13px; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">{{ post['meta_description'] or post['excerpt'] if post else 'Description de l\'article...' }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar column -->
+        <div class="flex flex-col gap-5">
+
+            <!-- Publish -->
+            <div class="card bg-base-100 border border-base-300 shadow-sm">
+                <div class="card-body p-5">
+                    <h3 class="font-semibold mb-4">Publication</h3>
+                    <div class="form-control mb-4">
+                        <label class="label cursor-pointer justify-start gap-3">
+                            <input type="checkbox" name="published" class="toggle toggle-success toggle-sm"
+                                   {{ 'checked' if post and post['published'] else '' }}>
+                            <span class="label-text font-medium">Publier maintenant</span>
+                        </label>
+                        <p class="text-xs text-base-content/40 mt-1 ml-1">Si décoché, l'article est sauvegardé en brouillon.</p>
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <button type="submit" class="btn btn-primary w-full gap-2">
+                            <i data-lucide="save" class="w-4 h-4"></i>
+                            {{ 'Enregistrer les modifications' if post else 'Créer l\'article' }}
+                        </button>
+                        <a href="{{ url_for('admin_blog') }}" class="btn btn-ghost btn-sm w-full">Annuler</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Metadata -->
+            <div class="card bg-base-100 border border-base-300 shadow-sm">
+                <div class="card-body p-5">
+                    <h3 class="font-semibold mb-4">Métadonnées</h3>
+                    <div class="form-control mb-4">
+                        <label class="label pb-1">
+                            <span class="label-text text-sm">Langue</span>
+                        </label>
+                        <input type="hidden" name="lang" id="lang-input" value="{{ post['lang'] if post and post['lang'] else 'fr' }}">
+                        <div class="flex gap-2" id="lang-toggle">
+                            <button type="button" data-lang="fr"
+                                    class="flex-1 border-2 rounded-lg p-2 text-center text-sm font-medium cursor-pointer transition-all"
+                                    style="{{ 'border-color: oklch(var(--p)); background: oklch(var(--p)/0.1);' if not post or (post and post['lang'] != 'en') else 'border-color: oklch(var(--b3));' }}">
+                                FR
+                            </button>
+                            <button type="button" data-lang="en"
+                                    class="flex-1 border-2 rounded-lg p-2 text-center text-sm font-medium cursor-pointer transition-all"
+                                    style="{{ 'border-color: oklch(var(--p)); background: oklch(var(--p)/0.1);' if post and post['lang'] == 'en' else 'border-color: oklch(var(--b3));' }}">
+                                EN
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-control mb-4">
+                        <label class="label pb-1">
+                            <span class="label-text text-sm">Catégorie</span>
+                        </label>
+                        <select name="category" class="select select-bordered select-sm">
+                            {% for cat in ['Stratégie', 'Tutoriel', 'Documentation'] %}
+                            <option value="{{ cat }}" {{ 'selected' if post and post['category'] == cat else '' }}>{{ cat }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-control">
+                        <label class="label pb-1">
+                            <span class="label-text text-sm">Auteur</span>
+                        </label>
+                        <input type="text" name="author"
+                               value="{{ post['author'] if post else 'Marie-France' }}"
+                               class="input input-bordered input-sm">
+                    </div>
+                    <div class="form-control mt-3">
+                        <label class="label pb-1">
+                            <span class="label-text text-sm">Email auteur</span>
+                            <span class="label-text-alt text-base-content/40">Gravatar</span>
+                        </label>
+                        <input type="email" name="author_email"
+                               value="{{ post['author_email'] if post and post['author_email'] else '' }}"
+                               class="input input-bordered input-sm"
+                               placeholder="auteur@example.com">
+                    </div>
+                    <div class="form-control mt-4 pt-3" style="border-top: 1px solid oklch(var(--b3));">
+                        <label class="label pb-1">
+                            <span class="label-text text-sm font-semibold">URL Vidéo YouTube</span>
+                        </label>
+                        <input type="url" name="video_url"
+                               value="{{ post['video_url'] if post and post['video_url'] else '' }}"
+                               class="input input-bordered input-sm"
+                               placeholder="https://www.youtube.com/watch?v=...">
+                        <p class="text-xs text-base-content/40 mt-1">Si rempli, la carte affiche la miniature YouTube et la page intègre la vidéo.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Markdown cheatsheet -->
+            <div class="card bg-base-100 border border-base-300 shadow-sm">
+                <div class="card-body p-5">
+                    <h3 class="font-semibold mb-3 text-sm">Aide Markdown</h3>
+                    <div class="text-xs font-mono text-base-content/60 space-y-1 leading-relaxed">
+                        <div><span class="text-base-content/80"># Titre 1</span></div>
+                        <div><span class="text-base-content/80">## Titre 2</span></div>
+                        <div><span class="text-base-content/80">**gras**</span> · <span class="text-base-content/80">*italique*</span></div>
+                        <div><span class="text-base-content/80">- item liste</span></div>
+                        <div><span class="text-base-content/80">[lien](url)</span></div>
+                        <div><span class="text-base-content/80">`code inline`</span></div>
+                        <div><span class="text-base-content/80">```<br>bloc de code<br>```</span></div>
+                        <div><span class="text-base-content/80">&gt; citation</span></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</form>
+
+<script>
+// Image upload
+function uploadImage(input) {
+    if (!input.files || !input.files[0]) return;
+    var file = input.files[0];
+    if (file.size > 10 * 1024 * 1024) {
+        alert('Image trop lourde (max 10 MB)');
+        input.value = '';
+        return;
+    }
+    var status = document.getElementById('upload-status');
+    status.textContent = 'Upload en cours...';
+    status.style.color = '';
+    var formData = new FormData();
+    formData.append('image', file);
+    fetch('{{ url_for("admin_blog_upload_image") }}', {
+        method: 'POST',
+        body: formData
+    }).then(function(r) { return r.json(); }).then(function(d) {
+        if (d.error) {
+            status.textContent = d.error;
+            status.style.color = '#c0392b';
+        } else {
+            // Insert markdown at cursor position
+            var ta = document.getElementById('body-input');
+            var start = ta.selectionStart;
+            var before = ta.value.substring(0, start);
+            var after = ta.value.substring(ta.selectionEnd);
+            var insert = '\n' + d.markdown + '\n';
+            ta.value = before + insert + after;
+            ta.selectionStart = ta.selectionEnd = start + insert.length;
+            ta.focus();
+            status.textContent = 'Image ajoutee';
+            status.style.color = '#099a97';
+            setTimeout(function() { status.textContent = ''; }, 3000);
+            clearTimeout(previewTimeout);
+            previewTimeout = setTimeout(updatePreview, 400);
+        }
+        input.value = '';
+    }).catch(function() {
+        status.textContent = 'Erreur lors de l\'upload';
+        status.style.color = '#c0392b';
+        input.value = '';
+    });
+}
+
+// Language toggle
+document.querySelectorAll('#lang-toggle button').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        document.getElementById('lang-input').value = btn.dataset.lang;
+        document.querySelectorAll('#lang-toggle button').forEach(function(b) {
+            b.style.borderColor = 'oklch(var(--b3))';
+            b.style.background = 'transparent';
+        });
+        btn.style.borderColor = 'oklch(var(--p))';
+        btn.style.background = 'oklch(var(--p)/0.1)';
+    });
+});
+
+// Auto-generate slug from title (only if slug is empty or matches old auto-value)
+var slugManuallyEdited = {{ 'true' if post and post['slug'] else 'false' }};
+document.getElementById('slug-input').addEventListener('input', function() {
+    slugManuallyEdited = true;
+});
+
+function autoSlug(title) {
+    if (slugManuallyEdited) return;
+    var slug = title.toLowerCase()
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9\s-]/g, '')
+        .trim()
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+        .substring(0, 80);
+    document.getElementById('slug-input').value = slug;
+}
+
+// Markdown live preview
+var previewTimeout;
+var bodyInput = document.getElementById('body-input');
+var previewContent = document.getElementById('preview-content');
+
+function updatePreview() {
+    var md = bodyInput.value;
+    if (!md.trim()) {
+        previewContent.innerHTML = '<div class="preview-placeholder">L\'aperçu apparaît ici...</div>';
+        return;
+    }
+    fetch('{{ url_for("admin_blog_preview") }}', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({markdown: md})
+    }).then(function(r){ return r.json(); }).then(function(d){
+        previewContent.innerHTML = d.html || '';
+    });
+}
+
+bodyInput.addEventListener('input', function() {
+    clearTimeout(previewTimeout);
+    previewTimeout = setTimeout(updatePreview, 400);
+});
+
+// Initial preview if editing existing post
+if (bodyInput.value.trim()) {
+    updatePreview();
+}
+
+// SEO character counter
+function updateSeoCount(inputId, countId, ideal) {
+    var len = document.getElementById(inputId).value.length;
+    var el = document.getElementById(countId);
+    el.textContent = len + ' / ' + ideal;
+    el.style.color = len > ideal ? '#c0392b' : '';
+    updateSeoPreview();
+}
+
+// SEO live preview
+function updateSeoPreview() {
+    var metaTitle = document.getElementById('seo-title-input').value.trim();
+    var title = document.getElementById('title-input').value.trim();
+    var metaDesc = document.getElementById('seo-desc-input').value.trim();
+    var slug = document.getElementById('slug-input').value.trim();
+
+    document.getElementById('seo-preview-title').textContent = metaTitle || title || 'Titre de l\'article';
+    document.getElementById('seo-preview-desc').textContent = metaDesc || 'Description de l\'article...';
+    document.getElementById('seo-preview-slug').textContent = slug || 'mon-article';
+}
+
+// Wire up title/slug changes to also update SEO preview
+document.getElementById('title-input').addEventListener('input', updateSeoPreview);
+document.getElementById('slug-input').addEventListener('input', updateSeoPreview);
+
+// Init counts on load
+updateSeoCount('seo-title-input', 'seo-title-count', 60);
+updateSeoCount('seo-desc-input', 'seo-desc-count', 155);
+</script>
+{% endblock %}

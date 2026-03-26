@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Login - minipass</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -11,8 +12,8 @@
             box-sizing: border-box;
         }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Rubik', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(145deg, #2d1f35 0%, #483550 40%, #5a4365 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -58,23 +59,25 @@
         }
         input[type="password"]:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: #E8794E;
         }
         button {
             width: 100%;
             padding: 14px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #E8794E;
             color: white;
-            border: none;
+            border: 1px solid #E8794E;
             border-radius: 8px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: background 0.18s ease, transform 0.2s, box-shadow 0.2s;
         }
         button:hover {
+            background: #d4683d;
+            border-color: #d4683d;
             transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 5px 20px rgba(232, 121, 78, 0.4);
         }
         .error {
             background: #fee2e2;
@@ -89,7 +92,7 @@
             margin-top: 20px;
         }
         .back-link a {
-            color: #667eea;
+            color: #E8794E;
             text-decoration: none;
             font-size: 14px;
         }
