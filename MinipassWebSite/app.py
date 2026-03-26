@@ -75,12 +75,12 @@ def set_security_headers(response):
     response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
     response.headers['Content-Security-Policy'] = (
         "default-src 'self'; "
-        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://unpkg.com https://cdn.jsdelivr.net https://js.stripe.com; "
-        "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; "
-        "font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net; "
-        "img-src 'self' data: https://www.gravatar.com https://*.stripe.com https://img.youtube.com https://*.ytimg.com; "
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://unpkg.com https://cdn.jsdelivr.net https://js.stripe.com https://www.googletagmanager.com https://connect.facebook.net; "
+        "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com https://cdnjs.cloudflare.com; "
+        "font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net https://finestwp.co https://cdnjs.cloudflare.com; "
+        "img-src 'self' data: https://www.gravatar.com https://*.stripe.com https://img.youtube.com https://*.ytimg.com https://www.facebook.com; "
         "frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com https://js.stripe.com; "
-        "connect-src 'self' https://api.stripe.com; "
+        "connect-src 'self' https://api.stripe.com https://www.google-analytics.com https://*.facebook.com https://*.facebook.net; "
         "object-src 'none'; "
         "base-uri 'self'"
     )
