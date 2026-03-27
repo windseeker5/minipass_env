@@ -423,20 +423,20 @@
         <!-- Filters (centered) -->
         <div class="d-flex flex-wrap align-items-center justify-content-center gap-2">
             <!-- Language -->
-            <a href="{{ url_for('blog', lang='fr', category=active_category) }}"
+            <a href="{{ '/blog' + ('?category=' + active_category if active_category else '') }}"
                class="lang-pill{{ ' active' if active_lang == 'fr' else '' }}">FR</a>
-            <a href="{{ url_for('blog', lang='en', category=active_category) }}"
+            <a href="{{ '/en/blog' + ('?category=' + active_category if active_category else '') }}"
                class="lang-pill{{ ' active' if active_lang == 'en' else '' }}">EN</a>
 
             <span style="width:1px; height:28px; background:#e2e5ea; margin:0 8px;"></span>
 
             <!-- Categories -->
-            <a href="{{ url_for('blog', lang=active_lang) }}"
+            <a href="{{ ('/en/blog' if active_lang == 'en' else '/blog') }}"
                class="cat-pill{{ ' active' if not active_category else '' }}">
                 <i class="fas fa-th-large"></i> {{ t.blog.filter_all }}
             </a>
             {% for cat in categories %}
-            <a href="{{ url_for('blog', lang=active_lang, category=cat['category']) }}"
+            <a href="{{ ('/en/blog' if active_lang == 'en' else '/blog') + '?category=' + cat['category'] }}"
                class="cat-pill{{ ' active' if active_category == cat['category'] else '' }}">
                 {% if cat['category']|lower in ('strategie','stratégie') %}<i class="fas fa-lightbulb"></i>
                 {% elif cat['category']|lower == 'tutoriel' %}<i class="fas fa-graduation-cap"></i>
@@ -508,7 +508,7 @@
         <nav class="blog-pagination" aria-label="Pagination">
             {# Previous #}
             {% if page > 1 %}
-            <a href="{{ url_for('blog', lang=active_lang, category=active_category, page=page-1) }}"
+            <a href="{{ ('/en/blog' if active_lang == 'en' else '/blog') + '?' + ('category=' + active_category + '&' if active_category else '') + 'page=' + (page-1)|string }}"
                class="blog-pagination__btn" aria-label="{{ t.blog.prev_page }}">
                 <i class="fas fa-chevron-left"></i>
             </a>
@@ -522,7 +522,7 @@
             {% set end_page = [total_pages, page + window]|min %}
 
             {% if start_page > 1 %}
-            <a href="{{ url_for('blog', lang=active_lang, category=active_category, page=1) }}"
+            <a href="{{ ('/en/blog' if active_lang == 'en' else '/blog') + ('?category=' + active_category if active_category else '') }}"
                class="blog-pagination__btn">1</a>
             {% if start_page > 2 %}
             <span class="blog-pagination__ellipsis">...</span>
@@ -533,7 +533,7 @@
             {% if p == page %}
             <span class="blog-pagination__btn active">{{ p }}</span>
             {% else %}
-            <a href="{{ url_for('blog', lang=active_lang, category=active_category, page=p) }}"
+            <a href="{{ ('/en/blog' if active_lang == 'en' else '/blog') + '?' + ('category=' + active_category + '&' if active_category else '') + 'page=' + p|string }}"
                class="blog-pagination__btn">{{ p }}</a>
             {% endif %}
             {% endfor %}
@@ -542,13 +542,13 @@
             {% if end_page < total_pages - 1 %}
             <span class="blog-pagination__ellipsis">...</span>
             {% endif %}
-            <a href="{{ url_for('blog', lang=active_lang, category=active_category, page=total_pages) }}"
+            <a href="{{ ('/en/blog' if active_lang == 'en' else '/blog') + '?' + ('category=' + active_category + '&' if active_category else '') + 'page=' + total_pages|string }}"
                class="blog-pagination__btn">{{ total_pages }}</a>
             {% endif %}
 
             {# Next #}
             {% if page < total_pages %}
-            <a href="{{ url_for('blog', lang=active_lang, category=active_category, page=page+1) }}"
+            <a href="{{ ('/en/blog' if active_lang == 'en' else '/blog') + '?' + ('category=' + active_category + '&' if active_category else '') + 'page=' + (page+1)|string }}"
                class="blog-pagination__btn" aria-label="{{ t.blog.next_page }}">
                 <i class="fas fa-chevron-right"></i>
             </a>
