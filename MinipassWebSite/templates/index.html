@@ -987,7 +987,7 @@
      {% for post in homepage_posts %}
      {% set cat_lower = post['category'] | lower | replace('é','e') | replace('è','e') | replace('ê','e') %}
      {% set cat_class = cat_lower if cat_lower in ('strategie','tutoriel','documentation') else 'default' %}
-     <a href="/blog/{{ post['slug'] }}" class="blog-card">
+     <a href="{{ lang_prefix }}/blog/{{ post['slug'] }}" class="blog-card">
       <div class="blog-card__thumb {% if not post.get('yt_thumb') %}blog-card__thumb--grad blog-card__thumb--{{ cat_class }}{% endif %}">
        {% if post.get('yt_thumb') %}
         <img src="{{ post['yt_thumb'] }}" alt="{{ post['title'] }}" loading="lazy" width="400" height="200">
