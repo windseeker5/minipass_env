@@ -184,13 +184,15 @@ def about():
 @app.route("/guides")
 @app.route("/en/guides")
 def guides():
-    return redirect(url_for('blog'), 301)
+    prefix = '/en' if request.path.startswith('/en') else ''
+    return redirect(prefix + '/blog', 301)
 
 
 @app.route("/guides/<slug>")
 @app.route("/en/guides/<slug>")
 def guide_detail(slug):
-    return redirect(url_for('blog_detail', slug=slug), 301)
+    prefix = '/en' if request.path.startswith('/en') else ''
+    return redirect(prefix + '/blog/' + slug, 301)
 
 
 @app.route("/politiques")
