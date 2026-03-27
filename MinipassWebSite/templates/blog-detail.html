@@ -340,7 +340,7 @@
 
     <!-- Breadcrumb -->
     <nav class="article-breadcrumb">
-     <a href="{{ url_for('blog') }}">{{ 'Guides' if post['lang'] == 'fr' else 'Guides' }}</a>
+     <a href="{{ lang_prefix }}/blog">{{ 'Guides' if post['lang'] == 'fr' else 'Guides' }}</a>
      <span class="article-breadcrumb__sep">/</span>
      <span class="article-breadcrumb__current">{{ post['category'] }}</span>
     </nav>

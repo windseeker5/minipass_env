@@ -461,7 +461,7 @@
             {% set cat_lower = (post['category'] or '')|lower|replace('é','e')|replace('è','e')|replace('ê','e') %}
             {% set cat_class = cat_lower if cat_lower in ('strategie','tutoriel','documentation') else 'default' %}
 
-            <a href="{{ url_for('blog_detail', slug=post['slug']) }}"
+            <a href="{{ lang_prefix }}/blog/{{ post['slug'] }}"
                class="blog-card"
                data-title="{{ post['title']|lower }}"
                data-desc="{{ (post['excerpt'] or '')|lower }}"
