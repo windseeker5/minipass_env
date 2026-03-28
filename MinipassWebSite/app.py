@@ -95,6 +95,23 @@ limiter = Limiter(get_remote_address, app=app, default_limits=["200 per minute"]
                   storage_uri="memory://")
 
 
+# ── Browser language auto-detection (fires once per session) ──
+@app.before_request
+def detect_browser_language():
+    if (request.method != 'GET' or
+            request.path.startswith('/static') or
+            request.path.startswith('/admin') or
+            request.path.startswith('/en') or
+            request.path.startswith('/subscribe') or
+            request.path.startswith('/webhook') or
+            session.get('lang_detected')):
+        return
+    session['lang_detected'] = True
+    best = request.accept_languages.best_match(['en', 'en-CA', 'en-US', 'fr', 'fr-CA'])
+    if best and best.startswith('en'):
+        return redirect('/en' + request.path)
+
+
 # ── Language context processor ──
 @app.context_processor
 def inject_lang():
