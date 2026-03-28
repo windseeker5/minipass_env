@@ -147,6 +147,50 @@
         color: #483550 !important;
       }
     }
+
+    /* ── Pricing ribbon — exact Tabler computed values, gold colour ── */
+    .mp-ribbon-top {
+      position: absolute;
+      top: -4px;
+      right: 24px;
+      z-index: 10;
+      width: 32px;
+      height: 32px;
+      background: #D97706;
+      border-radius: 0 6px 0 0;
+      padding: 8px 0 4px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      color: white;
+    }
+    .mp-ribbon-top::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      right: 32px;
+      width: 4px;
+      height: 4px;
+      border-top: 2px solid transparent;
+      border-right: 2px solid #D97706;
+      border-bottom: 2px solid #D97706;
+      border-left: 2px solid transparent;
+      filter: brightness(0.7);
+    }
+    .mp-ribbon-top::after {
+      content: "";
+      position: absolute;
+      top: 32px;
+      left: 0;
+      right: 0;
+      box-sizing: border-box;
+      width: 32px;
+      height: 0;
+      border-top: 0;
+      border-right: 16px solid #D97706;
+      border-bottom: 8px solid transparent;
+      border-left: 16px solid #D97706;
+    }
   </style>
  
     {% block extra_head %}{% endblock %}
