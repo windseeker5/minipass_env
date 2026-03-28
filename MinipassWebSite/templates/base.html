@@ -203,6 +203,11 @@
            {{ t.nav.guides }}
           </a>
          </li>
+         <li class="nav-item d-lg-none" style="border-top:1px solid #eee; margin-top:12px; padding-top:4px;">
+          <a class="nav-link-item" href="{{ alt_lang_url }}">
+           {% if lang == 'fr' %}English{% else %}Français{% endif %}
+          </a>
+         </li>
         </ul>
        </nav>
       </div>
@@ -212,6 +217,8 @@
         {{ t.nav.subscribe }}
        </a>
       </div>
+      <!-- mobile language switcher (always visible on small screens) -->
+      <a href="{{ alt_lang_url }}" class="d-flex d-sm-none align-items-center me-2" style="font-size:0.8rem; font-weight:600; color:#483550; text-decoration:none; border:1px solid #d0d5dd; border-radius:6px; padding:4px 9px; white-space:nowrap;">{{ t.alt_lang_label }}</a>
       <!-- mobile menu trigger -->
       <div class="mobile-menu-trigger">
        <span>
