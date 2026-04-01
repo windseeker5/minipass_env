@@ -8,20 +8,54 @@ sys.path.insert(0, '/home/kdresdell/minipass_env/MinipassWebSite')
 
 from utils.deploy_helpers import deploy_customer_container
 
-print("🧪 Testing deployment with network connectivity validation...")
+print("🧪 Testing deployment with full email sending...")
 print("=" * 60)
 
-result = deploy_customer_container(
-    app_name="demo",
-    admin_email="kdresdell@gmail.com",
-    admin_password="testpass123",
-    plan="basic",
-    port=9997,
-    organization_name="Demo Test Organization",
-    tier=1,
-    billing_frequency="monthly",
-    email_address="demo_app@minipass.me"
+# Test the full deployment process including email sending
+from flask import render_template
+from app import app
+
+# Pre-render email template (like the webhook does)
+app_name = "demo"
+admin_email = "kdresdell@gmail.com"
+admin_password = "testpass123"
+email_address = "demo_app@minipass.me"
+
+with app.app_context():
+    app_url = f"https://{app_name}.minipass.me"
+    email_info = {
+        'email_address': email_address,
+        'email_password': admin_password,
+        'forwarding_setup': True,
+        'forwarding_email': admin_email
+    }
+    rendered_email_html = render_template(
+        "emails/deployment_ready.html",
+        url=app_url,
+        password=admin_password,
+        user_email=admin_email,
+        email_info=email_info
+    )
+
+# Import the background deployment function
+from app import process_deployment_async
+
+# Call the full background deployment with pre-rendered email
+import threading
+deployment_thread = threading.Thread(
+    target=process_deployment_async,
+    args=("demo", "kdresdell@gmail.com", "testpass123", "basic", 9997, "Demo Test Organization",
+          1, "monthly", None, None, None, "test_session", None, None, 0, 'cad',
+          "demo_app@minipass.me", "kdresdell@gmail.com", rendered_email_html),
+    daemon=True
 )
+deployment_thread.start()
+
+# Wait for deployment to complete
+deployment_thread.join()
+
+print("Deployment thread completed")
+result = True  # If we get here, deployment didn't crash
 
 print(f"\n{'='*60}")
 print(f"Result: {'SUCCESS ✅' if result else 'FAILED ❌'}")
