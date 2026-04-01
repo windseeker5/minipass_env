@@ -36,7 +36,7 @@ def render_markdown_safe(md_text):
 
 from translations import TRANSLATIONS
 from utils.deploy_helpers import insert_admin_user
-from utils.email_helpers import init_mail, send_user_deployment_email, send_support_error_email
+from utils.email_helpers import init_mail, send_user_deployment_email, send_support_error_email, send_user_deployment_email_with_html
 from utils.mail import mail
 import subprocess
 
@@ -115,13 +115,19 @@ def detect_browser_language():
 # ── Language context processor ──
 @app.context_processor
 def inject_lang():
-    lang = 'en' if request.path.startswith('/en') else 'fr'
-    prefix = '/en' if lang == 'en' else ''
+    try:
+        lang = 'en' if request.path.startswith('/en') else 'fr'
+        prefix = '/en' if lang == 'en' else ''
+        if lang == 'en':
+            alt_url = request.path.replace('/en', '', 1) or '/'
+        else:
+            alt_url = '/en' + request.path
+    except RuntimeError:
+        # No request context (e.g., background email rendering)
+        lang = 'fr'  # Default to French
+        prefix = ''
+        alt_url = '/'
     t = TRANSLATIONS[lang]
-    if lang == 'en':
-        alt_url = request.path.replace('/en', '', 1) or '/'
-    else:
-        alt_url = '/en' + request.path
     return {'lang': lang, 'lang_prefix': prefix, 't': t, 'alt_lang_url': alt_url}
 
 
@@ -758,11 +764,27 @@ def redeem_promo():
 
     logging.info(f"🎁 Promo code '{promo_code}' redeemed for {app_name} ({admin_email}) — session {promo_session_id}")
 
+    # Pre-render deployment email (has Flask context here)
+    app_url = f"https://{app_name}.minipass.me"
+    email_info = {
+        'email_address': email_address,
+        'email_password': admin_password,
+        'forwarding_setup': True,
+        'forwarding_email': admin_email
+    }
+    rendered_email_html = render_template(
+        "emails/deployment_ready.html",
+        url=app_url,
+        password=admin_password,
+        user_email=admin_email,
+        email_info=email_info
+    )
+
     deployment_thread = threading.Thread(
         target=process_deployment_async,
         args=(app_name, admin_email, admin_password, plan, port, organization_name,
               tier, billing_frequency, subscription_start_date, subscription_end_date,
-              None, promo_session_id, None, None, 0, 'cad', email_address, forwarding_email),
+              None, promo_session_id, None, None, 0, 'cad', email_address, forwarding_email, rendered_email_html),
         daemon=True
     )
     deployment_thread.start()
@@ -862,7 +884,7 @@ def get_deployment_logs(session_id):
 def process_deployment_async(app_name, admin_email, admin_password, plan_key, port, organization_name,
                               tier, billing_frequency, subscription_start_date, subscription_end_date,
                               stripe_price_id, stripe_checkout_session_id, stripe_customer_id,
-                              stripe_subscription_id, payment_amount, currency, email_address, forwarding_email):
+                              stripe_subscription_id, payment_amount, currency, email_address, forwarding_email, rendered_email_html):
     """
     Background worker function to handle deployment asynchronously.
     This runs in a separate thread so the webhook can return immediately.
@@ -899,15 +921,9 @@ def process_deployment_async(app_name, admin_email, admin_password, plan_key, po
             else:
                 subscription_logger.info(f"[{app_name}] ⚠️ LOCAL MODE: Skipping email creation")
 
-            # Step 3: Send deployment email
+            # Step 3: Send deployment email (using pre-rendered HTML)
             subscription_logger.info(f"[{app_name}] 📬 Sending deployment confirmation email")
-            email_info = {
-                'email_address': email_address,
-                'email_password': admin_password,
-                'forwarding_setup': True,
-                'forwarding_email': forwarding_email
-            }
-            send_user_deployment_email(admin_email, app_url, admin_password, email_info)
+            send_user_deployment_email_with_html(admin_email, app_url, admin_password, rendered_email_html)
 
             # Step 4: Mark deployment complete
             subscription_logger.info(f"[{app_name}] ✅ Marking deployment as complete")
@@ -1057,14 +1073,31 @@ def stripe_webhook():
             )
             subscription_logger.info(f"✅ Customer record created - deployment can now be tracked")
 
-            # Step 4: Launch background deployment thread
-            subscription_logger.info(f"🚀 Step 4: Launching background deployment for {app_name}")
+            # Step 4: Pre-render deployment email (has Flask context here)
+            subscription_logger.info(f"🚀 Step 4: Pre-rendering deployment email for {app_name}")
+            app_url = f"https://{app_name}.minipass.me"
+            email_info = {
+                'email_address': email_address,
+                'email_password': admin_password,
+                'forwarding_setup': True,
+                'forwarding_email': admin_email
+            }
+            rendered_email_html = render_template(
+                "emails/deployment_ready.html",
+                url=app_url,
+                password=admin_password,
+                user_email=admin_email,
+                email_info=email_info
+            )
+
+            # Step 5: Launch background deployment thread
+            subscription_logger.info(f"🚀 Step 5: Launching background deployment for {app_name}")
             deployment_thread = threading.Thread(
                 target=process_deployment_async,
                 args=(app_name, admin_email, admin_password, plan_key, port, organization_name,
                       tier, billing_frequency, subscription_start_date, subscription_end_date,
                       stripe_price_id, stripe_checkout_session_id, stripe_customer_id,
-                      stripe_subscription_id, payment_amount, currency, email_address, forwarding_email),
+                      stripe_subscription_id, payment_amount, currency, email_address, forwarding_email, rendered_email_html),
                 daemon=True
             )
             deployment_thread.start()

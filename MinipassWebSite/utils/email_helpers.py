@@ -43,13 +43,25 @@ def send_user_deployment_email(to, url, password, email_info=None):
     subject = "Votre application minipass - Informations de connexion"  # Transactional subject
 
     # ✅ Render with admin email and email info included
-    html = render_template(
-        "emails/deployment_ready.html",
-        url=url,
-        password=password,
-        user_email=to,
-        email_info=email_info
-    )
+    try:
+        from app import app
+        with app.app_context():
+            html = render_template(
+                "emails/deployment_ready.html",
+                url=url,
+                password=password,
+                user_email=to,
+                email_info=email_info
+            )
+    except ImportError:
+        # Fallback if app import fails
+        html = render_template(
+            "emails/deployment_ready.html",
+            url=url,
+            password=password,
+            user_email=to,
+            email_info=email_info
+        )
 
     # Build email body text with email info if available
     body_text = f"Your app is live: {url}\nAdmin Email: {to}\nPassword: {password}"
@@ -96,6 +108,53 @@ def send_user_deployment_email(to, url, password, email_info=None):
         server.send_message(multipart)
 
 
+def send_user_deployment_email_with_html(to, url, password, rendered_html):
+    """
+    Send deployment email using pre-rendered HTML (no Flask context needed)
+    """
+    from utils.deploy_helpers import is_production_environment
+
+    subject = "Votre application minipass - Informations de connexion"
+
+    # Build email body text
+    body_text = f"Your app is live: {url}\nAdmin Email: {to}\nPassword: {password}"
+
+    # Select SMTP settings based on environment
+    if is_production_environment():
+        # Production: Use minipass.me mail server
+        smtp_server = os.getenv("PROD_MAIL_SERVER", "mail.minipass.me")
+        smtp_port = int(os.getenv("PROD_MAIL_PORT", 587))
+        smtp_user = os.getenv("PROD_MAIL_USERNAME", "support@minipass.me")
+        smtp_pass = os.getenv("PROD_MAIL_PASSWORD")
+        sender = os.getenv("PROD_MAIL_DEFAULT_SENDER", "minipass <support@minipass.me>")
+    else:
+        # Local dev: Use Gmail
+        smtp_server = os.getenv("MAIL_SERVER", "smtp.gmail.com")
+        smtp_port = int(os.getenv("MAIL_PORT", 587))
+        smtp_user = os.getenv("MAIL_USERNAME")
+        smtp_pass = os.getenv("MAIL_PASSWORD")
+        sender = os.getenv("MAIL_DEFAULT_SENDER", "info@minipass.me")
+
+    # Build multipart/alternative MIME message
+    multipart = MIMEMultipart('alternative')
+    multipart['Subject'] = subject
+    multipart['From'] = sender
+    multipart['To'] = to
+    multipart['Return-Path'] = sender
+    multipart['Date'] = formatdate(localtime=True)
+    multipart['Message-ID'] = f"<{int(datetime.now(timezone.utc).timestamp() * 1000000)}@minipass.me>"
+    multipart['Auto-Submitted'] = "auto-generated"
+
+    # Plain-text fallback first
+    multipart.attach(MIMEText(body_text, 'plain', 'utf-8'))
+    # Pre-rendered HTML (no template rendering needed!)
+    multipart.attach(MIMEText(rendered_html, 'html', 'utf-8'))
+
+    # Send using smtplib
+    with smtplib.SMTP(smtp_server, smtp_port) as server:
+        server.starttls()
+        server.login(smtp_user, smtp_pass)
+        server.send_message(multipart)
 
 
 def send_support_error_email(user_email, app_name, error_log):
