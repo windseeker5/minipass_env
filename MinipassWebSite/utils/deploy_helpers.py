@@ -801,6 +801,14 @@ def deploy_customer_container(app_name, admin_email, admin_password, plan, port,
                         key, value = line.split('=', 1)
                         parent_env_vars[key.strip()] = value.strip()
 
+        # Prefer the live process environment for STRIPE_SECRET_KEY so that
+        # containers always receive the key the parent is actually running with,
+        # even if the .env file on disk is stale (e.g. still has a test key while
+        # the parent was restarted with a live key passed via the OS environment).
+        live_stripe_key = os.environ.get('STRIPE_SECRET_KEY', '')
+        if live_stripe_key:
+            parent_env_vars['STRIPE_SECRET_KEY'] = live_stripe_key
+
         # Generate a secure random SECRET_KEY for Flask sessions and CSRF protection
         secret_key = secrets.token_hex(32)  # 64-character hexadecimal string
 

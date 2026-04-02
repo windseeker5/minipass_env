@@ -109,14 +109,17 @@
                                 {% endif %}
                             </div>
                         </td>
-                        <td class="text-sm">{{ customer.plan|capitalize }}</td>
+                        {% set plan_display = {'basic': 'Solo', 'pro': 'Club', 'ultimate': 'Organisation'} %}
+                        <td class="text-sm">{{ plan_display.get(customer.plan, customer.plan|capitalize) }}</td>
                         <td>
                             {% set status = customer.subscription_status or 'pending' %}
                             {% if status == 'active' %}
-                            <span class="badge badge-success badge-sm">{{ status }}</span>
+                            <span class="badge badge-success badge-sm">active</span>
+                            {% elif status == 'cancelling' %}
+                            <span class="badge badge-warning badge-sm">cancelling</span>
                             {% elif status == 'pending' %}
-                            <span class="badge badge-warning badge-sm">{{ status }}</span>
-                            {% elif status == 'cancelled' %}
+                            <span class="badge badge-warning badge-sm">pending</span>
+                            {% elif status in ('cancelled', 'past_due') %}
                             <span class="badge badge-error badge-sm">{{ status }}</span>
                             {% else %}
                             <span class="badge badge-ghost badge-sm">{{ status }}</span>
