@@ -1258,8 +1258,40 @@ def stripe_webhook():
         else:
             subscription_logger.info(f"ℹ️ No price change for {subdomain} — cancel/reactivate flip only")
 
+        # Sync STRIPE_SECRET_KEY in the container's .env to the key this process is running
+        # with.  This fixes the case where the container was originally deployed with a test
+        # key but the parent later switched to a live key — the container .env never got updated.
+        try:
+            import re as _re
+            _base_dir = os.path.dirname(os.path.abspath(__file__))
+            _current_stripe_key = os.environ.get('STRIPE_SECRET_KEY', '')
+            _env_file_path = os.path.normpath(
+                os.path.join(_base_dir, "..", "deployed", subdomain, "app", ".env")
+            )
+            if _current_stripe_key and os.path.exists(_env_file_path):
+                with open(_env_file_path, 'r') as _f:
+                    _env_content = _f.read()
+                _new_content = _re.sub(
+                    r'^STRIPE_SECRET_KEY=.*$',
+                    f'STRIPE_SECRET_KEY={_current_stripe_key}',
+                    _env_content,
+                    flags=_re.MULTILINE
+                )
+                if _new_content != _env_content:
+                    with open(_env_file_path, 'w') as _f:
+                        _f.write(_new_content)
+                    subscription_logger.info(f"✅ Synced STRIPE_SECRET_KEY in {subdomain} .env")
+                else:
+                    subscription_logger.info(f"ℹ️ STRIPE_SECRET_KEY already current in {subdomain} .env")
+        except Exception as _e:
+            subscription_logger.error(f"❌ Failed to sync STRIPE_SECRET_KEY in {subdomain} .env: {_e}")
+
         # Always sync subscription_status from Stripe
-        update_customer_plan(subdomain, subscription_status=subscription_obj.get("status", "active"))
+        # When cancel_at_period_end=True the Stripe status stays "active" but we track it as "cancelling"
+        stripe_status = subscription_obj.get("status", "active")
+        cancel_at_period_end = subscription_obj.get("cancel_at_period_end", False)
+        effective_status = "cancelling" if (stripe_status == "active" and cancel_at_period_end) else stripe_status
+        update_customer_plan(subdomain, subscription_status=effective_status)
 
     elif event["type"] == "customer.subscription.deleted":
         # Handle subscription cancellation
