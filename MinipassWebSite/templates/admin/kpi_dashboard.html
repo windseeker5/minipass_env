@@ -1,0 +1,411 @@
+{% extends "admin/admin_base.html" %}
+
+{% block title %}KPI Dashboard{% endblock %}
+{% block page_title %}KPI Dashboard{% endblock %}
+
+{% block content %}
+
+<div class="flex justify-end mb-4">
+    <a id="run-kpi-link" href="#"
+       class="flex items-center gap-1.5 text-sm text-base-content/50 hover:text-primary transition-colors"
+       onclick="runKpiSnapshot(event)">
+        <i id="run-kpi-icon" data-lucide="refresh-cw" class="w-4 h-4"></i>
+        <span id="run-kpi-label">Capture snapshot</span>
+    </a>
+</div>
+
+{% if stripe_mode == 'test' %}
+<div class="alert alert-warning mb-4 text-sm">
+    <i data-lucide="triangle-alert" class="w-4 h-4 shrink-0"></i>
+    <div>
+        Stripe is currently using your <strong>test</strong> key in `MinipassWebSite/.env`, so revenue and churn numbers below come from Stripe test data, not production billing.
+    </div>
+</div>
+{% endif %}
+
+{% if message %}
+<div class="alert alert-success mb-4 text-sm">
+    <i data-lucide="check-circle" class="w-4 h-4 shrink-0"></i>
+    <div>{{ message }}</div>
+</div>
+{% endif %}
+
+{% if error %}
+<div class="alert alert-error mb-4 text-sm">
+    <i data-lucide="x-circle" class="w-4 h-4 shrink-0"></i>
+    <div>{{ error }}</div>
+</div>
+{% endif %}
+
+<div class="card bg-base-100 shadow-sm border border-base-300 mb-6">
+    <div class="card-body p-4">
+        <div class="flex items-center justify-between gap-3 mb-4 flex-wrap">
+            <h2 class="card-title text-base gap-2">
+                <i data-lucide="table-2" class="w-4 h-4 text-primary"></i>
+                Section 9 KPI Scorecard
+            </h2>
+            <span class="text-xs text-base-content/50">Aligned to the business plan targets for M1, M3, and M6</span>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="table table-sm table-zebra w-full">
+                <thead>
+                    <tr class="text-xs uppercase text-base-content/50">
+                        <th>Category</th>
+                        <th>Metric</th>
+                        <th class="text-right">Actual Now</th>
+                        <th class="text-right">Target M1</th>
+                        <th class="text-right">Target M3</th>
+                        <th class="text-right">Target M6</th>
+                        <th>Actual Period</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in plan_rows %}
+                    <tr>
+                        <td class="text-xs text-base-content/60">{{ row.category }}</td>
+                        <td>
+                            <div class="font-medium">{{ row.metric }}</div>
+                            <div class="text-xs text-base-content/40">{{ row.source }}</div>
+                        </td>
+                        <td class="text-right">
+                            {% if row.available %}
+                            <span class="font-semibold">{{ row.actual_display }}</span>
+                            {% else %}
+                            <span class="text-base-content/40">{{ row.pending_label }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-right">{{ row.targets.M1 }}</td>
+                        <td class="text-right">{{ row.targets.M3 }}</td>
+                        <td class="text-right">{{ row.targets.M6 }}</td>
+                        <td class="text-xs text-base-content/50">{{ row.actual_period }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="card bg-base-100 shadow-sm border border-base-300 mb-6">
+    <div class="card-body p-4">
+        <div class="flex items-center justify-between gap-3 mb-4 flex-wrap">
+            <h2 class="card-title text-base gap-2">
+                <i data-lucide="pencil-line" class="w-4 h-4 text-secondary"></i>
+                Manual Social And Community Updates
+            </h2>
+            <span class="text-xs text-base-content/50">Update the values here, then click `Capture snapshot` to freeze this week or month-end checkpoint in history.</span>
+        </div>
+
+        <form method="POST" action="{{ url_for('admin_save_manual_kpi_dashboard') }}" class="space-y-5">
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                {% for field in manual_form %}
+                <div class="rounded-xl border border-base-300 p-4 bg-base-50">
+                    <div class="flex items-start justify-between gap-3 mb-2">
+                        <div>
+                            <div class="font-medium text-sm">{{ field.label }}</div>
+                            <div class="text-xs text-base-content/50">{{ field.help }}</div>
+                        </div>
+                        <div class="flex flex-col items-end gap-1.5 shrink-0">
+                            <a href="{{ field.link }}" target="_blank" rel="noopener noreferrer" class="btn btn-ghost btn-xs gap-1">
+                                <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                                {{ field.link_label }}
+                            </a>
+                            {% if field.analytics_link %}
+                            <a href="{{ field.analytics_link }}" target="_blank" rel="noopener noreferrer" class="btn btn-ghost btn-xs gap-1 text-primary">
+                                <i data-lucide="chart-column" class="w-3.5 h-3.5"></i>
+                                {{ field.analytics_label }}
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <input type="number" min="0" step="1" name="{{ field.key }}" value="{{ field.value }}" class="input input-bordered input-sm w-full">
+                    <div class="text-xs text-base-content/40 mt-2">
+                        {% if field.updated_at %}Last updated {{ field.updated_at[:16] }}{% else %}No value saved yet{% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="rounded-xl border border-base-300 p-4 bg-base-50">
+                <div class="flex items-center justify-between gap-3 mb-3 flex-wrap">
+                    <div>
+                        <div class="font-medium text-sm">Facebook groups joined</div>
+                        <div class="text-xs text-base-content/50">Paste one Facebook group URL per line. The dashboard counts the distinct group URLs automatically.</div>
+                    </div>
+                    <span class="badge badge-outline">{{ facebook_groups|length }} group(s)</span>
+                </div>
+                <textarea name="facebook_groups_text" rows="6" class="textarea textarea-bordered w-full font-mono text-xs" placeholder="https://www.facebook.com/groups/...">{% for group in facebook_groups %}{{ group.url }}{% if not loop.last %}
+{% endif %}{% endfor %}</textarea>
+                {% if facebook_groups %}
+                <div class="mt-3 flex flex-wrap gap-2">
+                    {% for group in facebook_groups %}
+                    <a href="{{ group.url }}" target="_blank" rel="noopener noreferrer" class="badge badge-ghost gap-1 py-3 px-3">
+                        <i data-lucide="external-link" class="w-3 h-3"></i>
+                        Group {{ loop.index }}
+                    </a>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="flex justify-end">
+                <button type="submit" class="btn btn-primary btn-sm gap-2">
+                    <i data-lucide="save" class="w-4 h-4"></i>
+                    Save manual KPI values
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 xl:grid-cols-2 gap-4 mb-6">
+    <div class="card bg-base-100 shadow-sm border border-base-300">
+        <div class="card-body p-4">
+            <h2 class="card-title text-base mb-4 gap-2">
+                <i data-lucide="line-chart" class="w-4 h-4 text-primary"></i>
+                Weekly Visitors History
+            </h2>
+            <div class="text-xs text-base-content/50 mb-3">Historical GA4 weekly visitors so you are not limited to the single latest snapshot.</div>
+            <div class="relative h-64">
+                <canvas id="weeklyTrendChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="card bg-base-100 shadow-sm border border-base-300">
+        <div class="card-body p-4">
+            <h2 class="card-title text-base mb-4 gap-2">
+                <i data-lucide="bar-chart-3" class="w-4 h-4 text-success"></i>
+                Monthly Growth History
+            </h2>
+            <div class="text-xs text-base-content/50 mb-3">Actual monthly visitors and new customers from available data sources.</div>
+            <div class="relative h-64">
+                <canvas id="monthlyTrendChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card bg-base-100 shadow-sm border border-base-300 mb-6">
+    <div class="card-body p-4">
+        <h2 class="card-title text-base mb-4 gap-2">
+            <i data-lucide="calendar-range" class="w-4 h-4"></i>
+            Monthly Actuals
+        </h2>
+
+        <div class="overflow-x-auto">
+            <table class="table table-sm table-zebra w-full">
+                <thead>
+                    <tr class="text-xs uppercase text-base-content/50">
+                        <th>Month</th>
+                        <th class="text-right">Visitors</th>
+                        <th class="text-right">Subscribers Total</th>
+                        <th class="text-right">New Customers</th>
+                        <th class="text-right">MRR</th>
+                        <th class="text-right">Churn</th>
+                        <th class="text-right">YouTube Subs</th>
+                        <th class="text-right">TikTok Weekly Views</th>
+                        <th class="text-right">Instagram Followers</th>
+                        <th class="text-right">FB Page Followers</th>
+                        <th class="text-right">FB Groups Joined</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in monthly_history %}
+                    <tr>
+                        <td class="font-medium">{{ row.period_key }}</td>
+                        <td class="text-right">{{ row.site_visitors if row.site_visitors is not none else '—' }}</td>
+                        <td class="text-right">{{ row.email_subscribers if row.email_subscribers is not none else '—' }}</td>
+                        <td class="text-right">{{ row.new_customers if row.new_customers is not none else '—' }}</td>
+                        <td class="text-right">{% if row.mrr is not none %}${{ '%.2f'|format(row.mrr) }}{% else %}—{% endif %}</td>
+                        <td class="text-right">{% if row.churn_rate is not none %}{{ '%.2f'|format(row.churn_rate) }}%{% else %}—{% endif %}</td>
+                        <td class="text-right">{{ row.youtube_subscribers if row.youtube_subscribers is not none else '—' }}</td>
+                        <td class="text-right">{{ row.tiktok_views if row.tiktok_views is not none else '—' }}</td>
+                        <td class="text-right">{{ row.instagram_followers if row.instagram_followers is not none else '—' }}</td>
+                        <td class="text-right">{{ row.facebook_page_followers if row.facebook_page_followers is not none else '—' }}</td>
+                        <td class="text-right">{{ row.facebook_groups_joined if row.facebook_groups_joined is not none else '—' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<details class="collapse collapse-arrow bg-base-100 border border-base-300">
+    <summary class="collapse-title text-sm font-medium">
+        Technical Details
+    </summary>
+    <div class="collapse-content pt-0">
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
+            <div class="card bg-base-100 shadow-sm border border-base-300">
+                <div class="card-body p-4">
+                    <h2 class="card-title text-base mb-4 gap-2">
+                        <i data-lucide="shield-check" class="w-4 h-4 text-info"></i>
+                        Latest Source Status
+                    </h2>
+                    <div class="space-y-3">
+                        {% for source, status in technical_status.items() %}
+                        <div class="flex items-start justify-between gap-3 p-3 rounded-lg bg-base-200">
+                            <div>
+                                <div class="text-sm font-medium capitalize">{{ source.replace('_', ' ') }}</div>
+                                <div class="text-xs text-base-content/50">{{ status.detail }}</div>
+                            </div>
+                            {% if status.ok %}
+                            <span class="badge badge-success badge-sm">ok</span>
+                            {% else %}
+                            <span class="badge badge-error badge-sm">issue</span>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="card bg-base-100 shadow-sm border border-base-300">
+                <div class="card-body p-4">
+                    <h2 class="card-title text-base mb-4 gap-2">
+                        <i data-lucide="settings-2" class="w-4 h-4 text-base-content/60"></i>
+                        Configuration Checklist
+                    </h2>
+                    <div class="space-y-3">
+                        {% for source, status in config_status.items() %}
+                        <div class="flex items-start justify-between gap-3 p-3 rounded-lg bg-base-200">
+                            <div>
+                                <div class="text-sm font-medium capitalize">{{ source.replace('_', ' ') }}</div>
+                                <div class="text-xs text-base-content/50 break-all">{{ status.detail }}</div>
+                            </div>
+                            {% if status.configured %}
+                            <span class="badge badge-success badge-sm">configured</span>
+                            {% else %}
+                            <span class="badge badge-warning badge-sm">pending</span>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</details>
+
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+const weeklyChartData = {{ weekly_chart|tojson }};
+const monthlyChartData = {{ monthly_chart|tojson }};
+
+function runKpiSnapshot(event) {
+    event.preventDefault();
+    const link = document.getElementById('run-kpi-link');
+    const label = document.getElementById('run-kpi-label');
+    const icon = document.getElementById('run-kpi-icon');
+
+    if (link.dataset.loading === '1') return;
+
+    link.dataset.loading = '1';
+    label.textContent = 'Capturing...';
+    icon.classList.add('animate-spin');
+
+    fetch('{{ url_for("admin_run_kpi_dashboard") }}', {
+        method: 'POST',
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+    })
+        .then(async (response) => {
+            const payload = await response.json();
+            if (!response.ok || !payload.ok) {
+                throw new Error(payload.error || 'Snapshot failed');
+            }
+            window.location.reload();
+        })
+        .catch((error) => {
+            label.textContent = error.message;
+        })
+        .finally(() => {
+            link.dataset.loading = '0';
+            icon.classList.remove('animate-spin');
+            if (label.textContent === 'Capturing...') {
+                label.textContent = 'Capture snapshot';
+            }
+        });
+}
+
+(function renderCharts() {
+    const weeklyCanvas = document.getElementById('weeklyTrendChart');
+    if (weeklyCanvas && weeklyChartData.labels.length) {
+        new Chart(weeklyCanvas, {
+            type: 'line',
+            data: {
+                labels: weeklyChartData.labels,
+                datasets: [
+                    {
+                        label: 'Visitors',
+                        data: weeklyChartData.visitors,
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.15)',
+                        tension: 0.3,
+                        fill: true,
+                    },
+                    {
+                        label: 'New Customers',
+                        data: weeklyChartData.new_customers,
+                        borderColor: '#8b5cf6',
+                        backgroundColor: 'rgba(139, 92, 246, 0.12)',
+                        tension: 0.3,
+                    }
+                ]
+            },
+            options: {
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom' } },
+            }
+        });
+    }
+
+    const monthlyCanvas = document.getElementById('monthlyTrendChart');
+    if (monthlyCanvas && monthlyChartData.labels.length) {
+        new Chart(monthlyCanvas, {
+            type: 'bar',
+            data: {
+                labels: monthlyChartData.labels,
+                datasets: [
+                    {
+                        label: 'Visitors',
+                        data: monthlyChartData.visitors,
+                        backgroundColor: 'rgba(16, 185, 129, 0.7)',
+                        yAxisID: 'y',
+                    },
+                    {
+                        label: 'New Customers',
+                        data: monthlyChartData.new_customers,
+                        borderColor: '#f59e0b',
+                        backgroundColor: 'rgba(245, 158, 11, 0.15)',
+                        type: 'line',
+                        tension: 0.3,
+                        yAxisID: 'y1',
+                    }
+                ]
+            },
+            options: {
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom' } },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        position: 'left',
+                    },
+                    y1: {
+                        beginAtZero: true,
+                        position: 'right',
+                        grid: { drawOnChartArea: false },
+                    }
+                }
+            }
+        });
+    }
+})();
+</script>
+{% endblock %}

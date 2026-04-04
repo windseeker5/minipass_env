@@ -11,3 +11,4 @@ markdown
 bleach
 flask-limiter
 simple-term-menu
+google-analytics-data

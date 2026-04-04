@@ -1640,6 +1640,90 @@ def admin_tools():
     )
 
 
+@app.route("/admin/kpi-dashboard")
+@require_admin
+def admin_kpi_dashboard():
+    """Organic growth KPI dashboard backed by local snapshots."""
+    from utils.kpi_helpers import get_kpi_dashboard_data
+
+    dashboard = get_kpi_dashboard_data()
+    latest_monthly = dashboard['latest_monthly']
+    latest_weekly = dashboard['latest_weekly']
+    weekly_history = dashboard['weekly_history']
+    monthly_history = dashboard['monthly_history']
+
+    weekly_chart = {
+        'labels': [row['period_end'] for row in weekly_history],
+        'visitors': [row['site_visitors'] or 0 for row in weekly_history],
+        'new_customers': [row['new_customers'] or 0 for row in weekly_history],
+    }
+    monthly_chart = {
+        'labels': [row['period_key'] for row in monthly_history],
+        'visitors': [row['site_visitors'] or 0 for row in monthly_history],
+        'new_customers': [row['new_customers'] or 0 for row in monthly_history],
+    }
+
+    return render_template(
+        'admin/kpi_dashboard.html',
+        latest_weekly=latest_weekly,
+        latest_monthly=latest_monthly,
+        weekly_history=weekly_history,
+        monthly_history=monthly_history,
+        weekly_chart=weekly_chart,
+        monthly_chart=monthly_chart,
+        plan_rows=dashboard['plan_rows'],
+        technical_status=dashboard['technical_status'],
+        config_status=dashboard['config_status'],
+        stripe_mode=dashboard['stripe_mode'],
+        manual_form=dashboard['manual_form'],
+        facebook_groups=dashboard['facebook_groups'],
+        message=request.args.get('message'),
+        error=request.args.get('error'),
+    )
+
+
+@app.route("/admin/kpi-dashboard/run", methods=["POST"])
+@require_admin
+def admin_run_kpi_dashboard():
+    """Capture the current weekly + monthly KPI snapshots."""
+    from utils.kpi_helpers import capture_kpi_snapshots
+
+    try:
+        snapshots = capture_kpi_snapshots()
+        return jsonify({
+            'ok': True,
+            'weekly': {
+                'period_end': snapshots['weekly']['period_end'],
+                'site_visitors': snapshots['weekly']['site_visitors'],
+                'new_customers': snapshots['weekly']['new_customers'],
+            },
+            'monthly': {
+                'period_end': snapshots['monthly']['period_end'],
+                'mrr': snapshots['monthly']['mrr'],
+                'churn_rate': snapshots['monthly']['churn_rate'],
+            },
+        })
+    except Exception as e:
+        logging.warning(f"admin_run_kpi_dashboard error: {e}")
+        return jsonify({'ok': False, 'error': str(e)}), 500
+
+
+@app.route("/admin/kpi-dashboard/manual", methods=["POST"])
+@require_admin
+def admin_save_manual_kpi_dashboard():
+    """Save manual social/community KPI values."""
+    from utils.kpi_helpers import save_manual_kpi_form
+
+    try:
+        save_manual_kpi_form(request.form)
+        return redirect(url_for('admin_kpi_dashboard', message="Manual KPI values updated"))
+    except ValueError as e:
+        return redirect(url_for('admin_kpi_dashboard', error=f"Invalid number: {str(e)}"))
+    except Exception as e:
+        logging.warning(f"admin_save_manual_kpi_dashboard error: {e}")
+        return redirect(url_for('admin_kpi_dashboard', error=str(e)))
+
+
 @app.route("/admin/test-email", methods=["POST"])
 @require_admin
 def admin_test_email():
