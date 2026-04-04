@@ -18,8 +18,8 @@ from pathlib import Path
 
 # Directories to scan
 DEFAULT_SCAN_PATHS = [
-    "/home/kdresdell/minipass_env",
-    "/home/kdresdell/minipass_env/MinipassWebSite",
+    "/home/kdresdell/Documents/DEV/minipass_env",
+    "/home/kdresdell/Documents/DEV/minipass_env/MinipassWebSite",
 ]
 
 # File extensions to scan
