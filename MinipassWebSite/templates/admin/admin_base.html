@@ -142,6 +142,13 @@
                     </li>
                     <li class="menu-title text-xs uppercase tracking-widest text-base-content/40 mt-3 mb-1">Monitoring</li>
                     <li>
+                        <a href="{{ url_for('admin_kpi_dashboard') }}"
+                           class="gap-3 rounded-lg {% if request.endpoint == 'admin_kpi_dashboard' %}nav-active{% endif %}">
+                            <i data-lucide="chart-column" class="w-4 h-4"></i>
+                            KPI Dashboard
+                        </a>
+                    </li>
+                    <li>
                         <a href="{{ url_for('mail_dashboard') }}"
                            class="gap-3 rounded-lg {% if request.endpoint == 'mail_dashboard' %}nav-active{% endif %}">
                             <i data-lucide="mail" class="w-4 h-4"></i>
