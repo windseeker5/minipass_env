@@ -80,6 +80,11 @@ When the attacker sent 812 emails in Phase 2, the delivery process works like th
 
 4. With 493 messages deferred and Postfix retrying every few minutes, the mail log filled up rapidly — each retry attempt counts as a "failure" in the dashboard. That is why the dashboard showed **3,314 failures** from only 493 messages: each message was retried ~6-7 times before we intervened.
 
+   **Dashboard vs. report number alignment:** By the time all retries were logged (through queue flush at 16:16 UTC), the dashboard total reached **~3,542–3,606**. The 3,314 figure in this report reflects the count at time of discovery (~16:00 UTC); additional retries accumulated in the 16-minute window before the queue was flushed. Both numbers are correct — they measure different points in time. The three key counts are all consistent:
+   - **812** = unique emails submitted by the attacker via SMTP
+   - **493** = unique messages in the deferred queue at time of discovery
+   - **3,500+** = total delivery-attempt log lines (each of the 493 messages retried ~7 times by Postfix)
+
 5. The reason free.fr blacklisted us so quickly: the attacker sent hundreds of emails to free.fr addresses in a very short burst. Free.fr's anti-spam system detects this volume pattern as a "trojan" (automated bulk sending) and blocks the sending IP. This is actually what **saved us from wider damage** — the French providers' rate limiting turned what could have been 800+ delivered phishing emails into 493 queued ones we could delete.
 
 **Why Gmail and Hotmail were not blocked (Phase 1):** The test batch of 2 emails was small enough to fly under any rate-limiting threshold, and Gmail/Hotmail have higher tolerance for new senders.
