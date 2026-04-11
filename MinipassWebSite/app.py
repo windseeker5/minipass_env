@@ -53,8 +53,11 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(me
 subscription_logger = setup_subscription_logger()
 
 
- 
-load_dotenv()
+
+# Load .env.production if it exists (production VPS), otherwise fall back to .env (local dev)
+_env_file = '.env.production' if os.path.exists('.env.production') else '.env'
+load_dotenv(_env_file)
+print(f"[ENV] Loaded environment from: {_env_file}")
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY")
 if not app.secret_key:

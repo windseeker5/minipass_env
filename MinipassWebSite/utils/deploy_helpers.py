@@ -877,6 +877,13 @@ def deploy_customer_container(app_name, admin_email, admin_password, plan, port,
         with open(env_path, "w") as f:
             f.write(env_content)
 
+        # Validate Stripe key matches the price IDs account
+        _stripe_key = parent_env_vars.get('STRIPE_SECRET_KEY', '')
+        if _stripe_key and 'GrhkirXbsP' not in _stripe_key:
+            logger.warning(f"[{app_name}] ⚠️ STRIPE_SECRET_KEY may be from wrong account! "
+                           f"Expected production key containing 'GrhkirXbsP', got key starting with "
+                           f"'{_stripe_key[:20]}...'. Check that MinipassWebSite loaded .env.production.")
+
         log_validation_check(logger, ".env file created", os.path.exists(env_path), f"File written: {env_path}")
 
         # Step 4: Install dependencies for Flask migrations
