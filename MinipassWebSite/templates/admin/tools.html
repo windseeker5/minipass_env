@@ -114,7 +114,9 @@
                         {% set plan_display = {'basic': 'Solo', 'pro': 'Club', 'ultimate': 'Organisation'} %}
                         <td>{{ plan_display.get(customer.plan, customer.plan|capitalize) }}</td>
                         <td>
-                            {% if customer.stripe_livemode == 1 and customer.payment_amount %}
+                            {% if customer.stripe_livemode == 0 %}
+                                <span class="badge badge-outline badge-sm text-base-content/50">beta</span>
+                            {% elif customer.payment_amount and customer.payment_amount > 0 %}
                                 {% set dollars = "%.2f"|format(customer.payment_amount / 100) %}
                                 {% set freq = '/mo' if customer.billing_frequency == 'monthly' else '/yr' %}
                                 ${{ dollars }}{{ freq }}
@@ -139,7 +141,9 @@
                             {% endif %}
                         </td>
                         <td>
-                            {% if customer.stripe_livemode == 1 and customer.subscription_end_date %}
+                            {% if customer.stripe_livemode == 0 %}
+                                <span class="text-base-content/40">N/A</span>
+                            {% elif customer.payment_amount and customer.payment_amount > 0 and customer.subscription_end_date %}
                             <div class="flex flex-col gap-0.5">
                                 <span class="text-base-content/40">
                                     {% if status == 'active' %}Renews{% elif status == 'cancelling' %}Access until{% elif status == 'cancelled' %}Expired{% else %}Ends{% endif %}
