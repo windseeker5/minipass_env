@@ -48,10 +48,11 @@ def init_customers_db():
         # Ensure stripe_livemode column exists for older databases
         try:
             cur.execute("ALTER TABLE customers ADD COLUMN stripe_livemode INTEGER")
-            # Backfill: heq was deployed via Stripe test sandbox
-            cur.execute("UPDATE customers SET stripe_livemode = 0 WHERE subdomain = 'heq'")
         except sqlite3.OperationalError:
             pass  # column already exists
+
+        # Backfill: heq was deployed via Stripe test sandbox
+        cur.execute("UPDATE customers SET stripe_livemode = 0 WHERE subdomain = 'heq' AND stripe_livemode IS NULL")
 
         # Create processed events table for idempotency
         cur.execute("""
