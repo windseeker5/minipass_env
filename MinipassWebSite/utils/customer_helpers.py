@@ -439,6 +439,7 @@ def get_all_customers():
     Returns:
         list: List of customer dictionaries ordered by creation date (newest first)
     """
+    init_customers_db()
     with sqlite3.connect(CUSTOMERS_DB) as conn:
         conn.row_factory = sqlite3.Row
         cur = conn.cursor()
