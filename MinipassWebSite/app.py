@@ -1020,6 +1020,7 @@ def stripe_webhook():
         # ✅ NEW: Extract Stripe Customer and Subscription IDs
         stripe_customer_id = session_data.get("customer")
         stripe_subscription_id = session_data.get("subscription")
+        stripe_livemode = event.get("livemode", None)
         subscription_logger.info(f"💳 Stripe Customer ID: {stripe_customer_id}")
         subscription_logger.info(f"🔄 Stripe Subscription ID: {stripe_subscription_id}")
 
@@ -1074,7 +1075,8 @@ def stripe_webhook():
                 stripe_subscription_id=stripe_subscription_id,
                 payment_amount=payment_amount,
                 currency=currency,
-                subscription_status='active'
+                subscription_status='active',
+                stripe_livemode=stripe_livemode,
             )
             subscription_logger.info(f"✅ Customer record created - deployment can now be tracked")
 
