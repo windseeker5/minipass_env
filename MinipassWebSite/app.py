@@ -1961,6 +1961,7 @@ def admin_sync_stripe_all():
     customers = get_all_customers()
     synced = 0
     errors = 0
+    failed_names = []
 
     for customer in customers:
         sub_id = customer.get('stripe_subscription_id')
@@ -1968,6 +1969,17 @@ def admin_sync_stripe_all():
             continue
         try:
             sub = stripe.Subscription.retrieve(sub_id)
+        except (stripe.error.InvalidRequestError, stripe.error.AuthenticationError, stripe.error.PermissionError) as e:
+            # Subscription doesn't exist or belongs to a different Stripe account.
+            # Clear the stale subscription ID so it won't fail on future syncs.
+            logging.warning(f"[SYNC_ALL] Clearing invalid subscription ID for {customer.get('subdomain')}: {e}")
+            update_customer_plan(customer['subdomain'], stripe_price_id='')
+            import sqlite3 as _sq
+            with _sq.connect("customers.db") as _conn:
+                _conn.execute("UPDATE customers SET stripe_subscription_id = NULL WHERE subdomain = ?", (customer['subdomain'],))
+                _conn.commit()
+            continue
+        try:
             items = sub.get("items", {}).get("data", [])
             if not items:
                 continue
@@ -2006,11 +2018,12 @@ def admin_sync_stripe_all():
             synced += 1
         except Exception as e:
             logging.warning(f"[SYNC_ALL] Failed to sync {customer.get('subdomain')}: {e}")
+            failed_names.append(customer.get('subdomain', '?'))
             errors += 1
 
     msg = f"Synced {synced} customer(s) from Stripe."
     if errors:
-        msg += f" {errors} error(s)."
+        msg += f" Failed: {', '.join(failed_names)}."
     return redirect(url_for('admin_tools', message=msg))
 
 
