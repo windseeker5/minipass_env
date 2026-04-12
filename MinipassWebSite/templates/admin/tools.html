@@ -86,31 +86,42 @@
                         <th>Customer Email</th>
                         <th>App Email</th>
                         <th>Plan</th>
+                        <th>Amount</th>
                         <th>Status</th>
+                        <th>Renewal / Expires</th>
                         <th>Created</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody id="customers-body">
                     {% for customer in customers %}
-                    <tr class="customer-row">
+                    <tr class="customer-row text-sm">
                         <td>
                             <a href="https://{{ customer.subdomain }}.minipass.me" target="_blank"
-                               class="font-mono text-xs link link-primary">
+                               class="link link-primary">
                                 {{ customer.subdomain }}
                             </a>
                         </td>
-                        <td class="text-sm">{{ customer.email }}</td>
+                        <td>{{ customer.email }}</td>
                         <td>
                             <div class="flex flex-col gap-0.5">
-                                <span class="font-mono text-xs">{{ customer.email_address or 'N/A' }}</span>
+                                <span>{{ customer.email_address or 'N/A' }}</span>
                                 {% if customer.email_password %}
-                                <span class="text-xs text-base-content/40">pw: {{ customer.email_password }}</span>
+                                <span class="text-base-content/40">pw: {{ customer.email_password }}</span>
                                 {% endif %}
                             </div>
                         </td>
                         {% set plan_display = {'basic': 'Solo', 'pro': 'Club', 'ultimate': 'Organisation'} %}
-                        <td class="text-sm">{{ plan_display.get(customer.plan, customer.plan|capitalize) }}</td>
+                        <td>{{ plan_display.get(customer.plan, customer.plan|capitalize) }}</td>
+                        <td>
+                            {% if customer.payment_amount %}
+                                {% set dollars = "%.2f"|format(customer.payment_amount / 100) %}
+                                {% set freq = '/mo' if customer.billing_frequency == 'monthly' else '/yr' %}
+                                ${{ dollars }}{{ freq }}
+                            {% else %}
+                                <span class="text-base-content/40">--</span>
+                            {% endif %}
+                        </td>
                         <td>
                             {% set status = customer.subscription_status or 'pending' %}
                             {% if status == 'active' %}
@@ -119,13 +130,27 @@
                             <span class="badge badge-warning badge-sm">cancelling</span>
                             {% elif status == 'pending' %}
                             <span class="badge badge-warning badge-sm">pending</span>
-                            {% elif status in ('cancelled', 'past_due') %}
-                            <span class="badge badge-error badge-sm">{{ status }}</span>
+                            {% elif status == 'cancelled' %}
+                            <span class="badge badge-error badge-sm">cancelled</span>
+                            {% elif status == 'past_due' %}
+                            <span class="badge badge-error badge-sm">past due</span>
                             {% else %}
                             <span class="badge badge-ghost badge-sm">{{ status }}</span>
                             {% endif %}
                         </td>
-                        <td class="text-xs text-base-content/50">
+                        <td>
+                            {% if customer.subscription_end_date %}
+                            <div class="flex flex-col gap-0.5">
+                                <span class="text-base-content/40">
+                                    {% if status == 'active' %}Renews{% elif status == 'cancelling' %}Access until{% elif status == 'cancelled' %}Expired{% else %}Ends{% endif %}
+                                </span>
+                                <span>{{ customer.subscription_end_date[:10] }}</span>
+                            </div>
+                            {% else %}
+                                <span class="text-base-content/40">N/A</span>
+                            {% endif %}
+                        </td>
+                        <td>
                             {{ customer.created_at[:10] if customer.created_at else 'N/A' }}
                         </td>
                         <td>
@@ -133,6 +158,7 @@
                                     data-resend="{{ url_for('admin_resend_email', subdomain=customer.subdomain) }}"
                                     data-reset="{{ url_for('admin_reset_password', subdomain=customer.subdomain) }}"
                                     data-delete="{{ url_for('admin_delete_customer', subdomain=customer.subdomain) }}"
+                                    data-sync="{{ url_for('admin_sync_stripe', subdomain=customer.subdomain) }}"
                                     data-subdomain="{{ customer.subdomain }}"
                                     data-customer-email="{{ customer.email }}">
                                 Actions
@@ -255,6 +281,13 @@
             </button>
         </form>
         <hr class="my-1 border-base-300">
+        <form id="ca-sync-form" method="POST">
+            <button type="submit" class="flex items-center gap-2 w-full px-3 py-2 text-sm rounded-lg hover:bg-base-200 whitespace-nowrap">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>
+                Sync with Stripe
+            </button>
+        </form>
+        <hr class="my-1 border-base-300">
         <button id="ca-reset-btn" type="button" class="flex items-center gap-2 w-full px-3 py-2 text-sm text-error rounded-lg hover:bg-error/10 whitespace-nowrap">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6"/><path d="m15.5 7.5 3 3L22 7l-3-3"/></svg>
             Reset Password
@@ -268,6 +301,7 @@
     document.body.appendChild(menu);
 
     const resendForm = document.getElementById('ca-resend-form');
+    const syncForm   = document.getElementById('ca-sync-form');
     const resetBtn   = document.getElementById('ca-reset-btn');
     const deleteBtn  = document.getElementById('ca-delete-btn');
     let currentSubdomain    = '';
@@ -278,13 +312,14 @@
 
     function openMenu(trigger) {
         const rect   = trigger.getBoundingClientRect();
-        const menuH  = 140;
+        const menuH  = 190;
         const top    = (window.innerHeight - rect.bottom > menuH) ? rect.bottom + 4 : rect.top - menuH - 4;
         const left   = Math.max(8, rect.right - 220);
         menu.style.top       = top + 'px';
         menu.style.left      = left + 'px';
         menu.style.display   = 'block';
         resendForm.action    = trigger.dataset.resend;
+        syncForm.action      = trigger.dataset.sync;
         currentResetUrl      = trigger.dataset.reset;
         currentDeleteUrl     = trigger.dataset.delete;
         currentSubdomain     = trigger.dataset.subdomain;

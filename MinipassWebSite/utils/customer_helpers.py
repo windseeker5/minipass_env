@@ -435,7 +435,10 @@ def get_all_customers():
         cur.execute("""
             SELECT subdomain, email, app_name, plan, port, deployed,
                    email_address, email_password, email_status, created_at,
-                   subscription_status, admin_password, organization_name
+                   subscription_status, admin_password, organization_name,
+                   payment_amount, currency, billing_frequency,
+                   subscription_end_date, subscription_start_date,
+                   stripe_subscription_id
             FROM customers
             ORDER BY created_at DESC
         """)

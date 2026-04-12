@@ -57,6 +57,7 @@ subscription_logger = setup_subscription_logger()
 # Load .env.production if it exists (production VPS), otherwise fall back to .env (local dev)
 _env_file = '.env.production' if os.path.exists('.env.production') else '.env'
 load_dotenv(_env_file)
+_is_production = _env_file == '.env.production'
 print(f"[ENV] Loaded environment from: {_env_file}")
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY")
@@ -64,10 +65,11 @@ if not app.secret_key:
     raise ValueError("SECRET_KEY environment variable is required!")
 
 app.config.update(
-    SESSION_COOKIE_SECURE=True,    # HTTPS only
+    SESSION_COOKIE_SECURE=_is_production,    # HTTPS only in production
     SESSION_COOKIE_HTTPONLY=True,  # No JavaScript access
     SESSION_COOKIE_SAMESITE='Lax', # CSRF protection
 )
+
 
 
 @app.after_request
@@ -1919,6 +1921,73 @@ def admin_delete_customer(subdomain):
     except Exception as e:
         logging.error(f"Admin delete customer '{subdomain}' unexpected error: {e}")
         return jsonify({"success": False, "error": str(e), "results": []}), 500
+
+
+@app.route("/admin/sync-stripe/<subdomain>", methods=["POST"])
+@require_admin
+def admin_sync_stripe(subdomain):
+    """Sync a customer's subscription status from Stripe."""
+    from utils.customer_helpers import get_customer_by_subdomain, update_customer_plan
+
+    customer = get_customer_by_subdomain(subdomain)
+    if not customer:
+        return redirect(url_for('admin_tools', error=f"Customer '{subdomain}' not found."))
+
+    stripe_sub_id = customer.get('stripe_subscription_id')
+    if not stripe_sub_id:
+        return redirect(url_for('admin_tools', error=f"No Stripe subscription ID for '{subdomain}'."))
+
+    try:
+        sub = stripe.Subscription.retrieve(stripe_sub_id)
+
+        # Map Stripe status to our status
+        stripe_status = sub.get("status", "active")
+        cancel_at_period_end = sub.get("cancel_at_period_end", False)
+        if stripe_status == "active" and cancel_at_period_end:
+            effective_status = "cancelling"
+        elif stripe_status == "canceled":
+            effective_status = "cancelled"
+        else:
+            effective_status = stripe_status
+
+        # Extract current_period_end as ISO date
+        period_end = sub.get("current_period_end")
+        end_date = datetime.fromtimestamp(period_end, tz=timezone.utc).isoformat() if period_end else None
+
+        # Extract payment amount from subscription items
+        amount = None
+        try:
+            items = sub.get("items", {}).get("data", [])
+            if items:
+                amount = items[0]["price"]["unit_amount"]
+        except (KeyError, IndexError, TypeError):
+            pass
+
+        # Extract billing interval
+        billing_freq = None
+        try:
+            items = sub.get("items", {}).get("data", [])
+            if items:
+                interval = items[0]["price"]["recurring"]["interval"]
+                billing_freq = "monthly" if interval == "month" else "annual"
+        except (KeyError, IndexError, TypeError):
+            pass
+
+        # Update the local database
+        update_customer_plan(
+            subdomain,
+            subscription_status=effective_status,
+            subscription_end_date=end_date,
+            payment_amount=amount,
+            billing_frequency=billing_freq if billing_freq else None,
+        )
+
+        return redirect(url_for('admin_tools', message=f"Synced '{subdomain}': status={effective_status}"))
+
+    except stripe.error.StripeError as e:
+        return redirect(url_for('admin_tools', error=f"Stripe error for '{subdomain}': {str(e)}"))
+    except Exception as e:
+        return redirect(url_for('admin_tools', error=f"Error syncing '{subdomain}': {str(e)}"))
 
 
 # ✅ Admin promo codes

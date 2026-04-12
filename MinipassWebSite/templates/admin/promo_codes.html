@@ -148,7 +148,7 @@
                         <td class="font-mono font-semibold text-sm">{{ c.code }}</td>
                         <td class="text-sm">{{ c.plan }} / {{ c.billing_frequency }}</td>
                         <td class="text-sm">{{ c.uses_count }} / {{ c.max_uses }}</td>
-                        <td class="text-xs text-base-content/60">{{ c.expires_at or '—' }}</td>
+                        <td class="text-xs text-base-content/60">{{ c.expires_at[:10] if c.expires_at else '—' }}</td>
                         <td class="font-mono text-xs">{{ c.redeemed_by_subdomain or '—' }}</td>
                         <td class="text-xs text-base-content/60">{{ c.created_at[:10] if c.created_at else '—' }}</td>
                         <td class="text-xs text-base-content/60">{{ c.notes or '—' }}</td>
