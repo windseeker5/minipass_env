@@ -1229,6 +1229,25 @@ def stripe_webhook():
         price_to_plan = {v: k for k, v in STRIPE_PRICES.items() if v}
         plan_key = price_to_plan.get(new_price_id) if new_price_id else None
 
+        # Extract payment amount and renewal date from Stripe event
+        new_payment_amount = None
+        new_subscription_end_date = None
+        try:
+            items = subscription_obj.get("items", {}).get("data", [])
+            if items:
+                new_payment_amount = items[0]["price"].get("unit_amount")
+        except (KeyError, IndexError, TypeError):
+            pass
+        try:
+            period_end = subscription_obj.get("current_period_end")
+            if period_end:
+                from datetime import datetime, timezone
+                new_subscription_end_date = datetime.fromtimestamp(
+                    period_end, tz=timezone.utc
+                ).isoformat()
+        except (ValueError, TypeError):
+            pass
+
         # Update plan/billing columns only when price changed
         if plan_key:
             plan_name, billing_frequency = plan_key.rsplit('_', 1)
@@ -1236,9 +1255,11 @@ def stripe_webhook():
                 subdomain,
                 plan=plan_name,
                 billing_frequency=billing_frequency,
-                stripe_price_id=new_price_id
+                stripe_price_id=new_price_id,
+                payment_amount=new_payment_amount,
+                subscription_end_date=new_subscription_end_date,
             )
-            subscription_logger.info(f"✅ Plan updated for {subdomain}: {plan_key}")
+            subscription_logger.info(f"✅ Plan updated for {subdomain}: {plan_key}, amount={new_payment_amount}, end={new_subscription_end_date}")
 
             # Update the customer app's Setting table
             try:
@@ -1252,8 +1273,8 @@ def stripe_webhook():
                         db_path,
                         customer.get('stripe_customer_id', ''),
                         stripe_subscription_id,
-                        customer.get('payment_amount', ''),
-                        customer.get('subscription_end_date', ''),
+                        new_payment_amount or customer.get('payment_amount', ''),
+                        new_subscription_end_date or customer.get('subscription_end_date', ''),
                         tier,
                         billing_frequency
                     )
