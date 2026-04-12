@@ -1946,6 +1946,74 @@ def admin_delete_customer(subdomain):
         return jsonify({"success": False, "error": str(e), "results": []}), 500
 
 
+@app.route("/admin/sync-stripe-all", methods=["POST"])
+@require_admin
+def admin_sync_stripe_all():
+    """Sync ALL customers' subscription data from Stripe."""
+    from utils.customer_helpers import get_all_customers, update_customer_plan
+
+    api_key = os.getenv('STRIPE_SECRET_KEY')
+    if not api_key:
+        return redirect(url_for('admin_tools', error="Stripe API key not configured."))
+
+    stripe.api_key = api_key
+    price_to_plan = {v: k for k, v in STRIPE_PRICES.items() if v}
+    customers = get_all_customers()
+    synced = 0
+    errors = 0
+
+    for customer in customers:
+        sub_id = customer.get('stripe_subscription_id')
+        if not sub_id:
+            continue
+        try:
+            sub = stripe.Subscription.retrieve(sub_id)
+            items = sub.get("items", {}).get("data", [])
+            if not items:
+                continue
+
+            price_id = items[0]["price"]["id"]
+            amount = items[0]["price"].get("unit_amount")
+            interval = items[0]["price"]["recurring"]["interval"]
+            billing_freq = "monthly" if interval == "month" else "annual"
+
+            plan_key = price_to_plan.get(price_id)
+            plan_name = plan_key.rsplit('_', 1)[0] if plan_key else None
+
+            period_end = sub.get("current_period_end")
+            end_date = None
+            if period_end:
+                end_date = datetime.fromtimestamp(period_end, tz=timezone.utc).isoformat()
+
+            stripe_status = sub.get("status", "active")
+            cancel_at_period_end = sub.get("cancel_at_period_end", False)
+            if stripe_status == "active" and cancel_at_period_end:
+                effective_status = "cancelling"
+            elif stripe_status == "canceled":
+                effective_status = "cancelled"
+            else:
+                effective_status = stripe_status
+
+            update_customer_plan(
+                customer['subdomain'],
+                plan=plan_name,
+                billing_frequency=billing_freq,
+                payment_amount=amount,
+                subscription_end_date=end_date,
+                stripe_price_id=price_id,
+                subscription_status=effective_status,
+            )
+            synced += 1
+        except Exception as e:
+            logging.warning(f"[SYNC_ALL] Failed to sync {customer.get('subdomain')}: {e}")
+            errors += 1
+
+    msg = f"Synced {synced} customer(s) from Stripe."
+    if errors:
+        msg += f" {errors} error(s)."
+    return redirect(url_for('admin_tools', message=msg))
+
+
 @app.route("/admin/sync-stripe/<subdomain>", methods=["POST"])
 @require_admin
 def admin_sync_stripe(subdomain):
@@ -1986,23 +2054,35 @@ def admin_sync_stripe(subdomain):
         except (KeyError, IndexError, TypeError):
             pass
 
-        # Extract billing interval
+        # Extract billing interval and plan from price ID
         billing_freq = None
+        plan_name = None
+        new_price_id = None
         try:
             items = sub.get("items", {}).get("data", [])
             if items:
                 interval = items[0]["price"]["recurring"]["interval"]
                 billing_freq = "monthly" if interval == "month" else "annual"
+                new_price_id = items[0]["price"]["id"]
         except (KeyError, IndexError, TypeError):
             pass
+
+        # Reverse-lookup plan name from price ID
+        if new_price_id:
+            price_to_plan = {v: k for k, v in STRIPE_PRICES.items() if v}
+            plan_key = price_to_plan.get(new_price_id)
+            if plan_key:
+                plan_name = plan_key.rsplit('_', 1)[0]
 
         # Update the local database
         update_customer_plan(
             subdomain,
+            plan=plan_name,
             subscription_status=effective_status,
             subscription_end_date=end_date,
             payment_amount=amount,
             billing_frequency=billing_freq if billing_freq else None,
+            stripe_price_id=new_price_id,
         )
 
         return redirect(url_for('admin_tools', message=f"Synced '{subdomain}': status={effective_status}"))
