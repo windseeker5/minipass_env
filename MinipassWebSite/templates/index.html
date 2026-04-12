@@ -1329,7 +1329,7 @@
             <i class="fas fa-globe"></i>
             <span>{{ t.home.modal_app_name_label }}</span>
           </label>
-          <input class="form-control" id="app_name" name="app_name" required type="text" placeholder="{{ t.home.modal_app_name_placeholder }}" />
+          <input class="form-control" id="app_name" name="app_name" required type="text" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="{{ t.home.modal_app_name_placeholder }}" />
           <div class="field-description" id="subdomain-feedback">
             {{ t.home.modal_app_name_desc }} <strong>votre-nom.minipass.me</strong>
           </div>
@@ -1488,7 +1488,14 @@
 
     // ---------- Subdomain validation (unchanged) ----------
     input.addEventListener("input", function () {
-      const subdomain = input.value.trim().toLowerCase();
+      const cleaned = input.value.toLowerCase().replace(/[^a-z0-9]/g, '');
+      if (input.value !== cleaned) {
+        const pos = input.selectionStart;
+        const diff = input.value.length - cleaned.length;
+        input.value = cleaned;
+        input.setSelectionRange(pos - diff, pos - diff);
+      }
+      const subdomain = input.value.trim();
 
       if (subdomain.length < 3 || !/^[a-z0-9]+$/.test(subdomain)) {
         feedback.innerHTML = '<i class="fas fa-info-circle"></i>Doit contenir au moins 3 caractères (lettres et chiffres en minuscules) et aucun espace ou caractères spéciaux';
