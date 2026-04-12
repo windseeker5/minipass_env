@@ -40,10 +40,17 @@ def init_customers_db():
             stripe_subscription_id TEXT,
             payment_amount INTEGER,
             currency TEXT DEFAULT 'cad',
-            subscription_status TEXT DEFAULT 'active'
+            subscription_status TEXT DEFAULT 'active',
+            stripe_livemode INTEGER
         )
         """)
-        
+
+        # Ensure stripe_livemode column exists for older databases
+        try:
+            cur.execute("ALTER TABLE customers ADD COLUMN stripe_livemode INTEGER")
+        except sqlite3.OperationalError:
+            pass  # column already exists
+
         # Create processed events table for idempotency
         cur.execute("""
         CREATE TABLE IF NOT EXISTS processed_events (
@@ -101,7 +108,8 @@ def insert_customer(email, subdomain, app_name, plan, password, port,
                    billing_frequency='monthly', subscription_start_date=None, subscription_end_date=None,
                    stripe_price_id=None, stripe_checkout_session_id=None,
                    stripe_customer_id=None, stripe_subscription_id=None,
-                   payment_amount=None, currency='cad', subscription_status='active'):
+                   payment_amount=None, currency='cad', subscription_status='active',
+                   stripe_livemode=None):
     """
     Insert a new customer into the database.
 
@@ -155,7 +163,8 @@ def insert_customer(email, subdomain, app_name, plan, password, port,
             stripe_subscription_id TEXT,
             payment_amount INTEGER,
             currency TEXT DEFAULT 'cad',
-            subscription_status TEXT DEFAULT 'active'
+            subscription_status TEXT DEFAULT 'active',
+            stripe_livemode INTEGER
         )
         """)
 
@@ -164,8 +173,8 @@ def insert_customer(email, subdomain, app_name, plan, password, port,
                              email_address, email_password, forwarding_email, email_status, organization_name,
                              billing_frequency, subscription_start_date, subscription_end_date,
                              stripe_price_id, stripe_checkout_session_id, stripe_customer_id, stripe_subscription_id,
-                             payment_amount, currency, subscription_status)
-        VALUES (?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                             payment_amount, currency, subscription_status, stripe_livemode)
+        VALUES (?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (
             email,
             subdomain,
@@ -188,7 +197,8 @@ def insert_customer(email, subdomain, app_name, plan, password, port,
             stripe_subscription_id,
             payment_amount,
             currency,
-            subscription_status
+            subscription_status,
+            1 if stripe_livemode is True else (0 if stripe_livemode is False else None),
         ))
 
         conn.commit()
@@ -438,7 +448,7 @@ def get_all_customers():
                    subscription_status, admin_password, organization_name,
                    payment_amount, currency, billing_frequency,
                    subscription_end_date, subscription_start_date,
-                   stripe_subscription_id
+                   stripe_subscription_id, stripe_livemode
             FROM customers
             ORDER BY created_at DESC
         """)
