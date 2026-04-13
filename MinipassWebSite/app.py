@@ -669,10 +669,9 @@ def create_checkout_session():
                 "organization_name": info.get("organization_name", ""),
                 "admin_email": info.get("admin_email", ""),
                 "forwarding_email": info.get("forwarding_email", ""),
-                "admin_password": info.get("admin_password", ""),
-                "plan": plan,  # ✅ CRITICAL FIX: Add plan!
-                "billing_frequency": billing_frequency,  # ✅ CRITICAL FIX: Add frequency!
-                "tier": str(tier)  # ✅ CRITICAL FIX: Add tier!
+                "plan": plan,
+                "billing_frequency": billing_frequency,
+                "tier": str(tier)
             },
             subscription_data={
                 "metadata": {
@@ -683,6 +682,10 @@ def create_checkout_session():
                 }
             }
         )
+
+        # Store admin password server-side keyed to checkout session ID
+        from utils.customer_helpers import store_pending_password
+        store_pending_password(session_obj.id, info.get("admin_password", ""))
 
         session.pop('checkout_info', None)  # Clear sensitive data from session
         return redirect(session_obj.url, code=303)
@@ -746,9 +749,9 @@ def redeem_promo():
     email_address = f"{app_name}_app@minipass.me"
     forwarding_email = admin_email
 
-    from datetime import timedelta
-    subscription_start_date = datetime.now().isoformat()
-    subscription_end_date = (datetime.now() + timedelta(days=365)).isoformat()
+    from datetime import timedelta, timezone
+    subscription_start_date = datetime.now(timezone.utc).isoformat()
+    subscription_end_date = (datetime.now(timezone.utc) + timedelta(days=365)).isoformat()
 
     # Atomic mark-as-used (race condition guard)
     if not redeem_promo_code(promo_code, app_name):
@@ -996,21 +999,40 @@ def stripe_webhook():
         organization_name = metadata.get("organization_name", "")
         admin_email = metadata.get("admin_email")
         forwarding_email = metadata.get("forwarding_email")
-        admin_password = metadata.get("admin_password")
         plan_key = metadata.get("plan", "basic").lower()
+
+        # Retrieve admin password from server-side storage (not Stripe metadata)
+        from utils.customer_helpers import retrieve_pending_password
+        admin_password = retrieve_pending_password(session_data.get("id"))
+        if not admin_password:
+            # Fallback: generate a new password if lookup fails (e.g. stale data)
+            import secrets
+            admin_password = secrets.token_urlsafe(12)
+            subscription_logger.warning(f"Pending password not found for session {session_data.get('id')}, generated new one")
 
         # ✅ NEW: Extract billing frequency and tier
         billing_frequency = metadata.get("billing_frequency", "monthly").lower()
         tier = int(metadata.get("tier", "1"))
 
-        # ✅ NEW: Calculate subscription dates
-        from datetime import datetime, timedelta
-        subscription_start_date = datetime.now().isoformat()
-        if billing_frequency == "monthly":
-            end_date = datetime.now() + timedelta(days=30)
-        else:  # annual
-            end_date = datetime.now() + timedelta(days=365)
-        subscription_end_date = end_date.isoformat()
+        # Calculate subscription dates (UTC-aware)
+        from datetime import datetime, timedelta, timezone
+        subscription_start_date = datetime.now(timezone.utc).isoformat()
+        # Read authoritative end date from Stripe subscription if available
+        subscription_end_date = None
+        stripe_sub_id = session_data.get("subscription")
+        if stripe_sub_id:
+            try:
+                sub_obj = stripe.Subscription.retrieve(stripe_sub_id)
+                period_end = sub_obj.get("current_period_end")
+                if period_end:
+                    subscription_end_date = datetime.fromtimestamp(period_end, tz=timezone.utc).isoformat()
+            except Exception as e:
+                subscription_logger.warning(f"Could not read subscription period_end: {e}")
+        if not subscription_end_date:
+            if billing_frequency == "monthly":
+                subscription_end_date = (datetime.now(timezone.utc) + timedelta(days=30)).isoformat()
+            else:
+                subscription_end_date = (datetime.now(timezone.utc) + timedelta(days=365)).isoformat()
 
         # ✅ NEW: Extract payment information
         payment_amount = session_data.get("amount_total")  # in cents
@@ -1141,19 +1163,29 @@ def stripe_webhook():
             subdomain = customer['subdomain']
             billing_frequency = customer['billing_frequency']
 
-            # Update subscription end date
-            from utils.customer_helpers import subdomain_taken
+            # Get authoritative renewal date from Stripe
+            from datetime import timezone
             import sqlite3
             CUSTOMERS_DB = "customers.db"
+
+            new_end_date = None
+            try:
+                sub_obj = stripe.Subscription.retrieve(stripe_subscription_id)
+                period_end = sub_obj.get("current_period_end")
+                if period_end:
+                    new_end_date = datetime.fromtimestamp(period_end, tz=timezone.utc).isoformat()
+            except Exception as e:
+                subscription_logger.warning(f"Could not read period_end from Stripe: {e}")
+
+            if not new_end_date:
+                # Fallback only if Stripe data unavailable
+                if billing_frequency == "monthly":
+                    new_end_date = (datetime.now(timezone.utc) + timedelta(days=30)).isoformat()
+                else:
+                    new_end_date = (datetime.now(timezone.utc) + timedelta(days=365)).isoformat()
+
             with sqlite3.connect(CUSTOMERS_DB) as conn:
                 cur = conn.cursor()
-
-                # Calculate new end date
-                if billing_frequency == "monthly":
-                    new_end_date = (datetime.now() + timedelta(days=30)).isoformat()
-                else:  # annual
-                    new_end_date = (datetime.now() + timedelta(days=365)).isoformat()
-
                 cur.execute("""
                     UPDATE customers
                     SET subscription_end_date = ?,
@@ -1162,7 +1194,7 @@ def stripe_webhook():
                 """, (new_end_date, subdomain))
                 conn.commit()
 
-            subscription_logger.info(f"✅ Subscription renewed for {subdomain} until {new_end_date}")
+            subscription_logger.info(f"Subscription renewed for {subdomain} until {new_end_date}")
         else:
             subscription_logger.warning(f"⚠️ Customer not found for subscription ID: {stripe_subscription_id}")
 
@@ -1240,6 +1272,20 @@ def stripe_webhook():
             pass
         try:
             period_end = subscription_obj.get("current_period_end")
+            # Prefer schedule's current phase end when a schedule is attached
+            sched_id = subscription_obj.get("schedule")
+            if sched_id:
+                try:
+                    import time as _time
+                    now_ts = int(_time.time())
+                    sched = stripe.SubscriptionSchedule.retrieve(sched_id)
+                    for phase in sched.get("phases", []):
+                        phase_end = phase.get("end_date")
+                        if phase_end and phase_end > now_ts:
+                            period_end = phase_end
+                            break
+                except Exception:
+                    pass
             if period_end:
                 from datetime import datetime, timezone
                 new_subscription_end_date = datetime.fromtimestamp(
@@ -1259,32 +1305,38 @@ def stripe_webhook():
                 payment_amount=new_payment_amount,
                 subscription_end_date=new_subscription_end_date,
             )
-            subscription_logger.info(f"✅ Plan updated for {subdomain}: {plan_key}, amount={new_payment_amount}, end={new_subscription_end_date}")
-
-            # Update the customer app's Setting table
-            try:
-                base_dir = os.path.dirname(os.path.abspath(__file__))
-                db_path = os.path.join(base_dir, "..", "deployed", subdomain, "app", "instance", "minipass.db")
-                db_path = os.path.normpath(db_path)
-                if os.path.exists(db_path):
-                    tier_map = {'basic': 1, 'pro': 2, 'ultimate': 3}
-                    tier = tier_map.get(plan_name, customer.get('plan', 'basic'))
-                    set_stripe_subscription_settings_to_database(
-                        db_path,
-                        customer.get('stripe_customer_id', ''),
-                        stripe_subscription_id,
-                        new_payment_amount or customer.get('payment_amount', ''),
-                        new_subscription_end_date or customer.get('subscription_end_date', ''),
-                        tier,
-                        billing_frequency
-                    )
-                    subscription_logger.info(f"✅ Setting table updated for {subdomain}")
-                else:
-                    subscription_logger.warning(f"⚠️ DB not found at {db_path}")
-            except Exception as e:
-                subscription_logger.error(f"❌ Failed to update Setting table for {subdomain}: {e}")
+            subscription_logger.info(f"Plan updated for {subdomain}: {plan_key}, amount={new_payment_amount}, end={new_subscription_end_date}")
         else:
-            subscription_logger.info(f"ℹ️ No price change for {subdomain} — cancel/reactivate flip only")
+            # Cancel/reactivate flip only -- still persist the end date
+            if new_subscription_end_date:
+                update_customer_plan(subdomain, subscription_end_date=new_subscription_end_date)
+            subscription_logger.info(f"No price change for {subdomain} -- cancel/reactivate flip only, end={new_subscription_end_date}")
+
+        # Always push subscription settings to the customer container DB
+        # (regardless of whether the plan changed or just the status flipped)
+        try:
+            base_dir = os.path.dirname(os.path.abspath(__file__))
+            db_path = os.path.join(base_dir, "..", "deployed", subdomain, "app", "instance", "minipass.db")
+            db_path = os.path.normpath(db_path)
+            if os.path.exists(db_path):
+                tier_map = {'basic': 1, 'pro': 2, 'ultimate': 3}
+                effective_plan = plan_key.rsplit('_', 1)[0] if plan_key else customer.get('plan', 'basic')
+                effective_freq = plan_key.rsplit('_', 1)[1] if plan_key else customer.get('billing_frequency', 'monthly')
+                tier = tier_map.get(effective_plan, 1)
+                set_stripe_subscription_settings_to_database(
+                    db_path,
+                    customer.get('stripe_customer_id', ''),
+                    stripe_subscription_id,
+                    new_payment_amount or customer.get('payment_amount', ''),
+                    new_subscription_end_date or customer.get('subscription_end_date', ''),
+                    tier,
+                    effective_freq
+                )
+                subscription_logger.info(f"Setting table updated for {subdomain}")
+            else:
+                subscription_logger.warning(f"DB not found at {db_path}")
+        except Exception as e:
+            subscription_logger.error(f"Failed to update Setting table for {subdomain}: {e}")
 
         # Sync STRIPE_SECRET_KEY in the container's .env to the key this process is running
         # with.  This fixes the case where the container was originally deployed with a test
@@ -1345,9 +1397,28 @@ def stripe_webhook():
                 """, (subdomain,))
                 conn.commit()
 
-            subscription_logger.info(f"✅ Subscription marked as cancelled for {subdomain}")
-            # Note: Container will remain deployed until subscription_end_date
-            # TODO: Add scheduled job to stop container after end date
+            subscription_logger.info(f"Subscription marked as cancelled for {subdomain}")
+
+            # Reset MINIPASS_TIER to 0 in the customer's container DB to revoke features
+            try:
+                from utils.deploy_helpers import set_stripe_subscription_settings_to_database
+                base_dir = os.path.dirname(os.path.abspath(__file__))
+                db_path = os.path.normpath(
+                    os.path.join(base_dir, "..", "deployed", subdomain, "app", "instance", "minipass.db")
+                )
+                if os.path.exists(db_path):
+                    set_stripe_subscription_settings_to_database(
+                        db_path,
+                        customer.get('stripe_customer_id', ''),
+                        stripe_subscription_id,
+                        '0',
+                        '',
+                        0,  # tier 0 = cancelled
+                        customer.get('billing_frequency', 'monthly'),
+                    )
+                    subscription_logger.info(f"MINIPASS_TIER reset to 0 for {subdomain}")
+            except Exception as tier_err:
+                subscription_logger.error(f"Failed to reset tier for {subdomain}: {tier_err}")
         else:
             subscription_logger.warning(f"⚠️ Customer not found for subscription ID: {stripe_subscription_id}")
 
@@ -1992,7 +2063,22 @@ def admin_sync_stripe_all():
             plan_key = price_to_plan.get(price_id)
             plan_name = plan_key.rsplit('_', 1)[0] if plan_key else None
 
+            # Get period end — prefer schedule's current phase when available,
+            # because Stripe's current_period_end can be wrong when a schedule is attached.
             period_end = sub.get("current_period_end")
+            sched_id = sub.get("schedule")
+            if sched_id:
+                try:
+                    import time as _time
+                    now_ts = int(_time.time())
+                    sched = stripe.SubscriptionSchedule.retrieve(sched_id)
+                    for phase in sched.get("phases", []):
+                        phase_end = phase.get("end_date")
+                        if phase_end and phase_end > now_ts:
+                            period_end = phase_end
+                            break
+                except Exception:
+                    pass
             end_date = None
             if period_end:
                 end_date = datetime.fromtimestamp(period_end, tz=timezone.utc).isoformat()
@@ -2015,6 +2101,29 @@ def admin_sync_stripe_all():
                 stripe_price_id=price_id,
                 subscription_status=effective_status,
             )
+
+            # Push synced settings to the customer's container DB
+            try:
+                from utils.deploy_helpers import set_stripe_subscription_settings_to_database
+                base_dir = os.path.dirname(os.path.abspath(__file__))
+                db_path = os.path.normpath(
+                    os.path.join(base_dir, "..", "deployed", customer['subdomain'], "app", "instance", "minipass.db")
+                )
+                if os.path.exists(db_path):
+                    tier_map = {'basic': 1, 'pro': 2, 'ultimate': 3}
+                    tier = tier_map.get(plan_name, 1)
+                    set_stripe_subscription_settings_to_database(
+                        db_path,
+                        customer.get('stripe_customer_id', ''),
+                        customer.get('stripe_subscription_id', ''),
+                        str(amount or ''),
+                        end_date or '',
+                        tier,
+                        billing_freq,
+                    )
+            except Exception as push_err:
+                logging.warning(f"[SYNC_ALL] Failed to push settings to {customer['subdomain']} container: {push_err}")
+
             synced += 1
         except Exception as e:
             logging.warning(f"[SYNC_ALL] Failed to sync {customer.get('subdomain')}: {e}")
@@ -2054,8 +2163,21 @@ def admin_sync_stripe(subdomain):
         else:
             effective_status = stripe_status
 
-        # Extract current_period_end as ISO date
+        # Extract current_period_end — prefer schedule's current phase when available
         period_end = sub.get("current_period_end")
+        sched_id = sub.get("schedule")
+        if sched_id:
+            try:
+                import time as _time
+                now_ts = int(_time.time())
+                sched = stripe.SubscriptionSchedule.retrieve(sched_id)
+                for phase in sched.get("phases", []):
+                    phase_end = phase.get("end_date")
+                    if phase_end and phase_end > now_ts:
+                        period_end = phase_end
+                        break
+            except Exception:
+                pass
         end_date = datetime.fromtimestamp(period_end, tz=timezone.utc).isoformat() if period_end else None
 
         # Extract payment amount from subscription items
