@@ -81,6 +81,49 @@ def init_customers_db():
             redeemed_at TEXT
         )
         """)
+        # Pending deployments table: stores admin passwords server-side
+        # instead of passing them through Stripe metadata
+        cur.execute("""
+        CREATE TABLE IF NOT EXISTS pending_deployments (
+            checkout_session_id TEXT PRIMARY KEY,
+            admin_password TEXT NOT NULL,
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP
+        )
+        """)
+
+        conn.commit()
+
+
+def store_pending_password(session_id, password):
+    """Store admin password keyed to checkout session ID."""
+    with sqlite3.connect(CUSTOMERS_DB) as conn:
+        conn.execute(
+            "INSERT OR REPLACE INTO pending_deployments (checkout_session_id, admin_password) VALUES (?, ?)",
+            (session_id, password)
+        )
+        conn.commit()
+
+
+def retrieve_pending_password(session_id):
+    """Retrieve and delete admin password for a checkout session."""
+    with sqlite3.connect(CUSTOMERS_DB) as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT admin_password FROM pending_deployments WHERE checkout_session_id = ?", (session_id,))
+        row = cur.fetchone()
+        if row:
+            conn.execute("DELETE FROM pending_deployments WHERE checkout_session_id = ?", (session_id,))
+            conn.commit()
+            return row[0]
+    return None
+
+
+def cleanup_stale_pending(hours=24):
+    """Delete pending deployment rows older than the given hours."""
+    with sqlite3.connect(CUSTOMERS_DB) as conn:
+        conn.execute(
+            "DELETE FROM pending_deployments WHERE created_at < datetime('now', ?)",
+            (f'-{hours} hours',)
+        )
         conn.commit()
 
 
