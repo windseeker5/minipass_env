@@ -1271,7 +1271,7 @@ def stripe_webhook():
         except (KeyError, IndexError, TypeError):
             pass
         try:
-            period_end = subscription_obj.get("current_period_end")
+            period_end = subscription_obj.get("current_period_end") or subscription_obj.get("cancel_at")
             if period_end:
                 from datetime import datetime, timezone
                 new_subscription_end_date = datetime.fromtimestamp(
@@ -2051,7 +2051,7 @@ def admin_sync_stripe_all():
 
             # Get period end — prefer schedule's current phase when available,
             # because Stripe's current_period_end can be wrong when a schedule is attached.
-            period_end = sub.get("current_period_end")
+            period_end = sub.get("current_period_end") or sub.get("cancel_at")
             end_date = None
             if period_end:
                 end_date = datetime.fromtimestamp(period_end, tz=timezone.utc).isoformat()
@@ -2137,7 +2137,7 @@ def admin_sync_stripe(subdomain):
             effective_status = stripe_status
 
         # Extract current_period_end as ISO date
-        period_end = sub.get("current_period_end")
+        period_end = sub.get("current_period_end") or sub.get("cancel_at")
         end_date = datetime.fromtimestamp(period_end, tz=timezone.utc).isoformat() if period_end else None
 
         # Extract payment amount from subscription items
