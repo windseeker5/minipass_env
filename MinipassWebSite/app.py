@@ -1272,20 +1272,6 @@ def stripe_webhook():
             pass
         try:
             period_end = subscription_obj.get("current_period_end")
-            # Prefer schedule's current phase end when a schedule is attached
-            sched_id = subscription_obj.get("schedule")
-            if sched_id:
-                try:
-                    import time as _time
-                    now_ts = int(_time.time())
-                    sched = stripe.SubscriptionSchedule.retrieve(sched_id)
-                    for phase in sched.get("phases", []):
-                        phase_end = phase.get("end_date")
-                        if phase_end and phase_end > now_ts:
-                            period_end = phase_end
-                            break
-                except Exception:
-                    pass
             if period_end:
                 from datetime import datetime, timezone
                 new_subscription_end_date = datetime.fromtimestamp(
@@ -2066,19 +2052,6 @@ def admin_sync_stripe_all():
             # Get period end — prefer schedule's current phase when available,
             # because Stripe's current_period_end can be wrong when a schedule is attached.
             period_end = sub.get("current_period_end")
-            sched_id = sub.get("schedule")
-            if sched_id:
-                try:
-                    import time as _time
-                    now_ts = int(_time.time())
-                    sched = stripe.SubscriptionSchedule.retrieve(sched_id)
-                    for phase in sched.get("phases", []):
-                        phase_end = phase.get("end_date")
-                        if phase_end and phase_end > now_ts:
-                            period_end = phase_end
-                            break
-                except Exception:
-                    pass
             end_date = None
             if period_end:
                 end_date = datetime.fromtimestamp(period_end, tz=timezone.utc).isoformat()
@@ -2163,21 +2136,8 @@ def admin_sync_stripe(subdomain):
         else:
             effective_status = stripe_status
 
-        # Extract current_period_end — prefer schedule's current phase when available
+        # Extract current_period_end as ISO date
         period_end = sub.get("current_period_end")
-        sched_id = sub.get("schedule")
-        if sched_id:
-            try:
-                import time as _time
-                now_ts = int(_time.time())
-                sched = stripe.SubscriptionSchedule.retrieve(sched_id)
-                for phase in sched.get("phases", []):
-                    phase_end = phase.get("end_date")
-                    if phase_end and phase_end > now_ts:
-                        period_end = phase_end
-                        break
-            except Exception:
-                pass
         end_date = datetime.fromtimestamp(period_end, tz=timezone.utc).isoformat() if period_end else None
 
         # Extract payment amount from subscription items
