@@ -214,6 +214,21 @@ def insert_survey_template(db_path, template_data, created_by=1):
 
         log_validation_check(logger, "survey_template table exists", True, "Table found")
 
+        # Skip if a template with this name already exists. Without this check,
+        # deploy_customer_container() ends up inserting the same default template
+        # twice - once here and once via task4_add_french_survey() in the DB
+        # upgrade step that runs earlier in the same deployment.
+        cur.execute("SELECT id FROM survey_template WHERE name = ?", (template_data['name'],))
+        existing = cur.fetchone()
+        if existing:
+            log_validation_check(
+                logger, "Survey template already exists", True,
+                f"Template '{template_data['name']}' already present (ID: {existing[0]}), skipping insert"
+            )
+            conn.close()
+            log_operation_end(logger, "Insert Survey Template", success=True)
+            return existing[0]
+
         # Insert template
         cur.execute("""
             INSERT INTO survey_template (name, description, questions, created_by, created_dt, status)
