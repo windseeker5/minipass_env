@@ -2,6 +2,18 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## RULE #1 — No technical plans for design requests. Ever.
+
+When the user asks for a design, a design review, or "how should this look" — in ANY mode, including plan mode — never respond with a technical plan, a file list, or an implementation write-up. Respond with:
+- A short, plain-English answer (a few sentences, no jargon, no code/file references).
+- If they ask to see it, or a design is being proposed, show a **wireframe** (a visual mockup, e.g. an Artifact), not a written description and not a plan document.
+
+This is the first rule, above everything else in this file. If a design question is answered with a plan file, that is a failure regardless of how good the plan is.
+
+## Plan Mode — Response Format
+
+When responding in plan mode, always lead with a short, plain-English summary of the recommended approach first — a few sentences, no jargon. Only after that summary, provide the detailed plan. For design requests specifically, RULE #1 above applies instead — no technical plan at all, plain English and/or a wireframe.
+
 ## Project Overview
 
 This is a multi-service environment hosting the Minipass SaaS platform and supporting infrastructure:
