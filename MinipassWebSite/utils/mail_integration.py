@@ -88,6 +88,60 @@ def verify_mailbox_password(email, password):
     return matched
 
 
+STANDARD_MAILBOX_FOLDERS = ("PaymentProcessed", "ManualProcessed")
+
+
+def ensure_mailbox_folders(email, folders=STANDARD_MAILBOX_FOLDERS):
+    """
+    Create the standard IMAP folders a mailbox needs before it ever exists.
+
+    Without this, folders only ever got created as a side effect of the
+    customer application's payment-matching bot lazily creating them on its
+    first match - and that lazy path swallows failures, so a matched payment
+    email could be deleted from INBOX without ever landing in the intended
+    folder. Provisioning them here, at deploy time, means folder existence
+    is never an accident of which code path happens to run first.
+
+    Idempotent: only creates folders that are missing, so it's safe to call
+    again on a redeploy of an existing mailbox.
+    """
+    list_command = ["docker", "exec", MAILSERVER, "doveadm", "mailbox", "list", "-u", email]
+    log_subprocess_call(logger, list_command, f"Listing mailbox folders for {email}")
+    try:
+        list_result = subprocess.run(list_command, capture_output=True, text=True, timeout=30)
+    except Exception as e:
+        logger.error(f"❌ Exception listing mailbox folders for {email}: {e}")
+        return False
+
+    existing_folders = set(list_result.stdout.split()) if list_result.returncode == 0 else set()
+
+    all_ok = True
+    for folder in folders:
+        if folder in existing_folders:
+            log_validation_check(logger, f"Folder {folder} exists for {email}", True,
+                                 "Already present")
+            continue
+
+        create_command = ["docker", "exec", MAILSERVER, "doveadm", "mailbox", "create",
+                          "-u", email, folder]
+        log_subprocess_call(logger, create_command, f"Creating folder {folder} for {email}")
+        try:
+            create_result = subprocess.run(create_command, capture_output=True, text=True, timeout=30)
+        except Exception as e:
+            logger.error(f"❌ Exception creating folder {folder} for {email}: {e}")
+            all_ok = False
+            continue
+
+        if create_result.returncode != 0:
+            logger.error(f"❌ Failed to create folder {folder} for {email}: {create_result.stderr.strip()}")
+            all_ok = False
+        else:
+            log_validation_check(logger, f"Folder {folder} created for {email}", True,
+                                 "doveadm mailbox create succeeded")
+
+    return all_ok
+
+
 def create_user_programmatic(email, password):
     """
     Create a mail user programmatically, or resync one that already exists.
@@ -364,7 +418,15 @@ def setup_customer_email_complete(subdomain, password, forward_to_email):
         # Brief delay to allow mail server to fully initialize the account
         logger.info(f"⏳ Allowing mail server to initialize account...")
         time.sleep(3)
-        
+
+        # Step 1.5: Ensure standard mailbox folders exist (PaymentProcessed/ManualProcessed)
+        logger.info(f"📁 Step 1.5: Ensuring standard mailbox folders exist for {email_address}")
+        if not ensure_mailbox_folders(email_address):
+            error_msg = "Email created but mailbox folder provisioning failed"
+            logger.warning(f"⚠️ {error_msg} for {email_address}")
+            log_operation_end(logger, "Complete Customer Email Setup", success=False, error_msg=error_msg)
+            return False, email_address, error_msg
+
         # Step 2: Set up forwarding if forward_to_email is provided
         if forward_to_email and forward_to_email.strip():
             logger.info(f"📤 Step 2: Setting up forwarding {email_address} -> {forward_to_email}")
