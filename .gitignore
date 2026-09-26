@@ -81,3 +81,7 @@ email_monitoring/analysis/
 
 # Configuration files with sensitive information
 tools/*.conf
+
+# Mailbox account password hashes - must never be tracked in git
+config/postfix-accounts.cf
+MinipassWebSite/config/postfix-accounts.cf
