@@ -1,0 +1,9 @@
+# Copied to /etc/fail2ban/jail.d/user-jail.local at container start.
+# Overrides ignoreip only; bantime/findtime/maxretry/banaction stay stock.
+#
+# 172.18.0.0/16 is the Docker bridge: without it, a bad credential in any
+# first-party container or host tool bans the gateway IP and severs mail
+# access for every account at once.
+
+[DEFAULT]
+ignoreip = 127.0.0.1/8 172.18.0.0/16 138.199.152.128 75.158.253.160
