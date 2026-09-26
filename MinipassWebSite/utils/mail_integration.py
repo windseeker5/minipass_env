@@ -19,51 +19,136 @@ USER_BASE_DIR = f"/var/mail/{DOMAIN}"
 LOCAL_SIEVE_BASE = "./config/user-patches"
 FORWARD_DIR = "./config/user-patches"
 
+def mailbox_exists(email):
+    """Return True if `email` already has an account in postfix-accounts.cf."""
+    command = ["docker", "exec", MAILSERVER, "grep", "-q", f"^{email}|",
+               "/tmp/docker-mailserver/postfix-accounts.cf"]
+    try:
+        return subprocess.run(command, capture_output=True, text=True, timeout=30).returncode == 0
+    except Exception as e:
+        logger.error(f"\u274c Could not check whether mailbox {email} exists: {e}")
+        return False
+
+
+def set_mailbox_password(email, password):
+    """
+    Change the password of an EXISTING mailbox.
+
+    addmailuser refuses to touch an account that already exists, so this is the
+    only way to bring a mailbox back in sync on a redeploy. The password is fed
+    over stdin rather than argv so it never appears in the process list.
+    """
+    command = ["docker", "exec", "-i", MAILSERVER, "setup", "email", "update", email]
+    log_subprocess_call(logger, command, f"Updating mailbox password for {email}")
+    try:
+        result = subprocess.run(command, input=f"{password}\n{password}\n",
+                                capture_output=True, text=True, timeout=60)
+    except Exception as e:
+        logger.error(f"\u274c Exception updating mailbox password for {email}: {e}")
+        return False
+
+    if result.returncode != 0:
+        logger.error(f"\u274c Failed to update mailbox password for {email}: {result.stderr.strip()}")
+        return False
+
+    log_subprocess_result(logger, result, f"Mailbox password updated for {email}")
+    return True
+
+
+def verify_mailbox_password(email, password):
+    """
+    Confirm the stored mailbox hash really matches `password`.
+
+    This is the check that used to be missing. Without it a deployment could
+    report success while the mailbox and the app database held two different
+    passwords, leaving the customer silently unable to send or receive mail
+    (SMTP 535 / IMAP auth failures) until somebody noticed.
+    """
+    get_hash = ["docker", "exec", MAILSERVER, "grep", f"^{email}|",
+                "/tmp/docker-mailserver/postfix-accounts.cf"]
+    try:
+        result = subprocess.run(get_hash, capture_output=True, text=True, timeout=30)
+        if result.returncode != 0 or "|" not in result.stdout:
+            log_validation_check(logger, f"Mailbox password matches app config for {email}",
+                                 False, "No password hash found in postfix-accounts.cf")
+            return False
+
+        stored_hash = result.stdout.strip().splitlines()[0].split("|", 1)[1]
+        check = subprocess.run(["docker", "exec", MAILSERVER, "doveadm", "pw",
+                                "-t", stored_hash, "-p", password],
+                               capture_output=True, text=True, timeout=30)
+    except Exception as e:
+        logger.error(f"\u274c Exception verifying mailbox password for {email}: {e}")
+        return False
+
+    matched = check.returncode == 0
+    log_validation_check(logger, f"Mailbox password matches app config for {email}", matched,
+                         "Password authenticates against stored hash" if matched
+                         else "Password MISMATCH - mailbox and app database are out of sync")
+    return matched
+
+
 def create_user_programmatic(email, password):
     """
-    Creates a mail user programmatically without interactive prompts.
-    
+    Create a mail user programmatically, or resync one that already exists.
+
+    If the mailbox is already present (typically because the subdomain is being
+    redeployed) its password is updated instead of aborting. addmailuser will
+    not overwrite an existing account, which previously left the mailbox on its
+    old password while the app database received a freshly generated one. The
+    two then diverged silently and the customer's email stopped working.
+
     Args:
         email (str): Full email address (e.g., user@minipass.me)
         password (str): Password for the email account
-        
+
     Returns:
         bool: True if successful, False otherwise
     """
     log_operation_start(logger, "Create Mail User", email=email, domain=DOMAIN)
-    
+
     try:
-        # Execute addmailuser command
-        command = ["docker", "exec", MAILSERVER, "addmailuser", email, password]
-        log_subprocess_call(logger, command, f"Creating mail user {email}")
-        
-        result = subprocess.run(command, capture_output=True, text=True, check=True)
-        log_subprocess_result(logger, result, f"Mail user {email} created successfully")
-        
-        # Verify user was created by checking postfix-accounts.cf
-        verify_command = ["docker", "exec", MAILSERVER, "grep", email, "/tmp/docker-mailserver/postfix-accounts.cf"]
-        log_subprocess_call(logger, verify_command, f"Verifying user {email} exists in postfix accounts")
-        
-        verify_result = subprocess.run(verify_command, capture_output=True, text=True)
-        log_subprocess_result(logger, verify_result, f"User verification completed for {email}")
-        
-        if verify_result.returncode == 0 and email in verify_result.stdout:
-            log_validation_check(logger, f"User {email} exists in mail server", True, "User found in postfix-accounts.cf")
-            log_operation_end(logger, "Create Mail User", success=True)
-            return True
+        if mailbox_exists(email):
+            logger.info(f"\u267b\ufe0f  Mailbox {email} already exists - resyncing its password")
+            if not set_mailbox_password(email, password):
+                log_operation_end(logger, "Create Mail User", success=False,
+                                  error_msg="Failed to resync existing mailbox password")
+                return False
         else:
-            log_validation_check(logger, f"User {email} exists in mail server", False, "User not found in postfix-accounts.cf")
-            log_operation_end(logger, "Create Mail User", success=False, error_msg="User verification failed")
+            command = ["docker", "exec", MAILSERVER, "addmailuser", email, password]
+            log_subprocess_call(logger, command, f"Creating mail user {email}")
+            result = subprocess.run(command, capture_output=True, text=True, check=True, timeout=60)
+            log_subprocess_result(logger, result, f"Mail user {email} created successfully")
+
+        # The account must exist...
+        if not mailbox_exists(email):
+            log_validation_check(logger, f"User {email} exists in mail server", False,
+                                 "User not found in postfix-accounts.cf")
+            log_operation_end(logger, "Create Mail User", success=False,
+                              error_msg="User verification failed")
             return False
-            
+
+        log_validation_check(logger, f"User {email} exists in mail server", True,
+                             "User found in postfix-accounts.cf")
+
+        # ...and its password must actually match the one the app will use.
+        if not verify_mailbox_password(email, password):
+            log_operation_end(logger, "Create Mail User", success=False,
+                              error_msg=f"Mailbox {email} exists but its password does not match "
+                                        f"the one written to the app database")
+            return False
+
+        log_operation_end(logger, "Create Mail User", success=True)
+        return True
+
     except subprocess.CalledProcessError as e:
         error_msg = f"Command failed with exit code {e.returncode}: {e.stderr if e.stderr else str(e)}"
-        logger.error(f"❌ Failed to create mail user {email}: {error_msg}")
+        logger.error(f"\u274c Failed to create mail user {email}: {error_msg}")
         log_operation_end(logger, "Create Mail User", success=False, error_msg=error_msg)
         return False
     except Exception as e:
         error_msg = f"Unexpected exception: {str(e)}"
-        logger.error(f"❌ Exception creating mail user {email}: {error_msg}")
+        logger.error(f"\u274c Exception creating mail user {email}: {error_msg}")
         log_operation_end(logger, "Create Mail User", success=False, error_msg=error_msg)
         return False
 
