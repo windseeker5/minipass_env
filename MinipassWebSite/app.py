@@ -90,6 +90,9 @@ def set_security_headers(response):
         "object-src 'none'; "
         "base-uri 'self'"
     )
+    if request.path.startswith('/admin/email-preview/'):
+        # Email previews load images from the production host, as real email clients do
+        response.headers['Content-Security-Policy'] = "default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'"
     return response
 
 
@@ -801,6 +804,27 @@ def redeem_promo():
 
 
 
+
+
+# Dev-only preview of the post-payment deployment email (sample data)
+@app.route("/admin/email-preview/deployment-ready")
+def dev_email_preview_deployment_ready():
+    if not app.debug:
+        abort(404)
+    html = render_template(
+        "emails/deployment_ready.html",
+        url="https://demo.minipass.me",
+        password="Demo-Passw0rd",
+        user_email="client@example.com",
+        email_info={
+            'email_address': 'demo@minipass.me',
+            'email_password': 'Mail-Passw0rd',
+            'forwarding_setup': True,
+            'forwarding_email': 'client@example.com'
+        }
+    )
+    # Local preview: serve the email images from this dev server so new assets show before deploy
+    return html.replace("https://minipass.me/static/", request.host_url + "static/")
 
 
 # ✅ Deployment progress page
