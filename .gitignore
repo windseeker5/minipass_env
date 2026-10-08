@@ -85,3 +85,6 @@ tools/*.conf
 # Mailbox account password hashes - must never be tracked in git
 config/postfix-accounts.cf
 MinipassWebSite/config/postfix-accounts.cf
+
+# Impeccable design tool notes
+.impeccable/
