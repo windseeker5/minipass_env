@@ -170,9 +170,11 @@
 </style>
 
 <div class="site-wrapper overflow-hidden">
+   {% if not hero_test %}
    <div id="loading">
     <img alt="minipass loading" class="minipass-preloader" src="{{ url_for('static', filename='image/mp-bar-only.png') }}"/>
    </div>
+   {% endif %}
    <!-- Clean The Code And Hop in -->
    <!-- Header Area -->
    <!-- Preloader -->
@@ -215,6 +217,9 @@
       <!--/ .Welcome Content Area -->
       <!--/ .Welcome img Area -->
       <div class="col-xxl-6 col-lg-5 col-md-8 col-xs-10 order-1 order-lg-2">
+       {% if hero_test %}
+       {% include 'partials/hero_motion.html' %}
+       {% else %}
        <div class="hero-img d-flex align-items-end">
         <div class="hero-l8-img-group hero-l8-img-group--crossfade d-flex align-items-end">
          <div class="hero-l8-img-group__1 hero-slide hero-slide--active">
@@ -225,6 +230,7 @@
          </div>
         </div>
        </div>
+       {% endif %}
       </div>
       <!--/ .Welcome img Area -->
      </div>

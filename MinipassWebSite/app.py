@@ -181,6 +181,8 @@ def inject_now():
 
 @app.route("/")
 @app.route("/en/")
+@app.route("/hero-test")
+@app.route("/en/hero-test")
 def home():
     import sqlite3, hashlib
     homepage_posts = []
@@ -203,7 +205,8 @@ def home():
                 homepage_posts.append(post)
     except Exception:
         pass
-    return render_template("index.html", homepage_posts=homepage_posts)
+    return render_template("index.html", homepage_posts=homepage_posts,
+                           hero_test=request.path.endswith("/hero-test"))
 
 
 @app.route("/about")
