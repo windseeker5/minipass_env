@@ -1,0 +1,96 @@
+{# After payment: the customer's app is being built (branch new-website). Plain steps instead of server logs. #}
+{% extends "nouveau/base.html" %}
+{% block page_title %}{{ 'Votre minipass est en création' if fr else 'We’re building your minipass' }} — minipass{% endblock %}
+{% block extra_head %}<meta name="robots" content="noindex, nofollow">{% endblock %}
+{% block body_class %}focus{% endblock %}
+
+{% block content %}
+{% set has_sub = subdomain and subdomain != 'votre application' %}
+{% set steps = [
+  ('Paiement confirmé', 'Payment confirmed'),
+  ('Création de votre application', 'Building your app'),
+  ('Configuration de votre adresse courriel', 'Setting up your email address'),
+  ('Envoi de vos accès par courriel', 'Sending your login details'),
+] %}
+<section class="page-head build" aria-labelledby="build-title">
+  <div class="in">
+    <div class="build-text">
+    {% if not session_id %}
+    <h1 id="build-title">{{ 'Commande introuvable' if fr else 'Order not found' }}</h1>
+    <p class="lead">{{ 'Ce lien ne correspond à aucune commande. Si vous venez de payer, vérifiez vos courriels ou écrivez-nous.' if fr else 'This link does not match any order. If you just paid, check your email or write to us.' }}</p>
+    {% else %}
+    <p class="eyebrow" id="build-eyebrow">{{ 'Paiement reçu' if fr else 'Payment received' }}</p>
+    <h1 id="build-title" data-done="{{ 'Votre minipass est prêt' if fr else 'Your minipass is ready' }}">{{ 'Votre minipass est en création' if fr else 'We’re building your minipass' }}</h1>
+    {% set app_name %}{{ 'Votre application' if fr else 'Your app' }}{% if has_sub %} <b>{{ subdomain }}.minipass.me</b>{% endif %}{% endset %}
+    <p class="lead" id="buildLead" data-done="{{ (app_name ~ (' est en ligne. Vos accès vous attendent dans votre boîte de réception.' if fr else ' is live. Your login details are waiting in your inbox.'))|e }}">
+      {{ app_name }} {{ 'sera prête dans environ 10 minutes. Vous pouvez fermer cette page : vos accès vous arrivent par courriel.' if fr else 'will be ready in about 10 minutes. You can close this page: your login details are on their way by email.' }}
+    </p>
+    {% endif %}
+    <p class="build-help">{{ 'Rien reçu après 15 minutes ? Écrivez-nous à' if fr else 'Nothing after 15 minutes? Write to us at' }} <a href="mailto:support@minipass.me">support@minipass.me</a></p>
+    </div>
+
+    {% if session_id %}
+    <div class="build-card" id="buildCard" aria-live="polite">
+      <ol class="build-steps" id="buildSteps">
+        {% for f, e in steps %}
+        <li class="is-wait" style="--c: var(--{{ ['orange', 'rose', 'violet', 'bleu'][loop.index0] }})">
+          <span class="dot" aria-hidden="true"><b>{{ loop.index }}</b></span>
+          <span class="label">{{ f if fr else e }}</span>
+          <span class="state" data-wait="{{ 'En attente' if fr else 'Waiting' }}" data-run="{{ 'En cours' if fr else 'In progress' }}" data-done="{{ 'Terminé' if fr else 'Done' }}">{{ 'En attente' if fr else 'Waiting' }}</span>
+        </li>
+        {% endfor %}
+      </ol>
+      <div class="build-done" id="buildDone" hidden>
+        <p>{{ 'Vérifiez votre boîte de réception : vos accès sont dans le courriel envoyé à' if fr else 'Check your inbox: your login details are in the email sent to' }} <b id="buildEmail">{{ 'votre adresse' if fr else 'your address' }}</b>.</p>
+        {% if has_sub %}<a class="btn btn-main" href="https://{{ subdomain }}.minipass.me">{{ 'Ouvrir mon application' if fr else 'Open my app' }}</a>{% endif %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+  var SID = {{ session_id|tojson }};
+  var items = document.querySelectorAll('#buildSteps li');
+  /* which step is running, read from the deployment status (0 = waiting for payment confirmation, 4 = all done) */
+  function stageOf(d) {
+    if (d.status === 'completed') return 4;
+    if (d.status === 'not_started') return 0;
+    var text = (d.logs || []).join('\n');
+    if (/Sending deployment confirmation email/.test(text)) return 3;
+    if (/Setting up customer email/.test(text)) return 2;
+    return 1;
+  }
+  function paint(stage) {
+    items.forEach(function (li, i) {
+      var k = i < stage ? 'done' : i === stage ? 'run' : 'wait';
+      li.className = 'is-' + k;
+      var s = li.querySelector('.state'); s.textContent = s.getAttribute('data-' + k);
+    });
+    if (stage === 4) {
+      var h = document.getElementById('build-title'); h.textContent = h.getAttribute('data-done');
+      var l = document.getElementById('buildLead'); l.innerHTML = l.getAttribute('data-done');
+      document.getElementById('buildDone').hidden = false;
+    }
+  }
+  if (!SID) return;
+  paint(0);
+  var started = Date.now(), timer = null;
+  function poll() {
+    fetch('/api/deployment-logs/' + encodeURIComponent(SID))
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (d.email) document.getElementById('buildEmail').textContent = d.email;
+        var stage = stageOf(d); paint(stage);
+        if (stage === 4) clearInterval(timer);
+      })
+      .catch(function () {});
+    if (Date.now() - started > 30 * 60 * 1000) clearInterval(timer);   /* stop asking after 30 minutes */
+  }
+  poll(); timer = setInterval(poll, 3000);
+})();
+</script>
+{% endblock %}

@@ -155,6 +155,7 @@
       <span class="savings" id="modal-savings-badge" hidden>{{ t.home.modal_savings }}</span>
     </div>
     <input id="modal-plan" name="plan" type="hidden">
+    <input name="lang" type="hidden" value="{{ 'en' if lang == 'en' else 'fr' }}">
     <input id="modal-billing-frequency" name="billing_frequency" type="hidden">
     <div class="signup-body">
       <h2 id="signup-title">{{ t.home.modal_complete }}</h2>

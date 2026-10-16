@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, session, abort, jsonify, flash
+from werkzeug.exceptions import HTTPException
 from dotenv import load_dotenv
 from datetime import datetime, timezone
 import stripe
@@ -117,7 +118,15 @@ def detect_browser_language():
     session['lang_detected'] = True
     best = request.accept_languages.best_match(['en', 'en-CA', 'en-US', 'fr', 'fr-CA'])
     if best and best.startswith('en'):
-        return redirect('/en' + request.path)
+        en_path = '/en' + request.path
+        # Only switch when the page has an English version (the after-payment page has none),
+        # and keep the query string (it carries the Stripe session_id)
+        try:
+            app.url_map.bind_to_environ(request.environ).match(en_path, method='GET')
+        except HTTPException:
+            return
+        qs = request.query_string.decode()
+        return redirect(en_path + ('?' + qs if qs else ''))
 
 
 # ── Language context processor ──
@@ -137,6 +146,15 @@ def inject_lang():
         alt_url = '/'
     t = TRANSLATIONS[lang]
     return {'lang': lang, 'lang_prefix': prefix, 't': t, 'alt_lang_url': alt_url}
+
+
+def _lang_url(url, lang):
+    """Turn a French page address into its English one (/x -> /en/x) when lang is 'en'."""
+    if lang != "en":
+        return url
+    from urllib.parse import urlsplit, urlunsplit
+    parts = urlsplit(url)
+    return urlunsplit(parts._replace(path="/en" + parts.path))
 
 
 # ✅ Stripe setup
@@ -179,10 +197,12 @@ def inject_now():
 
 
 
-@app.route("/")
-@app.route("/en/")
-@app.route("/hero-test")
+# Flask builds an endpoint's address from its first-registered route, and decorators register
+# bottom-up: the French address goes last so url_for() returns it.
 @app.route("/en/hero-test")
+@app.route("/hero-test")
+@app.route("/en/")
+@app.route("/")
 def home():
     import sqlite3, hashlib
     homepage_posts = []
@@ -464,8 +484,8 @@ def _yt_id(url):
     return m.group(1) if m else None
 
 
-@app.route("/blog/<slug>")
 @app.route("/en/blog/<slug>")
+@app.route("/blog/<slug>")
 def blog_detail(slug):
     import sqlite3
     with sqlite3.connect("customers.db") as conn:
@@ -637,7 +657,8 @@ def start_checkout():
         "organization_name": organization_name,
         "admin_email": admin_email,
         "forwarding_email": forwarding_email,
-        "admin_password": admin_password
+        "admin_password": admin_password,
+        "lang": "en" if request.form.get("lang") == "en" else "fr"
     }
 
     return redirect(url_for("create_checkout_session"))
@@ -652,6 +673,7 @@ def create_checkout_session():
     plan = info.get("plan", "basic").lower()
     billing_frequency = info.get("billing_frequency", "monthly").lower()
     tier = info.get("tier", 1)
+    lang = "en" if info.get("lang") == "en" else "fr"
 
     # Build price key and get Stripe Price ID
     price_key = f"{plan}_{billing_frequency}"
@@ -671,8 +693,8 @@ def create_checkout_session():
                 "quantity": 1,
             }],
             mode="subscription",  # ✅ CHANGED: Use subscription mode for auto-renewal
-            success_url=url_for("deployment_in_progress", _external=True) + "?session_id={CHECKOUT_SESSION_ID}",
-            cancel_url=url_for("home", _external=True) + "?cancelled=true",
+            success_url=_lang_url(url_for("deployment_in_progress", _external=True), lang) + "?session_id={CHECKOUT_SESSION_ID}",
+            cancel_url=_lang_url(url_for("home", _external=True), lang) + "?cancelled=true",
             metadata={
                 "app_name": info.get("app_name", ""),
                 "organization_name": info.get("organization_name", ""),
@@ -680,7 +702,8 @@ def create_checkout_session():
                 "forwarding_email": info.get("forwarding_email", ""),
                 "plan": plan,
                 "billing_frequency": billing_frequency,
-                "tier": str(tier)
+                "tier": str(tier),
+                "lang": lang
             },
             subscription_data={
                 "metadata": {
@@ -733,6 +756,7 @@ def redeem_promo():
     organization_name = (request.form.get("organization_name") or "").strip()
     admin_email = (request.form.get("admin_email") or "").strip()
     promo_code = (request.form.get("promo_code") or "").strip()
+    lang = "en" if request.form.get("lang") == "en" else "fr"
 
     # Server-side re-validation (never trust client state)
     if not app_name or not admin_email or not promo_code:
@@ -794,7 +818,8 @@ def redeem_promo():
         url=app_url,
         password=admin_password,
         user_email=admin_email,
-        email_info=email_info
+        email_info=email_info,
+        lang=lang
     )
 
     deployment_thread = threading.Thread(
@@ -802,11 +827,12 @@ def redeem_promo():
         args=(app_name, admin_email, admin_password, plan, port, organization_name,
               tier, billing_frequency, subscription_start_date, subscription_end_date,
               None, promo_session_id, None, None, 0, 'cad', email_address, forwarding_email, rendered_email_html),
+        kwargs={"lang": lang},
         daemon=True
     )
     deployment_thread.start()
 
-    return redirect(url_for("deployment_in_progress") + f"?session_id={promo_session_id}")
+    return redirect(_lang_url(url_for("deployment_in_progress"), lang) + f"?session_id={promo_session_id}")
 
 
 
@@ -819,6 +845,7 @@ def dev_email_preview_deployment_ready():
         abort(404)
     html = render_template(
         "emails/deployment_ready.html",
+        lang="en" if request.args.get("lang") == "en" else "fr",
         url="https://demo.minipass.me",
         password="Demo-Passw0rd",
         user_email="client@example.com",
@@ -834,6 +861,7 @@ def dev_email_preview_deployment_ready():
 
 
 # ✅ Deployment progress page
+@app.route("/en/deployment-in-progress")
 @app.route("/deployment-in-progress")
 def deployment_in_progress():
     from utils.customer_helpers import get_customer_by_stripe_session_id
@@ -844,7 +872,7 @@ def deployment_in_progress():
     customer = get_customer_by_stripe_session_id(session_id)
     subdomain = customer.get('subdomain', 'votre application') if customer else 'votre application'
 
-    return render_template("deployment_progress.html", session_id=session_id, subdomain=subdomain)
+    return render_template("nouveau/deployment_progress.html", session_id=session_id, subdomain=subdomain)
 
 
 # ✅ API endpoint for deployment logs
@@ -922,7 +950,8 @@ def get_deployment_logs(session_id):
 def process_deployment_async(app_name, admin_email, admin_password, plan_key, port, organization_name,
                               tier, billing_frequency, subscription_start_date, subscription_end_date,
                               stripe_price_id, stripe_checkout_session_id, stripe_customer_id,
-                              stripe_subscription_id, payment_amount, currency, email_address, forwarding_email, rendered_email_html):
+                              stripe_subscription_id, payment_amount, currency, email_address, forwarding_email, rendered_email_html,
+                              lang="fr"):
     """
     Background worker function to handle deployment asynchronously.
     This runs in a separate thread so the webhook can return immediately.
@@ -961,7 +990,7 @@ def process_deployment_async(app_name, admin_email, admin_password, plan_key, po
 
             # Step 3: Send deployment email (using pre-rendered HTML)
             subscription_logger.info(f"[{app_name}] 📬 Sending deployment confirmation email")
-            send_user_deployment_email_with_html(admin_email, app_url, admin_password, rendered_email_html)
+            send_user_deployment_email_with_html(admin_email, app_url, admin_password, rendered_email_html, lang=lang)
 
             # Step 4: Mark deployment complete
             subscription_logger.info(f"[{app_name}] ✅ Marking deployment as complete")
@@ -1030,6 +1059,7 @@ def stripe_webhook():
         admin_email = metadata.get("admin_email")
         forwarding_email = metadata.get("forwarding_email")
         plan_key = metadata.get("plan", "basic").lower()
+        email_lang = "en" if metadata.get("lang") == "en" else "fr"
 
         # Retrieve admin password from server-side storage (not Stripe metadata)
         from utils.customer_helpers import retrieve_pending_password
@@ -1146,7 +1176,8 @@ def stripe_webhook():
                 url=app_url,
                 password=admin_password,
                 user_email=admin_email,
-                email_info=email_info
+                email_info=email_info,
+                lang=email_lang
             )
 
             # Step 5: Launch background deployment thread
@@ -1157,6 +1188,7 @@ def stripe_webhook():
                       tier, billing_frequency, subscription_start_date, subscription_end_date,
                       stripe_price_id, stripe_checkout_session_id, stripe_customer_id,
                       stripe_subscription_id, payment_amount, currency, email_address, forwarding_email, rendered_email_html),
+                kwargs={"lang": email_lang},
                 daemon=True
             )
             deployment_thread.start()

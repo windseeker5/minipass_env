@@ -390,6 +390,37 @@ dialog[open] { animation: dlg .35s var(--ease); }
 .contact { margin-top: 2.6em; padding-top: 28px; border-top: 1px solid var(--line); }
 .contact h2 { margin-top: 0; font-size: 22px; }
 
+/* ---- after payment: the app is being built (dark, header without navigation) ---- */
+.focus .nav, .focus .lang, .focus .menu, .focus .top .btn { display: none; }
+.build { padding-bottom: 96px; }
+.build .lead b { color: var(--text); font-weight: 600; }
+.build .in { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 560px); gap: 56px; align-items: center; padding-top: 24px; padding-bottom: 24px; }
+.build h1 { max-width: 14ch; }
+.build-card { max-width: 640px; background: var(--panel); border: 1px solid var(--line); border-radius: 20px; padding: 10px 28px; }
+.build-steps { list-style: none; margin: 0; padding: 0; }
+.build-steps li { display: grid; grid-template-columns: 36px minmax(0, 1fr) auto; align-items: center; gap: 16px; padding: 18px 0; border-top: 1px solid var(--line); }
+.build-steps li:first-child { border-top: 0; }
+.build-steps .dot { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; position: relative; box-shadow: inset 0 0 0 1.5px var(--line-2); }
+.build-steps .dot b { font: 700 14px/1 var(--display); color: var(--faint); }
+.build-steps .label { font-weight: 600; font-size: 16.5px; color: var(--muted); }
+.build-steps .state { font-size: 13.5px; color: var(--faint); }
+.build-steps .is-run .label, .build-steps .is-done .label { color: var(--text); }
+.build-steps .is-run .state { color: var(--c); font-weight: 600; }
+.build-steps .is-run .dot { box-shadow: inset 0 0 0 1.5px var(--line-2); }
+.build-steps .is-run .dot::before { content: ""; position: absolute; inset: 0; border-radius: 50%; border: 2px solid transparent; border-top-color: var(--c); border-right-color: var(--c); animation: spin 1s linear infinite; }
+.build-steps .is-run .dot b { color: var(--text); }
+.build-steps .is-done .dot { background: var(--c); box-shadow: none; }
+.build-steps .is-done .dot b { display: none; }
+.build-steps .is-done .dot::after { content: ""; width: 12px; height: 7px; border-left: 2.5px solid #fff; border-bottom: 2.5px solid #fff; transform: translateY(-2px) rotate(-45deg); }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .build-steps .is-run .dot::before { animation: none; } }
+.build-done { border-top: 1px solid var(--line); padding: 22px 0 18px; display: grid; gap: 18px; justify-items: start; }
+.build-done p { color: var(--muted); }
+.build-done b { color: var(--text); font-weight: 600; overflow-wrap: anywhere; }
+.build-help { margin-top: 28px; color: var(--faint); font-size: 14.5px; }
+.build-help a { color: var(--muted); }
+.build-help a:hover { color: #fff; }
+
 @media (max-width: 960px) {
   .nav, .top .lang-desk { display: none; }
   .menu { display: block; margin-left: auto; }
@@ -444,6 +475,11 @@ dialog[open] { animation: dlg .35s var(--ease); }
   .member-body { grid-template-rows: none; padding: 16px; gap: 6px; }
   .member .socials { margin-top: 6px; }
   .byline .dot { display: none; }
+  .build .in { grid-template-columns: minmax(0, 1fr); gap: 32px; }
+  .build-card { padding: 4px 18px; }
+  .build-steps li { grid-template-columns: 32px minmax(0, 1fr); gap: 4px 14px; }
+  .build-steps .dot { width: 32px; height: 32px; grid-row: span 2; }
+  .build-steps .state { grid-column: 2; }
 }
 @media (max-width: 420px) {
   .top .btn-main { padding: 0 14px; }

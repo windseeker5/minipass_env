@@ -108,13 +108,14 @@ def send_user_deployment_email(to, url, password, email_info=None):
         server.send_message(multipart)
 
 
-def send_user_deployment_email_with_html(to, url, password, rendered_html):
+def send_user_deployment_email_with_html(to, url, password, rendered_html, lang="fr"):
     """
     Send deployment email using pre-rendered HTML (no Flask context needed)
     """
     from utils.deploy_helpers import is_production_environment
 
-    subject = "Votre application minipass - Informations de connexion"
+    subject = ("Your minipass app - Login details" if lang == "en"
+               else "Votre application minipass - Informations de connexion")
 
     # Build email body text
     body_text = f"Your app is live: {url}\nAdmin Email: {to}\nPassword: {password}"
