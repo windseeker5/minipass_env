@@ -421,6 +421,11 @@ dialog[open] { animation: dlg .35s var(--ease); }
 .build-help a { color: var(--muted); }
 .build-help a:hover { color: #fff; }
 
+/* ---- page not found / server error ---- */
+.oops { padding: 96px 0 128px; }
+.oops-code { font: 800 clamp(96px, 14vw, 168px)/.9 var(--display); letter-spacing: -.05em; color: var(--violet); margin-bottom: 20px; }
+.oops .lead a { color: var(--text); }
+
 @media (max-width: 960px) {
   .nav, .top .lang-desk { display: none; }
   .menu { display: block; margin-left: auto; }

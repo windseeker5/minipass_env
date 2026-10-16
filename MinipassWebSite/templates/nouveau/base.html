@@ -141,7 +141,7 @@
     var el = document.createElement('div'); el.className = 'toast' + (ok ? '' : ' err');
     var dot = document.createElement('i'); var span = document.createElement('span'); span.textContent = msg;
     el.append(dot, span); document.getElementById('toasts').appendChild(el);
-    setTimeout(function () { el.remove(); }, 5000);
+    setTimeout(function () { el.remove(); }, ok ? 5000 : 8000);
   };
 
   /* any newsletter form on the page: same endpoint as before */

@@ -210,6 +210,22 @@
   }|tojson }};
   var $ = function (id) { return document.getElementById(id); };
 
+  /* back from a failed signup or a cancelled payment: say what happened, then tidy the address */
+  var MSG = {{ {
+    'promo_already_used': ('Ce code promo a déjà été utilisé.' if fr else 'This promo code has already been used.'),
+    'invalid_promo': ('Ce code promo n’est pas valide.' if fr else 'This promo code is not valid.'),
+    'subdomain_taken': ('Ce nom d’application est déjà pris. Choisissez-en un autre.' if fr else 'This app name is already taken. Please choose another one.'),
+    'invalid_subdomain': ('Ce nom d’application n’est pas valide : lettres minuscules et chiffres seulement.' if fr else 'This app name is not valid: lowercase letters and numbers only.'),
+    'missing_fields': ('Il manque des informations. Remplissez tous les champs.' if fr else 'Some information is missing. Please fill in every field.'),
+    'failed': ('Le paiement n’a pas pu démarrer. Réessayez ou écrivez-nous à support@minipass.me.' if fr else 'The payment could not start. Try again or write to support@minipass.me.'),
+    'cancelled': ('Paiement annulé. Aucun montant n’a été facturé.' if fr else 'Payment cancelled. You have not been charged.')
+  }|tojson }};
+  var qs = new URLSearchParams(location.search), err = qs.get('error');
+  if (err || qs.get('cancelled')) {
+    if (err) mpToast(false, MSG[err] || MSG.failed); else mpToast(true, MSG.cancelled);
+    if (history.replaceState) history.replaceState(null, '', location.pathname + location.hash);
+  }
+
   /* explainer video: plays in a dialog, stops when closed */
   var vdlg = $('videoDlg'), vbox = $('videoBox');
   document.querySelectorAll('[data-video]').forEach(function (a) {

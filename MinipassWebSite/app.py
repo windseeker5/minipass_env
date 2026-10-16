@@ -189,6 +189,16 @@ mail.init_app(app)
 
 
 
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template("nouveau/error.html", code=404), 404
+
+
+@app.errorhandler(500)
+def server_error(e):
+    return render_template("nouveau/error.html", code=500), 500
+
+
 # ✅ Footer year context
 @app.context_processor
 def inject_now():
@@ -639,11 +649,12 @@ def start_checkout():
     # Use admin_email as forwarding_email automatically
     forwarding_email = admin_email
     admin_password = secrets.token_urlsafe(12)
+    lang = "en" if request.form.get("lang") == "en" else "fr"
 
     # Validate plan
     if plan not in PLAN_TO_TIER:
         logging.error(f"Invalid plan selected: {plan}")
-        return redirect(url_for("home") + "?error=invalid_plan")
+        return redirect(_lang_url(url_for("home"), lang) + "?error=invalid_plan")
 
     session["checkout_info"] = {
         "plan": plan,
@@ -654,7 +665,7 @@ def start_checkout():
         "admin_email": admin_email,
         "forwarding_email": forwarding_email,
         "admin_password": admin_password,
-        "lang": "en" if request.form.get("lang") == "en" else "fr"
+        "lang": lang
     }
 
     return redirect(url_for("create_checkout_session"))
@@ -677,7 +688,7 @@ def create_checkout_session():
 
     if not stripe_price_id:
         logging.error(f"❌ Stripe Price ID not found for: {price_key}")
-        return redirect(url_for("home") + "?error=price_config_error")
+        return redirect(_lang_url(url_for("home"), lang) + "?error=price_config_error")
 
     logging.info(f"💳 Creating checkout session: plan={plan}, frequency={billing_frequency}, price_id={stripe_price_id}")
 
@@ -720,7 +731,7 @@ def create_checkout_session():
 
     except stripe.error.StripeError as e:
         logging.error(f"❌ Stripe error creating checkout session: {e}")
-        return redirect(url_for("home") + "?error=checkout_failed")
+        return redirect(_lang_url(url_for("home"), lang) + "?error=checkout_failed")
 
 
 # ✅ Promo code validation (AJAX, read-only)
@@ -756,18 +767,18 @@ def redeem_promo():
 
     # Server-side re-validation (never trust client state)
     if not app_name or not admin_email or not promo_code:
-        return redirect(url_for("home") + "?error=missing_fields")
+        return redirect(_lang_url(url_for("home"), lang) + "?error=missing_fields")
 
     validation = validate_promo_code(promo_code)
     if not validation.get("valid"):
-        return redirect(url_for("home") + "?error=invalid_promo")
+        return redirect(_lang_url(url_for("home"), lang) + "?error=invalid_promo")
 
     subdomain_pattern = re.compile(r'^[a-z0-9][a-z0-9-]{0,61}[a-z0-9]$|^[a-z0-9]{1,2}$')
     if not subdomain_pattern.match(app_name):
-        return redirect(url_for("home") + "?error=invalid_subdomain")
+        return redirect(_lang_url(url_for("home"), lang) + "?error=invalid_subdomain")
 
     if subdomain_taken(app_name):
-        return redirect(url_for("home") + "?error=subdomain_taken")
+        return redirect(_lang_url(url_for("home"), lang) + "?error=subdomain_taken")
 
     plan = validation["plan"]
     tier = validation["tier"]
@@ -784,7 +795,7 @@ def redeem_promo():
 
     # Atomic mark-as-used (race condition guard)
     if not redeem_promo_code(promo_code, app_name):
-        return redirect(url_for("home") + "?error=promo_already_used")
+        return redirect(_lang_url(url_for("home"), lang) + "?error=promo_already_used")
 
     insert_customer(
         admin_email, app_name, app_name, plan, admin_password, port,
