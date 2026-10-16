@@ -199,8 +199,6 @@ def inject_now():
 
 # Flask builds an endpoint's address from its first-registered route, and decorators register
 # bottom-up: the French address goes last so url_for() returns it.
-@app.route("/en/hero-test")
-@app.route("/hero-test")
 @app.route("/en/")
 @app.route("/")
 def home():
@@ -225,8 +223,6 @@ def home():
                 homepage_posts.append(post)
     except Exception:
         pass
-    if request.path.endswith("/hero-test"):
-        return render_template("index.html", homepage_posts=homepage_posts, hero_test=True)
     # New homepage design ("Aréna de nuit")
     return render_template("nouveau/index.html", homepage_posts=homepage_posts,
                            hero_test=False, preview=False)
