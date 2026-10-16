@@ -1,0 +1,86 @@
+{# About, dark like the homepage (branch new-website). Same text as the old page. #}
+{% extends "nouveau/base.html" %}
+{% block page_title %}{{ t.about.meta_title }}{% endblock %}
+{% block meta_desc %}{{ t.about.meta_desc }}{% endblock %}
+{% block og_title %}{{ t.about.meta_title }}{% endblock %}
+{% block og_desc %}{{ t.about.meta_desc }}{% endblock %}
+
+{% block content %}
+<section class="page-head story" aria-labelledby="story-title">
+  <div class="in">
+    <div class="story-text">
+      <p class="eyebrow">{{ t.about.s1_label }}</p>
+      <h1 id="story-title">{{ t.about.s1_title }}</h1>
+      <p>{{ t.about.s1_p1 }}</p>
+      <p>{{ t.about.s1_p2 }}</p>
+    </div>
+    <p class="story-num" aria-hidden="true">{{ '20 $' if fr else '$20' }}</p>
+  </div>
+</section>
+
+<section class="sec" aria-labelledby="mission-title">
+  <div class="in split">
+    <div class="sh"><p class="eyebrow">{{ t.about.s2_label }}</p><h2 id="mission-title">{{ t.about.s2_title }}</h2></div>
+    <div class="split-text">
+      <p>{{ t.about.s2_p1 }}</p>
+      <p>{{ t.about.s2_p2|safe }}</p>
+    </div>
+  </div>
+</section>
+
+<section class="sec" aria-labelledby="pledge-title">
+  <div class="in split">
+    <div class="sh"><p class="eyebrow">{{ t.about.s3_label }}</p><h2 id="pledge-title">{{ t.about.s3_title }}</h2></div>
+    <div class="split-text">
+      <p>{{ t.about.s3_text|safe }}</p>
+      <a class="pledge" href="https://www.facebook.com/p/Fondation-de-la-ligue-de-hockey-Gagnon-Image-61554658763800/" target="_blank" rel="noopener noreferrer">
+        <b>2 %</b>
+        <img src="{{ url_for('static', filename='image/flhgi-logo-kd.png') }}" alt="" width="173" height="164" loading="lazy">
+        <div>Fondation de la ligue de hockey Gagnon Image<span>{{ 'du chiffre d’affaires, chaque année' if fr else 'of revenue, every year' }}</span></div>
+      </a>
+    </div>
+  </div>
+</section>
+
+{% set team = [
+  ('Ken Dresdell', 'user-6.jpg', t.about.ken_role, t.about.ken_desc,
+     [('Facebook', 'fab fa-facebook-f', 'https://www.facebook.com/kdresdell'), ('Discord', 'fab fa-discord', 'https://discord.gg/UakbWpSJ'), ('Courriel' if fr else 'Email', 'fas fa-envelope', 'mailto:kdresdell@minipass.me')]),
+  ('Marie-France', 'user-7.jpg', t.about.mf_role, t.about.mf_desc,
+     [('Facebook', 'fab fa-facebook-f', 'https://www.facebook.com/mariefrance.decoste'), ('Instagram', 'fab fa-instagram', 'https://www.instagram.com/mariefrancedecoste/'), ('Courriel' if fr else 'Email', 'fas fa-envelope', 'mailto:marie@minipass.me')]),
+  ('Elizabeth Dresdell', 'user-3.jpg', t.about.eli_role, t.about.eli_desc,
+     [('Facebook', 'fab fa-facebook-f', 'https://www.facebook.com/elizabeth.dresdell'), ('Courriel' if fr else 'Email', 'fas fa-envelope', 'mailto:eli@minipass.me')]),
+  ('Philippe Dresdell', 'user-2.jpg', t.about.phil_role, t.about.phil_desc,
+     [('Facebook', 'fab fa-facebook-f', 'https://www.facebook.com/phil.dresdell'), ('Instagram', 'fab fa-instagram', 'https://www.instagram.com/phil_dresdell/'), ('Courriel' if fr else 'Email', 'fas fa-envelope', 'mailto:phil@minipass.me')]),
+] %}
+<section class="sec" aria-labelledby="team-title">
+  <div class="in">
+    <div class="sh"><p class="eyebrow">{{ t.about.team_label }}</p><h2 id="team-title">{{ t.about.team_title }}</h2><p class="lead-sm">{{ t.about.team_subtitle }}</p></div>
+    <div class="team">
+      {% for name, photo, role, desc, links in team %}
+      <article class="member">
+        <img src="{{ url_for('static', filename='image/team/placeholders/' ~ photo) }}" alt="{{ name }}" width="450" height="450" loading="lazy">
+        <div class="member-body">
+          <h3>{{ name }}</h3>
+          <p class="role">{{ role }}</p>
+          <p>{{ desc }}</p>
+          <div class="socials">
+            {% for label, icon, href in links %}
+            <a href="{{ href }}"{% if not href.startswith('mailto') %} target="_blank" rel="noopener noreferrer"{% endif %} aria-label="{{ label }} : {{ name }}"><i class="{{ icon }}"></i></a>
+            {% endfor %}
+          </div>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="sec-band">
+  <div class="in">
+    <div class="band">
+      <h2>{{ t.about.cta_text }}</h2>
+      <a class="btn btn-main" href="{{ home_url }}#pricing">{{ t.about.cta_btn }}</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

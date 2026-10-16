@@ -2,7 +2,8 @@
   Hero motion v2. Every screen is a real capture of the Minipass app (demo content).
   1. activity videos float in        2. they drop into the dashboard and freeze into its activity photos
   3. the phone turns into place in 3D
-  Then, calm loop: every 150 s a payment arrives (card between desktop and phone) and Revenue goes up $50 on both.
+  Then, loop: a payment arrives the moment the phone lands, then every 6 s (card between desktop and phone, a chime
+  once the visitor has clicked the page) and Revenue goes up $50 on both screens each time.
   Stage: 560 x 560 design px, scaled to the column. Inside the browser window the app is drawn at its real 1320 x 1000 size.
 #}
 {% set en = lang == 'en' %}
@@ -66,7 +67,7 @@
 </style>
 <noscript><style>.mph--pending .mph-stage { visibility: visible; }</style></noscript>
 
-<div class="mph mph--pending" id="mph" data-remember="{{ 0 if hero_test else 1 }}" aria-hidden="true">
+<div class="mph mph--pending" id="mph" data-remember="0" aria-hidden="true">
  <div class="mph-stage" id="mphStage">
 
   <div class="mph-cut" id="mphCut">
@@ -131,7 +132,10 @@
   /* the 3D phone's pose, read by static/js/hero-phone3d.js on every render */
   var P3D = window.MPH_P3 = { ry: -.22, rx: .04, dist: 441.4, streak: .35 };
   function draw3d() { if (window.phone3d) window.phone3d.render(); }
-  var Y = '#F3840F', P = '#C51865', B = '#3E3096';
+  /* headline word colors; a page can set --mph-word1/2/3 on #mph to use its own */
+  var wc = getComputedStyle(root);
+  function wcol(n, d) { return (wc.getPropertyValue('--mph-word' + n) || '').trim() || d; }
+  var Y = wcol(1, '#F3840F'), P = wcol(2, '#C51865'), B = wcol(3, '#3E3096');
   var K = 564 / 1320;        /* app px -> stage px inside the window */
   var D = 1;                 /* extra hold on the three videos before they drop */
   var VP_TOP = 16;           /* browser bar height */
@@ -220,7 +224,7 @@
     tl.to(phone, { opacity: 1, duration: .15, ease: 'none' }, P3)
       .to(P3D, { ry: -.22, rx: .04, dist: 441.4, duration: 1.6, ease: 'expo.out', onUpdate: draw3d }, P3 + .15)
       .to(P3D, { streak: .35, duration: 1.8, ease: 'power2.inOut', onUpdate: draw3d }, P3 + .25)
-      .call(startPayments, null, P3 + 1.8);
+      .call(startPayments, null, P3 + 1.2);                       /* the turn (expo.out) has visibly landed here */
     return tl;
   }
 
@@ -228,8 +232,7 @@
   /* ---- calm loop: payments arrive, Revenue +$50 on both screens ---- */
   var EN = {{ 'true' if en else 'false' }};
   var NAMES = ['Julie Tremblay', 'Marc-André Gagnon', 'Sophie Côté'];
-  var fast = /[?&]pay=fast/.test(location.search) && !!document.getElementById('mphDebug');
-  var FIRST = fast ? 2 : 8, EVERY = fast ? 6 : 150, RESET = fast ? 3 : 60;
+  var EVERY = 6;
   var pay = document.getElementById('mphPay'), payB = document.getElementById('mphPayB');
   var cents = new Intl.NumberFormat(EN ? 'en-CA' : 'fr-CA', { style: 'currency', currency: 'CAD' });
   var nextCall = null, payTl = null, step = 0, started = false, onScreen = true;
@@ -245,6 +248,33 @@
     t.to(pay, { opacity: 0, y: reduce ? 0 : -6, duration: .3, ease: 'power2.in' }, 4.5);
     return t;
   }
+
+  /* payment chime. Browsers only allow sound after the visitor clicks, taps or types on the page,
+     so the audio is unlocked on the first such gesture; before that, payments are silent. */
+  var actx = null;
+  function unlockAudio() {
+    var AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return;
+    if (!actx) actx = new AC();
+    if (actx.state === 'suspended') actx.resume();
+  }
+  ['pointerdown', 'click', 'keydown', 'touchend'].forEach(function (e) { window.addEventListener(e, unlockAudio, { passive: true }); });
+  function beep() {
+    if (!actx || actx.state !== 'running') return;
+    var now = actx.currentTime;
+    /* E6 then A6, each a sine with a soft octave overtone: a clear, warm two-note "ding-ding" */
+    [[1319, 0], [1760, .12]].forEach(function (n) {
+      [[1, .32], [2, .07]].forEach(function (h) {
+        var o = actx.createOscillator(), g = actx.createGain(), at = now + n[1];
+        o.type = 'sine'; o.frequency.value = n[0] * h[0];
+        g.gain.setValueAtTime(0, at);
+        g.gain.linearRampToValueAtTime(h[1], at + .006);
+        g.gain.exponentialRampToValueAtTime(.0001, at + .6);
+        o.connect(g).connect(actx.destination);
+        o.start(at); o.stop(at + .65);
+      });
+    });
+  }
   function schedule(delay, fn) {
     if (nextCall) nextCall.kill();
     nextCall = gsap.delayedCall(delay, fn);
@@ -253,20 +283,16 @@
   function firePayment() {
     var i = step % NAMES.length;
     if (payTl) payTl.kill();
-    payTl = payment(i, BASE + AMOUNT * i);
+    payTl = payment(i, BASE + AMOUNT * step);                    /* Revenue keeps climbing */
     payTl.play(0);
+    beep();
     step++;
-    if (i === NAMES.length - 1) {
-      /* after the third payment: back to the starting amount a minute later, then the cycle repeats */
-      schedule(RESET, function () { REV.v = BASE; setRev(BASE); schedule(EVERY - RESET, firePayment); });
-    } else {
-      schedule(EVERY, firePayment);
-    }
+    schedule(EVERY, firePayment);
   }
   function startPayments() {
     if (started) return;
     started = true; step = 0;
-    schedule(FIRST, firePayment);
+    firePayment();                                               /* the moment the phone lands */
   }
   function stopPayments() {
     started = false;

@@ -1,0 +1,105 @@
+{# Guides list: dark title band, light reading ground (branch new-website). Same content as the old page. #}
+{% extends "nouveau/base.html" %}
+{% block page_title %}{{ t.blog.meta_title }}{% endblock %}
+{% block meta_desc %}{{ t.blog.meta_desc }}{% endblock %}
+{% block og_title %}{{ t.blog.meta_title }}{% endblock %}
+{% block og_desc %}{{ t.blog.meta_desc }}{% endblock %}
+
+{% block content %}
+{% set list_url = '/en/blog' if active_lang == 'en' else '/blog' %}
+{% macro page_url(n) -%}
+  {{ list_url }}?{% if active_category %}category={{ active_category|urlencode }}&{% endif %}page={{ n }}
+{%- endmacro %}
+<section class="page-head" aria-labelledby="guides-title">
+  <div class="in">
+    <p class="eyebrow">{{ t.blog.hero_label }}</p>
+    <h1 id="guides-title">{{ t.blog.hero_title }}</h1>
+    <p class="lead">{{ t.blog.hero_desc }}</p>
+    {% if posts %}
+    <div class="tools">
+      <input type="search" id="blogSearch" class="search" placeholder="{{ t.blog.search_placeholder }}" aria-label="{{ t.blog.search_placeholder }}" autocomplete="off">
+      <nav class="chips" aria-label="{{ 'Catégories' if fr else 'Categories' }}">
+        <a class="chip" href="{{ list_url }}"{% if not active_category %} aria-current="page"{% endif %}>{{ t.blog.filter_all }}</a>
+        {% for cat in categories %}
+        <a class="chip" href="{{ list_url }}?category={{ cat['category']|urlencode }}"{% if active_category == cat['category'] %} aria-current="page"{% endif %}>{{ cat['category'] }}</a>
+        {% endfor %}
+      </nav>
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+<section class="paper" aria-label="{{ t.blog.hero_title }}">
+  <div class="in">
+    {% if posts %}
+    <div class="posts" id="blogGrid">
+      {% for post in posts %}
+      <a class="post" href="{{ lang_prefix }}/blog/{{ post['slug'] }}" data-title="{{ post['title']|lower }}" data-desc="{{ (post['excerpt'] or '')|lower }}">
+        {% if post.get('yt_thumb') %}
+        <div class="post-img"><img src="{{ post['yt_thumb'] }}" alt="" loading="lazy" width="400" height="225"><span class="post-play" aria-hidden="true"></span></div>
+        {% else %}
+        <div class="post-img post-img--brand" aria-hidden="true"><span class="logo-bars"><i></i><i></i><i></i><i></i><i></i></span></div>
+        {% endif %}
+        <div class="post-body">
+          {% if post['category'] %}<span class="tag">{{ post['category'] }}</span>{% endif %}
+          <h2 class="post-title">{{ post['title'] }}</h2>
+          <p>{{ (post['excerpt'] or '')[:140] }}{% if (post['excerpt'] or '')|length > 140 %}…{% endif %}</p>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+    <div class="empty" id="noResults" hidden>
+      <h2>{{ t.blog.no_results_title }}</h2>
+      <p>{{ t.blog.no_results_text }}</p>
+    </div>
+
+    {% if total_pages > 1 %}
+    {% set window = 2 %}
+    {% set start_page = [1, page - window]|max %}
+    {% set end_page = [total_pages, page + window]|min %}
+    <nav class="pager" aria-label="Pagination">
+      {% if page > 1 %}<a href="{{ page_url(page - 1) }}" aria-label="{{ t.blog.prev_page }}">‹</a>{% else %}<span class="off" aria-hidden="true">‹</span>{% endif %}
+      {% if start_page > 1 %}<a href="{{ page_url(1) }}">1</a>{% if start_page > 2 %}<span class="gap">…</span>{% endif %}{% endif %}
+      {% for p in range(start_page, end_page + 1) %}
+        {% if p == page %}<span aria-current="page">{{ p }}</span>{% else %}<a href="{{ page_url(p) }}">{{ p }}</a>{% endif %}
+      {% endfor %}
+      {% if end_page < total_pages %}{% if end_page < total_pages - 1 %}<span class="gap">…</span>{% endif %}<a href="{{ page_url(total_pages) }}">{{ total_pages }}</a>{% endif %}
+      {% if page < total_pages %}<a href="{{ page_url(page + 1) }}" aria-label="{{ t.blog.next_page }}">›</a>{% else %}<span class="off" aria-hidden="true">›</span>{% endif %}
+    </nav>
+    {% endif %}
+    {% else %}
+    <div class="empty"><p>{{ t.blog.no_content }}</p></div>
+    {% endif %}
+  </div>
+</section>
+
+<section class="paper paper-end">
+  <div class="in">
+    <div class="band">
+      <div><p class="eyebrow">{{ t.blog.cta_label }}</p><h2>{{ t.blog.cta_title }}</h2></div>
+      <div class="band-ctas">
+        <a class="btn btn-main" href="mailto:support@minipass.me">support@minipass.me</a>
+        <a class="btn btn-line" href="https://discord.gg/mfzBs8pT26" target="_blank" rel="noopener noreferrer">Support Discord</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+  var input = document.getElementById('blogSearch'), grid = document.getElementById('blogGrid'), none = document.getElementById('noResults');
+  if (!input || !grid) return;
+  var cards = grid.querySelectorAll('.post');
+  input.addEventListener('input', function () {
+    var q = input.value.toLowerCase().trim(), shown = 0;
+    cards.forEach(function (c) {
+      var hit = !q || (c.dataset.title || '').indexOf(q) > -1 || (c.dataset.desc || '').indexOf(q) > -1;
+      c.hidden = !hit; if (hit) shown++;
+    });
+    none.hidden = shown > 0;
+  });
+})();
+</script>
+{% endblock %}

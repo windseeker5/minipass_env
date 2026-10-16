@@ -1,0 +1,164 @@
+{# Shared frame for every page of the new site ("Aréna de nuit", branch new-website): head, header, footer, toasts. #}
+{% set fr = lang != 'en' %}
+{% set ep = request.endpoint %}
+{% set home_url = lang_prefix ~ '/' %}
+{% set on_home = ep == 'home' %}
+{% set policies_url = '/politiques' if fr else '/en/policies' %}
+{# /politiques and /en/policies do not share a path, so the language switch and hreflang need their own pair #}
+{% if ep == 'politiques' %}
+  {% set fr_url, en_url = '/politiques', '/en/policies' %}
+{% else %}
+  {% set fr_path = request.path.replace('/en', '', 1) if request.path.startswith('/en') else request.path %}
+  {% set fr_url = fr_path if fr_path else '/' %}
+  {% set en_url = '/en' ~ fr_url %}
+{% endif %}
+{% set switch_url = en_url if fr else fr_url %}
+<!DOCTYPE html>
+<html lang="{% block html_lang %}{{ t.lang_code }}{% endblock %}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>{% block page_title %}{{ t.meta.title }}{% endblock %}</title>
+  <meta name="description" content="{% block meta_desc %}{{ t.meta.description }}{% endblock %}">
+  {% if preview %}<meta name="robots" content="noindex, nofollow">{% endif %}
+  <link rel="canonical" href="https://minipass.me{{ request.path }}">
+  <link rel="alternate" hreflang="fr-CA" href="https://minipass.me{{ fr_url }}">
+  <link rel="alternate" hreflang="en-CA" href="https://minipass.me{{ en_url }}">
+  <link rel="alternate" hreflang="x-default" href="https://minipass.me{{ fr_url }}">
+  <meta property="og:title" content="{% block og_title %}{{ t.meta.og_title }}{% endblock %}">
+  <meta property="og:description" content="{% block og_desc %}{{ t.meta.og_desc }}{% endblock %}">
+  <meta property="og:image" content="https://minipass.me/static/image/favicon-512x512.png">
+  <meta property="og:url" content="https://minipass.me{{ request.path }}">
+  <meta property="og:type" content="{% block og_type %}website{% endblock %}">
+  <meta property="og:locale" content="{{ t.og_locale }}">
+  <meta property="og:site_name" content="minipass">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{{ self.og_title() }}">
+  <meta name="twitter:description" content="{{ self.og_desc() }}">
+  <meta name="twitter:image" content="https://minipass.me/static/image/favicon-512x512.png">
+  <meta name="theme-color" content="#110E18">
+  <script type="application/ld+json">
+  { "@context": "https://schema.org", "@type": "SoftwareApplication", "name": "minipass",
+    "description": "Plateforme canadienne de gestion d'activités avec matching automatique de paiements Interac",
+    "url": "https://minipass.me", "applicationCategory": "BusinessApplication", "operatingSystem": "Web",
+    "offers": { "@type": "Offer", "priceCurrency": "CAD", "price": "10" }, "areaServed": "CA", "inLanguage": ["fr-CA", "en-CA"] }
+  </script>
+  <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='image/favicon.ico') }}">
+  <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='image/favicon-32x32.png') }}">
+  <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='image/apple-touch-icon.png') }}">
+  <link rel="preload" href="{{ url_for('static', filename='fonts/montserrat/montserrat-latin-var.woff2') }}" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="{{ url_for('static', filename='fonts/inter/inter-latin-var.woff2') }}" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="{{ url_for('static', filename='fonts/fontawesome-5/css/all.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/nouveau.css') }}">
+  {% block extra_head %}{% endblock %}
+  {% if not preview %}
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-583VK8EFG2"></script>
+  <script>window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-583VK8EFG2');</script>
+  <script>
+  !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', '1460273188819010'); fbq('track', 'PageView');
+  </script>
+  {% endif %}
+</head>
+<body class="{% block body_class %}{% endblock %}">
+
+<header class="top" id="top">
+  <div class="in">
+    <a class="logo" href="{{ home_url }}" aria-label="minipass"><span class="logo-bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>minipass</a>
+    <ul class="nav">
+      <li><a href="{{ home_url }}"{% if on_home %} aria-current="page"{% endif %}>{{ t.nav.home }}</a></li>
+      <li><a href="{{ '' if on_home else home_url }}#services">{{ t.nav.features }}</a></li>
+      <li><a href="{{ lang_prefix }}/about"{% if ep == 'about' %} aria-current="page"{% endif %}>{{ t.nav.about }}</a></li>
+      <li><a href="{{ lang_prefix }}/blog"{% if ep in ('blog', 'blog_detail') %} aria-current="page"{% endif %}>{{ t.nav.guides }}</a></li>
+    </ul>
+    <a class="lang lang-desk" href="{{ switch_url }}" hreflang="{{ 'en' if fr else 'fr' }}">{{ t.alt_lang_label }}</a>
+    <details class="menu">
+      <summary aria-label="Menu"><span></span></summary>
+      <nav class="menu-panel">
+        <a href="{{ home_url }}">{{ t.nav.home }}</a>
+        <a href="{{ '' if on_home else home_url }}#services">{{ t.nav.features }}</a>
+        <a href="{{ lang_prefix }}/about">{{ t.nav.about }}</a>
+        <a href="{{ lang_prefix }}/blog">{{ t.nav.guides }}</a>
+        <a href="{{ switch_url }}" hreflang="{{ 'en' if fr else 'fr' }}">{{ 'English' if fr else 'Français' }}</a>
+      </nav>
+    </details>
+    <a class="btn btn-main" href="{{ '' if on_home else home_url }}#pricing">{{ t.nav.subscribe }}</a>
+  </div>
+</header>
+
+<main>
+{% block content %}{% endblock %}
+</main>
+
+<footer class="foot">
+  <div class="in">
+    <div>
+      <a class="logo" href="{{ home_url }}"><span class="logo-bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>minipass</a>
+      <p class="foot-tag">{{ t.footer.tagline }}</p>
+      <div class="socials">
+        <a href="https://www.facebook.com/profile.php?id=61578842160404" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+        <a href="https://instagram.com/minipass.me" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+        <a href="https://youtube.com/@minipassme" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+        <a href="https://www.linkedin.com/company/108409522" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+      </div>
+    </div>
+    <div><h4>{{ t.footer.contact }}</h4><ul>
+      <li><a href="mailto:support@minipass.me">support@minipass.me</a></li>
+      <li><a href="https://discord.gg/mfzBs8pT26" target="_blank" rel="noopener noreferrer">Support Discord</a></li>
+    </ul></div>
+    <div><h4>{{ 'Liens rapides' if fr else 'Quick links' }}</h4><ul>
+      <li><a href="{{ home_url }}">{{ t.nav.home }}</a></li>
+      <li><a href="{{ lang_prefix }}/about">{{ t.nav.about }}</a></li>
+      <li><a href="{{ lang_prefix }}/blog">{{ t.nav.guides }}</a></li>
+      <li><a href="{{ policies_url }}">{{ 'Politiques d’abonnement' if fr else 'Subscription policies' }}</a></li>
+    </ul></div>
+    <p class="copy">© {{ now.year }} minipass.me · {{ 'Fait au Canada' if fr else 'Made in Canada' }}</p>
+  </div>
+</footer>
+
+{% block after_footer %}{% endblock %}
+
+<div class="toast-wrap" id="toasts" aria-live="polite"></div>
+
+<script>
+(function () {
+  /* sticky header hairline once the page scrolls */
+  var top = document.getElementById('top');
+  function onScroll() { top.classList.toggle('is-scrolled', window.scrollY > 8); }
+  window.addEventListener('scroll', onScroll, { passive: true }); onScroll();
+  document.querySelectorAll('.menu-panel a').forEach(function (a) { a.addEventListener('click', function () { a.closest('details').open = false; }); });
+
+  /* dialogs close on the backdrop and on their close buttons */
+  document.querySelectorAll('dialog').forEach(function (d) {
+    d.addEventListener('click', function (e) { if (e.target === d) d.close(); });
+    d.querySelectorAll('[data-close]').forEach(function (b) { b.addEventListener('click', function () { d.close(); }); });
+  });
+
+  /* small notices, top right */
+  window.mpToast = function (ok, msg) {
+    var el = document.createElement('div'); el.className = 'toast' + (ok ? '' : ' err');
+    var dot = document.createElement('i'); var span = document.createElement('span'); span.textContent = msg;
+    el.append(dot, span); document.getElementById('toasts').appendChild(el);
+    setTimeout(function () { el.remove(); }, 5000);
+  };
+
+  /* any newsletter form on the page: same endpoint as before */
+  document.querySelectorAll('form[data-newsletter]').forEach(function (form) {
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var input = form.querySelector('input[type="email"]'), btn = form.querySelector('button[type="submit"]'), label = btn.textContent;
+      btn.disabled = true; btn.textContent = {{ ('En cours…' if fr else 'Loading…')|tojson }};
+      fetch('/newsletter-subscribe', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: input.value.trim() }) })
+        .then(function (r) { if (!r.ok) throw new Error(); return r.json(); })
+        .then(function () { mpToast(true, form.getAttribute('data-ok')); input.value = ''; })
+        .catch(function () { mpToast(false, form.getAttribute('data-err')); })
+        .finally(function () { btn.disabled = false; btn.textContent = label; });
+    });
+  });
+})();
+</script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

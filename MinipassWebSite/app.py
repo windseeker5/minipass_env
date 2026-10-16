@@ -205,14 +205,17 @@ def home():
                 homepage_posts.append(post)
     except Exception:
         pass
-    return render_template("index.html", homepage_posts=homepage_posts,
-                           hero_test=request.path.endswith("/hero-test"))
+    if request.path.endswith("/hero-test"):
+        return render_template("index.html", homepage_posts=homepage_posts, hero_test=True)
+    # New homepage design ("Aréna de nuit")
+    return render_template("nouveau/index.html", homepage_posts=homepage_posts,
+                           hero_test=False, preview=False)
 
 
 @app.route("/about")
 @app.route("/en/about")
 def about():
-    return render_template("about.html")
+    return render_template("nouveau/about.html")
 
 
 @app.route("/guides")
@@ -232,7 +235,7 @@ def guide_detail(slug):
 @app.route("/politiques")
 @app.route("/en/policies")
 def politiques():
-    return render_template("politiques.html")
+    return render_template("nouveau/politiques.html")
 
 
 @app.route("/lead-magnet", methods=["POST"])
@@ -447,7 +450,7 @@ def blog():
             p['yt_thumb'] = f"https://img.youtube.com/vi/{vid}/maxresdefault.jpg" if vid else None
             ae = (p.get('author_email') or '').strip().lower()
             p['gravatar_url'] = f"https://www.gravatar.com/avatar/{hashlib.md5(ae.encode()).hexdigest()}?s=80&d=mp" if ae else None
-    return render_template("blog.html", posts=posts, categories=categories,
+    return render_template("nouveau/blog.html", posts=posts, categories=categories,
                            active_category=category, active_lang=lang,
                            page=page, total_pages=total_pages, total_count=total)
 
@@ -486,7 +489,7 @@ def blog_detail(slug):
         gravatar_url = f"https://www.gravatar.com/avatar/{email_hash}?s=80&d=mp"
     else:
         gravatar_url = None
-    return render_template("blog-detail.html", post=post, content=html_content, video_id=video_id,
+    return render_template("nouveau/blog-detail.html", post=post, content=html_content, video_id=video_id,
                            reading_time=reading_time, gravatar_url=gravatar_url)
 
 

@@ -1,0 +1,42 @@
+{# Subscription policies: dark title band, light reading ground (branch new-website). Same text as the old page. #}
+{% extends "nouveau/base.html" %}
+{% block page_title %}{{ t.policies.meta_title }}{% endblock %}
+{% block meta_desc %}{{ t.policies.meta_desc }}{% endblock %}
+{% block og_title %}{{ t.policies.meta_title }}{% endblock %}
+{% block og_desc %}{{ t.policies.meta_desc }}{% endblock %}
+
+{% block content %}
+<section class="page-head" aria-labelledby="policies-title">
+  <div class="in">
+    <h1 id="policies-title">{{ t.policies.title }}</h1>
+    <p class="lead">{{ t.policies.subtitle }}</p>
+  </div>
+</section>
+
+<section class="paper">
+  <div class="in">
+    <div class="prose">
+      <h2>{{ t.policies.h_renewal }}</h2>
+      <p>{{ t.policies.p_renewal|safe }}</p>
+      <div class="note"><p>{{ t.policies.highlight_renewal|safe }}</p></div>
+
+      <h2>{{ t.policies.h_refund }}</h2>
+      <p>{{ t.policies.p_refund1|safe }}</p>
+      <p>{{ t.policies.p_refund2 }}</p>
+
+      <h2>{{ t.policies.h_cancel }}</h2>
+      <p>{{ t.policies.p_cancel1|safe }}</p>
+      <p>{{ t.policies.p_cancel2 }}</p>
+      <div class="note"><p>{{ t.policies.highlight_cancel|safe }}</p></div>
+
+      <h2>{{ t.policies.h_accept }}</h2>
+      <p>{{ t.policies.p_accept }}</p>
+
+      <div class="contact">
+        <h2>{{ t.policies.contact_title }}</h2>
+        <p>{{ t.policies.contact_text }} <a href="mailto:support@minipass.me">support@minipass.me</a></p>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
