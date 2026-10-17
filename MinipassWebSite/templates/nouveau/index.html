@@ -119,37 +119,6 @@
   </div>
 </section>
 
-<section class="sec" aria-labelledby="news-title">
-  <div class="in">
-    <div class="news">
-      <div><p class="eyebrow">{{ t.home.newsletter_label }}</p><h2 id="news-title">{{ t.home.newsletter_title }}</h2></div>
-      <form id="newsletter-form" data-newsletter data-ok="{{ t.home.newsletter_success }}" data-err="{{ t.home.newsletter_error }}">
-        <input type="email" id="newsletter-email" placeholder="{{ t.home.newsletter_placeholder }}" aria-label="{{ t.home.newsletter_placeholder }}" required autocomplete="email">
-        <button type="submit" class="btn btn-main">{{ t.home.newsletter_btn }}</button>
-      </form>
-    </div>
-
-    {% if homepage_posts is defined and homepage_posts %}
-    <div class="posts-head">
-      <div><p class="eyebrow">{{ t.home.blog_label }}</p><h2>{{ t.home.blog_title }}</h2></div>
-      <a class="btn btn-line" href="{{ lang_prefix }}/blog">{{ t.home.blog_see_all }}</a>
-    </div>
-    <div class="posts">
-      {% for post in homepage_posts %}
-      <a class="post" href="{{ lang_prefix }}/blog/{{ post['slug'] }}">
-        {% if post.get('yt_thumb') %}<div class="post-img"><img src="{{ post['yt_thumb'] }}" alt="" loading="lazy" width="400" height="225"></div>
-        {% else %}<div class="post-img post-img--brand" aria-hidden="true"><span class="logo-bars"><i></i><i></i><i></i><i></i><i></i></span></div>{% endif %}
-        <div class="post-body">
-          {% if post['category'] %}<span class="tag">{{ post['category'] }}</span>{% endif %}
-          <h3>{{ post['title'] }}</h3>
-          <p>{{ (post['excerpt'] or '')[:140] }}{% if (post['excerpt'] or '')|length > 140 %}…{% endif %}</p>
-        </div>
-      </a>
-      {% endfor %}
-    </div>
-    {% endif %}
-  </div>
-</section>
 {% endblock %}
 
 {% block after_footer %}
