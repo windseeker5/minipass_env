@@ -108,13 +108,14 @@ def send_user_deployment_email(to, url, password, email_info=None):
         server.send_message(multipart)
 
 
-def send_user_deployment_email_with_html(to, url, password, rendered_html):
+def send_user_deployment_email_with_html(to, url, password, rendered_html, lang="fr"):
     """
     Send deployment email using pre-rendered HTML (no Flask context needed)
     """
     from utils.deploy_helpers import is_production_environment
 
-    subject = "Votre application minipass - Informations de connexion"
+    subject = ("Your minipass app - Login details" if lang == "en"
+               else "Votre application minipass - Informations de connexion")
 
     # Build email body text
     body_text = f"Your app is live: {url}\nAdmin Email: {to}\nPassword: {password}"
@@ -158,15 +159,14 @@ def send_user_deployment_email_with_html(to, url, password, rendered_html):
 
 
 def send_support_error_email(user_email, app_name, error_log):
+    # Internal alert: goes to the minipass team only, never to the customer
     subject = f"[minipass Deployment Error] {app_name}"
     tech_support = "kdresdell@gmail.com"
-    recipients = [user_email]
-    cc = [tech_support]
+    recipients = [tech_support]
+    cc = []
 
     html_body = f"""
-    <p>Hi,</p>
-    <p>We encountered an issue while deploying your minipass app: <strong>{app_name}</strong>.</p>
-    <p>Our technical team has been notified and will investigate shortly. You will receive a follow-up email once the deployment is complete.</p>
+    <p>Deployment failed for <strong>{app_name}</strong> (customer: {user_email}).</p>
     <hr>
     <pre style="background:#f8f9fa;padding:10px;border-radius:5px;font-size:0.9rem;">{error_log}</pre>
     <p>— minipass Deployment Bot</p>
@@ -177,14 +177,15 @@ def send_support_error_email(user_email, app_name, error_log):
 
 
 def send_deployment_success_email(user_email, app_name, success_details):
+    # Internal notice: goes to the minipass team only (the customer gets the welcome email)
     subject = f"[minipass] New Customer Deployed Successfully: {app_name}"
     tech_support = "kdresdell@gmail.com"
-    recipients = [user_email]
-    cc = [tech_support]
+    recipients = [tech_support]
+    cc = []
 
     html_body = f"""
-    <p>🎉 <strong>Great news!</strong></p>
-    <p>Your minipass app <strong>{app_name}</strong> has been deployed successfully!</p>
+    <p><strong>New customer deployed</strong></p>
+    <p><strong>{app_name}</strong> is live (customer: {user_email}).</p>
     <hr>
     <pre style="background:#e8f5e8;padding:10px;border-radius:5px;font-size:0.9rem;border:1px solid #4caf50;">{success_details}</pre>
     <p>— minipass Deployment Bot</p>

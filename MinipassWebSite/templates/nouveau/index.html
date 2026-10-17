@@ -1,0 +1,305 @@
+{# Homepage, "Aréna de nuit" (branch new-website). #}
+{% extends "nouveau/base.html" %}
+{% block page_title %}{{ t.home.meta_title }}{% endblock %}
+{% block meta_desc %}{{ t.home.meta_desc }}{% endblock %}
+{% block og_title %}{{ t.home.meta_title }}{% endblock %}
+{% block og_desc %}{{ t.home.meta_desc }}{% endblock %}
+
+{% block content %}
+{% set yt_id = t.home.hero_video_url.split('v=')[-1].split('&')[0] %}
+{# the hero text waits for its animation; hero_motion removes this class, also when the animation can't run #}
+<script>document.documentElement.classList.add('hero-wait');</script>
+<section class="hero">
+  <div class="in">
+    <div>
+      {# each data-hero piece comes in with its picture in the hero animation (partials/hero_motion.html) #}
+      <h1><span data-hero="intro">{{ t.home.hero_title_prefix }}</span><span class="word-anim word-anim--1" data-hero="w1">{{ t.home.hero_word1 }}</span><span data-hero="w2">, <span class="word-anim word-anim--2">{{ t.home.hero_word2 }}</span></span> <span data-hero="w3">{{ t.home.hero_and }} <span class="word-anim word-anim--3">{{ t.home.hero_word3 }}</span></span><span data-hero="end">{{ t.home.hero_title_end }}</span></h1>
+      {% set desc = t.home.hero_desc.split('. ', 1) %}
+      <p class="lead">{% if desc|length == 2 %}<span data-hero="lead1">{{ desc[0] }}.</span> <span data-hero="lead2">{{ desc[1] }}</span>{% else %}<span data-hero="lead1">{{ t.home.hero_desc }}</span>{% endif %}</p>
+      <div class="ctas">
+        <a class="btn btn-main" href="{{ t.home.hero_video_url }}" data-video="{{ yt_id }}" data-hero="btn1"><span class="play" aria-hidden="true"></span>{{ t.home.hero_btn_video }}</a>
+        <a class="btn btn-line" href="#pricing" data-hero="btn2">{{ t.home.hero_btn_plans }}</a>
+      </div>
+    </div>
+    <div class="hero-stage">
+      {% include 'partials/hero_motion.html' %}
+    </div>
+  </div>
+</section>
+
+<section class="sec" aria-labelledby="proof-title">
+  <div class="in">
+    <figure class="quote">
+      <div class="quote-mark"><img src="{{ url_for('static', filename='image/flhgi-badge.webp') }}" alt="Fondation de la Ligue de hockey Gagnon Image" width="440" height="467" loading="lazy"></div>
+      <p class="eyebrow" id="proof-title">{{ t.home.social_proof_label }}</p>
+      <blockquote>{% if lang == 'en' %}“{{ t.home.testimonial1_short|safe }}”{% else %}« {{ t.home.testimonial1_short|safe }} »{% endif %}</blockquote>
+      <figcaption class="who">
+        <img src="{{ url_for('static', filename='image/home-3/jfg-circle-1.png') }}" alt="" width="52" height="52">
+        <div><b>{{ t.home.testimonial1_name }}</b><span>{{ t.home.testimonial1_role }}</span></div>
+      </figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="sec" id="comment-ca-marche" aria-labelledby="how-title">
+  <div class="in">
+    <div class="sh"><p class="eyebrow">{{ t.home.how_label }}</p><h2 id="how-title">{{ t.home.how_title }}</h2></div>
+    <ol class="steps">
+      <li><b>1</b><h3>{{ t.home.step1_title }}</h3><p>{{ t.home.step1_text }}</p></li>
+      <li><b>2</b><h3>{{ t.home.step2_title }}</h3><p>{{ t.home.step2_text }}</p></li>
+      <li><b>3</b><h3>{{ t.home.step3_title }}</h3><p>{{ t.home.step3_text }}</p></li>
+    </ol>
+  </div>
+</section>
+
+<section class="sec" id="services" aria-labelledby="feat-title">
+  <div class="in">
+    <div class="sh"><p class="eyebrow">{{ t.home.features_label }}</p><h2 id="feat-title">{{ t.home.features_title }}</h2></div>
+    <div class="feats">
+      <article class="feat feat-wide" style="--c: var(--rose)">
+        <h3>{{ t.home.feat1_title }}</h3><p class="feat-lead">{{ t.home.feat1_lead }}</p><p>{{ t.home.feat1_text }}</p>
+      </article>
+      <article class="feat" style="--c: var(--violet)"><h3>{{ t.home.feat2_title }}</h3><p>{{ t.home.feat2_text }}</p></article>
+      <article class="feat" style="--c: var(--orange)"><h3>{{ t.home.feat3_title }}</h3><p>{{ t.home.feat3_text }}</p></article>
+      <article class="feat" style="--c: var(--bleu)"><h3>{{ t.home.feat_booking_title }}</h3><p>{{ t.home.feat_booking_text }}</p></article>
+      <article class="feat" style="--c: var(--prune)"><h3>{{ t.home.feat4_title }}</h3><p>{{ t.home.feat4_text }}</p></article>
+      <article class="feat" style="--c: var(--violet)"><h3>{{ t.home.feat5_title }}</h3><p>{{ t.home.feat5_text }}</p></article>
+      <article class="feat" style="--c: var(--orange)"><h3>{{ t.home.feat_survey_title }}</h3><p>{{ t.home.feat_survey_text }}</p></article>
+      <article class="feat" style="--c: var(--rose)"><h3>{{ t.home.feat_wayne_title }}</h3><p>{{ t.home.feat_wayne_text }}</p></article>
+    </div>
+    <p class="canada"><b>{{ t.home.feat6_title }}.</b> {{ t.home.feat6_text }}</p>
+  </div>
+</section>
+
+<section class="sec" id="pricing" aria-labelledby="price-title">
+  <div class="in">
+    <div class="sh"><p class="eyebrow">{{ t.home.pricing_label }}</p><h2 id="price-title">{{ t.home.pricing_title }}</h2></div>
+    <div class="bill-row">
+      <div class="billing" role="radiogroup" aria-label="{{ 'Facturation' if fr else 'Billing' }}">
+        <input type="radio" name="billing" id="billing-monthly" value="monthly"><label for="billing-monthly">{{ t.home.pricing_monthly }}</label>
+        <input type="radio" name="billing" id="flexSwitchCheckDefault" value="annual" checked><label for="flexSwitchCheckDefault">{{ t.home.pricing_annual }}</label>
+      </div>
+      <p class="bill-hint">{{ t.home.pricing_hint|safe }}</p>
+    </div>
+    {% set plans = [
+      ('basic', t.home.solo_name, t.home.solo_desc, 10, 20, t.home.solo_activity, t.home.solo_activity_label, False),
+      ('pro', t.home.club_name, t.home.club_desc, 25, 50, t.home.club_activity, t.home.club_activity_label, True),
+      ('ultimate', t.home.org_name, t.home.org_desc, 60, 120, t.home.org_activity, t.home.org_activity_label, False)] %}
+    <div class="plans">
+      {% for key, name, desc, yearly, monthly, n, nlabel, pop in plans %}
+      <article class="plan{{ ' plan-pop' if pop }}">
+        <div class="plan-top"><h3>{{ name }}</h3>{% if pop %}<span class="badge">{{ 'Populaire' if fr else 'Popular' }}</span>{% endif %}</div>
+        <p class="desc">{{ desc }}</p>
+        {% set num %}<span class="price-num" data-monthly="{{ monthly }}" data-yearly="{{ yearly }}">{{ yearly }}</span>{% endset %}
+        <div class="price">{% if fr %}<s class="was" aria-hidden="true">{{ monthly }}&#8239;$</s>{{ num }}<span class="cur">$</span>{% else %}<s class="was" aria-hidden="true">${{ monthly }}</s><span class="cur cur-pre">$</span>{{ num }}{% endif %}<small>{{ t.home.pricing_per_month }}</small></div>
+        {% set billed = t.home.billed_yearly|replace('{total}', (yearly * 12)|string) %}
+        <p class="price-note" data-monthly="{{ t.home.pricing_monthly_plan }}" data-yearly="{{ billed }}">{{ billed }}</p>
+        <p class="act">{{ n }} {{ nlabel }} <span>{{ t.home.plan_activity_suffix }}</span>{% if key != 'basic' %}<br><span>{{ t.home.plan_plus }}</span>{% endif %}</p>
+        <button type="button" class="btn {{ 'btn-main' if pop else 'btn-line' }}" onclick="openSignupModal('{{ key }}')">{{ t.home.plan_btn }}</button>
+      </article>
+      {% endfor %}
+    </div>
+    <div class="included">
+      <h3>{{ 'Inclus dans tous les forfaits' if fr else 'Included in every plan' }}</h3>
+      <ul>
+        <li>{{ t.home.plan_feat_participants }}</li>
+        <li>{{ t.home.plan_feat_registrations }}</li>
+        <li>{{ t.home.plan_feat_attendance }}</li>
+        <li>{{ t.home.plan_feat_finance }}</li>
+        <li>{{ t.home.plan_feat_survey }}</li>
+        <li>{{ t.home.plan_feat_ai }}</li>
+      </ul>
+    </div>
+    <div class="after">
+      <ul class="assure">
+        <li>{{ t.home.promise_fees }}</li>
+        <li>{{ t.home.promise_contract }}</li>
+        <li>{{ t.home.promise_cancel }}</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block after_footer %}
+<dialog class="video-dlg" id="videoDlg" aria-label="{{ 'Vidéo de présentation' if fr else 'Explainer video' }}">
+  <button type="button" class="x" data-close aria-label="{{ 'Fermer' if fr else 'Close' }}">×</button>
+  <div class="video-box" id="videoBox"></div>
+</dialog>
+
+<dialog class="signup" id="signupModal" aria-labelledby="signup-title">
+  <form id="signup-form" action="/start-checkout" method="POST">
+    <button type="button" class="x" data-close aria-label="{{ 'Fermer' if fr else 'Close' }}">×</button>
+    <div class="signup-head">
+      <div class="signup-plan" id="modal-plan-display">{{ t.home.modal_forfait_solo }}</div>
+      <div class="signup-price">{% if fr %}<span id="modal-price-amount">10</span> ${% else %}$<span id="modal-price-amount">10</span>{% endif %} <small>{{ t.home.pricing_per_month }}</small></div>
+      <div class="signup-billing" id="modal-billing-text">{{ t.home.modal_billing_annual }}</div>
+      <span class="savings" id="modal-savings-badge" hidden>{{ t.home.modal_savings }}</span>
+    </div>
+    <input id="modal-plan" name="plan" type="hidden">
+    <input name="lang" type="hidden" value="{{ 'en' if lang == 'en' else 'fr' }}">
+    <input id="modal-billing-frequency" name="billing_frequency" type="hidden">
+    <div class="signup-body">
+      <h2 id="signup-title">{{ t.home.modal_complete }}</h2>
+      <div class="field">
+        <label for="app_name">{{ t.home.modal_app_name_label }}</label>
+        <input id="app_name" name="app_name" required type="text" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="{{ t.home.modal_app_name_placeholder }}">
+        <p class="help" id="subdomain-feedback" aria-live="polite">{{ t.home.modal_app_name_desc }} <strong>{{ t.home.modal_app_name_example }}</strong></p>
+      </div>
+      <div class="field">
+        <label for="org_name">{{ t.home.modal_org_label }}</label>
+        <input id="org_name" name="organization_name" required type="text" placeholder="{{ t.home.modal_org_placeholder }}">
+        <p class="help">{{ t.home.modal_org_desc }}</p>
+      </div>
+      <div class="field">
+        <label for="admin_email">{{ t.home.modal_email_label }}</label>
+        <input id="admin_email" name="admin_email" required type="email" autocomplete="email" placeholder="{{ t.home.modal_email_placeholder }}">
+        <p class="help">{{ t.home.modal_email_desc }}</p>
+      </div>
+      <button type="button" class="promo-link" id="promo-toggle" aria-expanded="false" aria-controls="promo-collapse">{{ t.home.modal_promo_toggle }}</button>
+      <div class="field" id="promo-collapse" hidden>
+        <div class="promo-row">
+          <input type="text" id="promo-code-input" placeholder="{{ t.home.modal_promo_placeholder }}" aria-label="{{ t.home.modal_promo_placeholder }}">
+          <button type="button" class="btn btn-line" id="promo-apply-btn">{{ t.home.modal_promo_apply }}</button>
+        </div>
+        <p class="help" id="promo-feedback" aria-live="polite"></p>
+        <input type="hidden" name="promo_code" id="promo-code-hidden" value="">
+      </div>
+    </div>
+    <div class="signup-foot">
+      <p class="reassure">{{ t.home.pricing_no_contract }}</p>
+      <button type="submit" class="btn btn-main" id="submit-btn">{{ t.home.modal_submit }}</button>
+      <p>{{ t.home.modal_policy }} <a href="{{ policies_url }}" target="_blank">{{ t.home.modal_policy_link }}</a></p>
+    </div>
+  </form>
+</dialog>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+  var T = {{ {
+    'annual': t.home.modal_billing_annual, 'monthly': t.home.modal_billing_monthly, 'total': t.home.modal_billing_total,
+    'billedYearly': t.home.billed_yearly,
+    'submit': t.home.modal_submit, 'submitPromo': t.home.modal_submit_promo,
+    'taken': t.home.modal_app_name_taken, 'invalid': t.home.modal_app_name_invalid, 'checkErr': t.home.modal_app_name_error,
+    'available': t.home.modal_app_name_available, 'checking': t.home.modal_promo_checking, 'promoOk': t.home.modal_promo_valid,
+    'promoBad': t.home.modal_promo_invalid, 'promoErr': t.home.modal_promo_error
+  }|tojson }};
+  var PLANS = {{ {
+    'basic': {'annual': 10, 'monthly': 20, 'name': t.home.modal_forfait_solo},
+    'pro': {'annual': 25, 'monthly': 50, 'name': t.home.modal_forfait_club},
+    'ultimate': {'annual': 60, 'monthly': 120, 'name': t.home.modal_forfait_org}
+  }|tojson }};
+  var $ = function (id) { return document.getElementById(id); };
+
+  /* back from a failed signup or a cancelled payment: say what happened, then tidy the address */
+  var MSG = {{ {
+    'promo_already_used': ('Ce code promo a déjà été utilisé.' if fr else 'This promo code has already been used.'),
+    'invalid_promo': ('Ce code promo n’est pas valide.' if fr else 'This promo code is not valid.'),
+    'subdomain_taken': ('Ce nom d’application est déjà pris. Choisis-en un autre.' if fr else 'This app name is already taken. Please choose another one.'),
+    'invalid_subdomain': ('Ce nom d’application n’est pas valide : lettres minuscules et chiffres seulement.' if fr else 'This app name is not valid: lowercase letters and numbers only.'),
+    'missing_fields': ('Il manque des informations. Remplis tous les champs.' if fr else 'Some information is missing. Please fill in every field.'),
+    'failed': ('Le paiement n’a pas pu démarrer. Réessaie ou écris-nous à support@minipass.me.' if fr else 'The payment could not start. Try again or write to support@minipass.me.'),
+    'cancelled': ('Paiement annulé. Aucun montant n’a été facturé.' if fr else 'Payment cancelled. You have not been charged.')
+  }|tojson }};
+  var qs = new URLSearchParams(location.search), err = qs.get('error');
+  if (err || qs.get('cancelled')) {
+    if (err) mpToast(false, MSG[err] || MSG.failed); else mpToast(true, MSG.cancelled);
+    if (history.replaceState) history.replaceState(null, '', location.pathname + location.hash);
+  }
+
+  /* explainer video: plays in a dialog, stops when closed */
+  var vdlg = $('videoDlg'), vbox = $('videoBox');
+  document.querySelectorAll('[data-video]').forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      if (!vdlg.showModal) return;              /* old browser: follow the YouTube link */
+      e.preventDefault();
+      vbox.innerHTML = '<iframe src="https://www.youtube-nocookie.com/embed/' + a.getAttribute('data-video') +
+        '?autoplay=1&rel=0" title="minipass" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>';
+      vdlg.showModal();
+    });
+  });
+  vdlg.addEventListener('close', function () { vbox.innerHTML = ''; });
+
+  /* billing toggle: annual is the default, like today */
+  function isAnnual() { return $('flexSwitchCheckDefault').checked; }
+  function paintPrices() {
+    var k = isAnnual() ? 'yearly' : 'monthly';
+    document.querySelectorAll('.price-num, .price-note').forEach(function (el) { el.textContent = el.getAttribute('data-' + k); });
+    document.querySelectorAll('.was').forEach(function (el) { el.hidden = !isAnnual(); });
+  }
+  document.querySelectorAll('input[name="billing"]').forEach(function (r) { r.addEventListener('change', paintPrices); });
+  paintPrices();
+
+  /* signup: same fields, same endpoints as the current homepage */
+  var promoValidated = false;
+  function updateSubmit() {
+    $('submit-btn').textContent = promoValidated ? T.submitPromo : T.submit;
+    $('signup-form').action = promoValidated ? '/redeem-promo' : '/start-checkout';
+  }
+  function resetPromo() {
+    promoValidated = false;
+    $('promo-code-hidden').value = ''; $('promo-code-input').value = '';
+    $('promo-feedback').textContent = ''; $('promo-feedback').className = 'help';
+    $('promo-collapse').hidden = true; $('promo-toggle').setAttribute('aria-expanded', 'false');
+    updateSubmit();
+  }
+  window.openSignupModal = function (plan) {
+    var cfg = PLANS[plan] || PLANS.basic, annual = isAnnual(), price = annual ? cfg.annual : cfg.monthly;
+    $('modal-plan').value = plan;
+    $('modal-billing-frequency').value = annual ? 'annual' : 'monthly';
+    $('modal-plan-display').textContent = cfg.name;
+    $('modal-price-amount').textContent = price;
+    $('modal-billing-text').textContent = annual ? T.billedYearly.replace('{total}', price * 12) : T.monthly;
+    $('modal-savings-badge').hidden = !annual;
+    resetPromo();
+    $('signupModal').showModal();
+  };
+
+  var input = $('app_name'), fb = $('subdomain-feedback'), submit = $('submit-btn');
+  input.addEventListener('input', function () {
+    var cleaned = input.value.toLowerCase().replace(/[^a-z0-9]/g, '');
+    if (input.value !== cleaned) {
+      var pos = input.selectionStart, diff = input.value.length - cleaned.length;
+      input.value = cleaned; input.setSelectionRange(pos - diff, pos - diff);
+    }
+    var sub = input.value.trim();
+    if (sub.length < 3) { fb.textContent = T.invalid; fb.className = 'help err'; submit.disabled = true; return; }
+    fetch('/check-subdomain', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ subdomain: sub }) })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (d.available) { fb.innerHTML = ''; var s = document.createElement('strong'); s.textContent = sub + '.minipass.me'; fb.append(s, ' ' + T.available); fb.className = 'help ok'; submit.disabled = false; }
+        else { fb.textContent = d.error || T.taken; fb.className = 'help err'; submit.disabled = true; }
+      })
+      .catch(function () { fb.textContent = T.checkErr; fb.className = 'help err'; submit.disabled = true; });
+  });
+
+  var pIn = $('promo-code-input'), pBtn = $('promo-apply-btn'), pFb = $('promo-feedback'), pHid = $('promo-code-hidden');
+  $('promo-toggle').addEventListener('click', function () {
+    var c = $('promo-collapse'); c.hidden = !c.hidden; this.setAttribute('aria-expanded', String(!c.hidden));
+    if (!c.hidden) pIn.focus();
+  });
+  pIn.addEventListener('input', function () {
+    pIn.value = pIn.value.toUpperCase();
+    if (promoValidated) { promoValidated = false; pHid.value = ''; pFb.textContent = ''; updateSubmit(); }
+  });
+  pBtn.addEventListener('click', function () {
+    var code = pIn.value.trim(); if (!code) return;
+    pBtn.disabled = true; pFb.textContent = T.checking; pFb.className = 'help';
+    fetch('/validate-promo-code', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code: code }) })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        promoValidated = !!d.valid; pHid.value = d.valid ? code : '';
+        pFb.textContent = d.valid ? T.promoOk : (d.error || T.promoBad); pFb.className = 'help ' + (d.valid ? 'ok' : 'err');
+        updateSubmit();
+      })
+      .catch(function () { pFb.textContent = T.promoErr; pFb.className = 'help err'; })
+      .finally(function () { pBtn.disabled = false; });
+  });
+
+})();
+</script>
+{% endblock %}

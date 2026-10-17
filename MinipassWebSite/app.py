@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, session, abort, jsonify, flash
+from werkzeug.exceptions import HTTPException
 from dotenv import load_dotenv
 from datetime import datetime, timezone
 import stripe
@@ -117,7 +118,15 @@ def detect_browser_language():
     session['lang_detected'] = True
     best = request.accept_languages.best_match(['en', 'en-CA', 'en-US', 'fr', 'fr-CA'])
     if best and best.startswith('en'):
-        return redirect('/en' + request.path)
+        en_path = '/en' + request.path
+        # Only switch when the page has an English version (the after-payment page has none),
+        # and keep the query string (it carries the Stripe session_id)
+        try:
+            app.url_map.bind_to_environ(request.environ).match(en_path, method='GET')
+        except HTTPException:
+            return
+        qs = request.query_string.decode()
+        return redirect(en_path + ('?' + qs if qs else ''))
 
 
 # ── Language context processor ──
@@ -137,6 +146,15 @@ def inject_lang():
         alt_url = '/'
     t = TRANSLATIONS[lang]
     return {'lang': lang, 'lang_prefix': prefix, 't': t, 'alt_lang_url': alt_url}
+
+
+def _lang_url(url, lang):
+    """Turn a French page address into its English one (/x -> /en/x) when lang is 'en'."""
+    if lang != "en":
+        return url
+    from urllib.parse import urlsplit, urlunsplit
+    parts = urlsplit(url)
+    return urlunsplit(parts._replace(path="/en" + parts.path))
 
 
 # ✅ Stripe setup
@@ -171,6 +189,16 @@ mail.init_app(app)
 
 
 
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template("nouveau/error.html", code=404), 404
+
+
+@app.errorhandler(500)
+def server_error(e):
+    return render_template("nouveau/error.html", code=500), 500
+
+
 # ✅ Footer year context
 @app.context_processor
 def inject_now():
@@ -179,37 +207,19 @@ def inject_now():
 
 
 
-@app.route("/")
+# Flask builds an endpoint's address from its first-registered route, and decorators register
+# bottom-up: the French address goes last so url_for() returns it.
 @app.route("/en/")
+@app.route("/")
 def home():
-    import sqlite3, hashlib
-    homepage_posts = []
-    page_lang = 'en' if request.path.startswith('/en') else 'fr'
-    try:
-        with sqlite3.connect("customers.db") as conn:
-            conn.row_factory = sqlite3.Row
-            _init_blog_db(conn)
-            rows = conn.execute("""
-                SELECT * FROM blog_posts WHERE published=1 AND COALESCE(lang,'fr')=?
-                ORDER BY COALESCE(updated_at, published_at) DESC LIMIT 3
-            """, (page_lang,)).fetchall()
-            for row in rows:
-                post = dict(row)
-                vid = _yt_id(post.get('video_url'))
-                post['yt_thumb'] = f"https://img.youtube.com/vi/{vid}/maxresdefault.jpg" if vid else None
-                ae = (post.get('author_email') or '').strip().lower()
-                post['gravatar_url'] = f"https://www.gravatar.com/avatar/{hashlib.md5(ae.encode()).hexdigest()}?s=80&d=mp" if ae else None
-                post['excerpt'] = post.get('meta_description') or post.get('excerpt') or _strip_md(post.get('body', ''))[:200]
-                homepage_posts.append(post)
-    except Exception:
-        pass
-    return render_template("index.html", homepage_posts=homepage_posts)
+    # New homepage design ("Aréna de nuit"); it no longer lists blog posts
+    return render_template("nouveau/index.html", hero_test=False, preview=False)
 
 
 @app.route("/about")
 @app.route("/en/about")
 def about():
-    return render_template("about.html")
+    return render_template("nouveau/about.html")
 
 
 @app.route("/guides")
@@ -229,7 +239,7 @@ def guide_detail(slug):
 @app.route("/politiques")
 @app.route("/en/policies")
 def politiques():
-    return render_template("politiques.html")
+    return render_template("nouveau/politiques.html")
 
 
 @app.route("/lead-magnet", methods=["POST"])
@@ -444,7 +454,7 @@ def blog():
             p['yt_thumb'] = f"https://img.youtube.com/vi/{vid}/maxresdefault.jpg" if vid else None
             ae = (p.get('author_email') or '').strip().lower()
             p['gravatar_url'] = f"https://www.gravatar.com/avatar/{hashlib.md5(ae.encode()).hexdigest()}?s=80&d=mp" if ae else None
-    return render_template("blog.html", posts=posts, categories=categories,
+    return render_template("nouveau/blog.html", posts=posts, categories=categories,
                            active_category=category, active_lang=lang,
                            page=page, total_pages=total_pages, total_count=total)
 
@@ -458,8 +468,8 @@ def _yt_id(url):
     return m.group(1) if m else None
 
 
-@app.route("/blog/<slug>")
 @app.route("/en/blog/<slug>")
+@app.route("/blog/<slug>")
 def blog_detail(slug):
     import sqlite3
     with sqlite3.connect("customers.db") as conn:
@@ -483,7 +493,7 @@ def blog_detail(slug):
         gravatar_url = f"https://www.gravatar.com/avatar/{email_hash}?s=80&d=mp"
     else:
         gravatar_url = None
-    return render_template("blog-detail.html", post=post, content=html_content, video_id=video_id,
+    return render_template("nouveau/blog-detail.html", post=post, content=html_content, video_id=video_id,
                            reading_time=reading_time, gravatar_url=gravatar_url)
 
 
@@ -617,11 +627,12 @@ def start_checkout():
     # Use admin_email as forwarding_email automatically
     forwarding_email = admin_email
     admin_password = secrets.token_urlsafe(12)
+    lang = "en" if request.form.get("lang") == "en" else "fr"
 
     # Validate plan
     if plan not in PLAN_TO_TIER:
         logging.error(f"Invalid plan selected: {plan}")
-        return redirect(url_for("home") + "?error=invalid_plan")
+        return redirect(_lang_url(url_for("home"), lang) + "?error=invalid_plan")
 
     session["checkout_info"] = {
         "plan": plan,
@@ -631,7 +642,8 @@ def start_checkout():
         "organization_name": organization_name,
         "admin_email": admin_email,
         "forwarding_email": forwarding_email,
-        "admin_password": admin_password
+        "admin_password": admin_password,
+        "lang": lang
     }
 
     return redirect(url_for("create_checkout_session"))
@@ -646,6 +658,7 @@ def create_checkout_session():
     plan = info.get("plan", "basic").lower()
     billing_frequency = info.get("billing_frequency", "monthly").lower()
     tier = info.get("tier", 1)
+    lang = "en" if info.get("lang") == "en" else "fr"
 
     # Build price key and get Stripe Price ID
     price_key = f"{plan}_{billing_frequency}"
@@ -653,7 +666,7 @@ def create_checkout_session():
 
     if not stripe_price_id:
         logging.error(f"❌ Stripe Price ID not found for: {price_key}")
-        return redirect(url_for("home") + "?error=price_config_error")
+        return redirect(_lang_url(url_for("home"), lang) + "?error=price_config_error")
 
     logging.info(f"💳 Creating checkout session: plan={plan}, frequency={billing_frequency}, price_id={stripe_price_id}")
 
@@ -665,8 +678,8 @@ def create_checkout_session():
                 "quantity": 1,
             }],
             mode="subscription",  # ✅ CHANGED: Use subscription mode for auto-renewal
-            success_url=url_for("deployment_in_progress", _external=True) + "?session_id={CHECKOUT_SESSION_ID}",
-            cancel_url=url_for("home", _external=True) + "?cancelled=true",
+            success_url=_lang_url(url_for("deployment_in_progress", _external=True), lang) + "?session_id={CHECKOUT_SESSION_ID}",
+            cancel_url=_lang_url(url_for("home", _external=True), lang) + "?cancelled=true",
             metadata={
                 "app_name": info.get("app_name", ""),
                 "organization_name": info.get("organization_name", ""),
@@ -674,7 +687,8 @@ def create_checkout_session():
                 "forwarding_email": info.get("forwarding_email", ""),
                 "plan": plan,
                 "billing_frequency": billing_frequency,
-                "tier": str(tier)
+                "tier": str(tier),
+                "lang": lang
             },
             subscription_data={
                 "metadata": {
@@ -695,7 +709,7 @@ def create_checkout_session():
 
     except stripe.error.StripeError as e:
         logging.error(f"❌ Stripe error creating checkout session: {e}")
-        return redirect(url_for("home") + "?error=checkout_failed")
+        return redirect(_lang_url(url_for("home"), lang) + "?error=checkout_failed")
 
 
 # ✅ Promo code validation (AJAX, read-only)
@@ -727,21 +741,22 @@ def redeem_promo():
     organization_name = (request.form.get("organization_name") or "").strip()
     admin_email = (request.form.get("admin_email") or "").strip()
     promo_code = (request.form.get("promo_code") or "").strip()
+    lang = "en" if request.form.get("lang") == "en" else "fr"
 
     # Server-side re-validation (never trust client state)
     if not app_name or not admin_email or not promo_code:
-        return redirect(url_for("home") + "?error=missing_fields")
+        return redirect(_lang_url(url_for("home"), lang) + "?error=missing_fields")
 
     validation = validate_promo_code(promo_code)
     if not validation.get("valid"):
-        return redirect(url_for("home") + "?error=invalid_promo")
+        return redirect(_lang_url(url_for("home"), lang) + "?error=invalid_promo")
 
     subdomain_pattern = re.compile(r'^[a-z0-9][a-z0-9-]{0,61}[a-z0-9]$|^[a-z0-9]{1,2}$')
     if not subdomain_pattern.match(app_name):
-        return redirect(url_for("home") + "?error=invalid_subdomain")
+        return redirect(_lang_url(url_for("home"), lang) + "?error=invalid_subdomain")
 
     if subdomain_taken(app_name):
-        return redirect(url_for("home") + "?error=subdomain_taken")
+        return redirect(_lang_url(url_for("home"), lang) + "?error=subdomain_taken")
 
     plan = validation["plan"]
     tier = validation["tier"]
@@ -758,7 +773,7 @@ def redeem_promo():
 
     # Atomic mark-as-used (race condition guard)
     if not redeem_promo_code(promo_code, app_name):
-        return redirect(url_for("home") + "?error=promo_already_used")
+        return redirect(_lang_url(url_for("home"), lang) + "?error=promo_already_used")
 
     insert_customer(
         admin_email, app_name, app_name, plan, admin_password, port,
@@ -788,7 +803,8 @@ def redeem_promo():
         url=app_url,
         password=admin_password,
         user_email=admin_email,
-        email_info=email_info
+        email_info=email_info,
+        lang=lang
     )
 
     deployment_thread = threading.Thread(
@@ -796,11 +812,12 @@ def redeem_promo():
         args=(app_name, admin_email, admin_password, plan, port, organization_name,
               tier, billing_frequency, subscription_start_date, subscription_end_date,
               None, promo_session_id, None, None, 0, 'cad', email_address, forwarding_email, rendered_email_html),
+        kwargs={"lang": lang},
         daemon=True
     )
     deployment_thread.start()
 
-    return redirect(url_for("deployment_in_progress") + f"?session_id={promo_session_id}")
+    return redirect(_lang_url(url_for("deployment_in_progress"), lang) + f"?session_id={promo_session_id}")
 
 
 
@@ -813,6 +830,7 @@ def dev_email_preview_deployment_ready():
         abort(404)
     html = render_template(
         "emails/deployment_ready.html",
+        lang="en" if request.args.get("lang") == "en" else "fr",
         url="https://demo.minipass.me",
         password="Demo-Passw0rd",
         user_email="client@example.com",
@@ -828,6 +846,7 @@ def dev_email_preview_deployment_ready():
 
 
 # ✅ Deployment progress page
+@app.route("/en/deployment-in-progress")
 @app.route("/deployment-in-progress")
 def deployment_in_progress():
     from utils.customer_helpers import get_customer_by_stripe_session_id
@@ -838,7 +857,7 @@ def deployment_in_progress():
     customer = get_customer_by_stripe_session_id(session_id)
     subdomain = customer.get('subdomain', 'votre application') if customer else 'votre application'
 
-    return render_template("deployment_progress.html", session_id=session_id, subdomain=subdomain)
+    return render_template("nouveau/deployment_progress.html", session_id=session_id, subdomain=subdomain)
 
 
 # ✅ API endpoint for deployment logs
@@ -916,7 +935,8 @@ def get_deployment_logs(session_id):
 def process_deployment_async(app_name, admin_email, admin_password, plan_key, port, organization_name,
                               tier, billing_frequency, subscription_start_date, subscription_end_date,
                               stripe_price_id, stripe_checkout_session_id, stripe_customer_id,
-                              stripe_subscription_id, payment_amount, currency, email_address, forwarding_email, rendered_email_html):
+                              stripe_subscription_id, payment_amount, currency, email_address, forwarding_email, rendered_email_html,
+                              lang="fr"):
     """
     Background worker function to handle deployment asynchronously.
     This runs in a separate thread so the webhook can return immediately.
@@ -955,7 +975,7 @@ def process_deployment_async(app_name, admin_email, admin_password, plan_key, po
 
             # Step 3: Send deployment email (using pre-rendered HTML)
             subscription_logger.info(f"[{app_name}] 📬 Sending deployment confirmation email")
-            send_user_deployment_email_with_html(admin_email, app_url, admin_password, rendered_email_html)
+            send_user_deployment_email_with_html(admin_email, app_url, admin_password, rendered_email_html, lang=lang)
 
             # Step 4: Mark deployment complete
             subscription_logger.info(f"[{app_name}] ✅ Marking deployment as complete")
@@ -1024,6 +1044,7 @@ def stripe_webhook():
         admin_email = metadata.get("admin_email")
         forwarding_email = metadata.get("forwarding_email")
         plan_key = metadata.get("plan", "basic").lower()
+        email_lang = "en" if metadata.get("lang") == "en" else "fr"
 
         # Retrieve admin password from server-side storage (not Stripe metadata)
         from utils.customer_helpers import retrieve_pending_password
@@ -1140,7 +1161,8 @@ def stripe_webhook():
                 url=app_url,
                 password=admin_password,
                 user_email=admin_email,
-                email_info=email_info
+                email_info=email_info,
+                lang=email_lang
             )
 
             # Step 5: Launch background deployment thread
@@ -1151,6 +1173,7 @@ def stripe_webhook():
                       tier, billing_frequency, subscription_start_date, subscription_end_date,
                       stripe_price_id, stripe_checkout_session_id, stripe_customer_id,
                       stripe_subscription_id, payment_amount, currency, email_address, forwarding_email, rendered_email_html),
+                kwargs={"lang": email_lang},
                 daemon=True
             )
             deployment_thread.start()

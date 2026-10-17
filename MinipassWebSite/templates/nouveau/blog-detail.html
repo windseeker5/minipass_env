@@ -1,0 +1,74 @@
+{# One guide/article: dark title band, light reading ground (branch new-website). Same content as the old page. #}
+{% extends "nouveau/base.html" %}
+{% block html_lang %}{{ 'en-CA' if post['lang'] == 'en' else 'fr-CA' }}{% endblock %}
+{% block page_title %}{{ post['meta_title'] or post['title'] }} — minipass{% endblock %}
+{% block meta_desc %}{{ post['meta_description'] or post['excerpt'] or post['title'] }}{% endblock %}
+{% block og_title %}{{ post['meta_title'] or post['title'] }} — minipass{% endblock %}
+{% block og_desc %}{{ post['meta_description'] or post['excerpt'] or '' }}{% endblock %}
+{% block og_type %}article{% endblock %}
+{% block extra_head %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": {{ (post['meta_title'] or post['title'])|tojson }},
+  "description": {{ (post['meta_description'] or post['excerpt'] or '')|tojson }},
+  "author": { "@type": "Person", "name": {{ (post['author'] or 'minipass')|tojson }} },
+  "publisher": { "@type": "Organization", "name": "minipass", "url": "https://minipass.me" },
+  "datePublished": {{ (post['published_at'] or '')|tojson }},
+  "mainEntityOfPage": "https://minipass.me/blog/{{ post['slug'] }}",
+  "inLanguage": "{{ 'en-CA' if post['lang'] == 'en' else 'fr-CA' }}"
+}
+</script>
+{% endblock %}
+
+{% block content %}
+{% set en_post = post['lang'] == 'en' %}
+<section class="page-head" aria-labelledby="post-title">
+  <div class="in">
+    <nav class="crumbs" aria-label="{{ 'Fil d’Ariane' if not en_post else 'Breadcrumb' }}">
+      <a href="{{ lang_prefix }}/blog">Guides</a><span aria-hidden="true">/</span><span>{{ post['category'] }}</span>
+    </nav>
+    <h1 id="post-title">{{ post['title'] }}</h1>
+    <div class="byline">
+      {% if gravatar_url %}<img src="{{ gravatar_url }}" alt="" width="40" height="40" loading="lazy">
+      {% elif post['author'] %}<span class="initial" aria-hidden="true">{{ post['author'][:1]|upper }}</span>{% endif %}
+      {% if post['author'] %}<b>{{ post['author'] }}</b>{% endif %}
+      {% if post['published_at'] %}<span class="dot" aria-hidden="true"></span><span>{{ post['published_at'][:10] }}</span>{% endif %}
+      <span class="dot" aria-hidden="true"></span><span>{{ reading_time }} min {{ 'read' if en_post else 'de lecture' }}</span>
+      <button type="button" class="share" id="shareBtn" data-done="{{ 'Link copied' if en_post else 'Lien copié' }}">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path stroke-linecap="round" stroke-linejoin="round" d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+        <span>{{ 'Share' if en_post else 'Partager' }}</span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<section class="paper">
+  <div class="in article">
+    <article>
+      {% if video_id %}
+      <div class="video"><iframe src="https://www.youtube.com/embed/{{ video_id }}" allowfullscreen loading="lazy" title="{{ post['title'] }}"></iframe></div>
+      {% endif %}
+      <div class="prose">{{ content|safe }}</div>
+    </article>
+    <aside class="aside" aria-labelledby="aside-title">
+      <h2 id="aside-title">{{ 'Need help?' if en_post else 'Besoin d’aide?' }}</h2>
+      <a class="btn btn-main" href="mailto:support@minipass.me">support@minipass.me</a>
+      <a class="btn btn-line" href="https://discord.gg/mfzBs8pT26" target="_blank" rel="noopener noreferrer">Support Discord</a>
+    </aside>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+  var btn = document.getElementById('shareBtn');
+  btn.addEventListener('click', function () {
+    var url = window.location.href;
+    navigator.clipboard.writeText(url).then(function () { mpToast(true, btn.getAttribute('data-done')); });
+  });
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,356 @@
+{#
+  Hero motion v2. Every screen is a real capture of the Minipass app (demo content).
+  1. activity videos float in        2. they drop into the dashboard and freeze into its activity photos
+  3. the phone turns into place in 3D
+  Then, loop: a payment arrives the moment the phone lands, then every 6 s (card between desktop and phone, no sound)
+  and Revenue goes up $50 on both screens each time.
+  Stage: 560 x 560 design px, scaled to the column. Inside the browser window the app is drawn at its real 1320 x 1000 size.
+#}
+{% set en = lang == 'en' %}
+{% set H = 'image/hero/' %}
+<style>
+.welcome-area--l8 { background-color: #FAF8F5; }
+/* Inter, the exact Google Fonts file the Minipass app uses; the live Revenue numbers must match the captures */
+@font-face { font-family: 'MPH Inter'; src: url("{{ url_for('static', filename='fonts/inter/inter-latin-var.woff2') }}") format('woff2');
+  font-weight: 100 900; font-style: normal; font-display: block; }
+.welcome-area--l8 .word-anim { animation: none !important; }
+
+.mph { position: relative; width: 100%; aspect-ratio: 1 / 1; margin: 0 0 30px; }
+.mph-stage { position: absolute; left: 0; top: 0; width: 560px; height: 560px; transform-origin: 0 0; transform: scale(var(--mph-s, 1)); }
+.mph-stage > * { position: absolute; }
+/* nothing shows until the animation has set its first frame */
+.mph--pending .mph-stage { visibility: hidden; }
+
+/* floating video cards */
+.mph-card { overflow: hidden; border-radius: 12px; z-index: 4; }
+.mph-card video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* browser window with the real app inside */
+/* the window fades in where it rests */
+.mph-cut { left: -40px; top: 18.36px; width: 604px; height: 523.27px; z-index: 1; }
+.mph-win { position: absolute; left: 40px; top: 40px; width: 564px; height: 443.27px; border-radius: 10px; overflow: hidden; background: #f8f9fa; box-shadow: 0 30px 60px -28px rgba(30,20,70,.55), 0 0 0 1px rgba(20,20,40,.08); }
+.mph-bar { position: absolute; left: 0; right: 0; top: 0; height: 16px; background: #E9ECF1; display: flex; align-items: center; gap: 5px; padding-left: 9px; }
+.mph-bar i { width: 6px; height: 6px; border-radius: 50%; display: block; }
+.mph-bar b { flex: 1; height: 8px; margin: 0 60px 0 30px; border-radius: 4px; background: #fff; }
+.mph-vp { position: absolute; left: 0; top: 16px; width: 1320px; height: 1000px; transform-origin: 0 0; transform: scale(.427273); overflow: hidden; }
+.mph-cam { position: absolute; left: 0; top: 0; width: 1320px; height: 1000px; transform-origin: 0 0; }
+.mph-cam > * { position: absolute; display: block; max-width: none; }
+.mph-still { object-fit: cover; border-radius: 8px 8px 0 0; opacity: 0; }
+/* live Revenue value, painted exactly over the captured one (measured box of .mp-kpi-card__value) */
+.mph-rev { left: 295.23px; top: 233.56px; width: 166.27px; height: 28.79px; background: #fff; color: oklch(0.145 0 0);
+  font: 700 24px/28.79px 'MPH Inter', Inter, sans-serif; font-feature-settings: "cv03", "cv04", "cv11", "liga" 0; white-space: nowrap;
+  filter: blur(.9px); }   /* softness matched to the captured image (pixel-compared: closest of 0.6-1.8) */
+
+/* phone: a real 3D model (three.js) at Pixel 9 proportions, the real mobile app on its screen.
+   The canvas is centred on the phone's resting place; the phone turns into place inside it. */
+.mph-phone3d { left: 300px; top: 0; width: 300px; height: 560px; z-index: 6; display: block; max-width: none;
+  filter: drop-shadow(0 34px 38px rgba(25,15,45,.26)) drop-shadow(0 6px 10px rgba(25,15,45,.16)); }
+
+/* payment notification, floating where the desktop and the phone meet */
+.mph-pay-pos { left: 150px; top: 404px; width: 232px; z-index: 8; transform-origin: 55% 50%; }
+.mph-pay { position: relative; display: flex; align-items: center; gap: 10px; padding: 11px 13px;
+  background: #fff; border-radius: 14px; box-shadow: 0 18px 40px -16px rgba(25,15,45,.38), 0 2px 6px rgba(25,15,45,.08);
+  font-family: 'MPH Inter', Inter, system-ui, sans-serif; color: #141414; line-height: 1.3; opacity: 0; }
+.mph-pay-ic { flex: none; width: 30px; height: 30px; border-radius: 50%; background: #10b981; display: flex; align-items: center; justify-content: center; }
+.mph-pay-ic svg { width: 17px; height: 17px; display: block; }
+.mph-pay-tx { flex: 1; min-width: 0; }
+.mph-pay-top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.mph-pay-t { font-size: 12.5px; font-weight: 600; }
+.mph-pay-now { font-size: 10.5px; color: #8a8f98; }
+.mph-pay-b { font-size: 11.5px; color: #4b5563; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* test page only: picture + timer badge */
+.mph-debug { position: fixed; left: 16px; bottom: 16px; z-index: 9999; display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 12px; background: #141022; color: #fff; font: 600 13px/1 ui-monospace, "JetBrains Mono", monospace; box-shadow: 0 8px 24px rgba(0,0,0,.25); }
+.mph-debug span { min-width: 150px; font-variant-numeric: tabular-nums; }
+.mph-debug button { background: #2b2540; color: #fff; border: 0; border-radius: 8px; padding: 7px 10px; font: inherit; cursor: pointer; }
+.mph-debug button:hover { background: #3E3096; }
+</style>
+<noscript><style>.mph--pending .mph-stage { visibility: visible; }</style></noscript>
+
+<div class="mph mph--pending" id="mph" data-remember="0" aria-hidden="true">
+ <div class="mph-stage" id="mphStage">
+
+  <div class="mph-cut" id="mphCut">
+  <div class="mph-win" id="mphWin">
+   <div class="mph-bar"><i style="background:#FF5F57"></i><i style="background:#FEBC2E"></i><i style="background:#28C840"></i><b></b></div>
+   <div class="mph-vp" id="mphVp">
+    <div class="mph-cam" id="mphCam">
+     <img src="{{ url_for('static', filename=H ~ 'desk.webp') }}" alt="" style="left:0;top:0;width:1320px;height:1000px">
+     <img class="mph-still" data-still="hockey"  src="{{ url_for('static', filename='video/hero/still_hockey.jpg') }}"  alt="" style="left:285.23px;top:449.94px;width:237.46px;height:101.77px">
+     <img class="mph-still" data-still="yoga"    src="{{ url_for('static', filename='video/hero/still_yoga.jpg') }}"    alt="" style="left:541.15px;top:449.94px;width:237.46px;height:101.77px">
+     <img class="mph-still" data-still="concert" src="{{ url_for('static', filename='video/hero/still_concert.jpg') }}" alt="" style="left:797.08px;top:449.94px;width:237.46px;height:101.77px">
+     <div class="mph-rev" id="mphRev">$32,405</div>
+    </div>
+   </div>
+  </div>
+  </div>
+
+  {% set cards = [
+    ('yoga',    '1_cours_yoga',         'left:4px;top:126px;width:280px;height:175px'),
+    ('concert', '3_evenements_concert', 'left:276px;top:114px;width:280px;height:175px'),
+    ('hockey',  '2_ligues_hockey',      'left:95px;top:245px;width:370px;height:231.25px;z-index:5')] %}
+  {% for key, file, pos in cards %}
+  <div class="mph-card" data-card="{{ key }}" style="{{ pos }}">
+   <video muted playsinline loop preload="auto" poster="{{ url_for('static', filename='video/hero/' ~ file ~ '.jpg') }}">
+    <source src="{{ url_for('static', filename='video/hero/' ~ file ~ '.mp4') }}" type="video/mp4">
+   </video>
+  </div>
+  {% endfor %}
+
+  <canvas class="mph-phone3d" id="mphPhone3d" data-screen="{{ url_for('static', filename=H ~ 'phone_screen.jpg') }}"></canvas>
+
+  <div class="mph-pay-pos" id="mphPayPos">
+  <div class="mph-pay" id="mphPay">
+   <span class="mph-pay-ic"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M16.7 8A3 3 0 0 0 14 6h-4a3 3 0 0 0 0 6h4a3 3 0 0 1 0 6h-4a3 3 0 0 1-2.7-2"/><path d="M12 3v3m0 12v3"/></svg></span>
+   <span class="mph-pay-tx">
+    <span class="mph-pay-top"><span class="mph-pay-t">{{ 'Payment received' if en else 'Paiement reçu' }}</span><span class="mph-pay-now">{{ 'now' if en else 'maintenant' }}</span></span>
+    <span class="mph-pay-b" id="mphPayB"></span>
+   </span>
+  </div>
+  </div>
+ </div>
+</div>
+
+{% if hero_test %}
+<div class="mph-debug" id="mphDebug">
+ <span id="mphDebugTxt">Image 1 · 0.0 s</span>
+ <button type="button" id="mphReplay">Rejouer</button>
+ <button type="button" id="mphPause">Pause</button>
+ <button type="button" id="mphSlow">0.5×</button>
+</div>
+{% endif %}
+
+<script src="{{ url_for('static', filename='plugins/gsap/gsap.min.js') }}"></script>
+<script>
+(function () {
+  var root = document.getElementById('mph');
+  function textReady() { document.documentElement.classList.remove('hero-wait'); }
+  if (!root || !window.gsap) { textReady(); return; }
+  var win = document.getElementById('mphWin');
+  var cut = document.getElementById('mphCut');
+  var cam = document.getElementById('mphCam');
+  var phone = document.getElementById('mphPhone3d');
+  /* the 3D phone's pose, read by static/js/hero-phone3d.js on every render */
+  var P3D = window.MPH_P3 = { ry: -.22, rx: .04, dist: 441.4, streak: .35 };
+  function draw3d() { if (window.phone3d) window.phone3d.render(); }
+  /* headline word colors; a page can set --mph-word1/2/3 on #mph to use its own */
+  var wc = getComputedStyle(root);
+  function wcol(n, d) { return (wc.getPropertyValue('--mph-word' + n) || '').trim() || d; }
+  var Y = wcol(1, '#F3840F'), P = wcol(2, '#C51865'), B = wcol(3, '#3E3096');
+  var K = 564 / 1320;        /* app px -> stage px inside the window */
+  var D = 1;                 /* extra hold on the three videos before they drop */
+  var VP_TOP = 16;           /* browser bar height */
+
+  /* live Revenue, same value on the desktop card and the phone card */
+  var BASE = 32405, AMOUNT = 50;
+  var REV = { v: BASE };
+  var revEl = document.getElementById('mphRev');
+  var money = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+  function setRev(v) {
+    var txt = money.format(Math.round(v));
+    if (revEl.textContent !== txt) revEl.textContent = txt;
+    window.MPH_REV_TEXT = txt;                                   /* read by the phone when it loads */
+    if (window.phone3d && window.phone3d.setRevenue) window.phone3d.setRevenue(txt);
+  }
+
+  function fit() {
+    var sc = root.clientWidth / 560;
+    root.style.setProperty('--mph-s', sc);
+    /* keep the payment card readable on small screens (its text would drop under 9 px) */
+    var pc = document.getElementById('mphPayPos');
+    if (pc) pc.style.transform = 'scale(' + Math.min(1.45, Math.max(1, .82 / sc)) + ')';
+    if (window.phone3d) window.phone3d.resize();
+  }
+  fit();
+  if (window.ResizeObserver) new ResizeObserver(fit).observe(root); else window.addEventListener('resize', fit);
+
+  var cards = {}, home = {}, stills = {};
+  [].forEach.call(root.querySelectorAll('[data-card]'), function (el) {
+    var k = el.getAttribute('data-card');
+    cards[k] = el;
+    home[k] = { left: el.offsetLeft, top: el.offsetTop, width: el.offsetWidth, height: el.offsetHeight, borderRadius: '12px' };
+  });
+  [].forEach.call(root.querySelectorAll('[data-still]'), function (el) { stills[el.getAttribute('data-still')] = el; });
+  var videos = {};
+  Object.keys(cards).forEach(function (k) { videos[k] = cards[k].querySelector('video'); });
+  var words = [1, 2, 3].map(function (i) { return document.querySelector('.word-anim--' + i); });
+  /* hero text pieces (data-hero on the page), each one comes in with its picture */
+  var txt = {};
+  [].forEach.call(document.querySelectorAll('[data-hero]'), function (el) { txt[el.getAttribute('data-hero')] = el; });
+  var txtAll = Object.keys(txt).map(function (k) { return txt[k]; });
+
+  /* the slot each video lands in, in stage px (window not zoomed, at rest) */
+  function slot(k) {
+    var s = stills[k];
+    return { left: cut.offsetLeft + win.offsetLeft + s.offsetLeft * K, top: cut.offsetTop + win.offsetTop + VP_TOP + s.offsetTop * K,
+             width: s.offsetWidth * K, height: s.offsetHeight * K, borderRadius: (8 * K) + 'px' };
+  }
+
+
+  var tl;
+  /* one move for every text piece: it rises a little while its blur clears */
+  function textIn(k, at, dur, ease) {
+    if (!txt[k]) return;
+    tl.to(txt[k], { opacity: 1, filter: 'blur(0px)', top: 0, duration: dur || .5, ease: ease || 'power2.out' }, at)
+      .set(txt[k], { filter: 'none' }, at + (dur || .5));
+  }
+  function build() {
+    if (tl) tl.kill();
+    stopPayments();
+    tl = gsap.timeline({ paused: true, defaults: { ease: 'power3.out' } });
+
+    /* starting states */
+    Object.keys(cards).forEach(function (k) { tl.set(cards[k], Object.assign({}, home[k], { opacity: 0, scale: 1.18, rotation: k === 'yoga' ? -6 : k === 'concert' ? 6 : 0 }), 0); });
+    tl.set(Object.keys(stills).map(function (k) { return stills[k]; }), { opacity: 0 }, 0)
+      .set(win, { opacity: 0 }, 0)
+      .set(phone, { opacity: 0 }, 0)
+      .set(P3D, { ry: -Math.PI / 2, rx: .2, dist: 540, streak: -.45, onComplete: draw3d }, 0)
+      .set(words, { color: function (i) { return [Y, P, B][i]; } }, 0)
+      .set(txtAll, { opacity: 0, filter: 'blur(6px)', top: 10 }, 0)
+      .set(REV, { v: BASE, onComplete: function () { setRev(BASE); } }, 0)
+      .call(function () { Object.keys(videos).forEach(function (k) { playVideo(videos[k]); }); }, null, 0.01);
+
+    /* Picture 1 (0 - 3 s): the three videos appear big and settle down to size; "Tu crées tes" comes in first,
+       then each colored word arrives with its video */
+    textIn('intro', 0);
+    [['yoga', 'w1'], ['hockey', 'w2'], ['concert', 'w3']].forEach(function (c, i) {
+      var t = .05 + i * .6;
+      tl.to(cards[c[0]], { opacity: 1, duration: .5, ease: 'power1.out' }, t)
+        .to(cards[c[0]], { scale: 1, duration: 1.2 }, t);
+      textIn(c[1], t + .3);
+    });
+
+    /* Picture 2 (3 - 4.2 s): one move. The app fades in while the videos travel into their cards;
+       the fade and the travel start together and finish together, then the videos freeze */
+    var P2 = 2 + D, MOVE = 1.1;
+    tl.to(win, { opacity: 1, duration: MOVE, ease: 'power2.inOut' }, P2);
+    textIn('end', P2, MOVE, 'power2.inOut');                      /* "minipass s'occupe du reste." comes in with the app */
+    ['hockey', 'yoga', 'concert'].forEach(function (k) {
+      var t = P2, land = t + MOVE;
+      tl.to(cards[k], Object.assign(slot(k), { rotation: 0, duration: MOVE, ease: 'power2.inOut' }), t)
+        .call(function () { videos[k].pause(); }, null, land)
+        .set(stills[k], { opacity: 1 }, land)
+        .to(cards[k], { opacity: 0, duration: .3, ease: 'power1.inOut' }, land);
+    });
+
+    /* Picture 3 (4.5 s ->): the phone turns into place in 3D, light glides across its glass */
+    var P3 = 3.5 + D;
+    /* it appears exactly side-on (only the thin metal edge shows), then turns to face you */
+    tl.to(phone, { opacity: 1, duration: .15, ease: 'none' }, P3)
+      .to(P3D, { ry: -.22, rx: .04, dist: 441.4, duration: 1.6, ease: 'expo.out', onUpdate: draw3d }, P3 + .15)
+      .to(P3D, { streak: .35, duration: 1.8, ease: 'power2.inOut', onUpdate: draw3d }, P3 + .25)
+      .call(startPayments, null, P3 + 1.2);                       /* the turn (expo.out) has visibly landed here */
+    textIn('lead1', P3 + .1, .7);                                 /* first sentence while the phone turns */
+    textIn('lead2', P3 + 1.2);                                    /* "you always know who paid" with the first payment */
+    textIn('btn1', P3 + 1.4);
+    textIn('btn2', P3 + 1.5);
+    return tl;
+  }
+
+
+  /* ---- calm loop: payments arrive, Revenue +$50 on both screens ---- */
+  var EN = {{ 'true' if en else 'false' }};
+  var NAMES = ['Julie Tremblay', 'Marc-André Gagnon', 'Sophie Côté'];
+  var EVERY = 6;
+  var pay = document.getElementById('mphPay'), payB = document.getElementById('mphPayB');
+  var cents = new Intl.NumberFormat(EN ? 'en-CA' : 'fr-CA', { style: 'currency', currency: 'CAD' });
+  var nextCall = null, payTl = null, step = 0, started = false, onScreen = true;
+
+  function payment(i, from) {
+    var t = gsap.timeline({ paused: true });
+    t.call(function () { payB.textContent = cents.format(AMOUNT).replace('CA', '') + (EN ? ' from ' : ' de ') + NAMES[i]; }, null, 0)
+     .set(pay, { opacity: 0, y: reduce ? 0 : 12 }, 0)
+     .to(pay, { opacity: 1, y: 0, duration: .5, ease: 'expo.out' }, 0);
+    if (reduce) t.set(REV, { v: from + AMOUNT, onComplete: function () { setRev(from + AMOUNT); } }, .25);
+    else t.fromTo(REV, { v: from }, { v: from + AMOUNT, duration: .8, ease: 'power2.out', immediateRender: false,
+                                       onUpdate: function () { setRev(REV.v); } }, .25);
+    t.to(pay, { opacity: 0, y: reduce ? 0 : -6, duration: .3, ease: 'power2.in' }, 4.5);
+    return t;
+  }
+
+  function schedule(delay, fn) {
+    if (nextCall) nextCall.kill();
+    nextCall = gsap.delayedCall(delay, fn);
+    if (!onScreen) nextCall.pause();
+  }
+  function firePayment() {
+    var i = step % NAMES.length;
+    if (payTl) payTl.kill();
+    payTl = payment(i, BASE + AMOUNT * step);                    /* Revenue keeps climbing */
+    payTl.play(0);
+    step++;
+    schedule(EVERY, firePayment);
+  }
+  function startPayments() {
+    if (started) return;
+    started = true; step = 0;
+    firePayment();                                               /* the moment the phone lands */
+  }
+  function stopPayments() {
+    started = false;
+    if (nextCall) nextCall.kill();
+    if (payTl) payTl.kill();
+    nextCall = payTl = null;
+    gsap.set(pay, { opacity: 0 });
+  }
+  /* no payments while the hero is off-screen */
+  if (window.IntersectionObserver) new IntersectionObserver(function (es) {
+    onScreen = es[0].isIntersecting;
+    if (nextCall) onScreen ? nextCall.resume() : nextCall.pause();
+  }).observe(root);
+
+  function playVideo(v) { var p = v.play(); if (p && p.catch) p.catch(function () {}); }
+
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var remember = root.getAttribute('data-remember') === '1';
+  var seen = false;
+  try { seen = remember && localStorage.getItem('mph_seen') === '1'; } catch (e) {}
+  var seek = parseFloat((location.search.match(/[?&]t=([\d.]+)/) || [])[1]);
+
+  /* set the empty first frame right away, then reveal the stage */
+  build();
+  tl.pause(0.02);
+  root.classList.remove('mph--pending');
+  textReady();
+
+  function go() {
+    if (!isNaN(seek)) { tl.pause(seek); draw3d(); setRev(REV.v); return; }
+    if (reduce || seen) { tl.progress(1); draw3d(); setRev(BASE); startPayments(); return; }
+    tl.play(0);
+    try { if (remember) localStorage.setItem('mph_seen', '1'); } catch (e) {}
+  }
+
+  if (document.readyState === 'complete') setTimeout(go, 250);
+  else window.addEventListener('load', function () { setTimeout(go, 250); });
+
+  /* test page badge */
+  var dbg = document.getElementById('mphDebug');
+  if (dbg) {
+    window.mphSeek = function (t) { tl.pause(t); draw3d(); };   /* test page only: frame checks */
+    var sweepPay = {};
+    window.mphPaySeek = function (t, i) {                          /* test page only: one payment, frozen at t */
+      i = i || 0;
+      if (!sweepPay[i]) { tl.progress(1); draw3d(); stopPayments(); sweepPay[i] = payment(i, BASE + AMOUNT * i); }
+      sweepPay[i].pause(t);
+      payB.textContent = cents.format(AMOUNT).replace('CA', '') + (EN ? ' from ' : ' de ') + NAMES[i];
+      setRev(REV.v);
+    };
+    var txt = document.getElementById('mphDebugTxt');
+    gsap.ticker.add(function () {
+      if (!tl) return;
+      var t = tl.time(), pic = t < 2 + D ? 1 : t < 3.5 + D ? 2 : 3;
+      txt.textContent = 'Image ' + pic + ' · ' + t.toFixed(1) + ' s' + (tl.progress() === 1 ? ' · boucle' : '');
+    });
+    var slow = false;
+    document.getElementById('mphReplay').onclick = function () { build(); tl.timeScale(slow ? .5 : 1).play(0); };
+    var pauseBtn = document.getElementById('mphPause');
+    pauseBtn.onclick = function () { if (!tl) return; tl.paused(!tl.paused()); pauseBtn.textContent = tl.paused() ? 'Play' : 'Pause'; };
+    var slowBtn = document.getElementById('mphSlow');
+    slowBtn.onclick = function () { slow = !slow; if (tl) tl.timeScale(slow ? .5 : 1); slowBtn.textContent = slow ? '1×' : '0.5×'; };
+  }
+})();
+</script>
+<script type="importmap">
+{ "imports": { "three": "{{ url_for('static', filename='plugins/three/three.module.min.js') }}", "three/addons/": "{{ url_for('static', filename='plugins/three/addons/') }}" } }
+</script>
+<script type="module" src="{{ url_for('static', filename='js/hero-phone3d.js') }}"></script>
