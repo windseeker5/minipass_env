@@ -124,7 +124,8 @@
 <script>
 (function () {
   var root = document.getElementById('mph');
-  if (!root || !window.gsap) return;
+  function textReady() { document.documentElement.classList.remove('hero-wait'); }
+  if (!root || !window.gsap) { textReady(); return; }
   var win = document.getElementById('mphWin');
   var cut = document.getElementById('mphCut');
   var cam = document.getElementById('mphCam');
@@ -173,6 +174,10 @@
   var videos = {};
   Object.keys(cards).forEach(function (k) { videos[k] = cards[k].querySelector('video'); });
   var words = [1, 2, 3].map(function (i) { return document.querySelector('.word-anim--' + i); });
+  /* hero text pieces (data-hero on the page), each one comes in with its picture */
+  var txt = {};
+  [].forEach.call(document.querySelectorAll('[data-hero]'), function (el) { txt[el.getAttribute('data-hero')] = el; });
+  var txtAll = Object.keys(txt).map(function (k) { return txt[k]; });
 
   /* the slot each video lands in, in stage px (window not zoomed, at rest) */
   function slot(k) {
@@ -183,6 +188,12 @@
 
 
   var tl;
+  /* one move for every text piece: it rises a little while its blur clears */
+  function textIn(k, at, dur, ease) {
+    if (!txt[k]) return;
+    tl.to(txt[k], { opacity: 1, filter: 'blur(0px)', top: 0, duration: dur || .5, ease: ease || 'power2.out' }, at)
+      .set(txt[k], { filter: 'none' }, at + (dur || .5));
+  }
   function build() {
     if (tl) tl.kill();
     stopPayments();
@@ -194,22 +205,26 @@
       .set(win, { opacity: 0 }, 0)
       .set(phone, { opacity: 0 }, 0)
       .set(P3D, { ry: -Math.PI / 2, rx: .2, dist: 540, streak: -.45, onComplete: draw3d }, 0)
-      .set(words, { color: 'inherit' }, 0)
+      .set(words, { color: function (i) { return [Y, P, B][i]; } }, 0)
+      .set(txtAll, { opacity: 0, filter: 'blur(6px)', top: 10 }, 0)
       .set(REV, { v: BASE, onComplete: function () { setRev(BASE); } }, 0)
       .call(function () { Object.keys(videos).forEach(function (k) { playVideo(videos[k]); }); }, null, 0.01);
 
-    /* Picture 1 (0 - 3 s): the three videos appear big and settle down to size, the matching word lights up */
-    [['yoga', 0, Y], ['hockey', 1, P], ['concert', 2, B]].forEach(function (c, i) {
+    /* Picture 1 (0 - 3 s): the three videos appear big and settle down to size; "Tu crées tes" comes in first,
+       then each colored word arrives with its video */
+    textIn('intro', 0);
+    [['yoga', 'w1'], ['hockey', 'w2'], ['concert', 'w3']].forEach(function (c, i) {
       var t = .05 + i * .6;
       tl.to(cards[c[0]], { opacity: 1, duration: .5, ease: 'power1.out' }, t)
-        .to(cards[c[0]], { scale: 1, duration: 1.2 }, t)
-        .to(words[c[1]], { color: c[2], duration: .4, ease: 'power1.out' }, t + .3);
+        .to(cards[c[0]], { scale: 1, duration: 1.2 }, t);
+      textIn(c[1], t + .3);
     });
 
     /* Picture 2 (3 - 4.2 s): one move. The app fades in while the videos travel into their cards;
        the fade and the travel start together and finish together, then the videos freeze */
     var P2 = 2 + D, MOVE = 1.1;
     tl.to(win, { opacity: 1, duration: MOVE, ease: 'power2.inOut' }, P2);
+    textIn('end', P2, MOVE, 'power2.inOut');                      /* "minipass s'occupe du reste." comes in with the app */
     ['hockey', 'yoga', 'concert'].forEach(function (k) {
       var t = P2, land = t + MOVE;
       tl.to(cards[k], Object.assign(slot(k), { rotation: 0, duration: MOVE, ease: 'power2.inOut' }), t)
@@ -225,6 +240,10 @@
       .to(P3D, { ry: -.22, rx: .04, dist: 441.4, duration: 1.6, ease: 'expo.out', onUpdate: draw3d }, P3 + .15)
       .to(P3D, { streak: .35, duration: 1.8, ease: 'power2.inOut', onUpdate: draw3d }, P3 + .25)
       .call(startPayments, null, P3 + 1.2);                       /* the turn (expo.out) has visibly landed here */
+    textIn('lead1', P3 + .1, .7);                                 /* first sentence while the phone turns */
+    textIn('lead2', P3 + 1.2);                                    /* "you always know who paid" with the first payment */
+    textIn('btn1', P3 + 1.4);
+    textIn('btn2', P3 + 1.5);
     return tl;
   }
 
@@ -292,6 +311,7 @@
   build();
   tl.pause(0.02);
   root.classList.remove('mph--pending');
+  textReady();
 
   function go() {
     if (!isNaN(seek)) { tl.pause(seek); draw3d(); setRev(REV.v); return; }

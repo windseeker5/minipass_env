@@ -7,15 +7,18 @@
 
 {% block content %}
 {% set yt_id = t.home.hero_video_url.split('v=')[-1].split('&')[0] %}
+{# the hero text waits for its animation; hero_motion removes this class, also when the animation can't run #}
+<script>document.documentElement.classList.add('hero-wait');</script>
 <section class="hero">
   <div class="in">
     <div>
-      <p class="kicker">{{ t.home.hero_subtitle }}</p>
-      <h1>{{ t.home.hero_title_prefix }}<span class="word-anim word-anim--1">{{ t.home.hero_word1 }}</span>, <span class="word-anim word-anim--2">{{ t.home.hero_word2 }}</span> {{ t.home.hero_and }} <span class="word-anim word-anim--3">{{ t.home.hero_word3 }}</span>{{ t.home.hero_title_end }}</h1>
-      <p class="lead">{{ t.home.hero_desc }}</p>
+      {# each data-hero piece comes in with its picture in the hero animation (partials/hero_motion.html) #}
+      <h1><span data-hero="intro">{{ t.home.hero_title_prefix }}</span><span class="word-anim word-anim--1" data-hero="w1">{{ t.home.hero_word1 }}</span><span data-hero="w2">, <span class="word-anim word-anim--2">{{ t.home.hero_word2 }}</span></span> <span data-hero="w3">{{ t.home.hero_and }} <span class="word-anim word-anim--3">{{ t.home.hero_word3 }}</span></span><span data-hero="end">{{ t.home.hero_title_end }}</span></h1>
+      {% set desc = t.home.hero_desc.split('. ', 1) %}
+      <p class="lead">{% if desc|length == 2 %}<span data-hero="lead1">{{ desc[0] }}.</span> <span data-hero="lead2">{{ desc[1] }}</span>{% else %}<span data-hero="lead1">{{ t.home.hero_desc }}</span>{% endif %}</p>
       <div class="ctas">
-        <a class="btn btn-main" href="{{ t.home.hero_video_url }}" data-video="{{ yt_id }}"><span class="play" aria-hidden="true"></span>{{ t.home.hero_btn_video }}</a>
-        <a class="btn btn-line" href="#pricing">{{ t.home.hero_btn_plans }}</a>
+        <a class="btn btn-main" href="{{ t.home.hero_video_url }}" data-video="{{ yt_id }}" data-hero="btn1"><span class="play" aria-hidden="true"></span>{{ t.home.hero_btn_video }}</a>
+        <a class="btn btn-line" href="#pricing" data-hero="btn2">{{ t.home.hero_btn_plans }}</a>
       </div>
     </div>
     <div class="hero-stage">

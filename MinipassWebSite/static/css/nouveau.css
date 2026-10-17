@@ -79,9 +79,11 @@ html { scrollbar-color: var(--line-2) var(--ground); }
 .hero::before { content: ""; position: absolute; right: -12%; top: -24%; width: 72%; height: 140%; pointer-events: none;
   background: radial-gradient(closest-side, rgba(227, 26, 90, .20), rgba(90, 38, 146, .15) 52%, transparent 76%); }
 .hero .in { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.04fr); gap: 32px; align-items: center; padding-top: 40px; padding-bottom: 96px; }
-.kicker { font: 600 15px/1.4 var(--body); color: var(--muted); margin-bottom: 18px; }
-.hero h1 { font-size: clamp(38px, 4.6vw, 60px); line-height: 1.04; font-weight: 800; letter-spacing: -.025em; }
-.hero .lead { font-size: 19px; color: var(--muted); margin-top: 24px; max-width: 34ch; }
+.hero h1 { font-size: clamp(34px, 3.9vw, 52px); line-height: 1.06; font-weight: 800; letter-spacing: -.025em; }
+.hero .lead { font-size: 19px; color: var(--muted); margin-top: 24px; max-width: 36ch; }
+/* hero text pieces animate in (partials/hero_motion.html): hidden until the animation has set its first frame */
+.hero [data-hero] { position: relative; }
+.hero-wait .hero [data-hero] { opacity: 0; }
 .ctas { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 34px; }
 .hero-stage { width: 100%; max-width: 620px; justify-self: end; }
 .hero-stage .mph { margin: 0; --mph-word1: #F46F1C; --mph-word2: #EC2D6A; --mph-word3: #8A5CD4; }
