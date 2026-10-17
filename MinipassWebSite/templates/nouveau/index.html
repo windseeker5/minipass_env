@@ -83,7 +83,8 @@
         <div class="plan-top"><h3>{{ name }}</h3>{% if pop %}<span class="badge">{{ 'Populaire' if fr else 'Popular' }}</span>{% endif %}</div>
         <p class="desc">{{ desc }}</p>
         <div class="price"><span class="price-num" data-monthly="{{ monthly }}" data-yearly="{{ yearly }}">{{ yearly }}</span><span class="cur">$</span><small>{{ t.home.pricing_per_month }}</small></div>
-        <p class="price-note" data-monthly="{{ t.home.pricing_monthly_plan }}" data-yearly="{{ t.home.pricing_annual_plan }}">{{ t.home.pricing_annual_plan }}</p>
+        {% set billed = t.home.billed_yearly|replace('{total}', (yearly * 12)|string) %}
+        <p class="price-note" data-monthly="{{ t.home.pricing_monthly_plan }}" data-yearly="{{ billed }}">{{ billed }}</p>
         <p class="act">{{ n }} {{ nlabel }} <span>{{ t.home.plan_activity_suffix }}</span>{% if key != 'basic' %}<br><span>{{ t.home.plan_plus }}</span>{% endif %}</p>
         <button type="button" class="btn {{ 'btn-main' if pop else 'btn-line' }}" onclick="openSignupModal('{{ key }}')">{{ t.home.plan_btn }}</button>
       </article>
@@ -184,6 +185,7 @@
       </div>
     </div>
     <div class="signup-foot">
+      <p class="reassure">{{ t.home.pricing_no_contract }}</p>
       <button type="submit" class="btn btn-main" id="submit-btn">{{ t.home.modal_submit }}</button>
       <p>{{ t.home.modal_policy }} <a href="{{ policies_url }}" target="_blank">{{ t.home.modal_policy_link }}</a></p>
     </div>
@@ -197,6 +199,7 @@
 (function () {
   var T = {{ {
     'annual': t.home.modal_billing_annual, 'monthly': t.home.modal_billing_monthly, 'total': t.home.modal_billing_total,
+    'billedYearly': t.home.billed_yearly,
     'submit': t.home.modal_submit, 'submitPromo': t.home.modal_submit_promo,
     'taken': t.home.modal_app_name_taken, 'invalid': t.home.modal_app_name_invalid, 'checkErr': t.home.modal_app_name_error,
     'available': t.home.modal_app_name_available, 'checking': t.home.modal_promo_checking, 'promoOk': t.home.modal_promo_valid,
@@ -213,10 +216,10 @@
   var MSG = {{ {
     'promo_already_used': ('Ce code promo a déjà été utilisé.' if fr else 'This promo code has already been used.'),
     'invalid_promo': ('Ce code promo n’est pas valide.' if fr else 'This promo code is not valid.'),
-    'subdomain_taken': ('Ce nom d’application est déjà pris. Choisissez-en un autre.' if fr else 'This app name is already taken. Please choose another one.'),
+    'subdomain_taken': ('Ce nom d’application est déjà pris. Choisis-en un autre.' if fr else 'This app name is already taken. Please choose another one.'),
     'invalid_subdomain': ('Ce nom d’application n’est pas valide : lettres minuscules et chiffres seulement.' if fr else 'This app name is not valid: lowercase letters and numbers only.'),
-    'missing_fields': ('Il manque des informations. Remplissez tous les champs.' if fr else 'Some information is missing. Please fill in every field.'),
-    'failed': ('Le paiement n’a pas pu démarrer. Réessayez ou écrivez-nous à support@minipass.me.' if fr else 'The payment could not start. Try again or write to support@minipass.me.'),
+    'missing_fields': ('Il manque des informations. Remplis tous les champs.' if fr else 'Some information is missing. Please fill in every field.'),
+    'failed': ('Le paiement n’a pas pu démarrer. Réessaie ou écris-nous à support@minipass.me.' if fr else 'The payment could not start. Try again or write to support@minipass.me.'),
     'cancelled': ('Paiement annulé. Aucun montant n’a été facturé.' if fr else 'Payment cancelled. You have not been charged.')
   }|tojson }};
   var qs = new URLSearchParams(location.search), err = qs.get('error');
@@ -266,7 +269,7 @@
     $('modal-billing-frequency').value = annual ? 'annual' : 'monthly';
     $('modal-plan-display').textContent = cfg.name;
     $('modal-price-amount').textContent = price;
-    $('modal-billing-text').textContent = annual ? T.annual + ' (' + (price * 12) + ' $ ' + T.total + ')' : T.monthly;
+    $('modal-billing-text').textContent = annual ? T.billedYearly.replace('{total}', price * 12) : T.monthly;
     $('modal-savings-badge').hidden = !annual;
     resetPromo();
     $('signupModal').showModal();
