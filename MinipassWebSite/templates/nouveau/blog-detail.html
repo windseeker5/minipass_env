@@ -53,13 +53,9 @@
       <div class="prose">{{ content|safe }}</div>
     </article>
     <aside class="aside" aria-labelledby="aside-title">
-      <p class="eyebrow">{{ 'Newsletter' if en_post else 'Infolettre' }}</p>
-      <h2 id="aside-title">{{ 'Stay in the loop' if en_post else 'Reste dans la boucle' }}</h2>
-      <p>{{ 'Be the first to discover our new guides and product tips.' if en_post else 'Sois le premier à découvrir nos nouveaux guides et astuces produit.' }}</p>
-      <form data-newsletter data-ok="{{ 'You are now subscribed!' if en_post else 'Tu es maintenant inscrit!' }}" data-err="{{ 'An error occurred. Try again.' if en_post else 'Une erreur est survenue. Essaie de nouveau.' }}">
-        <input type="email" required autocomplete="email" placeholder="{{ 'your@email.com' if en_post else 'ton@courriel.com' }}" aria-label="{{ 'Email' if en_post else 'Courriel' }}">
-        <button type="submit" class="btn btn-main">{{ 'Subscribe' if en_post else 'S’abonner' }}</button>
-      </form>
+      <h2 id="aside-title">{{ 'Need help?' if en_post else 'Besoin d’aide?' }}</h2>
+      <a class="btn btn-main" href="mailto:support@minipass.me">support@minipass.me</a>
+      <a class="btn btn-line" href="https://discord.gg/mfzBs8pT26" target="_blank" rel="noopener noreferrer">Support Discord</a>
     </aside>
   </div>
 </section>

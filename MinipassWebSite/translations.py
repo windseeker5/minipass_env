@@ -200,24 +200,24 @@ TRANSLATIONS = {
 
             # Section 1
             's1_label': 'La petite histoire',
-            's1_title': 'Le 20$ qui a tout d\u00e9clench\u00e9',
+            's1_title': 'Le <span class="lit">20\u00a0$</span> qui a tout d\u00e9clench\u00e9',
             's1_p1': 'Un dimanche matin, en comptant ses billets de rempla\u00e7ants au hockey, Ken r\u00e9alise qu\u2019il manque vingt dollars et que la petite caisse ne balance toujours pas. Entre les passes de saison, les paiements en cash et par Interac, la gestion financi\u00e8re \u00e9tait devenue chaotique. Convaincu qu\u2019une application simple devait exister pour r\u00e9gler ce probl\u00e8me, il d\u00e9couvre rapidement que les options disponibles sont soit trop complexes, soit trop co\u00fbteuses, soit mal con\u00e7ues... ou les trois \u00e0 la fois!',
             's1_p2': 'Le geek techno se r\u00e9veille alors en lui. Une \u00e9bauche prend forme. Int\u00e9ressant. Pourquoi ne pas voir plus grand?',
 
             # Section 2
             's2_label': 'Notre mission',
-            's2_title': 'Un projet familial formateur',
+            's2_title': 'Un projet <span class="lit-o">familial</span> formateur',
             's2_p1': 'Au-del\u00e0 du produit, une opportunit\u00e9 encore plus pr\u00e9cieuse s\u2019est pr\u00e9sent\u00e9e: montrer \u00e0 nos jeunes futurs entrepreneurs comment \u00e7a marche pour vrai, un d\u00e9marrage d\u2019entreprise. Tous les processus, de la conception au code, du marketing aux ventes, de la gestion des clients aux finances, des m\u00e9dias sociaux au service apr\u00e8s-vente.',
             's2_p2': 'Pas dans un livre. Pas dans un cours th\u00e9orique. Dans le vrai monde, avec de vrais clients, de vraies factures, de vrais d\u00e9fis. <strong>C\u2019est \u00e7a, notre vraie mission familiale.</strong>',
 
             # Section 3
             's3_label': 'Notre engagement',
-            's3_title': 'Encourager la pers\u00e9v\u00e9rance',
+            's3_title': 'Encourager la <span class="lit-v">pers\u00e9v\u00e9rance</span>',
             's3_text': 'Cette valeur nous tient \u00e0 c\u0153ur. C\u2019est pourquoi minipass s\u2019engage \u00e0 remettre annuellement 2% de son chiffre d\u2019affaires \u00e0 la Fondation de la ligue de hockey Gagnon Image <strong>qui reconna\u00eet la pers\u00e9v\u00e9rance et l\u2019engagement des jeunes athl\u00e8tes faisant face \u00e0 l\u2019adversit\u00e9 avec courage.</strong>',
 
             # Team
             'team_label': 'L\u2019\u00c9QUIPE',
-            'team_title': 'Rencontrez l\u2019\u00e9quipe',
+            'team_title': 'Rencontrez <span class="lit-r">l\u2019\u00e9quipe</span>',
             'team_subtitle': 'Une aventure familiale o\u00f9 chacun apporte sa passion',
 
             'ken_role': 'Co-fondateur, Chef du d\u00e9veloppement technologique',
@@ -231,7 +231,7 @@ TRANSLATIONS = {
 
             # CTA
             'cta_text': 'Envie de simplifier la gestion de vos activit\u00e9s comme on l\u2019a fait?',
-            'cta_btn': 'S\u2019abonner',
+            'cta_btn': 'Voir les forfaits',
         },
 
         # ── Blog page ──
@@ -239,7 +239,7 @@ TRANSLATIONS = {
             'meta_title': 'Guides & Ressources \u2014 minipass',
             'meta_desc': 'Tutoriels vid\u00e9o, articles et guides pour ma\u00eetriser minipass et g\u00e9rer ta ligue sportive sans stress.',
             'hero_label': 'RESSOURCES',
-            'hero_title': 'Apprenez en quelques minutes',
+            'hero_title': 'Apprenez en quelques <span class="lit-o">minutes</span>',
             'hero_desc': 'Tutoriels et guides pour ma\u00eetriser minipass et g\u00e9rer tes ligues, cours et \u00e9v\u00e9nements sans stress.',
             'search_placeholder': 'Rechercher un guide...',
             'filter_all': 'Tous',
@@ -483,24 +483,24 @@ TRANSLATIONS = {
 
             # Section 1
             's1_label': 'The backstory',
-            's1_title': 'The $20 that started it all',
+            's1_title': 'The <span class="lit">$20</span> that started it all',
             's1_p1': 'One Sunday morning, while counting substitute player fees at hockey, Ken realized he was missing twenty dollars and the petty cash still didn\u2019t balance. Between season passes, cash payments and Interac e-transfers, financial management had become chaotic. Convinced that a simple platform should exist to fix this, he quickly discovered that available options were either too complex, too expensive, poorly designed... or all three at once!',
             's1_p2': 'The tech geek in him woke up. A prototype took shape. Interesting. Why not think bigger?',
 
             # Section 2
             's2_label': 'Our mission',
-            's2_title': 'A family learning project',
+            's2_title': 'A <span class="lit-o">family</span> learning project',
             's2_p1': 'Beyond the product, an even more valuable opportunity presented itself: showing our young future entrepreneurs how a real business startup works. Every process, from design to code, marketing to sales, customer management to finances, social media to after-sales support.',
             's2_p2': 'Not in a book. Not in a theoretical class. In the real world, with real clients, real invoices, real challenges. <strong>That\u2019s our true family mission.</strong>',
 
             # Section 3
             's3_label': 'Our commitment',
-            's3_title': 'Encouraging perseverance',
+            's3_title': 'Encouraging <span class="lit-v">perseverance</span>',
             's3_text': 'This value is close to our hearts. That\u2019s why minipass commits to donating 2% of its annual revenue to the Fondation de la ligue de hockey Gagnon Image, <strong>which recognizes the perseverance and commitment of young athletes facing adversity with courage.</strong>',
 
             # Team
             'team_label': 'THE TEAM',
-            'team_title': 'Meet the team',
+            'team_title': 'Meet the <span class="lit-r">team</span>',
             'team_subtitle': 'A family adventure where everyone brings their passion',
 
             'ken_role': 'Co-founder, Chief Technology Officer',
@@ -514,7 +514,7 @@ TRANSLATIONS = {
 
             # CTA
             'cta_text': 'Want to simplify your activity management like we did?',
-            'cta_btn': 'Subscribe',
+            'cta_btn': 'See the plans',
         },
 
         # ── Blog page ──
@@ -522,7 +522,7 @@ TRANSLATIONS = {
             'meta_title': 'Guides & Resources \u2014 minipass',
             'meta_desc': 'Video tutorials, articles and guides to master minipass and manage your sports league stress-free.',
             'hero_label': 'RESOURCES',
-            'hero_title': 'Learn in minutes',
+            'hero_title': 'Learn in <span class="lit-o">minutes</span>',
             'hero_desc': 'Tutorials and guides to master minipass and manage your leagues, courses and events stress-free.',
             'search_placeholder': 'Search guides...',
             'filter_all': 'All',

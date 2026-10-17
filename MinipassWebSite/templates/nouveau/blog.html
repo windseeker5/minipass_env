@@ -12,8 +12,7 @@
 {%- endmacro %}
 <section class="page-head" aria-labelledby="guides-title">
   <div class="in">
-    <p class="eyebrow">{{ t.blog.hero_label }}</p>
-    <h1 id="guides-title">{{ t.blog.hero_title }}</h1>
+    <h1 id="guides-title">{{ t.blog.hero_title|safe }}</h1>
     <p class="lead">{{ t.blog.hero_desc }}</p>
     {% if posts %}
     <div class="tools">
@@ -29,24 +28,46 @@
   </div>
 </section>
 
-<section class="paper" aria-label="{{ t.blog.hero_title }}">
+<section class="sec blog-list" aria-labelledby="guides-title">
   <div class="in">
     {% if posts %}
-    <div class="posts" id="blogGrid">
-      {% for post in posts %}
-      <a class="post" href="{{ lang_prefix }}/blog/{{ post['slug'] }}" data-title="{{ post['title']|lower }}" data-desc="{{ (post['excerpt'] or '')|lower }}">
-        {% if post.get('yt_thumb') %}
-        <div class="post-img"><img src="{{ post['yt_thumb'] }}" alt="" loading="lazy" width="400" height="225"><span class="post-play" aria-hidden="true"></span></div>
-        {% else %}
-        <div class="post-img post-img--brand" aria-hidden="true"><span class="logo-bars"><i></i><i></i><i></i><i></i><i></i></span></div>
-        {% endif %}
-        <div class="post-body">
-          {% if post['category'] %}<span class="tag">{{ post['category'] }}</span>{% endif %}
-          <h2 class="post-title">{{ post['title'] }}</h2>
-          <p>{{ (post['excerpt'] or '')[:140] }}{% if (post['excerpt'] or '')|length > 140 %}…{% endif %}</p>
+    {% set videos = posts|selectattr('yt_thumb')|list %}
+    {% set written = posts|rejectattr('yt_thumb')|list %}
+    {% macro tag(post) -%}
+      {% if post['category'] %}<span class="tag {{ 'tag-o' if 'tuto' in post['category']|lower else 'tag-v' }}">{{ post['category'] }}</span>{% endif %}
+    {%- endmacro %}
+    <div id="blogGrid">
+      {% if videos %}
+      <div class="post-group">
+        <h2 class="group-title">{{ 'Tutoriels vidéo' if fr else 'Video tutorials' }}</h2>
+        <div class="posts">
+          {% for post in videos %}
+          <a class="post" href="{{ lang_prefix }}/blog/{{ post['slug'] }}" data-title="{{ post['title']|lower }}" data-desc="{{ (post['excerpt'] or '')|lower }}">
+            <div class="post-img"><img src="{{ post['yt_thumb'] }}" alt="" loading="lazy" width="400" height="225"><span class="post-play" aria-hidden="true"></span></div>
+            <div class="post-body">
+              {{ tag(post) }}
+              <h3 class="post-title">{{ post['title'] }}</h3>
+              <p>{{ (post['excerpt'] or '')[:140] }}{% if (post['excerpt'] or '')|length > 140 %}…{% endif %}</p>
+            </div>
+          </a>
+          {% endfor %}
         </div>
-      </a>
-      {% endfor %}
+      </div>
+      {% endif %}
+      {% if written %}
+      <div class="post-group">
+        <h2 class="group-title">{{ 'Guides écrits' if fr else 'Written guides' }}</h2>
+        <div class="post-list">
+          {% for post in written %}
+          <a class="post-row" href="{{ lang_prefix }}/blog/{{ post['slug'] }}" data-title="{{ post['title']|lower }}" data-desc="{{ (post['excerpt'] or '')|lower }}">
+            {{ tag(post) }}
+            <h3 class="post-title">{{ post['title'] }}</h3>
+            <p>{{ (post['excerpt'] or '')[:140] }}{% if (post['excerpt'] or '')|length > 140 %}…{% endif %}</p>
+          </a>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
     </div>
     <div class="empty" id="noResults" hidden>
       <h2>{{ t.blog.no_results_title }}</h2>
@@ -73,10 +94,10 @@
   </div>
 </section>
 
-<section class="paper paper-end">
+<section class="sec-band">
   <div class="in">
-    <div class="band">
-      <div><p class="eyebrow">{{ t.blog.cta_label }}</p><h2>{{ t.blog.cta_title }}</h2></div>
+    <div class="band band-quiet">
+      <h2>{{ t.blog.cta_title }}</h2>
       <div class="band-ctas">
         <a class="btn btn-main" href="mailto:support@minipass.me">support@minipass.me</a>
         <a class="btn btn-line" href="https://discord.gg/mfzBs8pT26" target="_blank" rel="noopener noreferrer">Support Discord</a>
@@ -91,13 +112,15 @@
 (function () {
   var input = document.getElementById('blogSearch'), grid = document.getElementById('blogGrid'), none = document.getElementById('noResults');
   if (!input || !grid) return;
-  var cards = grid.querySelectorAll('.post');
+  var cards = grid.querySelectorAll('[data-title]'), groups = grid.querySelectorAll('.post-group');
   input.addEventListener('input', function () {
     var q = input.value.toLowerCase().trim(), shown = 0;
     cards.forEach(function (c) {
       var hit = !q || (c.dataset.title || '').indexOf(q) > -1 || (c.dataset.desc || '').indexOf(q) > -1;
       c.hidden = !hit; if (hit) shown++;
     });
+    /* a group with no match left hides its title too */
+    groups.forEach(function (g) { g.hidden = !g.querySelector('[data-title]:not([hidden])'); });
     none.hidden = shown > 0;
   });
 })();

@@ -93,16 +93,11 @@
 </main>
 
 <footer class="foot">
+  <div class="foot-strip" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
   <div class="in">
     <div>
       <a class="logo" href="{{ home_url }}"><span class="logo-bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>minipass</a>
       <p class="foot-tag">{{ t.footer.tagline }}</p>
-      <div class="socials">
-        <a href="https://www.facebook.com/profile.php?id=61578842160404" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-        <a href="https://instagram.com/minipass.me" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-        <a href="https://youtube.com/@minipassme" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
-        <a href="https://www.linkedin.com/company/108409522" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
-      </div>
     </div>
     <div><h4>{{ t.footer.contact }}</h4><ul>
       <li><a href="mailto:support@minipass.me">support@minipass.me</a></li>
@@ -114,7 +109,15 @@
       <li><a href="{{ lang_prefix }}/blog">{{ t.nav.guides }}</a></li>
       <li><a href="{{ policies_url }}">{{ 'Politiques d’abonnement' if fr else 'Subscription policies' }}</a></li>
     </ul></div>
-    <p class="copy">© {{ now.year }} minipass.me · {{ 'Fait au Canada' if fr else 'Made in Canada' }}</p>
+    <div class="foot-bottom">
+      <p class="copy">© {{ now.year }} minipass.me · {{ 'Fait au Canada' if fr else 'Made in Canada' }}</p>
+      <div class="socials">
+        <a href="https://www.facebook.com/profile.php?id=61578842160404" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+        <a href="https://instagram.com/minipass.me" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+        <a href="https://youtube.com/@minipassme" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+        <a href="https://www.linkedin.com/company/108409522" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+      </div>
+    </div>
   </div>
 </footer>
 

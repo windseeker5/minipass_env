@@ -9,35 +9,9 @@
 <section class="page-head story" aria-labelledby="story-title">
   <div class="in">
     <div class="story-text">
-      <p class="eyebrow">{{ t.about.s1_label }}</p>
-      <h1 id="story-title">{{ t.about.s1_title }}</h1>
+      <h1 id="story-title">{{ t.about.s1_title|safe }}</h1>
       <p>{{ t.about.s1_p1 }}</p>
       <p>{{ t.about.s1_p2 }}</p>
-    </div>
-    <p class="story-num" aria-hidden="true">{{ '20 $' if fr else '$20' }}</p>
-  </div>
-</section>
-
-<section class="sec" aria-labelledby="mission-title">
-  <div class="in split">
-    <div class="sh"><p class="eyebrow">{{ t.about.s2_label }}</p><h2 id="mission-title">{{ t.about.s2_title }}</h2></div>
-    <div class="split-text">
-      <p>{{ t.about.s2_p1 }}</p>
-      <p>{{ t.about.s2_p2|safe }}</p>
-    </div>
-  </div>
-</section>
-
-<section class="sec" aria-labelledby="pledge-title">
-  <div class="in split">
-    <div class="sh"><p class="eyebrow">{{ t.about.s3_label }}</p><h2 id="pledge-title">{{ t.about.s3_title }}</h2></div>
-    <div class="split-text">
-      <p>{{ t.about.s3_text|safe }}</p>
-      <a class="pledge" href="https://www.facebook.com/p/Fondation-de-la-ligue-de-hockey-Gagnon-Image-61554658763800/" target="_blank" rel="noopener noreferrer">
-        <b>{{ '2 %' if fr else '2%' }}</b>
-        <img src="{{ url_for('static', filename='image/flhgi-badge.webp') }}" alt="" width="440" height="467" loading="lazy">
-        <div>Fondation de la ligue de hockey Gagnon Image<span>{{ 'du chiffre d’affaires, chaque année' if fr else 'of revenue, every year' }}</span></div>
-      </a>
     </div>
   </div>
 </section>
@@ -54,7 +28,7 @@
 ] %}
 <section class="sec" aria-labelledby="team-title">
   <div class="in">
-    <div class="sh"><p class="eyebrow">{{ t.about.team_label }}</p><h2 id="team-title">{{ t.about.team_title }}</h2><p class="lead-sm">{{ t.about.team_subtitle }}</p></div>
+    <div class="sh"><h2 id="team-title">{{ t.about.team_title|safe }}</h2><p class="lead-sm">{{ t.about.team_subtitle }}</p></div>
     <div class="team">
       {% for name, photo, role, desc, links in team %}
       <article class="member">
@@ -75,9 +49,32 @@
   </div>
 </section>
 
+<section class="sec" aria-labelledby="mission-title">
+  <div class="in duo">
+    <div class="split">
+      <div class="sh"><h2 id="mission-title">{{ t.about.s2_title|safe }}</h2></div>
+      <div class="split-text">
+        <p>{{ t.about.s2_p1 }}</p>
+        <p>{{ t.about.s2_p2|safe }}</p>
+      </div>
+    </div>
+    <div class="split">
+      <div class="sh"><h2 id="pledge-title">{{ t.about.s3_title|safe }}</h2></div>
+      <div class="split-text">
+        <p>{{ t.about.s3_text|safe }}</p>
+      </div>
+    </div>
+    <a class="pledge" href="https://www.facebook.com/p/Fondation-de-la-ligue-de-hockey-Gagnon-Image-61554658763800/" target="_blank" rel="noopener noreferrer">
+      <b>{{ '2 %' if fr else '2%' }}</b>
+      <img src="{{ url_for('static', filename='image/flhgi-badge.webp') }}" alt="" width="440" height="467" loading="lazy">
+      <div>Fondation de la ligue de hockey Gagnon Image<span>{{ 'du chiffre d’affaires, chaque année' if fr else 'of revenue, every year' }}</span></div>
+    </a>
+  </div>
+</section>
+
 <section class="sec-band">
   <div class="in">
-    <div class="band">
+    <div class="band band-quiet">
       <h2>{{ t.about.cta_text }}</h2>
       <a class="btn btn-main" href="{{ home_url }}#pricing">{{ t.about.cta_btn }}</a>
     </div>
