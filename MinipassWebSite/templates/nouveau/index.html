@@ -57,13 +57,15 @@
     <div class="sh"><p class="eyebrow">{{ t.home.features_label }}</p><h2 id="feat-title">{{ t.home.features_title }}</h2></div>
     <div class="feats">
       <article class="feat feat-wide" style="--c: var(--rose)">
-        <div><h3>{{ t.home.feat1_title }}</h3><p>{{ t.home.feat1_text }}</p></div>
-        <div class="shot"><img src="{{ url_for('static', filename='image/nouveau/app-matched.webp') }}" alt="{{ 'minipass : paiement Interac de Julie Tremblay, 85 $, jumelé automatiquement à 98 %' if fr else 'minipass: Interac payment from Julie Tremblay, $85, matched automatically at 98%' }}" width="1704" height="112" loading="lazy"></div>
+        <h3>{{ t.home.feat1_title }}</h3><p class="feat-lead">{{ t.home.feat1_lead }}</p><p>{{ t.home.feat1_text }}</p>
       </article>
       <article class="feat" style="--c: var(--violet)"><h3>{{ t.home.feat2_title }}</h3><p>{{ t.home.feat2_text }}</p></article>
       <article class="feat" style="--c: var(--orange)"><h3>{{ t.home.feat3_title }}</h3><p>{{ t.home.feat3_text }}</p></article>
-      <article class="feat" style="--c: var(--bleu)"><h3>{{ t.home.feat4_title }}</h3><p>{{ t.home.feat4_text }}</p></article>
-      <article class="feat" style="--c: var(--prune)"><h3>{{ t.home.feat5_title }}</h3><p>{{ t.home.feat5_text }}</p></article>
+      <article class="feat" style="--c: var(--bleu)"><h3>{{ t.home.feat_booking_title }}</h3><p>{{ t.home.feat_booking_text }}</p></article>
+      <article class="feat" style="--c: var(--prune)"><h3>{{ t.home.feat4_title }}</h3><p>{{ t.home.feat4_text }}</p></article>
+      <article class="feat" style="--c: var(--violet)"><h3>{{ t.home.feat5_title }}</h3><p>{{ t.home.feat5_text }}</p></article>
+      <article class="feat" style="--c: var(--orange)"><h3>{{ t.home.feat_survey_title }}</h3><p>{{ t.home.feat_survey_text }}</p></article>
+      <article class="feat" style="--c: var(--rose)"><h3>{{ t.home.feat_wayne_title }}</h3><p>{{ t.home.feat_wayne_text }}</p></article>
     </div>
     <p class="canada"><b>{{ t.home.feat6_title }}.</b> {{ t.home.feat6_text }}</p>
   </div>
@@ -72,9 +74,12 @@
 <section class="sec" id="pricing" aria-labelledby="price-title">
   <div class="in">
     <div class="sh"><p class="eyebrow">{{ t.home.pricing_label }}</p><h2 id="price-title">{{ t.home.pricing_title }}</h2></div>
-    <div class="billing" role="radiogroup" aria-label="{{ 'Facturation' if fr else 'Billing' }}">
-      <input type="radio" name="billing" id="billing-monthly" value="monthly"><label for="billing-monthly">{{ t.home.pricing_monthly }}</label>
-      <input type="radio" name="billing" id="flexSwitchCheckDefault" value="annual" checked><label for="flexSwitchCheckDefault">{{ t.home.pricing_annual }} <em>−50 %</em></label>
+    <div class="bill-row">
+      <div class="billing" role="radiogroup" aria-label="{{ 'Facturation' if fr else 'Billing' }}">
+        <input type="radio" name="billing" id="billing-monthly" value="monthly"><label for="billing-monthly">{{ t.home.pricing_monthly }}</label>
+        <input type="radio" name="billing" id="flexSwitchCheckDefault" value="annual" checked><label for="flexSwitchCheckDefault">{{ t.home.pricing_annual }}</label>
+      </div>
+      <p class="bill-hint">{{ t.home.pricing_hint|safe }}</p>
     </div>
     {% set plans = [
       ('basic', t.home.solo_name, t.home.solo_desc, 10, 20, t.home.solo_activity, t.home.solo_activity_label, False),
@@ -85,7 +90,7 @@
       <article class="plan{{ ' plan-pop' if pop }}">
         <div class="plan-top"><h3>{{ name }}</h3>{% if pop %}<span class="badge">{{ 'Populaire' if fr else 'Popular' }}</span>{% endif %}</div>
         <p class="desc">{{ desc }}</p>
-        <div class="price"><span class="price-num" data-monthly="{{ monthly }}" data-yearly="{{ yearly }}">{{ yearly }}</span><span class="cur">$</span><small>{{ t.home.pricing_per_month }}</small></div>
+        <div class="price"><s class="was" aria-hidden="true">{{ monthly }}&#8239;$</s><span class="price-num" data-monthly="{{ monthly }}" data-yearly="{{ yearly }}">{{ yearly }}</span><span class="cur">$</span><small>{{ t.home.pricing_per_month }}</small></div>
         {% set billed = t.home.billed_yearly|replace('{total}', (yearly * 12)|string) %}
         <p class="price-note" data-monthly="{{ t.home.pricing_monthly_plan }}" data-yearly="{{ billed }}">{{ billed }}</p>
         <p class="act">{{ n }} {{ nlabel }} <span>{{ t.home.plan_activity_suffix }}</span>{% if key != 'basic' %}<br><span>{{ t.home.plan_plus }}</span>{% endif %}</p>
@@ -104,8 +109,14 @@
         <li>{{ t.home.plan_feat_ai }}</li>
       </ul>
     </div>
-    <p class="fine">{{ t.home.pricing_no_contract }}</p>
-    <p class="fine">{{ t.home.plan_tooltip }} {{ t.home.plan_tooltip_example }}</p>
+    <div class="after">
+      <ul class="assure">
+        <li>{{ t.home.promise_fees }}</li>
+        <li>{{ t.home.promise_contract }}</li>
+        <li>{{ t.home.promise_cancel }}</li>
+      </ul>
+      <p class="invite">{{ t.home.plan_tooltip_example }}</p>
+    </div>
   </div>
 </section>
 
@@ -249,6 +260,7 @@
   function paintPrices() {
     var k = isAnnual() ? 'yearly' : 'monthly';
     document.querySelectorAll('.price-num, .price-note').forEach(function (el) { el.textContent = el.getAttribute('data-' + k); });
+    document.querySelectorAll('.was').forEach(function (el) { el.hidden = !isAnnual(); });
   }
   document.querySelectorAll('input[name="billing"]').forEach(function (r) { r.addEventListener('change', paintPrices); });
   paintPrices();
