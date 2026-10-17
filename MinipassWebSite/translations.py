@@ -201,8 +201,8 @@ TRANSLATIONS = {
             # Section 1
             's1_label': 'La petite histoire',
             's1_title': 'Le <span class="lit">20\u00a0$</span> qui a tout d\u00e9clench\u00e9',
-            's1_p1': 'Un dimanche matin, en comptant ses billets de rempla\u00e7ants au hockey, Ken r\u00e9alise qu\u2019il manque vingt dollars et que la petite caisse ne balance toujours pas. Entre les passes de saison, les paiements en cash et par Interac, la gestion financi\u00e8re \u00e9tait devenue chaotique. Convaincu qu\u2019une application simple devait exister pour r\u00e9gler ce probl\u00e8me, il d\u00e9couvre rapidement que les options disponibles sont soit trop complexes, soit trop co\u00fbteuses, soit mal con\u00e7ues... ou les trois \u00e0 la fois!',
-            's1_p2': 'Le geek techno se r\u00e9veille alors en lui. Une \u00e9bauche prend forme. Int\u00e9ressant. Pourquoi ne pas voir plus grand?',
+            's1_p1': 'Ken \u00e9tait le tr\u00e9sorier d\u2019une grosse ligue de hockey, celui qui courait apr\u00e8s les joueurs et les rempla\u00e7ants pour se faire payer. Quand la fondation est n\u00e9e et que la ligue est pass\u00e9e \u00e0 trois fois par semaine, les virements Interac et les cartes poin\u00e7onn\u00e9es sont devenus impossibles \u00e0 suivre. Un dimanche matin, la petite caisse ne balan\u00e7ait toujours pas. Il manquait vingt dollars.',
+            's1_p2': 'Il cherche une application simple. Tout ce qu\u2019il trouve est trop compliqu\u00e9, trop cher ou mal con\u00e7u. Le geek techno se r\u00e9veille alors en lui, une \u00e9bauche prend forme. Pourquoi ne pas voir plus grand?',
 
             # Section 2
             's2_label': 'Notre mission',
@@ -221,16 +221,16 @@ TRANSLATIONS = {
             'team_subtitle': 'Une aventure familiale o\u00f9 chacun apporte sa passion',
 
             'ken_role': 'Co-fondateur, Chef du d\u00e9veloppement technologique',
-            'ken_desc': 'Chef du d\u00e9veloppement technologique, amateur de kitesurf et innovateur passionn\u00e9.',
+            'ken_desc': 'Amateur de kitesurf et innovateur passionn\u00e9.',
             'mf_role': 'Co-fondatrice, Directrice G\u00e9n\u00e9rale & Finances',
-            'mf_desc': 'Responsable des op\u00e9rations et finances. Amoureuse de la nature et de voyages.',
+            'mf_desc': 'Amoureuse de la nature et des voyages.',
             'eli_role': 'Co-fondatrice, M\u00e9dias Sociaux & D\u00e9veloppement',
-            'eli_desc': '\u00c9tudiante \u00e0 l\u2019Universit\u00e9 Laval, responsable m\u00e9dias sociaux. Fait des vrilles et explore ses passions.',
+            'eli_desc': '\u00c9tudiante \u00e0 l\u2019Universit\u00e9 Laval. Fait des vrilles et explore ses passions.',
             'phil_role': 'Co-fondateur, Marketing & D\u00e9veloppement',
             'phil_desc': '\u00c9tudiant \u00e0 l\u2019Universit\u00e9 Laval, entrepreneur dans l\u2019\u00e2me. Snowboarder, boxer, toujours en mouvement.',
 
             # CTA
-            'cta_text': 'Envie de simplifier la gestion de vos activit\u00e9s comme on l\u2019a fait?',
+            'cta_text': 'Envie de simplifier la gestion de tes activit\u00e9s comme on l\u2019a fait?',
             'cta_btn': 'Voir les forfaits',
         },
 
@@ -239,7 +239,7 @@ TRANSLATIONS = {
             'meta_title': 'Guides & Ressources \u2014 minipass',
             'meta_desc': 'Tutoriels vid\u00e9o, articles et guides pour ma\u00eetriser minipass et g\u00e9rer ta ligue sportive sans stress.',
             'hero_label': 'RESSOURCES',
-            'hero_title': 'Apprenez en quelques <span class="lit-o">minutes</span>',
+            'hero_title': 'Apprends en quelques <span class="lit-o">minutes</span>',
             'hero_desc': 'Tutoriels et guides pour ma\u00eetriser minipass et g\u00e9rer tes ligues, cours et \u00e9v\u00e9nements sans stress.',
             'search_placeholder': 'Rechercher un guide...',
             'filter_all': 'Tous',
@@ -484,8 +484,8 @@ TRANSLATIONS = {
             # Section 1
             's1_label': 'The backstory',
             's1_title': 'The <span class="lit">$20</span> that started it all',
-            's1_p1': 'One Sunday morning, while counting substitute player fees at hockey, Ken realized he was missing twenty dollars and the petty cash still didn\u2019t balance. Between season passes, cash payments and Interac e-transfers, financial management had become chaotic. Convinced that a simple platform should exist to fix this, he quickly discovered that available options were either too complex, too expensive, poorly designed... or all three at once!',
-            's1_p2': 'The tech geek in him woke up. A prototype took shape. Interesting. Why not think bigger?',
+            's1_p1': 'Ken was the treasurer of a big hockey league, the one chasing players and substitutes to get paid. When the foundation started and the league went to three times a week, Interac e-transfers and paper punch cards became impossible to keep track of. One Sunday morning, the petty cash still didn\u2019t balance. Twenty dollars were missing.',
+            's1_p2': 'He looked for a simple app. Everything he found was too complicated, too expensive or poorly designed. The tech geek in him woke up and a first draft took shape. Why not think bigger?',
 
             # Section 2
             's2_label': 'Our mission',
@@ -504,11 +504,11 @@ TRANSLATIONS = {
             'team_subtitle': 'A family adventure where everyone brings their passion',
 
             'ken_role': 'Co-founder, Chief Technology Officer',
-            'ken_desc': 'Chief Technology Officer, kitesurfing enthusiast and passionate innovator.',
+            'ken_desc': 'Kitesurfing enthusiast and passionate innovator.',
             'mf_role': 'Co-founder, General Manager & Finance',
-            'mf_desc': 'Head of operations and finance. Lover of nature and travel.',
+            'mf_desc': 'Lover of nature and travel.',
             'eli_role': 'Co-founder, Social Media & Development',
-            'eli_desc': 'Student at Universit\u00e9 Laval, social media manager. Does flips and explores her passions.',
+            'eli_desc': 'Student at Universit\u00e9 Laval. Does flips and explores her passions.',
             'phil_role': 'Co-founder, Marketing & Development',
             'phil_desc': 'Student at Universit\u00e9 Laval, entrepreneur at heart. Snowboarder, boxer, always on the move.',
 

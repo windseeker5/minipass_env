@@ -212,30 +212,8 @@ def inject_now():
 @app.route("/en/")
 @app.route("/")
 def home():
-    import sqlite3, hashlib
-    homepage_posts = []
-    page_lang = 'en' if request.path.startswith('/en') else 'fr'
-    try:
-        with sqlite3.connect("customers.db") as conn:
-            conn.row_factory = sqlite3.Row
-            _init_blog_db(conn)
-            rows = conn.execute("""
-                SELECT * FROM blog_posts WHERE published=1 AND COALESCE(lang,'fr')=?
-                ORDER BY COALESCE(updated_at, published_at) DESC LIMIT 3
-            """, (page_lang,)).fetchall()
-            for row in rows:
-                post = dict(row)
-                vid = _yt_id(post.get('video_url'))
-                post['yt_thumb'] = f"https://img.youtube.com/vi/{vid}/maxresdefault.jpg" if vid else None
-                ae = (post.get('author_email') or '').strip().lower()
-                post['gravatar_url'] = f"https://www.gravatar.com/avatar/{hashlib.md5(ae.encode()).hexdigest()}?s=80&d=mp" if ae else None
-                post['excerpt'] = post.get('meta_description') or post.get('excerpt') or _strip_md(post.get('body', ''))[:200]
-                homepage_posts.append(post)
-    except Exception:
-        pass
-    # New homepage design ("Aréna de nuit")
-    return render_template("nouveau/index.html", homepage_posts=homepage_posts,
-                           hero_test=False, preview=False)
+    # New homepage design ("Aréna de nuit"); it no longer lists blog posts
+    return render_template("nouveau/index.html", hero_test=False, preview=False)
 
 
 @app.route("/about")

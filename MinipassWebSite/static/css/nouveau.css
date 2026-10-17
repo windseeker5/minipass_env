@@ -153,6 +153,7 @@ html { scrollbar-color: var(--line-2) var(--ground); }
 .plan .desc { color: var(--muted); font-size: 14.5px; min-height: 46px; }
 .price { font: 800 50px/1 var(--display); letter-spacing: -.03em; display: flex; align-items: baseline; gap: 4px; font-variant-numeric: tabular-nums; }
 .price .cur { margin-left: .12em; }
+.price .cur-pre { margin-left: 0; margin-right: -3px; }
 .price .was { font: 600 22px/1 var(--display); color: var(--faint); letter-spacing: -.01em; text-decoration-thickness: 2px; margin-right: 10px; align-self: center; }
 .price small { font: 500 15px var(--body); color: var(--muted); letter-spacing: 0; margin-left: 4px; }
 .price-note { font-size: 13.5px; color: var(--faint); margin-top: -6px; min-height: 20px; }

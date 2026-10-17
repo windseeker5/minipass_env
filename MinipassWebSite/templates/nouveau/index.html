@@ -90,7 +90,8 @@
       <article class="plan{{ ' plan-pop' if pop }}">
         <div class="plan-top"><h3>{{ name }}</h3>{% if pop %}<span class="badge">{{ 'Populaire' if fr else 'Popular' }}</span>{% endif %}</div>
         <p class="desc">{{ desc }}</p>
-        <div class="price"><s class="was" aria-hidden="true">{{ monthly }}&#8239;$</s><span class="price-num" data-monthly="{{ monthly }}" data-yearly="{{ yearly }}">{{ yearly }}</span><span class="cur">$</span><small>{{ t.home.pricing_per_month }}</small></div>
+        {% set num %}<span class="price-num" data-monthly="{{ monthly }}" data-yearly="{{ yearly }}">{{ yearly }}</span>{% endset %}
+        <div class="price">{% if fr %}<s class="was" aria-hidden="true">{{ monthly }}&#8239;$</s>{{ num }}<span class="cur">$</span>{% else %}<s class="was" aria-hidden="true">${{ monthly }}</s><span class="cur cur-pre">$</span>{{ num }}{% endif %}<small>{{ t.home.pricing_per_month }}</small></div>
         {% set billed = t.home.billed_yearly|replace('{total}', (yearly * 12)|string) %}
         <p class="price-note" data-monthly="{{ t.home.pricing_monthly_plan }}" data-yearly="{{ billed }}">{{ billed }}</p>
         <p class="act">{{ n }} {{ nlabel }} <span>{{ t.home.plan_activity_suffix }}</span>{% if key != 'basic' %}<br><span>{{ t.home.plan_plus }}</span>{% endif %}</p>
@@ -132,7 +133,7 @@
     <button type="button" class="x" data-close aria-label="{{ 'Fermer' if fr else 'Close' }}">×</button>
     <div class="signup-head">
       <div class="signup-plan" id="modal-plan-display">{{ t.home.modal_forfait_solo }}</div>
-      <div class="signup-price"><span id="modal-price-amount">10</span> $ <small>{{ t.home.pricing_per_month }}</small></div>
+      <div class="signup-price">{% if fr %}<span id="modal-price-amount">10</span> ${% else %}$<span id="modal-price-amount">10</span>{% endif %} <small>{{ t.home.pricing_per_month }}</small></div>
       <div class="signup-billing" id="modal-billing-text">{{ t.home.modal_billing_annual }}</div>
       <span class="savings" id="modal-savings-badge" hidden>{{ t.home.modal_savings }}</span>
     </div>
