@@ -34,8 +34,8 @@
     <div class="split-text">
       <p>{{ t.about.s3_text|safe }}</p>
       <a class="pledge" href="https://www.facebook.com/p/Fondation-de-la-ligue-de-hockey-Gagnon-Image-61554658763800/" target="_blank" rel="noopener noreferrer">
-        <b>2 %</b>
-        <img src="{{ url_for('static', filename='image/flhgi-logo-kd.png') }}" alt="" width="173" height="164" loading="lazy">
+        <b>{{ '2 %' if fr else '2%' }}</b>
+        <img src="{{ url_for('static', filename='image/flhgi-badge.webp') }}" alt="" width="440" height="467" loading="lazy">
         <div>Fondation de la ligue de hockey Gagnon Image<span>{{ 'du chiffre d’affaires, chaque année' if fr else 'of revenue, every year' }}</span></div>
       </a>
     </div>

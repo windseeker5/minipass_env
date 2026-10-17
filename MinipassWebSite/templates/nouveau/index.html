@@ -30,12 +30,12 @@
 <section class="sec" aria-labelledby="proof-title">
   <div class="in">
     <figure class="quote">
+      <div class="quote-mark"><img src="{{ url_for('static', filename='image/flhgi-badge.webp') }}" alt="Fondation de la Ligue de hockey Gagnon Image" width="440" height="467" loading="lazy"></div>
       <p class="eyebrow" id="proof-title">{{ t.home.social_proof_label }}</p>
-      <blockquote>« {{ t.home.testimonial1_short|safe }} »</blockquote>
+      <blockquote>{% if lang == 'en' %}“{{ t.home.testimonial1_short|safe }}”{% else %}« {{ t.home.testimonial1_short|safe }} »{% endif %}</blockquote>
       <figcaption class="who">
         <img src="{{ url_for('static', filename='image/home-3/jfg-circle-1.png') }}" alt="" width="52" height="52">
         <div><b>{{ t.home.testimonial1_name }}</b><span>{{ t.home.testimonial1_role }}</span></div>
-        <img class="org" src="{{ url_for('static', filename='image/flhgi.png') }}" alt="FLHGI" width="52" height="52">
       </figcaption>
     </figure>
   </div>

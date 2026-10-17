@@ -54,7 +54,7 @@ TRANSLATIONS = {
             # Social proof
             'social_proof_label': 'ILS NOUS FONT CONFIANCE',
             'testimonial1_name': 'Jean-Fran\u00e7ois Goulet',
-            'testimonial1_role': 'Co-administrateur de la FLHGI',
+            'testimonial1_role': 'Co-administrateur de la Fondation de la ligue de hockey Gagnon Image',
             'testimonial1_text': 'Avec minipass, nous avons enfin une plateforme qui nous permet de nous concentrer sur nos r\u00e9sultats plut\u00f4t que sur la paperasse. Son intuitivit\u00e9 et ses tableaux de bord budg\u00e9taires ont simplifi\u00e9 nos suivis de <strong>75 %</strong>. C\u2019est devenu l\u2019alli\u00e9 indispensable pour la coordination rapide et simple de tous les programmes de financement de notre Fondation.',
             'testimonial1_short': 'Avec minipass, nous avons enfin une plateforme qui nous permet de nous concentrer sur nos r\u00e9sultats plut\u00f4t que sur la paperasse. Son intuitivit\u00e9 et ses tableaux de bord budg\u00e9taires ont simplifi\u00e9 nos suivis de <strong>75\u00a0%</strong>.',
             'testimonial2_name': 'Marc Tremblay',
@@ -326,7 +326,7 @@ TRANSLATIONS = {
             # Social proof
             'social_proof_label': 'THEY TRUST US',
             'testimonial1_name': 'Jean-Fran\u00e7ois Goulet',
-            'testimonial1_role': 'Co-administrator of the FLHGI',
+            'testimonial1_role': 'Co-administrator of the Fondation de la ligue de hockey Gagnon Image',
             'testimonial1_text': 'With minipass, we finally have a platform that lets us focus on our results rather than paperwork. Its intuitive design and budget dashboards have simplified our tracking by <strong>75%</strong>. It has become an indispensable ally for the fast and simple coordination of all our Foundation\u2019s fundraising programs.',
             'testimonial1_short': 'With minipass, we finally have a platform that lets us focus on our results rather than paperwork. Its intuitive design and budget dashboards have simplified our tracking by <strong>75%</strong>.',
             'testimonial2_name': 'Marc Tremblay',
