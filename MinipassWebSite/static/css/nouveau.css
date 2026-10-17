@@ -173,7 +173,6 @@ html { scrollbar-color: var(--line-2) var(--ground); }
 .assure li::before { content: ""; flex: none; width: 16px; height: 16px; background: var(--orange);
   -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E") center / contain no-repeat;
           mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E") center / contain no-repeat; }
-.invite { color: var(--muted); font-size: 14.5px; }
 
 /* newsletter + blog */
 .news { background: linear-gradient(100deg, #C8164F, #9F1574 55%, #5A2692); border-radius: 24px; padding: 52px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; align-items: center; }
