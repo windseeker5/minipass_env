@@ -2,8 +2,8 @@
   Hero motion v2. Every screen is a real capture of the Minipass app (demo content).
   1. activity videos float in        2. they drop into the dashboard and freeze into its activity photos
   3. the phone turns into place in 3D
-  Then, loop: a payment arrives the moment the phone lands, then every 6 s (card between desktop and phone, a chime
-  once the visitor has clicked the page) and Revenue goes up $50 on both screens each time.
+  Then, loop: a payment arrives the moment the phone lands, then every 6 s (card between desktop and phone, no sound)
+  and Revenue goes up $50 on both screens each time.
   Stage: 560 x 560 design px, scaled to the column. Inside the browser window the app is drawn at its real 1320 x 1000 size.
 #}
 {% set en = lang == 'en' %}
@@ -67,7 +67,7 @@
 </style>
 <noscript><style>.mph--pending .mph-stage { visibility: visible; }</style></noscript>
 
-<div class="mph mph--pending" id="mph" data-remember="1" aria-hidden="true">
+<div class="mph mph--pending" id="mph" data-remember="0" aria-hidden="true">
  <div class="mph-stage" id="mphStage">
 
   <div class="mph-cut" id="mphCut">
@@ -249,32 +249,6 @@
     return t;
   }
 
-  /* payment chime. Browsers only allow sound after the visitor clicks, taps or types on the page,
-     so the audio is unlocked on the first such gesture; before that, payments are silent. */
-  var actx = null;
-  function unlockAudio() {
-    var AC = window.AudioContext || window.webkitAudioContext;
-    if (!AC) return;
-    if (!actx) actx = new AC();
-    if (actx.state === 'suspended') actx.resume();
-  }
-  ['pointerdown', 'click', 'keydown', 'touchend'].forEach(function (e) { window.addEventListener(e, unlockAudio, { passive: true }); });
-  function beep() {
-    if (!actx || actx.state !== 'running') return;
-    var now = actx.currentTime;
-    /* E6 then A6, each a sine with a soft octave overtone: a clear, warm two-note "ding-ding" */
-    [[1319, 0], [1760, .12]].forEach(function (n) {
-      [[1, .32], [2, .07]].forEach(function (h) {
-        var o = actx.createOscillator(), g = actx.createGain(), at = now + n[1];
-        o.type = 'sine'; o.frequency.value = n[0] * h[0];
-        g.gain.setValueAtTime(0, at);
-        g.gain.linearRampToValueAtTime(h[1], at + .006);
-        g.gain.exponentialRampToValueAtTime(.0001, at + .6);
-        o.connect(g).connect(actx.destination);
-        o.start(at); o.stop(at + .65);
-      });
-    });
-  }
   function schedule(delay, fn) {
     if (nextCall) nextCall.kill();
     nextCall = gsap.delayedCall(delay, fn);
@@ -285,7 +259,6 @@
     if (payTl) payTl.kill();
     payTl = payment(i, BASE + AMOUNT * step);                    /* Revenue keeps climbing */
     payTl.play(0);
-    beep();
     step++;
     schedule(EVERY, firePayment);
   }

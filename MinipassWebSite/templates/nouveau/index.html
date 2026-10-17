@@ -11,10 +11,10 @@
   <div class="in">
     <div>
       <p class="kicker">{{ t.home.hero_subtitle }}</p>
-      <h1>{{ t.home.hero_title_prefix }}<span class="word-anim word-anim--1">{{ t.home.hero_word1 }}</span>, <span class="word-anim word-anim--2">{{ t.home.hero_word2 }}</span> {{ t.home.hero_and }} <span class="word-anim word-anim--3">{{ t.home.hero_word3 }}</span></h1>
+      <h1>{{ t.home.hero_title_prefix }}<span class="word-anim word-anim--1">{{ t.home.hero_word1 }}</span>, <span class="word-anim word-anim--2">{{ t.home.hero_word2 }}</span> {{ t.home.hero_and }} <span class="word-anim word-anim--3">{{ t.home.hero_word3 }}</span>{{ t.home.hero_title_end }}</h1>
       <p class="lead">{{ t.home.hero_desc }}</p>
       <div class="ctas">
-        <a class="btn btn-main" href="{{ t.home.hero_video_url }}" data-video="{{ yt_id }}"><span class="play" aria-hidden="true"></span>{{ 'Découvrir en 1 minute' if fr else 'Watch the 1-minute video' }}</a>
+        <a class="btn btn-main" href="{{ t.home.hero_video_url }}" data-video="{{ yt_id }}"><span class="play" aria-hidden="true"></span>{{ t.home.hero_btn_video }}</a>
         <a class="btn btn-line" href="#pricing">{{ t.home.hero_btn_plans }}</a>
       </div>
     </div>
@@ -28,8 +28,7 @@
   <div class="in">
     <figure class="quote">
       <p class="eyebrow" id="proof-title">{{ t.home.social_proof_label }}</p>
-      {% set q = t.home.testimonial1_text %}
-      <blockquote>« {{ (q.split('. ', 1)[1] if '. ' in q else q)|safe }} »</blockquote>
+      <blockquote>« {{ t.home.testimonial1_short|safe }} »</blockquote>
       <figcaption class="who">
         <img src="{{ url_for('static', filename='image/home-3/jfg-circle-1.png') }}" alt="" width="52" height="52">
         <div><b>{{ t.home.testimonial1_name }}</b><span>{{ t.home.testimonial1_role }}</span></div>
@@ -85,7 +84,7 @@
         <p class="desc">{{ desc }}</p>
         <div class="price"><span class="price-num" data-monthly="{{ monthly }}" data-yearly="{{ yearly }}">{{ yearly }}</span><span class="cur">$</span><small>{{ t.home.pricing_per_month }}</small></div>
         <p class="price-note" data-monthly="{{ t.home.pricing_monthly_plan }}" data-yearly="{{ t.home.pricing_annual_plan }}">{{ t.home.pricing_annual_plan }}</p>
-        <p class="act">{{ n }} {{ nlabel }} <span>{{ t.home.plan_activity_suffix }}</span></p>
+        <p class="act">{{ n }} {{ nlabel }} <span>{{ t.home.plan_activity_suffix }}</span>{% if key != 'basic' %}<br><span>{{ t.home.plan_plus }}</span>{% endif %}</p>
         <button type="button" class="btn {{ 'btn-main' if pop else 'btn-line' }}" onclick="openSignupModal('{{ key }}')">{{ t.home.plan_btn }}</button>
       </article>
       {% endfor %}
