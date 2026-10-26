@@ -14,6 +14,7 @@ Dependencies:
 
 import argparse
 import os
+import re
 import shutil
 import sqlite3
 import subprocess
@@ -55,6 +56,15 @@ def log(message: str, level: str = "INFO") -> None:
     """Print timestamped log message."""
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     print(f"[{timestamp}] [{level}] {message}")
+
+
+def failure_reason(message: str) -> str:
+    """The failed step plus the ❌ lines from its output, so the summary says why it failed."""
+    lines = [re.sub(r"\x1b\[[0-9;]*m", "", line).strip() for line in message.splitlines()]
+    errors = [line for line in lines[1:] if "❌" in line]
+    if not errors:
+        errors = [line for line in lines[1:] if line][-1:]  # e.g. a git or docker error
+    return "\n      ".join([lines[0]] + errors[-5:]) if lines else ""
 
 
 def run_command(command: str, cwd: str = None) -> tuple[bool, str]:
@@ -483,7 +493,7 @@ def main():
         fail_label = "FAILED BACKUPS:" if BACKUP_ONLY else "FAILED UPGRADES:"
         print(fail_label)
         for r in failed:
-            print(f"  - {r['customer']['subdomain'].upper()}: {r['message'][:100]}")
+            print(f"  - {r['customer']['subdomain'].upper()}: {failure_reason(r['message'])}")
         print(f"\nCheck logs for details on failures.\n")
 
     # Step 8: Output emails for notification (skip in backup-only mode)
